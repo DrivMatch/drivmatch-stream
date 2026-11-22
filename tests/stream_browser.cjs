@@ -12,6 +12,9 @@ const origin = 'http://127.0.0.1:18764';
 const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
+  '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
+  '#EXTINF:-1 group-title="Esportes",SporTV','https://mock.example/sportv.m3u8',
+  '#EXTINF:-1 group-title="Esportes",ESPN Brasil','https://mock.example/espn.m3u8',
   ...Array.from({length:75},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
    'https://mock.example/test'+(i+1)+'.m3u8']).flat()].join('\n');
 const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-title="Culture;News",NHK World-Japan',
@@ -149,6 +152,16 @@ async function main(){
       assert.equal(await page.locator('#search').inputValue(),'Globo');
       assert.equal(await page.locator('#source-items .source-btn.active').getAttribute('data-source'),'lista-2');
       assert.equal(await page.locator('#country-items .country-btn.active').getAttribute('data-country'),'BR');
+      await page.locator('#find-globo').click();
+      await page.getByText('TV Globo',{exact:true}).first().waitFor();
+      await page.locator('#find-sportv').click();
+      await page.getByText('SporTV',{exact:true}).first().waitFor();
+      await page.locator('#channel-items .channel-btn').first().click();
+      assert.match(await page.locator('#player-error').textContent(),/autorização/);
+      assert.equal(await page.locator('#video').getAttribute('src'),null);
+      assert.equal(await page.locator('#player-retry').isDisabled(),true);
+      await page.locator('#find-espn').click();
+      await page.getByText('ESPN Brasil',{exact:true}).first().waitFor();
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
