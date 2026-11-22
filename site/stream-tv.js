@@ -77,13 +77,14 @@
       var idx=inf.lastIndexOf(","),name=idx>=0?inf.substring(idx+1).replace(/^\s+|\s+$/g,""):"";
       var group=(/group-title="([^"]*)"/i.exec(inf)||[])[1]||"";
       inf="";
-      if(!name || premium.test(name) || /\[(?:geo.blocked|blocked)\]/i.test(name))continue;
+      if(!name || /\[(?:geo.blocked|blocked)\]/i.test(name))continue;
+      var needsOfficial=premium.test(name);
       if(!/^https:\/\//i.test(line) || !/\.m3u8(?:[?#]|$)/i.test(line))continue;
       var genre=genreSports.test(name+" "+group)?"sports":genreNews.test(name+" "+group)?"news":"general";
       var dedupe=code+":"+name.toLowerCase();
       if(found[dedupe])continue;
       found[dedupe]=true;
-      list.push({code:code,name:name,genre:genre,url:line});
+      list.push({code:code,name:name,genre:genre,premium:needsOfficial,url:needsOfficial?"":line});
     }
     return list;
   }
@@ -164,6 +165,17 @@
     text(byId("player-error"),msg);show(byId("player-error"),true);
   }
   function playChannel(c) {
+    if(c.premium){
+      try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+      selected=c;playing=false;
+      text(byId("current-channel"),c.name);
+      text(byId("current-country"),"Catálogo público · acesso oficial necessário");
+      state("failed","Acesso oficial necessário");updateNowFav();
+      show(video,false);show(byId("screen-message"),true);
+      byId("full-screen").disabled=true;byId("retry-channel").disabled=true;
+      showError("Canal listado, mas link sem autorização comprovada. Use o serviço oficial ou a assinatura aplicável.");
+      render();return;
+    }
     selected=c;playing=false;
     text(byId("current-channel"),c.name);
     text(byId("current-country"),countryName(c.code)+" · Verificando sinal…");
@@ -216,7 +228,7 @@
         var title=make("strong","",c.name);
         var meta=make("small","",countryName(c.code)+" · "+
           (c.genre==="sports"?"Esportes":c.genre==="news"?"Notícias":"Geral")+
-          " · Sinal não verificado");
+          (c.premium?" · Acesso oficial necessário":" · Sinal não verificado"));
         pick.appendChild(title);pick.appendChild(meta);
         on(pick,"click",function (){playChannel(c);});
         var favorite=contains(favorites,key(c));
