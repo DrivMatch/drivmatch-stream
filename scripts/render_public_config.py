@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Create PUBLIC browser configuration for the personal TV Pages app.
+
+Only public Supabase URL and publishable/anon key may be embedded in a static
+GitHub Pages asset. The owner's UUID and service-role key remain server-side.
+Missing values leave an intentionally inaccessible TV instead of guessing.
+"""
+import base64
+import json
+import os
+from pathlib import Path
+from urllib.parse import urlparse
+
+output = Path("site/config.js")
+url = os.environ.get("STREAM_SUPABASE_URL", "").strip().rstrip("/")
+key = os.environ.get("STREAM_SUPABASE_PUBLISHABLE_KEY", "").strip()
+
+if url or key:
+    host = urlparse(url).hostname or ""
+    if (urlparse(url).scheme != "https" or not host.endswith(".supabase.co")
+        or not key or key.startswith("sb_secret_")
+        or "service_role" in key.lower()):
+        raise SystemExit("Stream config ERROR: invalid public Supabase values (no secret printed)")
+    if key.startswith("sb_publishable_"):
+        pass
+    elif key.count(".") == 2:
+        try:
+            token_payload = key.split(".")[1]
+            token_payload += "=" * ((-len(token_payload)) % 4)
+            claims = json.loads(base64.urlsafe_b64decode(token_payload))
+            if claims.get("role") != "anon":
+                raise ValueError("Supabase browser key is not anon")
+        except (ValueError, TypeError, json.JSONDecodeError):
+            raise SystemExit("Stream config ERROR: browser key is not confirmed anonymous")
+    else:
+        raise SystemExit("Stream config ERROR: expected publishable or anon public key")
+else:
+    print("Stream config: public values absent; viewer remains closed to all accounts")
+
+payload = json.dumps({"supabaseUrl": url, "supabaseAnonKey": key}, ensure_ascii=False)
+output.parent.mkdir(parents=True, exist_ok=True)
+output.write_text(
+    "// Public browser config only; private owner authorization is server-side.\n"
+    "window.DRIVMATCH_STREAM_CONFIG = Object.freeze(" + payload + ");\n",
+    encoding="utf-8",
+)
+print("TV public config generated (fail-closed if unset)")

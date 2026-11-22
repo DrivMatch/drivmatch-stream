@@ -1,0 +1,65 @@
+name: Deploy DrivMatch Stream (independent)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: stream-pages-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Syntax and separation gates
+        run: |
+          node --check site/stream.js
+          node --check tests/stream_browser.cjs
+          node --input-type=module --check < cloudflare/stream-proxy.mjs
+          python -m py_compile scripts/render_public_config.py
+          test -s site/index.html
+          grep -q 'stream-owner-access' site/stream.js
+          ! grep -E 'target="_blank"|window.open\\(' site/stream.js
+      - name: Validate fail-closed browser config
+        run: |
+          python scripts/render_public_config.py
+          grep -q '"supabaseUrl": ""' site/config.js
+      - name: Install Chromium browser
+        run: |
+          npm install --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Real browser test (mocked auth and media only)
+        run: node tests/stream_browser.cjs
+  publish:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [verify]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Public Supabase config only
+        env:
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          STREAM_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STREAM_SUPABASE_PUBLISHABLE_KEY }}
+        run: python scripts/render_public_config.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
