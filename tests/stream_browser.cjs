@@ -12,7 +12,7 @@ const origin = 'http://127.0.0.1:18764';
 const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
-  ...Array.from({length:45},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
+  ...Array.from({length:75},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
    'https://mock.example/test'+(i+1)+'.m3u8']).flat()].join('\n');
 const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-title="Culture;News",NHK World-Japan',
   'https://mock.example/nhk.m3u8'].join('\n');
@@ -139,6 +139,32 @@ async function main(){
       assert.equal(await page.locator('#source-items .source-btn').count(),7);
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
+
+      // Samsung remote DOWN must traverse the same sidebar through its last country.
+      const sidebar=page.locator('.sidebar');
+      await page.locator('#source-items .source-btn').first().focus();
+      for(let i=0;i<20;i++)await page.keyboard.press('ArrowDown');
+      assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
+      assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
+
+      // Guide DOWN scrolls only the guide: do not move the sidebar or fixed video.
+      await page.locator('#channel-items .channel-btn').first().focus();
+      const sidebarScroll=await sidebar.evaluate(el=>el.scrollTop);
+      const videoBefore=await page.locator('.player-column').boundingBox();
+      for(let i=0;i<50;i++)await page.keyboard.press('ArrowDown');
+      assert.equal(await page.locator('.catalog').evaluate(el=>el.contains(document.activeElement)),true);
+      assert((await page.locator('.catalog').evaluate(el=>el.scrollTop))>0,'Guide must scroll with TV remote DOWN');
+      assert.equal(await sidebar.evaluate(el=>el.scrollTop),sidebarScroll,
+        'Navigating the guide must not scroll the source sidebar');
+      const videoAfter=await page.locator('.player-column').boundingBox();
+      assert(Math.abs(videoBefore.y-videoAfter.y)<2,'Player must stay fixed when guide scrolls');
+
+      // Reaching "Mostrar mais" and pressing DOWN adds the next batch automatically.
+      await page.locator('#show-more').focus();
+      await page.keyboard.press('ArrowDown');
+      assert((await page.locator('#channel-items .channel-btn').count())>60);
+      assert.equal(await page.locator('.catalog').evaluate(el=>el.contains(document.activeElement)),true);
+
       await page.locator('[data-category="news"]').click();
       assert(await page.locator('#channel-items .channel-row').count()>0);
       assert.equal(await page.locator('.filter-btn.active').getAttribute('data-category'),'news');
