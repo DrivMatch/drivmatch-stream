@@ -172,7 +172,7 @@ async function main(){
       // Samsung remote DOWN must traverse the same sidebar through its last country.
       const sidebar=page.locator('.sidebar');
       await page.locator('#source-items .source-btn').first().focus();
-      for(let i=0;i<20;i++)await page.keyboard.press('ArrowDown');
+      for(let i=0;i<21;i++)await page.keyboard.press('ArrowDown');
       assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
       assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
 
