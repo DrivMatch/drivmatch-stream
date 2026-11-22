@@ -41,3 +41,8 @@ body{font:14px/1.55 Arial,Helvetica,sans-serif;background:var(--bg)}
   .guide-heading{align-items:flex-start}
   .channels{max-height:55vh}
 }
+
+/* Separate authenticated IPTV library entry. */
+.library-entry{display:inline-flex;align-items:center;color:#fff;background:#144976;text-decoration:none;padding:10px 14px;border:1px solid #315d82;border-radius:9px;font-size:13px;font-weight:700;white-space:nowrap}
+.library-entry:hover{background:#1b629f}
+@media(max-width:950px){.library-entry{order:3}}
