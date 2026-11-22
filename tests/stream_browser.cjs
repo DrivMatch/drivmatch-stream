@@ -42,7 +42,7 @@ async function main(){
       await context.route('https://iptv-org.github.io/**',route=>{
         const u=route.request().url();
         route.fulfill({status:200,contentType:'audio/x-mpegurl',headers:{'Access-Control-Allow-Origin':'*'},
-          body:u.endsWith('/es.m3u')?m3uES:u.endsWith('/news.m3u')?m3uGlobal:'#EXTM3U'});
+          body:u.endsWith('/es.m3u')?m3uES:u.endsWith('/jp.m3u')?m3uGlobal:'#EXTM3U'});
       });
       await context.route('https://mock.example/**',route=>route.abort());
       return context;
@@ -71,6 +71,11 @@ async function main(){
       const page=await context.newPage();
       await page.goto(origin+'/stream/');
       await page.getByText('NHK World-Japan').first().waitFor();
+      assert.equal(await page.locator('#countries button').count(),13);
+      await page.getByRole('button',{name:/Pay-per-view/}).click();
+      await page.getByText(/Nenhum evento PPV está integrado/).waitFor();
+      assert.equal(await page.locator('#channels .channel').count(),0);
+      await page.getByRole('button',{name:/Ao vivo/}).click();
       await page.getByText('24 Horas (720p)').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('a[target="_blank"]').count(),0);
