@@ -182,7 +182,7 @@ function renderChannels(){
     title.textContent=c.name;
     meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
-      " • "+(c.officialUrl?"Site oficial · "+c.access:c.premium?"Acesso oficial necessário":status(c))+
+      " • "+(c.premium?"Acesso oficial necessário":status(c))+
        (c.originalName?" • Fonte: "+c.originalName:"")+(c.epgId?" • ID EPG":"");
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
@@ -206,19 +206,6 @@ function renderChannels(){
     p.textContent=state.channels.length?"Nenhum canal corresponde a estes filtros.":"Esta lista não apresentou canais reproduzíveis no catálogo.";area.append(p);
   }
 }
-async function loadBrazilGuide(s){
-  if(s.id!=="lista-8")return [];
-  const r=await fetch("/stream/listas/brasil-servicos.json",{credentials:"same-origin",cache:"no-store"});
-  if(!r.ok)throw Error("Brazil directory unavailable");
-  const data=await r.json();
-  if(!Array.isArray(data.services))throw Error("Invalid Brazil directory");
-  return data.services.filter(v=>v&&v.id&&v.name&&/^https:\/\//i.test(v.url||"")).map(v=>({
-    id:"official:"+v.id,sourceId:"lista-8",name:v.name,originalName:"",
-    group:v.group||"Serviço oficial",kind:v.genre||"other",country:"BR",
-    epgId:"",logo:null,urls:[],premium:false,officialUrl:v.url,
-    access:v.access||"Consultar serviço oficial"
-  }));
-}
 async function selectSource(s){
   const token=++state.loadToken;
   stopPlayer();state.source=s;state.channels=[];state.limit=60;
@@ -231,6 +218,12 @@ async function selectSource(s){
   if(s.channels){state.channels=s.channels;renderChannels();return;}
   const response=await Promise.allSettled(s.urls.map(async url=>{
     const country=s.id==="lista-2"?/\/countries\/([a-z]{2})\.m3u/i.exec(url)?.[1]:null;
+    if(s.id==="lista-9"){
+      const resp=await fetch("/stream/catalog?list=lista-9&country=BR",
+        {credentials:"same-origin",cache:"no-store"});
+      if(!resp.ok)throw Error("Catálogo temporariamente indisponível");
+      return parseM3u(await resp.text(),s,"br");
+    }
     return parseM3u(await downloadM3u(url),s,country);
   }));
   if(token!==state.loadToken)return;
@@ -242,13 +235,6 @@ async function selectSource(s){
       if(old){for(const url of c.urls)if(!old.urls.includes(url)&&old.urls.length<4)old.urls.push(url);}
       else combined.set(c.id,c);
     }
-  }
-  if(s.id==="lista-8"){
-    try{
-      const guide=await loadBrazilGuide(s);
-      if(token!==state.loadToken)return;
-      for(const c of guide)combined.set(c.id,c);
-    }catch{/* Still show public broadcast entries when the directory is offline. */}
   }
   state.channels=[...combined.values()];
   renderChannels();
@@ -264,8 +250,6 @@ async function selectSource(s){
   }
 }
 function stopPlayer(){
-  $("official-access").hidden=true;
-  $("official-access").removeAttribute("href");
   state.playToken++;
   clearTimeout(state.timeout);state.timeout=null;
   try{video.pause();}catch{}
@@ -339,16 +323,6 @@ async function attach(c,index){
   }catch{fail(token,c,index);}
 }
 async function chooseChannel(c){
-  if(c.officialUrl){
-    stopPlayer();state.selected=c;
-    $("now-name").textContent=c.name;
-    $("now-detail").textContent="Site oficial · "+c.access;
-    error("Acesso externo ao serviço oficial. A transmissão não é incorporada ao Stream; conta, região ou assinatura podem ser exigidas.");
-    $("official-access").href=c.officialUrl;
-    $("official-access").textContent="Abrir "+c.name+" no site oficial";
-    $("official-access").hidden=false;
-    jumpToPlayer();renderChannels();return;
-  }
   if(c.premium){
     stopPlayer();state.selected=c;
     $("now-name").textContent=c.name;
@@ -432,7 +406,7 @@ async function start(){
     const data=await r.json();
     if(!Array.isArray(data.sources))throw Error("sources format");
     state.sources=data.sources;renderSources();
-    $("library-status").textContent=state.sources.length+" listas de canais e serviços oficiais"+
+    $("library-status").textContent=state.sources.length+" listas IPTV; funcionamento depende do canal e do dispositivo"+
       " • disponibilidade e direitos de cada transmissão não verificados";
   }catch{$("library-status").textContent="Não foi possível carregar as fontes.";}
 }
