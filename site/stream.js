@@ -141,7 +141,10 @@
   function readFavorites(){
     try{
       const v=JSON.parse(localStorage.getItem(store)||"[]");
-      return Array.isArray(v)?v.filter(x=>typeof x==="string"):[];
+      return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==="string").map(x=>{
+        const i=x.indexOf(":");
+        return i<1?x:x.slice(0,i)+":"+normal(x.slice(i+1).replace(/\s*\(\d{3,4}p\)\s*$/i,""));
+      }))]:[];
     }catch{return [];}
   }
   function saveFavorites(){
