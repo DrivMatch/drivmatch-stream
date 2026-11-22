@@ -234,3 +234,28 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #78b8
   html{scroll-behavior:auto}
   .channel,.filters button,#search{transition:none}
 }
+
+
+/* Older Samsung/Tizen web browsers: a simplified, fixed player UI without CSS Grid. */
+body.tv-legacy .topbar{display:block;padding:13px 17px;margin-bottom:16px}
+body.tv-legacy .top-actions{display:inline-block;float:right}
+body.tv-legacy .brand{display:inline-block}
+body.tv-legacy .brand-icon{display:none}
+body.tv-legacy .brand-copy{display:block}
+body.tv-legacy .layout{display:block!important}
+body.tv-legacy .viewer{
+  position:fixed!important;top:16%;left:2%;width:54%;
+  display:block;z-index:10
+}
+body.tv-legacy .guide{display:block;width:42%;margin-left:58%;min-width:0}
+body.tv-legacy .screen{height:29vw;max-height:63vh;display:block;text-align:center}
+body.tv-legacy .screen-message{display:block;padding-top:11%}
+body.tv-legacy .play-mark{margin:0 auto 14px}
+body.tv-legacy .screen video{height:100%;width:100%}
+body.tv-legacy .countries{overflow-x:auto;white-space:nowrap;display:block}
+body.tv-legacy .countries button{display:inline-block;margin-right:6px}
+body.tv-legacy .channel{display:-webkit-box;display:flex}
+body.tv-legacy .channel .pick{-webkit-box-flex:1;flex:1}
+body.tv-legacy #more-channels{display:block}
+body.tv-legacy #more-channels[hidden]{display:none!important}
+body.tv-legacy .site-footer{margin-left:58%}

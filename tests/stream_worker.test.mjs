@@ -163,3 +163,32 @@ test("malformed TV PIN configuration never permits login",async()=>{
   const r=await stream.fetch(new Request(origin),{...env,STREAM_TV_PIN:"1234567"});
   assert.equal(r.status,503);
 });
+
+test("private Samsung TV bootstrap and legacy script are access-protected",async()=>{
+ const before=globalThis.fetch,c=await cookie(),seen=[];
+ try{
+   globalThis.fetch=async url=>{seen.push(String(url));return new Response("legacy script",{status:200});};
+   for(const file of ["stream-boot.js","stream-tv.js"]){
+     const deny=await stream.fetch(new Request(origin+file),env);
+     assert.equal(deny.status,403);
+     const ok=await stream.fetch(new Request(origin+file,{headers:{Cookie:c}}),env);
+     assert.equal(ok.status,200);assert.match(ok.headers.get("Content-Type"),/javascript/);
+   }
+   assert.deepEqual(seen,["stream-boot.js","stream-tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
+ }finally{globalThis.fetch=before;}
+});
+test("Samsung TV country catalogue is same-origin, private and country-allowlisted",async()=>{
+ const c=await cookie(),before=globalThis.fetch,seen=[];
+ try{
+   globalThis.fetch=async url=>{seen.push(String(url));return new Response("#EXTM3U",{status:200});};
+   const deny=await stream.fetch(new Request(origin+"catalog?country=BR"),env);
+   assert.equal(deny.status,403);
+   const bad=await stream.fetch(new Request(origin+"catalog?country=../../secret",{headers:{Cookie:c}}),env);
+   assert.equal(bad.status,400);
+   const good=await stream.fetch(new Request(origin+"catalog?country=BR",{headers:{Cookie:c}}),env);
+   assert.equal(good.status,200);
+   assert.equal(good.headers.get("Content-Type"),"text/plain; charset=utf-8");
+   assert.equal(await good.text(),"#EXTM3U");
+   assert.deepEqual(seen,["https://iptv-org.github.io/iptv/countries/br.m3u"]);
+ }finally{globalThis.fetch=before;}
+});

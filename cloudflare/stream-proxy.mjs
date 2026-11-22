@@ -7,6 +7,7 @@
 const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
 const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
+  "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
   "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
   "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
   "/stream/listas/sources.json":"playlist-sources.json"};
@@ -95,7 +96,7 @@ export default {async fetch(request,env){
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
  if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
- if(path!=="/stream"&&path!=="/stream/session"&&path!=="/stream/login"&&
+ if(path!=="/stream"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
     path!=="/stream/logout"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
@@ -149,6 +150,23 @@ export default {async fetch(request,env){
    return new Response(request.method==="HEAD"?null:JSON.stringify({allowed:true}),{
      status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
  if(path==="/stream/login")return Response.redirect(new URL("/stream/",url.origin),303);
+ if(path==="/stream/catalog"){
+   // Same-origin, authenticated catalogue only. No arbitrary URLs or media proxy.
+   const code=url.searchParams.get("country")?.toLowerCase()||"";
+   if(!["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"].includes(code))
+     return plain(400,"Unsupported country");
+   try{
+     const upstream=await fetch("https://iptv-org.github.io/iptv/countries/"+code+".m3u");
+     if(!upstream.ok)return plain(502,"Catalogue temporarily unavailable");
+     const size=Number(upstream.headers.get("Content-Length")||"0");
+     if(size>3_000_000)return plain(502,"Catalogue too large");
+     const content=await upstream.text();
+     if(content.length>3_000_000)return plain(502,"Catalogue too large");
+     return new Response(request.method==="HEAD"?null:content,{
+       headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
+   }catch{return plain(502,"Catalogue temporarily unavailable");}
+ }
+
  try{
    const file=FILES[path];
    const upstream=await fetch(ORIGIN+file,{method:request.method,redirect:"manual"});

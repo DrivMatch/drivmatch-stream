@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   ...Array.from({length:45},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
@@ -20,6 +20,12 @@ const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-titl
 async function main(){
   let authorized=false;
   const server=http.createServer((req,res)=>{
+    if(req.url && req.url.startsWith("/stream/catalog?country=")){
+      if(!authorized){res.writeHead(403);res.end();return;}
+      res.writeHead(200,{"Content-Type":"text/plain","Cache-Control":"no-store"});
+      res.end(req.url.endsWith("BR")?m3uES:'#EXTM3U');
+      return;
+    }
     if(req.url==="/stream/session"){
       res.writeHead(authorized?200:403,{"Content-Type":"application/json","Cache-Control":"no-store"});
       res.end(JSON.stringify({allowed:authorized}));
@@ -93,6 +99,25 @@ async function main(){
         'Mobile TV player must remain visibly pinned while the channel list scrolls: '+JSON.stringify(stickyRect));
       assert((await page.locator('#viewer').boundingBox()).height < 370,
         'Mobile sticky player must leave room to browse the channel list');
+      await context.close();
+    }
+    // Tizen/Samsung TV user agents require an ES5-compatible private guide.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.setExtraHTTPHeaders({'X-Client-Check':'samsung-legacy'});
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator,'userAgent',{get:() =>
+          'Mozilla/5.0 (SMART-TV; Linux; Tizen 2.4) AppleWebKit/538.1 SamsungBrowser/1.0 TV Safari/538.1'});
+      });
+      await page.goto(origin+'/stream/');
+      await page.getByText('24 Horas (720p)').first().waitFor();
+      assert.equal(await page.locator('#tv').isVisible(),true);
+      assert.equal(await page.locator('body.tv-legacy').count(),1);
+      assert.equal(await page.locator('#countries button').count(),13);
+      await page.getByText('24 Horas (720p)').first().click();
+      await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
+      assert.equal(await page.locator('#current-channel').textContent(),'24 Horas (720p)');
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
