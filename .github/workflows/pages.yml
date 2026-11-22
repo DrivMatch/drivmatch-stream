@@ -70,5 +70,9 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
+      # GitHub may temporarily return zero artifacts immediately after upload.
+      # Allow the Pages artifact metadata to propagate before deployment.
+      - name: Wait for GitHub Pages artifact indexing
+        run: sleep 15
       - id: deployment
         uses: actions/deploy-pages@v4
