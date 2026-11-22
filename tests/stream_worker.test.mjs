@@ -208,13 +208,13 @@ test("Samsung TV lounge page is private and served from fixed worker route",asyn
   assert.deepEqual(seen,["tv.html","tv.css","tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
  }finally{globalThis.fetch=before;}
 });
-test("all 8 public IPTV catalogs are whitelisted and authenticated",async()=>{
+test("all 9 public IPTV catalogs are whitelisted and authenticated",async()=>{
  const c=await cookie(),before=globalThis.fetch,seen=[];
  try{
   globalThis.fetch=async u=>{seen.push(String(u));return new Response("#EXTM3U\n#EXTINF:-1,News TV\nhttps://example.org/news.m3u8",{status:200});};
   const blocked=await stream.fetch(new Request(origin+"catalog?list=lista-1&country=ALL"),env);
   assert.equal(blocked.status,403);
-  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8"]){
+  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9"]){
    const res=await stream.fetch(new Request(origin+"catalog?list="+id+"&country=ALL",{headers:{Cookie:c}}),env);
    assert.equal(res.status,200,id);
   }
@@ -222,10 +222,10 @@ test("all 8 public IPTV catalogs are whitelisted and authenticated",async()=>{
   assert.equal(list2.status,200);assert.match(await list2.text(),/#DM_COUNTRY:BR/);
   const all=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=ALL",{headers:{Cookie:c}}),env);
   assert.equal(all.status,200);assert.match(await all.text(),/#DM_COUNTRY:PT/);
-  for(const list of ["lista-9","../../admin","https://example.org/playlist.m3u"]){
+  for(const list of ["lista-10","../../admin","https://example.org/playlist.m3u"]){
     const res=await stream.fetch(new Request(origin+"catalog?list="+encodeURIComponent(list),{headers:{Cookie:c}}),env);
     assert.equal(res.status,400);
   }
-  assert.equal(seen.length,20);
+  assert.equal(seen.length,21);
  }finally{globalThis.fetch=before;}
 });
