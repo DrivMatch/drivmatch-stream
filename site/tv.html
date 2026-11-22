@@ -16,11 +16,11 @@
   </header>
   <main class="tv-layout" id="tv-layout">
     <nav class="column sidebar" aria-label="Listas e países">
-      <div class="section-title"><span>01 · MINHAS LISTAS</span><b id="source-count">7 listas</b></div>
+      <div class="section-title"><span>01 · MINHAS LISTAS</span><b id="source-count">8 listas</b></div>
       <div id="source-items" class="source-items"><p class="loading">Carregando suas listas…</p></div>
       <div class="section-title countries-title"><span>02 · PAÍSES</span><b id="country-caption">12 países</b></div>
       <div id="country-items" class="country-items"></div>
-      <p class="sidebar-note">As 7 listas são fontes públicas. Listas pessoais importadas em outro aparelho não são sincronizadas.</p>
+      <p class="sidebar-note">As listas têm fontes públicas e, na Lista 8, acessos oficiais a serviços. Listas pessoais de outro aparelho não são sincronizadas.</p>
     </nav>
     <section class="column catalog" aria-label="Canais IPTV">
       <div class="catalog-header">
@@ -39,12 +39,6 @@
         <label for="search" class="sr-only">Buscar canal</label>
         <input id="search" type="search" placeholder="Buscar um canal…" autocomplete="off">
         <button id="clear-search" class="small-btn" type="button" aria-label="Limpar busca">×</button>
-      </div>
-      <div class="tv-quick-access" aria-label="Busca rápida em Lista 2 Brasil">
-        <button id="find-globo" type="button">Buscar Globo · Lista 2 Brasil</button>
-        <button id="find-sportv" type="button">Buscar SporTV</button>
-        <button id="find-espn" type="button">Buscar ESPN</button>
-        <a id="globo-official" href="https://globoplay.globo.com/agora-na-tv/">TV Globo oficial · Globoplay</a>
       </div>
       <div class="channel-heading"><span id="result-count">0 canais</span><button id="refresh" type="button">↻ Atualizar</button></div>
       <p class="catalog-status" id="catalog-status" role="status">Carregando biblioteca…</p>
@@ -67,6 +61,7 @@
         <button id="player-favorite" type="button" disabled>☆ Favoritar</button>
         <button id="player-retry" type="button" disabled>↻ Recarregar</button>
         <button id="player-fullscreen" type="button" disabled>⛶ Tela cheia</button>
+        <button id="player-open-official" type="button" hidden>Abrir serviço oficial</button>
       </div>
       <p class="disclaimer">Catálogos públicos não garantem sinal ativo, licença ou compatibilidade nesta TV. O Stream não retransmite vídeos e não contorna bloqueios de reprodução.</p>
       <div class="remote-hint">CONTROLE REMOTO <b>◀ ▶ ▲ ▼</b> navegar · <b>OK</b> selecionar</div>
