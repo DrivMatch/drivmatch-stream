@@ -229,3 +229,29 @@ test("all 9 public IPTV catalogs are whitelisted and authenticated",async()=>{
   assert.equal(seen.length,21);
  }finally{globalThis.fetch=before;}
 });
+
+test("Brazil Lista 9 allows selected open channels and excludes paid networks",async()=>{
+ const c=await cookie(),before=globalThis.fetch;
+ try{
+  const fixture=[
+   "#EXTM3U",
+   '#EXTINF:-1 group-title="Notícias",TV Brasil',
+   "https://example.org/tv-brasil.m3u8",
+   '#EXTINF:-1 group-title="Esportes",ESPN 3',
+   "https://example.org/espn3.m3u8",
+   '#EXTINF:-1 group-title="Filmes",Telecine Premium',
+   "https://example.org/telecine.m3u8",
+   '#EXTINF:-1 group-title="Notícias",Record News',
+   "https://example.org/record-news.m3u8"
+  ].join("\n");
+  globalThis.fetch=async()=>new Response(fixture,{status:200});
+  const res=await stream.fetch(new Request(origin+"catalog?list=lista-9&country=BR",
+    {headers:{Cookie:c}}),env);
+  assert.equal(res.status,200);
+  const body=await res.text();
+  assert.match(body,/TV Brasil/);
+  assert.match(body,/Record News/);
+  assert.doesNotMatch(body,/ESPN|Telecine/);
+  assert.equal((body.match(/#EXTINF/g)||[]).length,2);
+ }finally{globalThis.fetch=before;}
+});
