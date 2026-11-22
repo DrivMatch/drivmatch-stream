@@ -42,6 +42,11 @@ function inferCountry(ext,group,hint){
   for(const [code,re] of Object.entries(patterns))if(re.test(group))return code;
   return "OTHER";
 }
+/* Display alias for Lista 02 Brasil only. Keep original stream identity. */
+function channelAlias(name,source,code){
+  return source.id==="lista-2"&&code==="BR"&&/^TV Guar[aá](?:\s*\([^)]*\))?$/i.test(name)
+    ?"Record News":name;
+}
 function classify(name,group,source){
   if(source.id==="lista-3")return "news";
   if(source.id==="lista-4")return "sports";
@@ -71,7 +76,8 @@ function parseM3u(text,source,hint){
     const existing=found.get(id);
     if(existing){if(!existing.premium&&existing.urls.length<4&&!existing.urls.includes(url))existing.urls.push(url);continue;}
     if(found.size>=12000)break;
-    found.set(id,{id,name,group,epgId,country:code,kind,
+    const display=channelAlias(name,source,code);
+    found.set(id,{id,name:display,originalName:display===name?"":name,group,epgId,country:code,kind,
       logo:safeUrl(attribute(metadata,"tvg-logo")),urls:premium?[]:[url],premium,sourceId:source.id});
   }
   return [...found.values()];
@@ -154,12 +160,13 @@ function clearCatalogError(){
 function renderChannels(){
   const search=norm($("search").value),country=$("country").value,genre=$("genre").value;
   const matches=state.channels.filter(c=>
-    (!search||norm(c.name+" "+c.group+" "+(countries[c.country]||"")).includes(search))&&
+    (!search||norm(c.name+" "+(c.originalName||"")+" "+c.group+" "+(countries[c.country]||"")).includes(search))&&
     (country==="ALL"||c.country===country)&&(genre==="all"||c.kind===genre)&&
     (!state.onlyFavorites||state.favorites.has(key(c))));
   const order={ok:0,unknown:1,failed:2};
   matches.sort((a,b)=>order[state.health.get(key(a))||"unknown"]-
-    order[state.health.get(key(b))||"unknown"]||a.name.localeCompare(b.name,"pt-BR"));
+    order[state.health.get(key(b))||"unknown"]||
+    (a.originalName||a.name).localeCompare(b.originalName||b.name,"pt-BR"));
   const area=$("channel-list");area.replaceChildren();
   const fragment=document.createDocumentFragment();
   for(const c of matches.slice(0,state.limit)){
@@ -175,7 +182,8 @@ function renderChannels(){
     title.textContent=c.name;
     meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
-      " • "+(c.premium?"Acesso oficial necessário":status(c))+(c.epgId?" • ID EPG":"");
+      " • "+(c.premium?"Acesso oficial necessário":status(c))+
+       (c.originalName?" • Fonte: "+c.originalName:"")+(c.epgId?" • ID EPG":"");
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
     const fav=document.createElement("button");fav.type="button";

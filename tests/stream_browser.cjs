@@ -15,6 +15,8 @@ const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
   '#EXTINF:-1 group-title="Esportes",SporTV','https://mock.example/sportv.m3u8',
   '#EXTINF:-1 group-title="Esportes",ESPN Brasil','https://mock.example/espn.m3u8',
+  '#EXTINF:-1 tvg-country="BR" group-title="Geral",TV Guará',
+  'https://mock.example/guara.m3u8',
   ...Array.from({length:75},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
    'https://mock.example/test'+(i+1)+'.m3u8']).flat()].join('\n');
 const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-title="Culture;News",NHK World-Japan',
@@ -162,6 +164,15 @@ async function main(){
       assert.equal(await page.locator('#player-retry').isDisabled(),true);
       await page.locator('#find-espn').click();
       await page.getByText('ESPN Brasil',{exact:true}).first().waitFor();
+      await page.locator('#search').fill('Record News');
+      await page.getByText('Record News',{exact:true}).first().waitFor();
+      assert.match(await page.locator('#channel-items .channel-btn small').first().innerText(),/Fonte: TV Guará/);
+      await page.locator('#search').fill('TV Guará');
+      await page.getByText('Record News',{exact:true}).first().waitFor();
+      await page.locator('#source-items .source-btn').first().click();
+      await page.locator('#search').fill('TV Guará');
+      await page.getByText('TV Guará',{exact:true}).first().waitFor();
+      assert.equal(await page.getByText('Record News',{exact:true}).count(),0);
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
