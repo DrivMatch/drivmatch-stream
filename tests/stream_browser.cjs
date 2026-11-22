@@ -137,6 +137,18 @@ async function main(){
       await page.goto(origin+'/stream/tv/');
       await page.locator('#source-items .source-btn').first().waitFor();
       assert.equal(await page.locator('#source-items .source-btn').count(),7);
+      assert.match(await page.locator('#source-items .source-btn').nth(1).innerText(),/Lista 2/);
+      assert((await page.locator('#source-items .source-btn').first().evaluate(
+        el=>parseFloat(getComputedStyle(el).fontSize)))>=20,'TV source text must be large');
+      await page.setViewportSize({width:960,height:720});
+      assert((await page.locator('#source-items .source-btn').first().evaluate(
+        el=>parseFloat(getComputedStyle(el).fontSize)))>=20,
+        'Samsung 960px browser must not shrink the source text');
+      await page.setViewportSize({width:1440,height:900});
+      await page.locator('#find-globo').click();
+      assert.equal(await page.locator('#search').inputValue(),'Globo');
+      assert.equal(await page.locator('#source-items .source-btn.active').getAttribute('data-source'),'lista-2');
+      assert.equal(await page.locator('#country-items .country-btn.active').getAttribute('data-country'),'BR');
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
