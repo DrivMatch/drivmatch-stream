@@ -13,7 +13,7 @@
   var countries = [["ALL","Todos os países"]].concat(countryDefs);
   var genreSports = /sports?|esport|deport|futebol|football|soccer|calcio|sportivo/i;
   var genreNews = /news|not[ií]cias|noticiero|jornal|journal|nachrichten|nieuws|actualidad|informaci[oó]n/i;
-  var premium = /\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|sport\s*tv|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
+  var premium = /\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
   var country = "BR", category = "live", search = "", favoritesOnly = false;
   var channels = [], favorites = [], selected = null, limit = 60, playing = false;
   var favStore = "drivmatch-stream-favorites-v1";
