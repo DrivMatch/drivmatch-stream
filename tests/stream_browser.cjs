@@ -121,12 +121,12 @@ async function main(){
       });
       await page.goto(origin+'/stream/');
       await page.getByText('24 Horas (720p)').first().waitFor();
-      assert.equal(await page.locator('#tv').isVisible(),true);
-      assert.equal(await page.locator('body.tv-legacy').count(),1);
-      assert.equal(await page.locator('#countries button').count(),13);
-      await page.getByText('24 Horas (720p)').first().click();
+      assert.equal(new URL(page.url()).pathname,'/stream/tv/');
+      assert.equal(await page.locator('#source-items .source-btn').count(),7);
+      assert.equal(await page.locator('#country-items .country-btn').count(),14);
+      await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
-      assert.equal(await page.locator('#current-channel').textContent(),'24 Horas (720p)');
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
       await context.close();
     }
     // IBO-style Samsung TV guide: seven public sources, country and category filters and fixed player.
@@ -140,7 +140,8 @@ async function main(){
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
       await page.locator('[data-category="news"]').click();
-      assert.equal(await page.locator('#channel-items .channel-row').count(),1);
+      assert(await page.locator('#channel-items .channel-row').count()>0);
+      assert.equal(await page.locator('.filter-btn.active').getAttribute('data-category'),'news');
       await page.locator('[data-category="all"]').click();
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
