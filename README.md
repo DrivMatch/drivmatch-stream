@@ -1,7 +1,22 @@
 # DrivMatch Stream
 
-Visualizador pessoal de TV — **projeto independente**. Destino: `https://drivmatch.com/stream`.
+Visualizador privado pessoal de TV — projeto independente do DrivMatch News e DrivMatch TV.
 
-**Não é** DrivMatch News (`/news`) nem DrivMatch TV broadcasting (`/TV`). Código, pipeline, permissões, Cloudflare Worker e infraestrutura lógica separados. GitHub Pages e Cloudflare são apenas fornecedores compartilhados.
+- Stream original: https://drivmatch.com/stream/ (ou a prévia https://drivmatch-stream-proxy.drivmatch.workers.dev/stream/).
+- Biblioteca IPTV: /stream/listas/ — playlists independentes numeradas, catálogo de canais, 12 países, categorias, favoritos e importação pessoal M3U/M3U8.
+- Autenticação: Cloudflare Worker com segredo de acesso STREAM_ACCESS_PASSWORD e cookie HttpOnly assinado. O JavaScript cliente e o GitHub Pages não contêm a senha.
+- A biblioteca reutiliza **apenas** a sessão privada. Mantém arquivos, UI e gerenciamento próprios, sem alterar DrivMatch News (/news) ou DrivMatch TV (/TV).
+- Fontes de playlists externas são diretórios públicos não verificados canal a canal. Inclusão não implica autorização, disponibilidade nem licença.
+- O site não armazena ou retransmite mídia. Sem proxy para contornar CORS, DRM ou bloqueios regionais. Pay-per-view requer integração oficial.
+- Importações próprias por URL e arquivo operam na sessão do navegador e não são persistidas; credenciais privadas não devem ser inseridas.
+- Grade de programação XMLTV/EPG completa, integração Xtream licenciada e VOD ainda não estão implementados.
 
-Estado: implantação pendente. Acesso ao player restrito por Supabase Edge Function `stream-owner-access` (falha fechada na ausência de configuração). Playlists externas não comprovam disponibilidade, compatibilidade ou direitos.
+Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
+
+## Testes
+
+- node --test tests/stream_worker.test.mjs
+- node tests/stream_browser.cjs
+- node tests/listas_browser.cjs
+
+Os testes de navegador simulam playlists e mídia; não confirmam quais canais realmente reproduzem em produção.

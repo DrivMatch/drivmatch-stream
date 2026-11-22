@@ -25,6 +25,10 @@ jobs:
       - name: Syntax and separation gates
         run: |
           node --check site/stream.js
+          node --check site/listas.js
+          node --check tests/listas_browser.cjs
+          test -s site/listas.html
+          test -s site/playlist-sources.json
           node --check tests/stream_browser.cjs
           node --input-type=module --check < cloudflare/stream-proxy.mjs
           test -s site/index.html
@@ -41,7 +45,9 @@ jobs:
           npm install --no-audit --no-fund playwright@1.58.2
           npx playwright install --with-deps chromium
       - name: Real browser test (mocked auth and media only)
-        run: node tests/stream_browser.cjs
+        run: |
+          node tests/stream_browser.cjs
+          node tests/listas_browser.cjs
   publish:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [verify]
