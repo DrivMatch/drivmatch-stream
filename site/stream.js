@@ -16,69 +16,34 @@
   const PAID = /\b(espn|spor\s*tv|premiere|combate|band\s*sports|fox\s*sports|tnt\s*sports)\b/i;
   const store = "drivmatch-stream-favorites-v1";
   const state = { country:"ALL", category:"all", favoritesOnly:false, search:"", channels:[], selected:null, favorites:[], hls:null, authorised:false };
-  const config = window.DRIVMATCH_STREAM_CONFIG || {};
   const video = $("video");
   let hlsPromise = null;
 
-  function setGate(message, login=false) {
+  function setGate(message) {
     $("gate").hidden = false;
     $("tv").hidden = true;
     $("gate-message").textContent = message;
-    $("login-link").hidden = !login;
     state.authorised = false;
     stopPlayer();
   }
 
-  function validConfig() {
-    try {
-      const u = new URL(config.supabaseUrl);
-      return u.protocol === "https:" && /\.supabase\.co$/.test(u.hostname)
-        && typeof config.supabaseAnonKey === "string"
-        && config.supabaseAnonKey.length > 20
-        && !config.supabaseAnonKey.startsWith("sb_secret_");
-    } catch { return false; }
-  }
-
-  function readSession() {
-    try {
-      const project = new URL(config.supabaseUrl).hostname.split(".")[0];
-      const raw = localStorage.getItem("sb-" + project + "-auth-token");
-      if (!raw) return null;
-      const session = JSON.parse(raw);
-      if (!session || typeof session.access_token !== "string" || session.access_token.length < 20) return null;
-      if (session.expires_at && session.expires_at <= Date.now()/1000 + 15) return null;
-      return session.access_token;
-    } catch { return null; }
-  }
-
+  // Only the Cloudflare Worker can authorize an interactive Stream session.
+  // This endpoint does not exist at the public GitHub Pages origin. The Access
+  // identity is checked on the Worker, never trusted from browser localStorage.
   async function verifyOwner() {
-    if (!validConfig()) {
-      setGate("A configuração de acesso privado ainda não foi concluída.");
-      return false;
-    }
-    const token = readSession();
-    if (!token) {
-      setGate("Entre primeiro na sua conta autorizada do DrivMatch.", true);
-      return false;
-    }
     try {
-      const u = new URL(config.supabaseUrl);
-      const res = await fetch(u.origin + "/functions/v1/stream-owner-access", {
-        method:"GET", cache:"no-store", headers:{
-          "Authorization":"Bearer " + token,
-          "apikey":config.supabaseAnonKey,
-          "Accept":"application/json"
-        }
+      const response = await fetch("./session", {
+        credentials:"same-origin", cache:"no-store", headers:{"Accept":"application/json"}
       });
-      if (!res.ok) throw Error("access");
-      const body = await res.json();
-      if (body.allowed !== true) throw Error("access");
+      if (!response.ok) throw new Error("Access not authorized");
+      const data = await response.json();
+      if (data.allowed !== true) throw new Error("Access denied");
       state.authorised = true;
       $("gate").hidden = true;
       $("tv").hidden = false;
       return true;
     } catch {
-      setGate("Acesso negado ou indisponível. A autorização do proprietário precisa ser ativada no servidor.",true);
+      setGate("Acesso pessoal indisponível. Entre pelo endereço drivmatch.com/stream após a autorização no Cloudflare Access.");
       return false;
     }
   }

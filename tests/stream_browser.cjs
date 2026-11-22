@@ -16,33 +16,28 @@ const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-titl
   'https://mock.example/nhk.m3u8'].join('\n');
 
 async function main(){
+  let authorized=false;
   const server=http.createServer((req,res)=>{
-    if(req.url==='/stream/config.js'){
-      res.writeHead(200, {'Content-Type':'text/javascript'});
-      res.end('window.DRIVMATCH_STREAM_CONFIG={supabaseUrl:"https://tenant.supabase.co",supabaseAnonKey:"sb_publishable_public_test_fixture_123456"};');
+    if(req.url==="/stream/session"){
+      res.writeHead(authorized?200:403,{"Content-Type":"application/json","Cache-Control":"no-store"});
+      res.end(JSON.stringify({allowed:authorized}));
       return;
     }
     const file=paths[req.url];
     if(!file){res.writeHead(404);res.end();return;}
-    res.writeHead(200,{'Content-Type':file.endsWith('.html')?'text/html':file.endsWith('.css')?'text/css':'text/javascript'});
+    res.writeHead(200,{"Content-Type":file.endsWith(".html")?"text/html":file.endsWith(".css")?"text/css":"text/javascript"});
     fs.createReadStream(path.join(ROOT,file)).pipe(res);
   });
   await new Promise(resolve=>server.listen(18764,'127.0.0.1',resolve));
   let browser;
   try{
     browser=await chromium.launch({headless:true});
-    const setup=async(allowed,session)=>{
+    const setup=async allowed=>{
+      authorized=allowed;
       const context=await browser.newContext();
       await context.addInitScript(() => {
         HTMLMediaElement.prototype.canPlayType = function(type){return type.includes('mpegurl') ? 'probably' : '';};
-        HTMLMediaElement.prototype.play = function(){return Promise.reject(new Error('Mock media playback disabled'));};
-      });
-      if(session)await context.addInitScript(()=>{
-        localStorage.setItem('sb-tenant-auth-token',JSON.stringify({access_token:'test-bearer-token-over-twenty-characters',expires_at:Math.floor(Date.now()/1000)+1800}));
-      });
-      await context.route('https://tenant.supabase.co/**',route=>{
-        route.fulfill({status:allowed?200:403,contentType:'application/json',
-          headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify({allowed})});
+        HTMLMediaElement.prototype.play = function(){return Promise.reject(new Error('Simulated media disabled'));};
       });
       await context.route('https://iptv-org.github.io/**',route=>{
         const u=route.request().url();
@@ -52,27 +47,27 @@ async function main(){
       await context.route('https://mock.example/**',route=>route.abort());
       return context;
     };
-    // Anonymous: the player and playlists must be inaccessible.
+    // Missing Cloudflare owner session must not reveal player or playlist.
     {
-      const context=await setup(false,false);
+      const context=await setup(false);
       const page=await context.newPage();
       await page.goto(origin+'/stream/');
-      await page.getByText('Entre primeiro na sua conta autorizada do DrivMatch.').waitFor();
+      await page.getByText(/Acesso pessoal indisponível/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
     }
-    // Unapproved account: server denies access even with an existing session.
+    // Denied server session must not reveal any channels.
     {
-      const context=await setup(false,true);
+      const context=await setup(false);
       const page=await context.newPage();
       await page.goto(origin+'/stream/');
-      await page.getByText(/Acesso negado ou indisponível/).waitFor();
+      await page.getByText(/Acesso pessoal indisponível/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
     }
     // Approved account: world news appears; selecting a stream stays in the page.
     {
-      const context=await setup(true,true);
+      const context=await setup(true);
       const page=await context.newPage();
       await page.goto(origin+'/stream/');
       await page.getByText('NHK World-Japan').first().waitFor();
@@ -82,7 +77,7 @@ async function main(){
       assert.equal(await page.locator('#current-channel').textContent(),'24 Horas (720p)');
       await context.close();
     }
-    process.stdout.write('Private TV offline browser smoke: anonymous DENY; non-owner DENY; owner in-page video selector PASS.\n');
+    process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));

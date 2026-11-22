@@ -27,14 +27,14 @@ jobs:
           node --check site/stream.js
           node --check tests/stream_browser.cjs
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          python -m py_compile scripts/render_public_config.py
           test -s site/index.html
-          grep -q 'stream-owner-access' site/stream.js
+          grep -q 'fetch("./session"' site/stream.js
+          grep -q 'ctx.access.getIdentity' cloudflare/stream-proxy.mjs
+          ! grep -i 'supabase' site/stream.js
+          ! grep -i 'supabase' cloudflare/stream-proxy.mjs
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
-      - name: Validate fail-closed browser config
-        run: |
-          python scripts/render_public_config.py
-          grep -q '"supabaseUrl": ""' site/config.js
+      - name: Cloudflare Access Worker security unit tests
+        run: node --test tests/stream_worker.test.mjs
       - name: Install Chromium browser
         run: |
           npm install --no-audit --no-fund playwright@1.58.2
@@ -50,13 +50,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - name: Public Supabase config only
-        env:
-          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
-          STREAM_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STREAM_SUPABASE_PUBLISHABLE_KEY }}
-        run: python scripts/render_public_config.py
       - uses: actions/configure-pages@v5
         with:
           enablement: true
