@@ -90,7 +90,7 @@ async function main(){
       await page.getByText("Canal Notícias Brasil").first().click();
       await page.locator('video[src="https://mock.example/news.m3u8"]').waitFor();
       assert.equal(await page.locator('a[target="_blank"]').count(),0);
-      await page.getByRole("button",{name:/Lista 2/}).click();
+      await page.locator("#source-list .source").nth(1).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),7);
       await page.locator(".add-source summary").click();
