@@ -58,6 +58,8 @@ jobs:
           STREAM_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STREAM_SUPABASE_PUBLISHABLE_KEY }}
         run: python scripts/render_public_config.py
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
