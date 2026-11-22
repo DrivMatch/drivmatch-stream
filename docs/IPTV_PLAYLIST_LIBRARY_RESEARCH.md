@@ -19,7 +19,7 @@ O escopo implementado é um catálogo de listas, protegido por sessão: /stream/
 | 2 | IPTV-org 12 países | https://iptv-org.github.io/iptv/countries/br.m3u e mais 11 códigos: pt, es, jp, cn, us, ar, uk, be, it, fr, de | Mesma fonte-base do Stream original, agora como lista opcional. |
 | 3 | IPTV-org Notícias | https://iptv-org.github.io/iptv/categories/news.m3u | Recorte temático da mesma origem da Lista 2. |
 | 4 | IPTV-org Esportes | https://iptv-org.github.io/iptv/categories/sports.m3u | Recorte temático da Lista 2; canais premium não recebem acesso automático. |
-| 5 | Nexonic IPTV | https://shahrukhalid.github.io/nexonic-iptv/playlists/all.m3u | Diretório alternativo que declara checagens frequentes; declaração do mantenedor não equivale a teste nosso. |
+| 5 | Nexonic IPTV | https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u | Diretório alternativo marcado como verificado pelo mantenedor; não equivale a teste nosso. |
 | 6 | LegalFreeIPTV Live | https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u | Coleção pequena de transmissões ao vivo com justificativas de uso. |
 | 7 | FreeCastHub | https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u | Diretório comunitário experimental, sujeito a revisão de origem e direitos. |
 
@@ -49,7 +49,7 @@ O escopo implementado é um catálogo de listas, protegido por sessão: /stream/
 Referências: https://github.com/iptv-org/iptv/blob/master/PLAYLISTS.md ;
 https://github.com/iptv-org/iptv/blob/master/docs/playlists.md ;
 https://github.com/Free-TV/IPTV ;
-https://github.com/Shahrukhalid/nexonic-iptv ;
+https://github.com/nexonic-technologies/nexonic-iptv ;
 https://github.com/biskyt/legalFreeIPTVplaylist ;
 https://github.com/freecasthub/public-iptv ;
 https://pt.capplayer.com/ .
