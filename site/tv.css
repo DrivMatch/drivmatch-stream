@@ -1,0 +1,81 @@
+/* Samsung/Tizen TV: deliberately conservative CSS (no Grid, clamp, flex gap or sticky). */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#071322;color:#edf6ff;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.35}
+body{overflow:hidden}
+button,input,a{font-family:Arial,Helvetica,sans-serif;font-size:18px}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:default}
+button:focus,a:focus,input:focus{outline:4px solid #67baff!important;outline-offset:1px;background:#183f69!important;color:#fff!important}
+[hidden]{display:none!important}
+.tv-shell{height:100vh;background:#071322}
+.topbar{height:82px;background:#091c30;border-bottom:1px solid #26465e;padding:14px 20px;overflow:hidden;white-space:nowrap}
+.brand{float:left;display:block;color:#fff}
+.logo{display:inline-block;width:50px;height:50px;line-height:50px;text-align:center;border-radius:13px;background:#1387f5;margin-right:12px;font-size:21px;vertical-align:middle}
+.brand>span:last-child{display:inline-block;vertical-align:middle}
+.brand b{font-size:26px;letter-spacing:-.6px}
+.brand em{font-style:normal;color:#53b3ff}
+.brand small{display:block;font-size:11px;letter-spacing:2px;color:#8eb9dd;margin-top:0}
+.toplinks{float:right;color:#a3bacc;font-size:14px;line-height:49px}
+.toplinks>span{margin-right:14px}
+.status-dot{display:inline-block;width:9px;height:9px;background:#21ce99;border-radius:50%;vertical-align:middle}
+.top-link{color:#e9f4ff;text-decoration:none;border:1px solid #355b79;border-radius:10px;padding:12px 16px}
+.tv-layout{height:85vh;height:calc(100vh - 82px);overflow:hidden;padding:13px}
+.column{height:100%;overflow-y:auto;border:1px solid #254159;border-radius:14px;background:#0d2237;scrollbar-color:#37658d #0d2237;scrollbar-width:auto}
+.sidebar{float:left;width:23%;padding:15px;margin-right:1%}
+.catalog{float:left;width:32%;padding:16px;margin-right:1%;background:#0a1c2e}
+.player-column{float:left;width:43%;padding:15px;overflow-y:auto;background:#0b2034}
+.section-title{color:#73b2ea;font-size:14px;font-weight:bold;letter-spacing:1px;margin-bottom:12px;overflow:hidden}
+.section-title b{float:right;background:#173954;color:#b8ddff;font-size:12px;padding:3px 8px;border-radius:7px}
+.countries-title{margin-top:23px}
+.source-items button,.country-items button{width:100%;display:block;text-align:left;color:#d6e8f7;background:#122d45;border:1px solid #2b4a65;border-radius:9px;min-height:46px;padding:10px 12px;margin-bottom:7px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-items button.active,.country-items button.active{background:#176dc0;color:#fff;border-color:#5faefa}
+.source-items button .ordinal{color:#8bbfe9;display:inline-block;width:35px;font-size:16px}
+.source-items button.active .ordinal{color:#e1f0ff}
+.country-items button{min-height:43px;font-size:17px;padding:8px 12px}
+.sidebar-note{color:#85a2b9;font-size:13px;line-height:1.6;margin-top:20px}
+.loading{color:#9cb8cc;font-size:16px}
+.overline{color:#74b8f4;font-weight:bold;letter-spacing:1px;font-size:12px}
+.catalog-header h1{font-size:26px;line-height:1.18;margin:7px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.catalog-header p{font-size:15px;color:#a9bed2;margin:3px 0 14px}
+.filter-items{margin-bottom:10px}
+.filter-btn{display:inline-block;font-size:16px;font-weight:bold;border-radius:9px;border:1px solid #315570;background:#142f49;color:#d8eafa;padding:10px 12px;margin:0 5px 7px 0}
+.filter-btn.active{background:#167bdd;border-color:#5fb2ff;color:#fff}
+.search-row{height:47px;position:relative;margin-bottom:10px}
+.search-row input{background:#f3f8fc;color:#13283d;width:100%;height:45px;border:0;border-radius:9px;padding:8px 43px 8px 13px;font-size:19px}
+.search-row button{position:absolute;right:2px;top:2px;width:43px;height:40px;border:0;background:#cfdeea;border-radius:7px;font-size:24px;color:#16344e}
+.channel-heading{min-height:38px;overflow:hidden}
+.channel-heading span{float:left;font-weight:bold;color:#cce1f4;font-size:16px;line-height:34px}
+.channel-heading button{float:right;color:#fff;background:#194870;border:1px solid #3a739c;border-radius:8px;font-size:16px;font-weight:bold;padding:6px 11px}
+.catalog-status{font-size:14px;color:#9dbad0;line-height:1.4;margin:4px 0 13px}
+.channel-items{padding:0}
+.channel-row{background:#102b43;border:1px solid #2a4860;border-radius:9px;overflow:hidden;min-height:63px;margin-bottom:7px}
+.channel-row.current{background:#134677;border-color:#63adf1}
+.channel-number{float:left;width:39px;padding:17px 4px 0 7px;text-align:right;color:#86aeca;font-size:16px}
+.channel-row .channel-btn{float:left;width:calc(100% - 92px);min-height:62px;padding:9px 4px 7px 11px;background:transparent;border:0;color:#f1f7fd;text-align:left}
+.channel-row .channel-btn strong{font-size:19px;line-height:1.2;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.channel-row .channel-btn small{display:block;color:#aac1d4;font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.channel-row .fav-btn{float:right;width:48px;min-height:62px;border:0;background:transparent;color:#8fa9c2;font-size:28px}
+.channel-row .fav-btn.marked{color:#ffce61}
+.more-btn{display:block;width:100%;padding:13px 10px;background:#1a517b;border:1px solid #3e83b5;border-radius:10px;color:#fff;font-weight:bold;margin:10px 0 20px}
+.player-caption{height:32px;overflow:hidden;font-size:14px;font-weight:bold;letter-spacing:1px;color:#86c7fb}
+.play-status{float:right;color:#b1ccdf;letter-spacing:0}
+.player-frame{width:100%;height:auto;aspect-ratio:16 / 9;position:relative;background:#01060b;border:2px solid #315370;border-radius:12px;overflow:hidden}
+.player-frame:before{content:"";display:block;padding-top:56.25%}
+.player-frame video,.player-empty{position:absolute;left:0;top:0;width:100%;height:100%}
+.player-frame video{object-fit:contain}
+.player-empty{text-align:center;padding:7% 14px 0}
+.play-symbol{width:67px;height:67px;border-radius:20px;background:#14385e;color:#68b7ff;line-height:67px;margin:0 auto 18px;font-size:30px}
+.player-empty strong{font-size:27px;display:block}
+.player-empty p{font-size:16px;line-height:1.5;color:#a4c0d8}
+.now-playing{padding:16px 3px 8px}
+.now-playing h2{font-size:25px;line-height:1.2;margin:5px 0 6px}
+.now-playing p{color:#a6c0d5;font-size:16px;margin:3px 0}
+.player-actions button{padding:11px 15px;border-radius:9px;background:#1a4668;border:1px solid #40759a;color:#fff;font-weight:bold;font-size:16px;margin:5px 6px 5px 0}
+.player-error{border:1px solid #d1a46d;background:#3a2e25;color:#ffdaae;border-radius:9px;font-size:15px;padding:12px}
+.disclaimer,.remote-hint{font-size:13px;color:#90adc3;line-height:1.55;margin:16px 1px 6px}
+.remote-hint{border-top:1px solid #365370;padding-top:12px}
+.remote-hint b{color:#e0f4ff}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.error-screen{position:absolute;top:105px;left:15%;width:70%;background:#122c44;padding:32px;border-radius:17px;text-align:center;z-index:50}
+.error-screen a{background:#1576ce;color:#fff;padding:13px 20px;display:inline-block;border-radius:10px}
+@media(max-width:1000px){.topbar{height:66px;padding:9px}.tv-layout{height:calc(100vh - 66px);padding:8px}.sidebar{width:23%;padding:8px}.catalog{width:32%;padding:8px}.player-column{width:43%;padding:8px}.brand b{font-size:20px}.logo{width:42px;height:42px;line-height:42px}.source-items button,.country-items button{font-size:14px}.channel-row .channel-btn strong{font-size:16px}.player-empty strong{font-size:19px}.player-empty p{font-size:12px}}

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#071322">
+<title>DrivMatch Stream | TV Samsung</title>
+<link rel="stylesheet" href="/stream/tv/tv.css">
+</head>
+<body>
+<div class="tv-shell" id="tv-shell">
+  <header class="topbar">
+    <div class="brand"><span class="logo">▶</span><span><b>DrivMatch <em>Stream</em></b><small>TV INTERNACIONAL · ACESSO PESSOAL</small></span></div>
+    <div class="toplinks"><span id="head-source">Biblioteca IPTV</span><span class="status-dot"></span><span>Privado</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
+  </header>
+  <main class="tv-layout" id="tv-layout">
+    <nav class="column sidebar" aria-label="Listas e países">
+      <div class="section-title"><span>01 · MINHAS LISTAS</span><b id="source-count">7 listas</b></div>
+      <div id="source-items" class="source-items"><p class="loading">Carregando suas listas…</p></div>
+      <div class="section-title countries-title"><span>02 · PAÍSES</span><b id="country-caption">12 países</b></div>
+      <div id="country-items" class="country-items"></div>
+      <p class="sidebar-note">As 7 listas são fontes públicas. Listas pessoais importadas em outro aparelho não são sincronizadas.</p>
+    </nav>
+    <section class="column catalog" aria-label="Canais IPTV">
+      <div class="catalog-header">
+        <span class="overline">03 · GUIA DE CANAIS</span>
+        <h1 id="catalog-title">Escolha um canal</h1>
+        <p id="catalog-subtitle">Selecione uma lista à esquerda.</p>
+      </div>
+      <div class="filter-items" id="category-items" role="group" aria-label="Categorias">
+        <button type="button" class="filter-btn active" data-category="all">Todos</button>
+        <button type="button" class="filter-btn" data-category="news">Notícias</button>
+        <button type="button" class="filter-btn" data-category="sports">Esportes</button>
+        <button type="button" class="filter-btn" data-category="other">Outros</button>
+        <button type="button" class="filter-btn" data-category="fav">★ Favoritos</button>
+      </div>
+      <div class="search-row">
+        <label for="search" class="sr-only">Buscar canal</label>
+        <input id="search" type="search" placeholder="Buscar um canal…" autocomplete="off">
+        <button id="clear-search" class="small-btn" type="button" aria-label="Limpar busca">×</button>
+      </div>
+      <div class="channel-heading"><span id="result-count">0 canais</span><button id="refresh" type="button">↻ Atualizar</button></div>
+      <p class="catalog-status" id="catalog-status" role="status">Carregando biblioteca…</p>
+      <div id="channel-items" class="channel-items"></div>
+      <button id="show-more" class="more-btn" type="button" hidden>Mostrar mais canais</button>
+    </section>
+    <section class="column player-column" aria-label="Vídeo do canal selecionado">
+      <div class="player-caption"><span>▶ REPRODUÇÃO</span><span class="play-status" id="play-status">Pronto</span></div>
+      <div class="player-frame" id="player-frame">
+        <video id="video" controls preload="none" playsinline hidden></video>
+        <div id="player-empty" class="player-empty"><div class="play-symbol">▶</div><strong>Escolha um canal</strong><p>A transmissão aparece aqui.<br>O guia permanece visível ao lado.</p></div>
+      </div>
+      <div class="now-playing">
+        <span class="overline">AGORA NA TELA</span>
+        <h2 id="now-name">Nenhum canal selecionado</h2>
+        <p id="now-meta">Selecione um canal na coluna central.</p>
+      </div>
+      <p class="player-error" id="player-error" role="alert" hidden></p>
+      <div class="player-actions">
+        <button id="player-favorite" type="button" disabled>☆ Favoritar</button>
+        <button id="player-retry" type="button" disabled>↻ Recarregar</button>
+        <button id="player-fullscreen" type="button" disabled>⛶ Tela cheia</button>
+      </div>
+      <p class="disclaimer">Catálogos públicos não garantem sinal ativo, licença ou compatibilidade nesta TV. O Stream não retransmite vídeos e não contorna bloqueios de reprodução.</p>
+      <div class="remote-hint">CONTROLE REMOTO <b>◀ ▶ ▲ ▼</b> navegar · <b>OK</b> selecionar</div>
+    </section>
+  </main>
+  <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream e entre com seu PIN de 8 números.</p><a href="/stream/">Entrar no DrivMatch Stream</a></div>
+</div>
+<script src="/stream/tv/tv.js"></script>
+</body>
+</html>

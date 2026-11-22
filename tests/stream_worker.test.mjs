@@ -192,3 +192,40 @@ test("Samsung TV country catalogue is same-origin, private and country-allowlist
    assert.deepEqual(seen,["https://iptv-org.github.io/iptv/countries/br.m3u"]);
  }finally{globalThis.fetch=before;}
 });
+
+test("Samsung TV lounge page is private and served from fixed worker route",async()=>{
+ const c=await cookie(),before=globalThis.fetch,seen=[];
+ try{
+  globalThis.fetch=async u=>{seen.push(String(u));return new Response("tv-layout",{status:200});};
+  const locked=await stream.fetch(new Request(origin+"tv/"),env);
+  assert.equal(locked.status,200);assert.match(await locked.text(),/Senha de acesso/);
+  const redirect=await stream.fetch(new Request(origin+"tv"),env);
+  assert.equal(redirect.status,308);assert.match(redirect.headers.get("location"),/\/stream\/tv\/$/);
+  for(const path of ["tv/","tv/tv.css","tv/tv.js"]){
+   const res=await stream.fetch(new Request(origin+path,{headers:{Cookie:c}}),env);
+   assert.equal(res.status,200,path);assert.equal(await res.text(),"tv-layout");
+  }
+  assert.deepEqual(seen,["tv.html","tv.css","tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
+ }finally{globalThis.fetch=before;}
+});
+test("all 7 public IPTV catalogs are whitelisted and authenticated",async()=>{
+ const c=await cookie(),before=globalThis.fetch,seen=[];
+ try{
+  globalThis.fetch=async u=>{seen.push(String(u));return new Response("#EXTM3U\n#EXTINF:-1,News TV\nhttps://example.org/news.m3u8",{status:200});};
+  const blocked=await stream.fetch(new Request(origin+"catalog?list=lista-1&country=ALL"),env);
+  assert.equal(blocked.status,403);
+  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7"]){
+   const res=await stream.fetch(new Request(origin+"catalog?list="+id+"&country=ALL",{headers:{Cookie:c}}),env);
+   assert.equal(res.status,200,id);
+  }
+  const list2=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=BR",{headers:{Cookie:c}}),env);
+  assert.equal(list2.status,200);assert.match(await list2.text(),/#DM_COUNTRY:BR/);
+  const all=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=ALL",{headers:{Cookie:c}}),env);
+  assert.equal(all.status,200);assert.match(await all.text(),/#DM_COUNTRY:PT/);
+  for(const list of ["lista-8","../../admin","https://example.org/playlist.m3u"]){
+    const res=await stream.fetch(new Request(origin+"catalog?list="+encodeURIComponent(list),{headers:{Cookie:c}}),env);
+    assert.equal(res.status,400);
+  }
+  assert.equal(seen.length,19);
+ }finally{globalThis.fetch=before;}
+});

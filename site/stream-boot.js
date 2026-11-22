@@ -3,6 +3,7 @@
   "use strict";
   var ua = navigator.userAgent || "";
   var tv = /SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(ua);
+  if (tv) { window.location.replace('/stream/tv/'); return; }
   var modern = !tv &&
     typeof window.fetch === "function" &&
     typeof window.Promise === "function" &&

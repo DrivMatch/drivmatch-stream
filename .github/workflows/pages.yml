@@ -27,6 +27,9 @@ jobs:
           node --check site/stream.js
           node --check site/stream-boot.js
           node --check site/stream-tv.js
+          node --check site/tv.js
+          test -s site/tv.html
+          test -s site/tv.css
           test -s site/stream-boot.js
           test -s site/stream-tv.js
           node --check site/listas.js

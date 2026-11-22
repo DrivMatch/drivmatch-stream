@@ -8,9 +8,30 @@ const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
 const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
   "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
+  "/stream/tv/":"tv.html","/stream/tv/index.html":"tv.html",
+  "/stream/tv/tv.css":"tv.css","/stream/tv/tv.js":"tv.js",
   "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
   "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
   "/stream/listas/sources.json":"playlist-sources.json"};
+
+const TV_SOURCE_URLS={
+  "lista-1":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8",
+  "lista-3":"https://iptv-org.github.io/iptv/categories/news.m3u",
+  "lista-4":"https://iptv-org.github.io/iptv/categories/sports.m3u",
+  "lista-5":"https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u",
+  "lista-6":"https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u",
+  "lista-7":"https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u"
+};
+const TV_COUNTRIES=["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"];
+async function publicCatalogue(address){
+  const upstream=await fetch(address,{redirect:"follow",headers:{"Accept":"text/plain,application/x-mpegURL,*/*"}});
+  if(!upstream.ok)throw Error("upstream unavailable");
+  const size=Number(upstream.headers.get("content-length")||"0");
+  if(size>6_000_000)throw Error("catalogue too large");
+  const data=await upstream.text();
+  if(data.length>6_000_000)throw Error("catalogue too large");
+  return data;
+}
 const COOKIE="dm_stream_session", MAXAGE=604800, encoder=new TextEncoder();
 const baseHeaders={"Cache-Control":"private, no-store",
   "X-Content-Type-Options":"nosniff","X-Frame-Options":"DENY",
@@ -96,8 +117,11 @@ export default {async fetch(request,env){
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
  if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
- if(path!=="/stream"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
+ if(path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
     path!=="/stream/logout"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
+ if((path==="/stream/tv"||path==="/stream/listas")&&
+    (request.method==="GET"||request.method==="HEAD"))
+   return Response.redirect(new URL(path+"/",url.origin),308);
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
  const password=env?.STREAM_ACCESS_PASSWORD;
@@ -141,7 +165,8 @@ export default {async fetch(request,env){
  if(request.method!=="GET"&&request.method!=="HEAD")
    return new Response("Method Not Allowed",{status:405,headers:{...baseHeaders,Allow:"GET, HEAD"}});
  if(!await authenticated(request,sessionSecret)){
-   if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/listas/"||
+   if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/tv/"||
+      path==="/stream/tv/index.html"||path==="/stream/listas/"||
       path==="/stream/listas/index.html"||path==="/stream/login")
      return loginPage(false,request.method,pinMode);
    return plain(403,"Acesso pessoal não autorizado.");
@@ -151,19 +176,35 @@ export default {async fetch(request,env){
      status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
  if(path==="/stream/login")return Response.redirect(new URL("/stream/",url.origin),303);
  if(path==="/stream/catalog"){
-   // Same-origin, authenticated catalogue only. No arbitrary URLs or media proxy.
-   const code=url.searchParams.get("country")?.toLowerCase()||"";
-   if(!["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"].includes(code))
-     return plain(400,"Unsupported country");
+   // Private, fixed-list source catalog only. Never proxy arbitrary URLs or video.
+   const list=url.searchParams.get("list");
+   const code=(url.searchParams.get("country")||"").toLowerCase();
    try{
-     const upstream=await fetch("https://iptv-org.github.io/iptv/countries/"+code+".m3u");
-     if(!upstream.ok)return plain(502,"Catalogue temporarily unavailable");
-     const size=Number(upstream.headers.get("Content-Length")||"0");
-     if(size>3_000_000)return plain(502,"Catalogue too large");
-     const content=await upstream.text();
-     if(content.length>3_000_000)return plain(502,"Catalogue too large");
-     return new Response(request.method==="HEAD"?null:content,{
-       headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
+     let body;
+     if(list==="lista-2"){
+       if(!TV_COUNTRIES.includes(code)&&code!=="all")return plain(400,"Unsupported country");
+       if(code==="all"){
+         const entries=await Promise.allSettled(TV_COUNTRIES.map(async country=>{
+           const data=await publicCatalogue("https://iptv-org.github.io/iptv/countries/"+country+".m3u");
+           return "#DM_COUNTRY:"+country.toUpperCase()+"\n"+data;
+         }));
+         const ok=entries.filter(r=>r.status==="fulfilled").map(r=>r.value);
+         if(!ok.length)return plain(502,"Catalogue temporarily unavailable");
+         body="#EXTM3U\n"+ok.join("\n");
+       }else{
+         const data=await publicCatalogue("https://iptv-org.github.io/iptv/countries/"+code+".m3u");
+         body="#EXTM3U\n#DM_COUNTRY:"+code.toUpperCase()+"\n"+data;
+       }
+     }else if(Object.hasOwn(TV_SOURCE_URLS,list||"")){
+       body=await publicCatalogue(TV_SOURCE_URLS[list]);
+     }else if(!list){
+       // Keep compatibility with the earlier Samsung TV browser catalogue requests.
+       if(!TV_COUNTRIES.includes(code))return plain(400,"Unsupported country");
+       body=await publicCatalogue("https://iptv-org.github.io/iptv/countries/"+code+".m3u");
+     }else return plain(400,"Unsupported list");
+     if(body.length>9_000_000)return plain(502,"Catalogue too large");
+     return new Response(request.method==="HEAD"?null:body,{
+       status:200,headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
    }catch{return plain(502,"Catalogue temporarily unavailable");}
  }
 
