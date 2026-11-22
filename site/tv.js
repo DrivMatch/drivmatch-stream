@@ -22,7 +22,13 @@ try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
 function has(arr,k){return arr.indexOf(k)>=0;}
-function favorKey(c){return c.source+":"+c.code+":"+lower(c.name);}
+function favorKey(c){return c.source+":"+c.code+":"+lower(c.originalName||c.name);}
+/* Alias only for Lista 02 Brazil; playback URL and original metadata stay unchanged. */
+function channelAlias(name,code){
+  if(source==="lista-2"&&code==="BR"&&/^TV Guar[aá](?:\s*\([^)]*\))?$/i.test(name))
+    return "Record News";
+  return name;
+}
 function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
 function sourceName(){for(var i=0;i<SOURCES.length;i++)if(SOURCES[i].id===source)return SOURCES[i].title;return "Lista IPTV";}
@@ -60,7 +66,10 @@ function parse(raw,forcedCode){
     var genre=source==="lista-3"?"news":source==="lista-4"?"sports":SPORTS.test(name+" "+group)?"sports":NEWS.test(name+" "+group)?"news":"other";
     var premium=PREMIUM.test(name),k=code+"|"+lower(name),orig=dedupe[k];
     if(orig){if(!orig.premium&&orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);continue;}
-    var item={id:source+":"+k,source:source,name:name,code:code,genre:genre,group:group,premium:premium,urls:premium?[]:[ln]};
+    var display=channelAlias(name,code);
+    var item={id:source+":"+k,source:source,name:display,
+      originalName:display!==name?name:"",code:code,genre:genre,group:group,
+      premium:premium,urls:premium?[]:[ln]};
     dedupe[k]=item;result.push(item);
   }
   return result;
@@ -146,7 +155,7 @@ function fits(c){
   if(country==="OTHER" && source==="lista-2" && c.code!=="OTHER")return false;
   if(category!=="all"&&category!=="fav"&&c.genre!==category)return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
-  if(search && lower(c.name+" "+c.group).indexOf(search)<0)return false;
+  if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
   return true;
 }
 function toggleFavorite(c){
@@ -161,7 +170,7 @@ function updateFavButton(){
 function renderChannels(){
   var all=[],i,area=D("channel-items");clear(area);
   for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
-  all.sort(function(a,b){var x=lower(a.name),y=lower(b.name);return x<y?-1:x>y?1:0;});
+  all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
   visible=all;
   T(D("result-count"),visible.length+" canais");
   if(!all.length){
@@ -175,7 +184,8 @@ function renderChannels(){
     row.appendChild(E("span","channel-number",String(j+1)));
     var btn=E("button","channel-btn");btn.type="button";
     btn.appendChild(E("strong","",c.name));
-    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")));
+    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")+
+      (c.originalName?" · Fonte: "+c.originalName:"")));
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
@@ -201,7 +211,9 @@ function play(c){
     updateFavButton();renderChannels();focusChannelAfterRender(c.id,false);return;
   }
   selected=c;T(D("now-name"),c.name);
-  T(D("now-meta"),countryName(c.code)+" · "+(c.group||"Ao vivo")+" · verificando reprodução…");
+  T(D("now-meta"),countryName(c.code)+" · "+
+    (c.originalName?"Fonte: "+c.originalName+" · ":"")+
+    (c.group||"Ao vivo")+" · verificando reprodução…");
   T(D("play-status"),"Conectando…");updateFavButton();
   visibleEl(D("player-empty"),false);visibleEl(video,true);visibleEl(D("player-error"),false);
   D("player-retry").disabled=false;D("player-fullscreen").disabled=false;
