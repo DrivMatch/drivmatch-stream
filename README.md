@@ -20,3 +20,9 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - node tests/listas_browser.cjs
 
 Os testes de navegador simulam playlists e mídia; não confirmam quais canais realmente reproduzem em produção.
+
+## Busca de canais na Samsung TV (22/11/2026)
+
+- Os nomes **Globo**, **SporTV** e **ESPN** são pesquisáveis quando presentes nas listas compatíveis.
+- O guia mantém indicação separada para canais que exigem acesso oficial/assinatura; uma entrada em M3U pública não comprova autorização nem reprodução.
+- A origem real, o formato do stream, o bloqueio regional e o dispositivo podem afetar a disponibilidade. Não há garantia de que todas as listas possuam esses canais.
