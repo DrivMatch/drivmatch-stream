@@ -3,7 +3,7 @@
 Visualizador privado pessoal de TV — projeto independente do DrivMatch News e DrivMatch TV.
 
 - Stream original: https://drivmatch.com/stream/ (ou a prévia https://drivmatch-stream-proxy.drivmatch.workers.dev/stream/).
-- Biblioteca IPTV: /stream/listas/ — playlists independentes numeradas, catálogo de canais, 12 países, categorias, favoritos e importação pessoal M3U/M3U8.
+- Biblioteca IPTV: /stream/listas/ — oito listas independentes numeradas; a Lista 8 organiza canais abertos do Brasil e acessos **oficiais externos** a serviços como Globoplay, Disney+, DAZN e SKY+. Canais pagos não são liberados por URLs M3U públicas, e podem exigir autorização, assinatura e dispositivo compatível.
 - Autenticação: Cloudflare Worker com segredo de acesso STREAM_ACCESS_PASSWORD e cookie HttpOnly assinado. O JavaScript cliente e o GitHub Pages não contêm a senha.
 - A biblioteca reutiliza **apenas** a sessão privada. Mantém arquivos, UI e gerenciamento próprios, sem alterar DrivMatch News (/news) ou DrivMatch TV (/TV).
 - Fontes de playlists externas são diretórios públicos não verificados canal a canal. Inclusão não implica autorização, disponibilidade nem licença.

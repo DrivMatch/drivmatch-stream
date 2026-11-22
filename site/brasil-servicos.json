@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "reviewed": "2026-11-22",
+  "disclaimer": "Catálogo de sites oficiais; não são links M3U e não liberam assinaturas.",
+  "services": [
+    {
+      "id": "agromais",
+      "name": "AgroMais",
+      "genre": "news",
+      "group": "Agro e notícias",
+      "url": "https://agromais.uol.com.br/canais-newco",
+      "access": "Consultar disponibilidade"
+    },
+    {
+      "id": "globo",
+      "name": "TV Globo",
+      "genre": "other",
+      "group": "TV aberta · Globoplay",
+      "url": "https://globoplay.globo.com/agora-na-tv/",
+      "access": "Conforme região e conta"
+    },
+    {
+      "id": "sportv",
+      "name": "SporTV",
+      "genre": "sports",
+      "group": "Esportes · Globoplay",
+      "url": "https://globoplay.globo.com/agora-na-tv/",
+      "access": "Assinatura"
+    },
+    {
+      "id": "premiere",
+      "name": "Premiere",
+      "genre": "sports",
+      "group": "Futebol · Globo",
+      "url": "https://premiere.globo.com/",
+      "access": "Assinatura"
+    },
+    {
+      "id": "espn",
+      "name": "ESPN",
+      "genre": "sports",
+      "group": "Esportes · Disney+ Premium",
+      "url": "https://www.disneyplus.com/pt-br",
+      "access": "Assinatura Premium"
+    },
+    {
+      "id": "combate",
+      "name": "Combate",
+      "genre": "sports",
+      "group": "Lutas · Globo",
+      "url": "https://ajuda.globo.com/article/Sobre-os-Produtos-Globo-e-parceiros",
+      "access": "Assinatura"
+    },
+    {
+      "id": "disney",
+      "name": "Disney+",
+      "genre": "other",
+      "group": "Filmes, séries e esportes",
+      "url": "https://www.disneyplus.com/pt-br",
+      "access": "Assinatura"
+    },
+    {
+      "id": "dazn",
+      "name": "DAZN",
+      "genre": "sports",
+      "group": "Esportes e eventos",
+      "url": "https://www.dazn.com/pt-BR",
+      "access": "Conforme evento e plano"
+    },
+    {
+      "id": "cazetv",
+      "name": "CazéTV",
+      "genre": "sports",
+      "group": "Canal oficial · YouTube",
+      "url": "https://www.youtube.com/@CazeTV",
+      "access": "Conteúdo gratuito no canal oficial"
+    },
+    {
+      "id": "multishow",
+      "name": "Multishow",
+      "genre": "other",
+      "group": "Entretenimento · Globoplay",
+      "url": "https://globoplay.globo.com/agora-na-tv/",
+      "access": "Assinatura"
+    },
+    {
+      "id": "telecine",
+      "name": "Telecine",
+      "genre": "other",
+      "group": "Filmes · Globoplay",
+      "url": "https://globoplay.globo.com/catalogo/",
+      "access": "Assinatura conforme plano"
+    },
+    {
+      "id": "skymais",
+      "name": "SKY+",
+      "genre": "other",
+      "group": "Canais e filmes · SKY",
+      "url": "https://www.sky.com.br/pt/skymais",
+      "access": "Conta/plano elegível"
+    },
+    {
+      "id": "filmes",
+      "name": "Filmes recentes",
+      "genre": "other",
+      "group": "Catálogo oficial de filmes · Globoplay",
+      "url": "https://globoplay.globo.com/catalogo/",
+      "access": "Conforme título e plano"
+    },
+    {
+      "id": "pluto",
+      "name": "Pluto TV Brasil",
+      "genre": "other",
+      "group": "Filmes e canais gratuitos",
+      "url": "https://pluto.tv/",
+      "access": "Gratuito, com anúncios"
+    }
+  ]
+}

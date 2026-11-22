@@ -83,6 +83,17 @@
         "https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u"
       ],
       "source": "https://github.com/freecasthub/public-iptv"
+    },
+    {
+      "id": "lista-8",
+      "title": "Lista 8 • Brasil: canais e serviços",
+      "kind": "brasil · canais e serviços oficiais",
+      "description": "Transmissões públicas do diretório Free-TV Brasil e acessos a plataformas oficiais: AgroMais, Globo, SporTV, Premiere, ESPN, Combate, Disney+, DAZN, CazéTV, Multishow, Telecine, SKY+ e filmes. Assinaturas não são liberadas pelo Stream.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV/blob/master/playlists/playlist_brazil.m3u8",
+      "official_directory": "/stream/listas/brasil-servicos.json"
     }
   ]
 }

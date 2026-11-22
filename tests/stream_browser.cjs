@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
@@ -27,12 +27,14 @@ async function main(){
   const server=http.createServer((req,res)=>{
     if(req.url==="/stream/listas/sources.json"){
       if(!authorized){res.writeHead(403);res.end();return;}
-      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • IPTV-org 12 países"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"}]}));return;
+      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • IPTV-org 12 países"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais e serviços"}]}));return;
     }
     if(req.url && req.url.startsWith("/stream/catalog?list=")){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"text/plain"});
-      res.end(m3uES);return;
+      res.end(req.url.includes("lista-8")?
+    ['#EXTM3U','#EXTINF:-1 tvg-country="BR" group-title="News",Record News',
+      'https://mock.example/record-news.m3u8'].join("\n"):m3uES);return;
     }
     if(req.url && req.url.startsWith("/stream/catalog?country=")){
       if(!authorized){res.writeHead(403);res.end();return;}
@@ -127,7 +129,7 @@ async function main(){
       await page.goto(origin+'/stream/');
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
-      assert.equal(await page.locator('#source-items .source-btn').count(),7);
+      assert.equal(await page.locator('#source-items .source-btn').count(),8);
       assert.equal(await page.locator('#country-items .country-btn').count(),14);
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
@@ -141,7 +143,7 @@ async function main(){
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
       await page.locator('#source-items .source-btn').first().waitFor();
-      assert.equal(await page.locator('#source-items .source-btn').count(),7);
+      assert.equal(await page.locator('#source-items .source-btn').count(),8);
       assert.match(await page.locator('#source-items .source-btn').nth(1).innerText(),/Lista 2/);
       assert((await page.locator('#source-items .source-btn').first().evaluate(
         el=>parseFloat(getComputedStyle(el).fontSize)))>=20,'TV source text must be large');
@@ -150,36 +152,27 @@ async function main(){
         el=>parseFloat(getComputedStyle(el).fontSize)))>=20,
         'Samsung 960px browser must not shrink the source text');
       await page.setViewportSize({width:1440,height:900});
-      await page.locator('#find-globo').click();
-      assert.equal(await page.locator('#search').inputValue(),'Globo');
-      assert.equal(await page.locator('#source-items .source-btn.active').getAttribute('data-source'),'lista-2');
-      assert.equal(await page.locator('#country-items .country-btn.active').getAttribute('data-country'),'BR');
-      await page.locator('#find-globo').click();
-      await page.getByText('TV Globo',{exact:true}).first().waitFor();
-      await page.locator('#find-sportv').click();
-      await page.getByText('SporTV',{exact:true}).first().waitFor();
-      await page.locator('#channel-items .channel-btn').first().click();
-      assert.match(await page.locator('#player-error').textContent(),/autorização/);
+      assert.equal(await page.locator('#find-globo,#find-sportv,#find-espn,.tv-quick-access').count(),0);
+      assert((await page.locator('#source-items .source-btn').first().evaluate(
+        el=>parseFloat(getComputedStyle(el).fontSize)))>=22);
+      assert((await page.locator('#source-items .source-btn').first().evaluate(
+        el=>el.getBoundingClientRect().height))<=58,'List buttons should be slim');
+      await page.locator('#source-items .source-btn').nth(7).click();
+      await page.getByText('DAZN',{exact:true}).first().waitFor();
+      await page.getByText('Record News',{exact:true}).first().waitFor();
+      await page.locator('#search').fill('Telecine');
+      await page.getByText('Telecine',{exact:true}).first().waitFor();
+      await page.locator('#channel-items .channel-btn').filter({hasText:'Telecine'}).click();
+      assert.equal(await page.locator('#player-open-official').isVisible(),true);
       assert.equal(await page.locator('#video').getAttribute('src'),null);
-      assert.equal(await page.locator('#player-retry').isDisabled(),true);
-      await page.locator('#find-espn').click();
-      await page.getByText('ESPN Brasil',{exact:true}).first().waitFor();
-      await page.locator('#search').fill('Record News');
-      await page.getByText('Record News',{exact:true}).first().waitFor();
-      assert.match(await page.locator('#channel-items .channel-btn small').first().innerText(),/Fonte: TV Guará/);
-      await page.locator('#search').fill('TV Guará');
-      await page.getByText('Record News',{exact:true}).first().waitFor();
-      await page.locator('#source-items .source-btn').first().click();
-      await page.locator('#search').fill('TV Guará');
-      await page.getByText('TV Guará',{exact:true}).first().waitFor();
-      assert.equal(await page.getByText('Record News',{exact:true}).count(),0);
+      await page.locator('#search').fill('');
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
       // Samsung remote DOWN must traverse the same sidebar through its last country.
       const sidebar=page.locator('.sidebar');
       await page.locator('#source-items .source-btn').first().focus();
-      for(let i=0;i<20;i++)await page.keyboard.press('ArrowDown');
+      for(let i=0;i<21;i++)await page.keyboard.press('ArrowDown');
       assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
       assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
 
