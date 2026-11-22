@@ -111,7 +111,8 @@
       const name=ext.slice(ext.lastIndexOf(",")+1).trim();
       const group=/group-title="([^"]*)"/i.exec(ext)?.[1] || "";
       ext="";
-      if(!name || /\[(geo.blocked|blocked)\]/i.test(name) || PREMIUM.test(name))continue;
+      if(!name || /\[(geo.blocked|blocked)\]/i.test(name))continue;
+      const premium=PREMIUM.test(name);
       try{
         const url=new URL(line);
         if(url.protocol!=="https:" || url.username || url.password ||
@@ -121,7 +122,7 @@
         const cleanName=name.replace(/\s*\((?:\d{3,4}p|[248]k)\)\s*$/i,"").trim();
         result.push({
           id:code+":"+genre+":"+normal(cleanName),code,name,genre,
-          sources:[url.href]
+          premium,sources:premium?[]:[url.href]
         });
       }catch{/* Ignore invalid URLs supplied by the public directory. */}
     }
@@ -218,7 +219,7 @@
       const meta=document.createElement("small");
       const country=countries.find(x=>x.code===c.code);
       const label=c.genre==="sports"?"Esportes":c.genre==="news"?"Notícias":"Ao vivo";
-      meta.textContent=country.flag+" "+country.name+" • "+label+" • "+channelStatus(c);
+      meta.textContent=country.flag+" "+country.name+" • "+label+" • "+(c.premium?"Acesso oficial necessário":channelStatus(c));
       if(state.health.get(c.id)==="ok")meta.className="signal-ok";
       if(state.health.get(c.id)==="failed")meta.className="signal-bad";
       pick.append(title,meta);
@@ -348,6 +349,14 @@
   }
   async function selectChannel(c){
     if(!state.authorised)return;
+    if(c.premium){
+      stopPlayer();state.selected=c;
+      $("current-channel").textContent=c.name;
+      $("current-country").textContent="Catálogo público · acesso oficial necessário";
+      playerState("failed","Acesso oficial necessário");
+      showError("O canal aparece na lista, mas o link não possui autorização comprovada. Use o serviço oficial ou assinatura aplicável.");
+      syncPlayerFavorite();render();return;
+    }
     state.health.delete(c.id); // Re-test on explicit selection.
     $("current-channel").textContent=c.name;
     $("current-country").textContent=(countries.find(x=>x.code===c.code)?.name||"")+
