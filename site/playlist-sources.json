@@ -56,13 +56,13 @@
     },
     {
       "id": "lista-5",
-      "title": "Lista 5 • Nexonic",
+      "title": "Lista 5 • Nexonic verificados",
       "kind": "independente",
-      "description": "Diretório alternativo que declara executar checagens automáticas. Declarações do mantenedor não substituem nossa verificação no aparelho.",
+      "description": "Lista marcada como verificada pelo mantenedor Nexonic. Não equivale a teste independente no seu navegador.",
       "urls": [
-        "https://shahrukhalid.github.io/nexonic-iptv/playlists/all.m3u"
+        "https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u"
       ],
-      "source": "https://github.com/Shahrukhalid/nexonic-iptv"
+      "source": "https://github.com/nexonic-technologies/nexonic-iptv"
     },
     {
       "id": "lista-6",
