@@ -122,12 +122,33 @@ function renderSources(){
   for(const s of state.sources){
     const button=document.createElement("button");button.type="button";
     button.className="source"+(state.source?.id===s.id?" active":"");
+    button.setAttribute("aria-pressed",String(state.source?.id===s.id));
     const title=document.createElement("strong"),kind=document.createElement("span"),desc=document.createElement("small");
     title.textContent=s.title;kind.textContent=s.kind;kind.className="source-kind";
-    desc.textContent=s.description;button.append(title,kind,desc);
+    desc.textContent=s.description;
+    const action=document.createElement("span");action.className="source-action";
+    action.textContent=state.source?.id===s.id?"✓ Selecionada • Ver canais ↓":"Abrir canais ↓";
+    button.append(title,kind,desc,action);
     button.addEventListener("click",()=>void selectSource(s));
     area.append(button);
   }
+}
+function jumpToCatalog(){
+  if(window.matchMedia?.("(max-width: 990px)").matches)
+    requestAnimationFrame(()=>$("channel-catalog").scrollIntoView({behavior:"auto",block:"start"}));
+}
+function jumpToPlayer(){
+  if(window.matchMedia?.("(max-width: 990px)").matches)
+    requestAnimationFrame(()=>document.querySelector(".viewer").scrollIntoView({behavior:"auto",block:"start"}));
+}
+function setCatalogError(message){
+  $("load-error").textContent=message;
+  $("load-error").hidden=false;
+  $("retry-catalog").hidden=false;
+}
+function clearCatalogError(){
+  $("load-error").hidden=true;
+  $("retry-catalog").hidden=true;
 }
 function renderChannels(){
   const search=norm($("search").value),country=$("country").value,genre=$("genre").value;
@@ -173,7 +194,7 @@ function renderChannels(){
   $("show-more").hidden=matches.length<=state.limit;
   if(!matches.length){
     const p=document.createElement("p");p.className="status";
-    p.textContent="Nenhum canal encontrado neste filtro.";area.append(p);
+    p.textContent=state.channels.length?"Nenhum canal corresponde a estes filtros.":"Esta lista não apresentou canais reproduzíveis no catálogo.";area.append(p);
   }
 }
 async function selectSource(s){
@@ -183,7 +204,8 @@ async function selectSource(s){
   $("favorites-only").checked=false;state.onlyFavorites=false;
   $("active-source").textContent=s.title+" — "+s.description;
   $("channel-list").replaceChildren();$("show-more").hidden=true;
-  $("catalog-status").textContent="Carregando catálogo…";renderSources();
+  $("catalog-status").textContent="Abrindo "+s.title+"…";
+  clearCatalogError();renderSources();jumpToCatalog();
   if(s.channels){state.channels=s.channels;renderChannels();return;}
   const response=await Promise.allSettled(s.urls.map(async url=>{
     const country=s.id==="lista-2"?/\/countries\/([a-z]{2})\.m3u/i.exec(url)?.[1]:null;
@@ -203,8 +225,14 @@ async function selectSource(s){
   renderChannels();
   const fails=response.filter(r=>r.status==="rejected").length;
   if(fails)$("catalog-status").textContent+=" • "+fails+"/"+response.length+" fontes inacessíveis";
-  if(!state.channels.length)$("catalog-status").textContent=
-    "Nenhum canal carregado: URL, CORS, indisponibilidade ou formato incompatível.";
+  if(!state.channels.length){
+    $("catalog-status").textContent="0 canais carregados nesta lista.";
+    setCatalogError(fails===response.length
+      ?"Não conseguimos ler a playlist. A origem pode estar indisponível ou bloquear o navegador (CORS). Tente novamente ou abra outra lista."
+      :"A playlist foi lida, mas não trouxe canais compatíveis com este reprodutor. Tente outra lista.");
+  }else if(fails){
+    setCatalogError("Parte das fontes desta lista não carregou. Os canais disponíveis no catálogo podem ser usados; tente novamente para atualizar.");
+  }
 }
 function stopPlayer(){
   state.playToken++;
@@ -281,9 +309,16 @@ async function attach(c,index){
 }
 async function chooseChannel(c){
   state.health.delete(key(c));
+  jumpToPlayer();
   await attach(c,0);renderChannels();
 }
 function setup(){
+  $("back-to-lists").addEventListener("click",()=>{
+    $("sources-title").scrollIntoView({behavior:"auto",block:"start"});
+  });
+  $("retry-catalog").addEventListener("click",()=>{
+    if(state.source)void selectSource(state.source);
+  });
   for(const id of ["search","country","genre"]){
     $(id).addEventListener(id==="search"?"input":"change",()=>{state.limit=60;renderChannels();});
   }
