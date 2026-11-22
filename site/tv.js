@@ -10,7 +10,7 @@ var favorites=[],limit=60,serial=0,session=false,cache={},MAX_CHANNELS=15000,vid
 var STORE="drivmatch-tv-guide-favorites-v1";
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
-var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|sport\s*tv|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
+var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
 function T(el,s){if(el)el.textContent=s;}
 function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(typeof s==="string")T(x,s);return x;}
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
