@@ -209,7 +209,7 @@
       const avatar=document.createElement("span");
       avatar.className="channel-avatar";
       avatar.dataset.genre=c.genre;
-      avatar.textContent=c.name.replace(/[^\\p{L}\\p{N} ]/gu,"").trim().split(/\\s+/).slice(0,2).map(s=>s.slice(0,1)).join("").toUpperCase()||"TV";
+      avatar.textContent=c.name.replace(/[^\p{L}\p{N} ]/gu,"").trim().split(/\s+/).slice(0,2).map(s=>s.slice(0,1)).join("").toUpperCase()||"TV";
       avatar.setAttribute("aria-hidden","true");
       const pick=document.createElement("button");
       pick.type="button";pick.className="pick";

@@ -11,7 +11,9 @@ const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
 const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
-  'https://mock.example/24horas.m3u8'].join('\n');
+  'https://mock.example/24horas.m3u8',
+  ...Array.from({length:45},(_,i)=>['#EXTINF:-1 group-title="General",Canal Teste '+(i+1),
+   'https://mock.example/test'+(i+1)+'.m3u8']).flat()].join('\n');
 const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-title="Culture;News",NHK World-Japan',
   'https://mock.example/nhk.m3u8'].join('\n');
 
@@ -83,6 +85,14 @@ async function main(){
       assert.equal(await page.locator('.viewer').evaluate(el=>getComputedStyle(el).position),'sticky');
       assert.equal(await page.locator('#player-favorite').isEnabled(),true);
       assert.equal(await page.locator('#retry-channel').isEnabled(),true);
+      await page.setViewportSize({width:390,height:844});
+      await page.evaluate(() => window.scrollTo(0,1300));
+      await page.waitForTimeout(300);
+      const stickyRect=await page.locator('#viewer').boundingBox();
+      assert(stickyRect && stickyRect.y >= -2 && stickyRect.y <= 25,
+        'Mobile TV player must remain visibly pinned while the channel list scrolls: '+JSON.stringify(stickyRect));
+      assert((await page.locator('#viewer').boundingBox()).height < 370,
+        'Mobile sticky player must leave room to browse the channel list');
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
