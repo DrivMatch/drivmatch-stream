@@ -84,6 +84,7 @@ function drawCountries(){
     on(btn,"click",function(){
       if(country===c[0])return;
       country=c[0];limit=60;drawCountries();
+      selectNewCountryFocus(c[0]);
       if(source==="lista-2")loadChannels();else renderChannels();
     });
     area.appendChild(btn);
@@ -105,6 +106,7 @@ function selectSource(id){
   category="all";search="";D("search").value="";limit=60;
   T(D("head-source"),sourceName());
   drawSources();drawCountries();drawCategories();
+  selectNewSourceFocus(id);
   loadChannels();
 }
 function loadChannels(){
@@ -163,11 +165,13 @@ function renderChannels(){
     var btn=E("button","channel-btn");btn.type="button";
     btn.appendChild(E("strong","",c.name));
     btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")));
+    btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
     var star=E("button","fav-btn"+(starred?" marked":""),starred?"★":"☆");
     star.type="button";star.setAttribute("aria-label","Favoritar "+c.name);
-    on(star,"click",function(){toggleFavorite(c);});row.appendChild(star);
+    star.setAttribute("data-channel-id",c.id);
+    on(star,"click",function(){toggleFavorite(c);focusChannelAfterRender(c.id,true);});row.appendChild(star);
     area.appendChild(row);
   }(all[i],i));}
   visibleEl(D("show-more"),all.length>limit);
@@ -184,24 +188,99 @@ function play(c){
     if(task&&typeof task.catch==="function")task.catch(function(){T(D("player-error"),"Toque no Play do vídeo. A origem também pode bloquear reprodução nesta TV.");visibleEl(D("player-error"),true);});
   }catch(e){T(D("player-error"),"Formato ou sinal não suportado neste navegador Samsung.");visibleEl(D("player-error"),true);}
   renderChannels();
+  focusChannelAfterRender(c.id,false);
+}
+/* Directional navigation stays inside the focused column on UP/DOWN.
+ * LEFT/RIGHT changes columns; only that column scrolls, never the video.
+ * ES5-compatible for older Samsung Tizen browsers.
+ */
+function columnOf(el){
+  while(el&&el!==document.body){
+    if(el.className&&typeof el.className==="string"&&(" "+el.className+" ").indexOf(" column ")>=0)return el;
+    el=el.parentNode;
+  }
+  return null;
+}
+function focusableItems(col){
+  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var out=[];
+  for(var i=0;i<nodes.length;i++){
+    var x=nodes[i];
+    if(x.offsetHeight>0&&x.offsetWidth>0&&!x.disabled&&x.hidden!==true)out.push(x);
+  }
+  return out;
+}
+function keepVisibleInColumn(col,item){
+  if(!col||!item)return;
+  var a=col.getBoundingClientRect(),b=item.getBoundingClientRect();
+  var top=a.top+12,bottom=a.bottom-12;
+  if(b.top<top)col.scrollTop-=top-b.top;
+  else if(b.bottom>bottom)col.scrollTop+=b.bottom-bottom;
+}
+function focusTV(item){
+  if(!item)return;
+  item.focus();
+  keepVisibleInColumn(columnOf(item),item);
+}
+function selectNewCountryFocus(code){
+  var all=D("country-items").getElementsByTagName("button");
+  for(var i=0;i<all.length;i++)if(all[i].getAttribute("data-country")===code){focusTV(all[i]);break;}
+}
+function selectNewSourceFocus(code){
+  var all=D("source-items").getElementsByTagName("button");
+  for(var i=0;i<all.length;i++)if(all[i].getAttribute("data-source")===code){focusTV(all[i]);break;}
+}
+function focusChannelAfterRender(channelId,star){
+  var all=D("channel-items").getElementsByTagName("button");
+  for(var i=0;i<all.length;i++)if(all[i].getAttribute("data-channel-id")===channelId &&
+     (star?all[i].className.indexOf("fav-btn")>=0:all[i].className.indexOf("channel-btn")>=0)){
+    focusTV(all[i]);return;
+  }
 }
 function initRemote(){
   on(document,"keydown",function(e){
-    var code=e.keyCode||e.which;if(e.target&&e.target.tagName==="INPUT")return;
-    if(code!==37&&code!==38&&code!==39&&code!==40)return;
-    var selectors=".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen";
-    var nodes=document.querySelectorAll(selectors),list=[],i,j,idx=-1;
-    for(i=0;i<nodes.length;i++){if(nodes[i].offsetWidth>0&&nodes[i].offsetHeight>0){list.push(nodes[i]);if(nodes[i]===document.activeElement)idx=list.length-1;}}
-    if(!list.length)return;
-    if(idx<0){list[0].focus();return;}
-    var target=list[idx],box=target.getBoundingClientRect(),x=box.left+box.width/2,y=box.top+box.height/2,best=null,dist=1e20;
-    for(i=0;i<list.length;i++){if(list[i]===target)continue;
-      var r=list[i].getBoundingClientRect(),tx=r.left+r.width/2,ty=r.top+r.height/2,dx=tx-x,dy=ty-y;
-      if((code===37&&dx>=-4)||(code===39&&dx<=4)||(code===38&&dy>=-4)||(code===40&&dy<=4))continue;
-      var score=(code===37||code===39)?Math.abs(dx)+Math.abs(dy)*2:Math.abs(dy)+Math.abs(dx)*2;
-      if(score<dist){dist=score;best=list[i];}
+    var code=e.keyCode||e.which;
+    if(code!==37&&code!==38&&code!==39&&code!==40&&code!==33&&code!==34&&code!==35&&code!==36)return;
+    if(e.target&&e.target.tagName==="INPUT")return;
+    var current=document.activeElement;
+    var cols=[document.querySelector(".sidebar"),document.querySelector(".catalog"),document.querySelector(".player-column")];
+    var col=columnOf(current)||cols[0],list=focusableItems(col),idx=-1,i;
+    for(i=0;i<list.length;i++)if(list[i]===current){idx=i;break;}
+    if(code===37||code===39){
+      var pos=cols.indexOf(col),next=cols[pos+(code===39?1:-1)];
+      if(next){
+        var options=focusableItems(next),chosen=null,score=1e20;
+        var point=current&&current.getBoundingClientRect?current.getBoundingClientRect():col.getBoundingClientRect();
+        var y=point.top+point.height/2;
+        for(i=0;i<options.length;i++){
+          var rect=options[i].getBoundingClientRect();
+          // Prefer same vertical row, but allow off-screen channel entries.
+          var distance=Math.abs(rect.top+rect.height/2-y);
+          if(distance<score){score=distance;chosen=options[i];}
+        }
+        if(chosen){if(e.preventDefault)e.preventDefault();focusTV(chosen);}
+      }
+      return;
     }
-    if(best){if(e.preventDefault)e.preventDefault();best.focus();if(best.scrollIntoView)best.scrollIntoView(false);}
+    if(!list.length)return;
+    if(e.preventDefault)e.preventDefault();
+    if(code===33||code===34){
+      col.scrollTop+=(code===34?1:-1)*Math.max(180,col.clientHeight*0.75);
+      return;
+    }
+    if(code===36||code===35){focusTV(list[code===36?0:list.length-1]);return;}
+    if(idx<0){focusTV(list[code===38?list.length-1:0]);return;}
+    var nextIndex=idx+(code===40?1:-1);
+    if(code===40&&current.id==="show-more"&&visible.length>limit){
+      var nextChannel=visible[limit],oldLimit=limit;
+      limit+=60;renderChannels();
+      if(nextChannel)focusChannelAfterRender(nextChannel.id,false);
+      return;
+    }
+    if(nextIndex>=0&&nextIndex<list.length){focusTV(list[nextIndex]);return;}
+    // Stay in the same column at the boundary, do not jump to another column.
+    if(code===40&&idx===list.length-1){col.scrollTop=col.scrollHeight;}
+    if(code===38&&idx===0){col.scrollTop=0;}
   });
 }
 function init(){
@@ -210,7 +289,11 @@ function init(){
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
-  on(D("show-more"),"click",function(){limit+=60;renderChannels();});
+  on(D("show-more"),"click",function(){
+    var next=visible[limit];
+    limit+=60;renderChannels();
+    if(next)focusChannelAfterRender(next.id,false);
+  });
   on(D("player-favorite"),"click",function(){if(selected)toggleFavorite(selected);});
   on(D("player-retry"),"click",function(){if(selected)play(selected);});
   on(D("player-fullscreen"),"click",function(){
