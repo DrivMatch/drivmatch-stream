@@ -69,12 +69,22 @@ test("news and original TV never routed",async()=>{
    assert.equal(r.status,404,p);
  }
 });
-test("cross-origin form submit rejected",async()=>{
- for(const action of ["login","logout"]){
-  const r=await stream.fetch(new Request(origin+action,{method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded",Origin:"https://attacker.example"},body:"password="+password}),env);
-  assert.equal(r.status,403);
- }
+test("mobile in-app browser Origin:null can sign in with private password",async()=>{
+ const r=await login(preview,password,{Origin:"null"});
+ assert.equal(r.status,303);
+ assert.match(r.headers.get("set-cookie"),/HttpOnly/);
+});
+test("mobile wrapper Origin can sign in only with valid password",async()=>{
+ const denied=await login(preview,"wrong",{Origin:"https://external-wrapper.example"});
+ assert.equal(denied.status,401);
+ assert.equal(denied.headers.get("set-cookie"),null);
+ const allowed=await login(preview,password,{Origin:"https://external-wrapper.example"});
+ assert.equal(allowed.status,303);
+});
+test("cross-origin logout remains denied",async()=>{
+ const r=await stream.fetch(new Request(origin+"logout",{method:"POST",
+ headers:{Origin:"https://attacker.example"}}),env);
+ assert.equal(r.status,403);
 });
 test("logout expires cookie",async()=>{
  const r=await stream.fetch(new Request(origin+"logout",{method:"POST"}),env);

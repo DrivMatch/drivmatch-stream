@@ -97,8 +97,9 @@ export default {async fetch(request,env){
  if(typeof password!=="string"||password.length<16||password.length>256)
    return plain(503,"Acesso pessoal ainda não configurado.");
  if(path==="/stream/login"&&request.method==="POST"){
-   const origin=request.headers.get("Origin");
-   if(origin&&origin!==url.origin)return plain(403,"Forbidden");
+   // A valid private password is the sole credential for login.
+   // Some mobile in-app browsers send Origin: null or a wrapper origin;
+   // rejecting them here incorrectly blocks legitimate users.
    if(!(request.headers.get("Content-Type")||"").startsWith("application/x-www-form-urlencoded"))
      return plain(415,"Unsupported Media Type");
    if(Number(request.headers.get("Content-Length")||"0")>2048)return plain(413,"Payload Too Large");
