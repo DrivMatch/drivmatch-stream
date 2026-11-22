@@ -14,6 +14,11 @@ const paths={
   "/stream/listas/listas.css":"listas.css",
   "/stream/listas/sources.json":"playlist-sources.json"
 };
+const aliasPlaylist=[
+  '#EXTM3U',
+  '#EXTINF:-1 tvg-country="BR" group-title="Geral",TV Guará',
+  'https://mock.example/guara.m3u8'
+].join("\n");
 const playlist=[
   "#EXTM3U",
   '#EXTINF:-1 tvg-id="NewsTV.br" group-title="Notícias" tvg-country="BR",Canal Notícias Brasil',
@@ -59,7 +64,8 @@ async function main(){
           headers:{"Access-Control-Allow-Origin":"*"},body:playlist}));
       await context.route("https://iptv-org.github.io/**",route=>
         route.fulfill({status:200,contentType:"application/x-mpegURL",
-          headers:{"Access-Control-Allow-Origin":"*"},body:playlist}));
+          headers:{"Access-Control-Allow-Origin":"*"},
+          body:route.request().url().includes("/countries/br.m3u")?aliasPlaylist:playlist}));
       await context.route("https://mock.example/**",route=>route.abort());
       return context;
     };
@@ -95,7 +101,12 @@ async function main(){
       await page.locator('video[src="https://mock.example/news.m3u8"]').waitFor();
       assert.equal(await page.locator('a[target="_blank"]').count(),0);
       await page.locator("#source-list .source").nth(1).click();
-      await page.getByText("Canal Notícias Brasil").first().waitFor();
+      await page.getByText("Record News",{exact:true}).first().waitFor();
+      assert.match(await page.locator("#channel-list").textContent(),/Fonte: TV Guará/);
+      await page.locator("#search").fill("TV Guará");
+      await page.getByText("Record News",{exact:true}).first().waitFor();
+      await page.locator("#search").fill("Record News");
+      await page.getByText("Record News",{exact:true}).first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),7);
       await page.locator(".add-source summary").click();
       await page.locator("#custom-file").setInputFiles({
