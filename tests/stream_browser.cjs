@@ -27,14 +27,17 @@ async function main(){
   const server=http.createServer((req,res)=>{
     if(req.url==="/stream/listas/sources.json"){
       if(!authorized){res.writeHead(403);res.end();return;}
-      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • IPTV-org 12 países"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais e serviços"}]}));return;
+      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • IPTV-org 12 países"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"}]}));return;
     }
     if(req.url && req.url.startsWith("/stream/catalog?list=")){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"text/plain"});
       res.end(req.url.includes("lista-8")?
     ['#EXTM3U','#EXTINF:-1 tvg-country="BR" group-title="News",Record News',
-      'https://mock.example/record-news.m3u8'].join("\n"):m3uES);return;
+      'https://mock.example/record-news.m3u8'].join("\n"):
+    req.url.includes("lista-9")?
+    ['#EXTM3U','#EXTINF:-1 tvg-country="BR" group-title="Público",TV Brasil',
+      'https://mock.example/tvbrasil.m3u8'].join("\n"):m3uES);return;
     }
     if(req.url && req.url.startsWith("/stream/catalog?country=")){
       if(!authorized){res.writeHead(403);res.end();return;}
@@ -129,7 +132,7 @@ async function main(){
       await page.goto(origin+'/stream/');
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
-      assert.equal(await page.locator('#source-items .source-btn').count(),8);
+      assert.equal(await page.locator('#source-items .source-btn').count(),9);
       assert.equal(await page.locator('#country-items .country-btn').count(),14);
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
@@ -143,7 +146,7 @@ async function main(){
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
       await page.locator('#source-items .source-btn').first().waitFor();
-      assert.equal(await page.locator('#source-items .source-btn').count(),8);
+      assert.equal(await page.locator('#source-items .source-btn').count(),9);
       assert.match(await page.locator('#source-items .source-btn').nth(1).innerText(),/Lista 2/);
       assert((await page.locator('#source-items .source-btn').first().evaluate(
         el=>parseFloat(getComputedStyle(el).fontSize)))>=20,'TV source text must be large');
@@ -158,21 +161,18 @@ async function main(){
       assert((await page.locator('#source-items .source-btn').first().evaluate(
         el=>el.getBoundingClientRect().height))<=58,'List buttons should be slim');
       await page.locator('#source-items .source-btn').nth(7).click();
-      await page.getByText('DAZN',{exact:true}).first().waitFor();
       await page.getByText('Record News',{exact:true}).first().waitFor();
-      await page.locator('#search').fill('Telecine');
-      await page.getByText('Telecine',{exact:true}).first().waitFor();
-      await page.locator('#channel-items .channel-btn').filter({hasText:'Telecine'}).click();
-      assert.equal(await page.locator('#player-open-official').isVisible(),true);
-      assert.equal(await page.locator('#video').getAttribute('src'),null);
-      await page.locator('#search').fill('');
+      assert.equal(await page.getByText('DAZN',{exact:true}).count(),0);
+      assert.equal(await page.locator('#player-open-official').count(),0);
+      await page.locator('#source-items .source-btn').nth(8).click();
+      await page.getByText('TV Brasil',{exact:true}).first().waitFor();
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
       // Samsung remote DOWN must traverse the same sidebar through its last country.
       const sidebar=page.locator('.sidebar');
       await page.locator('#source-items .source-btn').first().focus();
-      for(let i=0;i<21;i++)await page.keyboard.press('ArrowDown');
+      for(let i=0;i<22;i++)await page.keyboard.press('ArrowDown');
       assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
       assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
 
