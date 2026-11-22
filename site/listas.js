@@ -62,16 +62,17 @@ function parseM3u(text,source,hint){
     const group=attribute(metadata,"group-title").slice(0,100);
     const epgId=attribute(metadata,"tvg-id").slice(0,120);
     const url=safeUrl(line);
-    if(!name||!url||!source.personal&&PREMIUM.test(name+" "+group))continue;
+    if(!name||!url)continue;
+    const premium=!source.personal&&PREMIUM.test(name);
     if(!source.personal&&!/\.m3u8(?:[?#]|$)|\.mp4(?:[?#]|$)/i.test(url))continue;
     const code=inferCountry(metadata,group,hint);
     const kind=classify(name,group,source);
     const id=(epgId?"epg:"+norm(epgId):"name:"+norm(name))+"|"+code;
     const existing=found.get(id);
-    if(existing){if(existing.urls.length<4&&!existing.urls.includes(url))existing.urls.push(url);continue;}
+    if(existing){if(!existing.premium&&existing.urls.length<4&&!existing.urls.includes(url))existing.urls.push(url);continue;}
     if(found.size>=12000)break;
     found.set(id,{id,name,group,epgId,country:code,kind,
-      logo:safeUrl(attribute(metadata,"tvg-logo")),urls:[url],sourceId:source.id});
+      logo:safeUrl(attribute(metadata,"tvg-logo")),urls:premium?[]:[url],premium,sourceId:source.id});
   }
   return [...found.values()];
 }
@@ -174,7 +175,7 @@ function renderChannels(){
     title.textContent=c.name;
     meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
-      " • "+status(c)+(c.epgId?" • ID EPG":"");
+      " • "+(c.premium?"Acesso oficial necessário":status(c))+(c.epgId?" • ID EPG":"");
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
     const fav=document.createElement("button");fav.type="button";
@@ -308,6 +309,13 @@ async function attach(c,index){
   }catch{fail(token,c,index);}
 }
 async function chooseChannel(c){
+  if(c.premium){
+    stopPlayer();state.selected=c;
+    $("now-name").textContent=c.name;
+    $("now-detail").textContent="No catálogo · acesso oficial necessário";
+    error("Este canal consta numa lista pública, mas a fonte não comprova direito de transmissão. Use o serviço oficial ou a assinatura aplicável.");
+    jumpToPlayer();renderChannels();return;
+  }
   state.health.delete(key(c));
   jumpToPlayer();
   await attach(c,0);renderChannels();
