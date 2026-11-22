@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/app.js':'app.js','/stream/tv.css':'tv.css'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8'].join('\n');
 const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-title="Culture;News",NHK World-Japan',
