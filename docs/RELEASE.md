@@ -15,7 +15,7 @@ Same design vocabulary seen in News: dark institutional header, bright blue #167
 - Confirm Cloudflare has activated the protection for the Worker; the Worker runtime receives verified `ctx.access` only when Access authenticates the request. The Worker requires both verified identity and an exact email match **for every request**; otherwise returns 403.
 - Worker source: `cloudflare/stream-proxy.mjs`. Replace deployed Hello World/previous unprotected Worker code with it. The Worker serves only `/stream/`, CSS, JS, and `/stream/session`, from independent GitHub Pages; rejects /news, /TV and every other path.
 - GitHub Pages `https://drivmatch.github.io/drivmatch-stream/` is **public static code**, not a private site. Its UI checks `./session` before loading any playlist. This endpoint exists only on the authorized Cloudflare Worker, not on GitHub Pages. Consequently the direct public origin remains inaccessible as a working viewer. Do not publish secrets or private playlists to GitHub Pages.
-- Once Access is verified and Worker deployed, connect Worker through **Workers route** `drivmatch.com/stream*`, NOT a Custom Domain at the zone apex. That route must not intercept /news or /TV. Test anonymous denied and owner allowed.
+- Once Access is verified and Worker deployed, connect Worker through **Workers routes** `drivmatch.com/stream` and `drivmatch.com/stream/*`, NOT a Custom Domain at the zone apex. That route must not intercept /news or /TV. Test anonymous denied and owner allowed.
 
 ## Operational release status
 
