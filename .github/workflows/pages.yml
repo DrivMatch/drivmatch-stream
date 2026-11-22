@@ -29,7 +29,8 @@ jobs:
           node --input-type=module --check < cloudflare/stream-proxy.mjs
           test -s site/index.html
           grep -q 'fetch("./session"' site/stream.js
-          grep -q 'ctx.access.getIdentity' cloudflare/stream-proxy.mjs
+          grep -q 'STREAM_ACCESS_PASSWORD' cloudflare/stream-proxy.mjs
+          grep -q 'authenticated(request,password)' cloudflare/stream-proxy.mjs
           ! grep -i 'supabase' site/stream.js
           ! grep -i 'supabase' cloudflare/stream-proxy.mjs
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
