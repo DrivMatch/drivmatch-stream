@@ -2,7 +2,7 @@
  * DrivMatch Stream private viewer — standalone Cloudflare Worker candidate.
  * ONLY drivmatch.com/stream and its known assets.
  * Never route /news, /TV or any other DrivMatch product through this Worker.
- * Deploy only after enabling GitHub Pages and Cloudflare Access owner-only.
+ * The workers.dev URL is a staging preview; production /stream requires access controls.
  */
 const ORIGIN = "https://drivmatch.github.io/drivmatch-stream/";
 const FILES = Object.freeze({
@@ -15,14 +15,16 @@ const FILES = Object.freeze({
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.hostname !== "drivmatch.com") {
+    const isProduction = url.hostname === "drivmatch.com";
+    const isPreview = url.hostname === "drivmatch-stream-proxy.drivmatch.workers.dev";
+    if (!isProduction && !isPreview) {
       return new Response("Not Found", {status:404});
     }
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", {status:405,headers:{"Allow":"GET, HEAD"}});
     }
-    if (url.pathname === "/stream") {
-      return Response.redirect("https://drivmatch.com/stream/", 308);
+    if (url.pathname === "/stream" || (isPreview && url.pathname === "/")) {
+      return Response.redirect(new URL("/stream/", url.origin), 308);
     }
     const file = FILES[url.pathname];
     if (!file) return new Response("Not Found", {status:404});
