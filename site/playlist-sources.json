@@ -86,14 +86,24 @@
     },
     {
       "id": "lista-8",
-      "title": "Lista 8 • Brasil: canais e serviços",
-      "kind": "brasil · canais e serviços oficiais",
-      "description": "Transmissões públicas do diretório Free-TV Brasil e acessos a plataformas oficiais: AgroMais, Globo, SporTV, Premiere, ESPN, Combate, Disney+, DAZN, CazéTV, Multishow, Telecine, SKY+ e filmes. Assinaturas não são liberadas pelo Stream.",
+      "title": "Lista 8 • Brasil: canais abertos",
+      "kind": "brasil · transmissões abertas",
+      "description": "11 entradas no catálogo Free-TV Brasil consultado em 22/11/2026. Links podem ficar indisponíveis ou não tocar na Samsung. Não oferece Disney+, DAZN, ESPN, SporTV, Premiere ou SKY+.",
       "urls": [
         "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8"
       ],
-      "source": "https://github.com/Free-TV/IPTV/blob/master/playlists/playlist_brazil.m3u8",
-      "official_directory": "/stream/listas/brasil-servicos.json"
+      "source": "https://github.com/Free-TV/IPTV/blob/master/playlists/playlist_brazil.m3u8"
+    },
+    {
+      "id": "lista-9",
+      "title": "Lista 9 • Brasil: canais públicos recentes",
+      "kind": "brasil · experimental / checagem por terceiro",
+      "description": "Seleção limitada de canais brasileiros abertos, a partir de lista comunitária que testa manifestos HLS diariamente. O teste não garante licenciamento, vídeo/áudio nem compatibilidade Samsung.",
+      "urls": [
+        "https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u"
+      ],
+      "source": "https://github.com/SamuelSantos-R/cattv-playlist",
+      "filtered_catalog": "/stream/catalog?list=lista-9&country=BR"
     }
   ]
 }

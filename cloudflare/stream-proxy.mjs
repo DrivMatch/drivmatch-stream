@@ -22,8 +22,27 @@ const TV_SOURCE_URLS={
   "lista-5":"https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u",
   "lista-6":"https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u",
   "lista-7":"https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u",
-  "lista-8":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8"
+  "lista-8":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8",
+  "lista-9":"https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u"
 };
+/* Lista 9: no known subscription-network links; HLS health is not a rights audit. */
+const BR9_PUBLIC=new Set(["agrocanal","agrobrasil tv","bem mais tv","canal educacao","canal futura","canal gov","canal saude","canal do boi","canal uol","cultura fast","futura","istv","rede brasil","rede minas","rede ngt","rede vida","rede familia","sbt nacional","sesc tv","tv brasil","tv camara","tv cultura","tv justica","tv senado","tve rs","tve bahia","tv vicosa","tv gazeta","tv a critica","tv brasil oeste","tv cidade verde cuiaba","tv show fortaleza","tv comunitaria","tv sao raimundo","tv vila real","record news","tv guara","amazon sat","cindie tv","classique tv","mytime movie network"]);
+function publicBrazilPlaylist(raw){
+  const lines=String(raw||"").split(/\r?\n/),out=["#EXTM3U"];
+  let ext="";
+  for(const value of lines){
+    const line=value.trim();
+    if(line.startsWith("#EXTINF:")){ext=line;continue;}
+    if(!ext||!line||line.startsWith("#"))continue;
+    const match=/,([^,\r\n]+)$/.exec(ext);
+    const name=match?match[1].normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"").toLowerCase().trim():"";
+    if(BR9_PUBLIC.has(name)&&/^https:\/\//i.test(line)&&/\.m3u8(?:[?#]|$)/i.test(line))
+      out.push(ext,line);
+    ext="";
+  }
+  return out.join("\n");
+}
 const TV_COUNTRIES=["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"];
 async function publicCatalogue(address){
   const upstream=await fetch(address,{redirect:"follow",headers:{"Accept":"text/plain,application/x-mpegURL,*/*"}});
@@ -199,6 +218,7 @@ export default {async fetch(request,env){
        }
      }else if(Object.hasOwn(TV_SOURCE_URLS,list||"")){
        body=await publicCatalogue(TV_SOURCE_URLS[list]);
+        if(list==="lista-9")body=publicBrazilPlaylist(body);
      }else if(!list){
        // Keep compatibility with the earlier Samsung TV browser catalogue requests.
        if(!TV_COUNTRIES.includes(code))return plain(400,"Unsupported country");

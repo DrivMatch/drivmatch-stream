@@ -208,13 +208,13 @@ test("Samsung TV lounge page is private and served from fixed worker route",asyn
   assert.deepEqual(seen,["tv.html","tv.css","tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
  }finally{globalThis.fetch=before;}
 });
-test("all 8 public IPTV catalogs are whitelisted and authenticated",async()=>{
+test("all 9 public IPTV catalogs are whitelisted and authenticated",async()=>{
  const c=await cookie(),before=globalThis.fetch,seen=[];
  try{
   globalThis.fetch=async u=>{seen.push(String(u));return new Response("#EXTM3U\n#EXTINF:-1,News TV\nhttps://example.org/news.m3u8",{status:200});};
   const blocked=await stream.fetch(new Request(origin+"catalog?list=lista-1&country=ALL"),env);
   assert.equal(blocked.status,403);
-  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8"]){
+  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9"]){
    const res=await stream.fetch(new Request(origin+"catalog?list="+id+"&country=ALL",{headers:{Cookie:c}}),env);
    assert.equal(res.status,200,id);
   }
@@ -222,10 +222,36 @@ test("all 8 public IPTV catalogs are whitelisted and authenticated",async()=>{
   assert.equal(list2.status,200);assert.match(await list2.text(),/#DM_COUNTRY:BR/);
   const all=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=ALL",{headers:{Cookie:c}}),env);
   assert.equal(all.status,200);assert.match(await all.text(),/#DM_COUNTRY:PT/);
-  for(const list of ["lista-9","../../admin","https://example.org/playlist.m3u"]){
+  for(const list of ["lista-10","../../admin","https://example.org/playlist.m3u"]){
     const res=await stream.fetch(new Request(origin+"catalog?list="+encodeURIComponent(list),{headers:{Cookie:c}}),env);
     assert.equal(res.status,400);
   }
-  assert.equal(seen.length,20);
+  assert.equal(seen.length,21);
+ }finally{globalThis.fetch=before;}
+});
+
+test("Brazil Lista 9 allows selected open channels and excludes paid networks",async()=>{
+ const c=await cookie(),before=globalThis.fetch;
+ try{
+  const fixture=[
+   "#EXTM3U",
+   '#EXTINF:-1 group-title="Notícias",TV Brasil',
+   "https://example.org/tv-brasil.m3u8",
+   '#EXTINF:-1 group-title="Esportes",ESPN 3',
+   "https://example.org/espn3.m3u8",
+   '#EXTINF:-1 group-title="Filmes",Telecine Premium',
+   "https://example.org/telecine.m3u8",
+   '#EXTINF:-1 group-title="Notícias",Record News',
+   "https://example.org/record-news.m3u8"
+  ].join("\n");
+  globalThis.fetch=async()=>new Response(fixture,{status:200});
+  const res=await stream.fetch(new Request(origin+"catalog?list=lista-9&country=BR",
+    {headers:{Cookie:c}}),env);
+  assert.equal(res.status,200);
+  const body=await res.text();
+  assert.match(body,/TV Brasil/);
+  assert.match(body,/Record News/);
+  assert.doesNotMatch(body,/ESPN|Telecine/);
+  assert.equal((body.match(/#EXTINF/g)||[]).length,2);
  }finally{globalThis.fetch=before;}
 });
