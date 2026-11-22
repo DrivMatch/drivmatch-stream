@@ -33,6 +33,31 @@
   const normal = str => str.toLocaleLowerCase().normalize("NFD")
     .replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
 
+  function playerState(value, label){
+    const holder=$("player-state");
+    holder.dataset.state=value;
+    $("player-state-text").textContent=label;
+  }
+  function syncPlayerFavorite(){
+    const button=$("player-favorite");
+    const selected=state.selected;
+    button.disabled=!selected;
+    if(!selected){button.textContent="☆";button.classList.remove("is-favorite");return;}
+    const marked=state.favorites.includes(favoriteKey(selected));
+    button.textContent=marked?"★":"☆";
+    button.classList.toggle("is-favorite",marked);
+    button.title=marked?"Remover dos favoritos":"Adicionar aos favoritos";
+    button.setAttribute("aria-label",button.title);
+  }
+  function toggleFavorite(c){
+    if(!c)return;
+    const key=favoriteKey(c);
+    state.favorites=state.favorites.includes(key)
+      ?state.favorites.filter(x=>x!==key):[...state.favorites,key];
+    saveFavorites();
+    syncPlayerFavorite();
+    render();
+  }
   function showError(message){
     $("player-error").textContent=message;
     $("player-error").hidden=false;
@@ -51,6 +76,7 @@
     try{video.load();}catch{}
     video.hidden=true;
     $("full-screen").disabled=true;
+    $("retry-channel").disabled=true;
   }
   function setGate(message){
     state.authorised=false;
@@ -58,6 +84,7 @@
     $("gate").hidden=false;
     $("tv").hidden=true;
     $("gate-message").textContent=message;
+    playerState("idle","Acesso necessário");
   }
   async function verifyOwner(){
     try{
@@ -102,7 +129,8 @@
   }
   async function loadChannels(){
     if(!state.authorised)return;
-    $("catalog-status").textContent="Carregando listas de 12 países…";
+    $("catalog-status").textContent="Carregando catálogo de 12 países…";
+    $("refresh-channels").disabled=true;
     const options=countries.filter(c=>c.code!=="ALL");
     const results=await Promise.allSettled(options.map(async c=>{
       const source="https://iptv-org.github.io/iptv/countries/"+c.code.toLowerCase()+".m3u";
@@ -124,6 +152,7 @@
     }
     state.channels=[...unique.values()];
     state.sourcesFailed=results.filter(r=>r.status==="rejected").length;
+    $("refresh-channels").disabled=false;
     const counts=new Map();
     for(const c of state.channels)counts.set(c.code,(counts.get(c.code)||0)+1);
     for(const b of $("countries").querySelectorAll("button")){
@@ -131,9 +160,8 @@
       const count=code==="ALL"?state.channels.length:counts.get(code)||0;
       b.textContent=c.flag+" "+c.name+" ("+count+")";
     }
-    $("catalog-status").textContent=state.channels.length+" canais catalogados (não verificados)"
-      +(state.sourcesFailed?" • "+state.sourcesFailed+" países com fonte indisponível":"")
-      +" • Disponibilidade depende do dispositivo, da região e dos direitos";
+    $("catalog-status").textContent="Lista pública · sinais ainda não verificados"+
+      (state.sourcesFailed?" · "+state.sourcesFailed+" fontes indisponíveis":"");
     state.limit=80;
     render();
   }
@@ -178,6 +206,11 @@
     for(const c of matches.slice(0,state.limit)){
       const row=document.createElement("div");
       row.className="channel"+(state.selected?.id===c.id?" active":"");
+      const avatar=document.createElement("span");
+      avatar.className="channel-avatar";
+      avatar.dataset.genre=c.genre;
+      avatar.textContent=c.name.replace(/[^\\p{L}\\p{N} ]/gu,"").trim().split(/\\s+/).slice(0,2).map(s=>s.slice(0,1)).join("").toUpperCase()||"TV";
+      avatar.setAttribute("aria-hidden","true");
       const pick=document.createElement("button");
       pick.type="button";pick.className="pick";
       const title=document.createElement("strong");
@@ -196,16 +229,12 @@
       fav.textContent=marked?"★":"☆";
       fav.title=(marked?"Remover favorito: ":"Favoritar: ")+c.name;
       fav.setAttribute("aria-label",fav.title);
-      fav.addEventListener("click",()=>{
-        const key=favoriteKey(c);
-        state.favorites=marked?state.favorites.filter(x=>x!==key):[...state.favorites,key];
-        saveFavorites();render();
-      });
-      row.append(pick,fav);fragment.appendChild(row);
+      fav.addEventListener("click",()=>toggleFavorite(c));
+      row.append(avatar,pick,fav);fragment.appendChild(row);
     }
     area.appendChild(fragment);
-    $("result-count").textContent=state.category==="ppv"?"Eventos pay-per-view: 0":
-      matches.length+" canais neste filtro";
+    $("result-count").textContent=state.category==="ppv"?"0 eventos":
+      matches.length+" opções";
     $("more-channels").hidden=matches.length<=state.limit;
     $("more-channels").textContent="Mostrar mais canais ("+
       Math.min(80,Math.max(0,matches.length-state.limit))+")";
@@ -245,12 +274,14 @@
         state.awaitingTap=true;
         clearTimeout(state.timer);
         state.timer=null;
+        playerState("loading","Toque em Play");
         showError("Toque em Play no vídeo para iniciar. Se não funcionar, o sinal pode estar bloqueado.");
       });
     }catch{
       state.awaitingTap=true;
       clearTimeout(state.timer);
       state.timer=null;
+      playerState("loading","Toque em Play");
       showError("Toque em Play no vídeo para iniciar a transmissão.");
     }
   }
@@ -260,11 +291,14 @@
     clearTimeout(state.timer);
     state.timer=null;
     if(sourceIndex+1<c.sources.length){
+      playerState("loading","Testando outra fonte");
       showError("Sinal indisponível. Tentando outra fonte deste canal…");
       void startSource(c,sourceIndex+1);
       return;
     }
     state.health.set(c.id,"failed");
+    playerState("failed","Sinal indisponível");
+    $("current-country").textContent=(countries.find(x=>x.code===c.code)?.name||"")+" · Sinal não reproduzido";
     showError("Este canal não reproduziu neste dispositivo. Pode estar fora do ar, com bloqueio regional, CORS ou direitos restritos. Escolha outro.");
     render();
   }
@@ -276,7 +310,10 @@
     const source=c.sources[sourceIndex];
     video.hidden=false;
     $("full-screen").disabled=false;
+    $("retry-channel").disabled=false;
     $("screen-message").hidden=true;
+    playerState("loading","Conectando ao canal");
+    syncPlayerFavorite();
     clearError();
     render();
     state.timer=setTimeout(()=>failAttempt(c,sourceIndex,token),20000);
@@ -315,6 +352,7 @@
     $("current-channel").textContent=c.name;
     $("current-country").textContent=(countries.find(x=>x.code===c.code)?.name||"")+
       " • Verificando reprodução…";
+    syncPlayerFavorite();
     await startSource(c,0);
   }
   function setupFilters(){
@@ -348,7 +386,16 @@
     });
     $("search").addEventListener("input",e=>{
       state.search=e.target.value;
+      $("clear-search").hidden=!state.search;
       state.limit=80;render();
+    });
+    $("clear-search").addEventListener("click",()=>{
+      $("search").value="";state.search="";
+      $("clear-search").hidden=true;state.limit=80;render();$("search").focus();
+    });
+    $("player-favorite").addEventListener("click",()=>toggleFavorite(state.selected));
+    $("retry-channel").addEventListener("click",()=>{
+      if(state.authorised&&state.selected)void selectChannel(state.selected);
     });
     $("more-channels").addEventListener("click",()=>{
       state.limit+=80;render();
@@ -366,6 +413,7 @@
       if(!c || !state.authorised)return;
       clearTimeout(state.timer);state.timer=null;
       state.health.set(c.id,"ok");
+      playerState("playing","Reproduzindo");
       $("current-country").textContent=(countries.find(x=>x.code===c.code)?.name||"")+
         " • Reprodução confirmada nesta sessão";
       clearError();render();
@@ -373,11 +421,18 @@
     video.addEventListener("error",()=>{
       if(state.selected)failAttempt(state.selected,state.sourceIndex,state.attempt);
     });
+    video.addEventListener("waiting",()=>{
+      if(state.selected&&!video.paused)playerState("loading","Carregando vídeo");
+    });
+    video.addEventListener("pause",()=>{
+      if(state.selected&&!video.hidden&&!video.ended&&!state.failedAttempt)playerState("idle","Pausado");
+    });
   }
   async function init(){
     setupFilters();
     if(!await verifyOwner())return;
     state.favorites=readFavorites();
+    syncPlayerFavorite();
     await loadChannels();
     setInterval(async()=>{if(state.authorised)await verifyOwner();},300000);
   }

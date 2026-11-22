@@ -75,11 +75,14 @@ async function main(){
       await page.getByRole('button',{name:/Pay-per-view/}).click();
       await page.getByText(/Nenhum evento PPV está integrado/).waitFor();
       assert.equal(await page.locator('#channels .channel').count(),0);
-      await page.getByRole('button',{name:/Ao vivo/}).click();
+      await page.getByRole('button',{name:'Todos',exact:true}).click();
       await page.getByText('24 Horas (720p)').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('a[target="_blank"]').count(),0);
       assert.equal(await page.locator('#current-channel').textContent(),'24 Horas (720p)');
+      assert.equal(await page.locator('.viewer').evaluate(el=>getComputedStyle(el).position),'sticky');
+      assert.equal(await page.locator('#player-favorite').isEnabled(),true);
+      assert.equal(await page.locator('#retry-channel').isEnabled(),true);
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
