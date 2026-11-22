@@ -20,7 +20,7 @@
   const NEWS = /news|not[ií]cias|noticiero|informaci[oó]n|actualidad|jornalismo|journalism|nachrichten|nieuws|actualit[eé]s|tg\d|informazione|報道|ニュース|新闻/i;
   const SPORTS = /sports?|esport|deport|futebol|football|soccer|calcio|sportivo|スポーツ|体育/i;
   // A playlist is a directory, not a right to view premium programming.
-  const PREMIUM = /\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|sport\s*tv|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
+  const PREMIUM = /\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
   const store = "drivmatch-stream-favorites-v1";
   const state = {
     country:"ALL", category:"live", favoritesOnly:false, search:"",
