@@ -1,3 +1,4 @@
+# Activate owner's corrected eight-digit TV PIN without exposing the secret.
 name: Deploy DrivMatch Stream private Worker to Cloudflare
 on:
   workflow_dispatch:
