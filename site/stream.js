@@ -27,9 +27,8 @@
     stopPlayer();
   }
 
-  // Only the Cloudflare Worker can authorize an interactive Stream session.
-  // This endpoint does not exist at the public GitHub Pages origin. The Access
-  // identity is checked on the Worker, never trusted from browser localStorage.
+  // The independent Cloudflare Worker verifies a signed HttpOnly session cookie.
+  // The public GitHub Pages origin cannot issue an authorized session.
   async function verifyOwner() {
     try {
       const response = await fetch("./session", {
@@ -43,7 +42,7 @@
       $("tv").hidden = false;
       return true;
     } catch {
-      setGate("Acesso pessoal indisponível. Entre pelo endereço drivmatch.com/stream após a autorização no Cloudflare Access.");
+      setGate("Acesso pessoal indisponível. Abra novamente a página do Stream para entrar com sua senha particular.");
       return false;
     }
   }

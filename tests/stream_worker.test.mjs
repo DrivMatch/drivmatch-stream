@@ -1,73 +1,86 @@
-/* Security regression tests for owner-only Access Worker. Run with Node 22+. */
+/* Tests: no-card private password gate, server-side cookie, route isolation. */
 import assert from "node:assert/strict";
 import test from "node:test";
 import stream from "../cloudflare/stream-proxy.mjs";
-
-const URL = "https://drivmatch.com/stream/";
-const allow = (email="owner@example.test") => ({
-  access:{ getIdentity: async () => ({email}) },
+const origin="https://drivmatch.com/stream/", preview="https://drivmatch-stream-proxy.drivmatch.workers.dev/stream/";
+const password="test-passphrase-only-dont-use-in-production-123";
+const env={STREAM_ACCESS_PASSWORD:password};
+async function login(where=origin,passwordInput=password,headers={}){
+ return stream.fetch(new Request(where+"login",{method:"POST",
+   headers:{"Content-Type":"application/x-www-form-urlencoded",...headers},
+   body:new URLSearchParams({password:passwordInput}).toString()}),env);
+}
+async function cookie(){const r=await login();assert.equal(r.status,303);return r.headers.get("set-cookie").split(";")[0];}
+test("missing and short secrets deny all viewers",async()=>{
+ for(const e of [{},{STREAM_ACCESS_PASSWORD:"1234"}]){
+  const r=await stream.fetch(new Request(origin),e);
+  assert.equal(r.status,503);
+ }
 });
-const ownerEnv = {STREAM_OWNER_EMAIL:"owner@example.test"};
-
-test("Access unconfigured fails closed, even with an identity object", async () => {
-  const result = await stream.fetch(new Request(URL), {}, allow());
-  assert.equal(result.status,403);
+test("login form exists on both permitted hosts",async()=>{
+ for(const where of [origin,preview]){
+  const r=await stream.fetch(new Request(where),env);
+  assert.equal(r.status,200);assert.match(await r.text(),/Senha de acesso/);
+ }
 });
-test("Missing Access authentication fails closed", async () => {
-  const result = await stream.fetch(new Request(URL), ownerEnv, {});
-  assert.equal(result.status,403);
+test("wrong password denied, no cookie",async()=>{
+ const r=await login(origin,"wrong");assert.equal(r.status,401);
+ assert.equal(r.headers.get("set-cookie"),null);
 });
-test("Forged email header does not authorize an anonymous request", async () => {
-  const req = new Request(URL, {headers:{"cf-access-authenticated-user-email":"owner@example.test"}});
-  const result = await stream.fetch(req, ownerEnv, {});
-  assert.equal(result.status,403);
+test("correct password issues secure signed cookie",async()=>{
+ const r=await login();assert.equal(r.status,303);
+ assert.equal(r.headers.get("location"),origin);
+ assert.match(r.headers.get("set-cookie"),/HttpOnly; Secure; SameSite=Strict/);
 });
-test("Wrong authenticated identity is denied", async () => {
-  const result = await stream.fetch(new Request(URL), ownerEnv, allow("other@example.test"));
-  assert.equal(result.status,403);
+test("session endpoint requires authentic cookie",async()=>{
+ const no=await stream.fetch(new Request(origin+"session"),env);assert.equal(no.status,403);
+ const yes=await stream.fetch(new Request(origin+"session",{headers:{Cookie:await cookie()}}),env);
+ assert.equal(yes.status,200);assert.deepEqual(await yes.json(),{allowed:true});
 });
-test("Cloudflare identity lookup errors fail closed", async () => {
-  const ctx={access:{getIdentity:async()=>{throw Error("access provider down")}}};
-  const result=await stream.fetch(new Request(URL), ownerEnv, ctx);
-  assert.equal(result.status,403);
+test("forged headers never grant access",async()=>{
+ const r=await stream.fetch(new Request(origin+"session",{headers:{"cf-access-authenticated-user-email":"drivmatch@proton.me"}}),env);
+ assert.equal(r.status,403);
 });
-test("No access to News or original TV routes", async () => {
-  for (const p of ["/news","/news/","/TV","/TV/","/stream-malicious"]) {
-    const res = await stream.fetch(new Request("https://drivmatch.com"+p),ownerEnv,allow());
-    assert.equal(res.status,404,p);
+test("cookie tampering rejected",async()=>{
+ const original=await cookie(),tweaked=original.slice(0,-2)+"ZZ";
+ const r=await stream.fetch(new Request(origin+"session",{headers:{Cookie:tweaked}}),env);
+ assert.equal(r.status,403);
+});
+test("password rotation revokes sessions",async()=>{
+ const r=await stream.fetch(new Request(origin+"session",{headers:{Cookie:await cookie()}}),
+ {STREAM_ACCESS_PASSWORD:"new-private-password-not-same-abcdef"});
+ assert.equal(r.status,403);
+});
+test("authenticated viewer receives only the approved source files",async()=>{
+ const c=await cookie(),before=globalThis.fetch,seen=[];
+ try{
+  globalThis.fetch=async u=>{seen.push(String(u));return new Response("ok",{status:200});};
+  for(const path of ["","stream.js","stream.css"]){
+   const res=await stream.fetch(new Request(origin+path,{headers:{Cookie:c}}),env);
+   assert.equal(res.status,200);assert.equal(await res.text(),"ok");
   }
+  assert.deepEqual(seen,["index.html","stream.js","stream.css"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
+ }finally{globalThis.fetch=before;}
 });
-test("Session endpoint requires real Cloudflare Access context", async () => {
-  const res = await stream.fetch(new Request(URL+"session"),ownerEnv,{});
-  assert.equal(res.status,403);
+test("news and original TV never routed",async()=>{
+ const c=await cookie();
+ for(const p of ["/news","/news/","/TV","/TV/","/stream-collision","/stream/config.js"]){
+   const r=await stream.fetch(new Request("https://drivmatch.com"+p,{headers:{Cookie:c}}),env);
+   assert.equal(r.status,404,p);
+ }
 });
-test("Owner session is permitted without Supabase", async () => {
-  const res = await stream.fetch(new Request(URL+"session"),ownerEnv,allow());
-  assert.equal(res.status,200);
-  assert.deepEqual(await res.json(),{allowed:true});
-  assert.match(res.headers.get("cache-control"),/no-store/);
+test("cross-origin form submit rejected",async()=>{
+ for(const action of ["login","logout"]){
+  const r=await stream.fetch(new Request(origin+action,{method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded",Origin:"https://attacker.example"},body:"password="+password}),env);
+  assert.equal(r.status,403);
+ }
 });
-test("Authorized owner can receive the page from independent Pages origin", async () => {
-  const before=globalThis.fetch;
-  try {
-    let fetched="";
-    globalThis.fetch=async (url) => {
-      fetched=String(url);
-      return new Response("<!doctype html><title>Stream</title>",{
-        status:200,headers:{"Content-Type":"text/html"},
-      });
-    };
-    const res = await stream.fetch(new Request(URL),ownerEnv,allow());
-    assert.equal(res.status,200);
-    assert.equal(fetched,"https://drivmatch.github.io/drivmatch-stream/index.html");
-    assert.match(await res.text(),/Stream/);
-  } finally {globalThis.fetch=before;}
+test("logout expires cookie",async()=>{
+ const r=await stream.fetch(new Request(origin+"logout",{method:"POST"}),env);
+ assert.equal(r.status,303);assert.match(r.headers.get("set-cookie"),/Max-Age=0/);
 });
-test("Unrecognized files are not proxied", async () => {
-  const res=await stream.fetch(new Request(URL+"config.js"),ownerEnv,allow());
-  assert.equal(res.status,404);
-});
-test("Invalid methods are never accepted", async () => {
-  const res=await stream.fetch(new Request(URL,{method:"POST"}),ownerEnv,allow());
-  assert.equal(res.status,405);
+test("unexpected methods denied",async()=>{
+ const r=await stream.fetch(new Request(origin,{method:"PUT"}),env);
+ assert.equal(r.status,405);
 });
