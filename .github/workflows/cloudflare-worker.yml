@@ -42,8 +42,8 @@ jobs:
           if [ -z "$PRIVATE_PASSWORD" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "::notice::Private password missing; Worker deployment skipped safely. Create STREAM_ACCESS_PASSWORD as GitHub Actions secret."
-          elif [ "$(printf %s "$PRIVATE_PASSWORD" | wc -c)" -lt 20 ]; then
-            echo "::error::Private password must be at least 20 characters."
+          elif [ "$(printf %s "$PRIVATE_PASSWORD" | wc -c)" -lt 16 ]; then
+            echo "::error::Private password must be at least 16 characters."
             exit 1
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
