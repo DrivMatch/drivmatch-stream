@@ -70,8 +70,7 @@ function drawSources(){
   for(var i=0;i<SOURCES.length;i++){(function(s,j){
     var btn=E("button","source-btn"+(s.id===source?" active":""));
     btn.type="button";btn.setAttribute("data-source",s.id);
-    btn.appendChild(E("span","ordinal",("0"+(j+1)).slice(-2)));
-    btn.appendChild(document.createTextNode(s.title.replace(/^Lista\s*\d+\s*•\s*/,"")));
+    btn.appendChild(E("span","source-label",s.title||("Lista "+(j+1))));
     on(btn,"click",function(){selectSource(s.id);});area.appendChild(btn);
   }(SOURCES[i],i));}
   T(D("source-count"),SOURCES.length+" listas");
@@ -99,6 +98,14 @@ function drawCategories(){
 }
 function refresh(){
   cache={};loadChannels();
+}
+function findGlobo(){
+  var needsLoad=source!=="lista-2"||country!=="BR"||!channels.length;
+  source="lista-2";country="BR";category="all";search="globo";limit=60;
+  D("search").value="Globo";
+  T(D("head-source"),sourceName());
+  drawSources();drawCountries();drawCategories();
+  if(needsLoad)loadChannels();else renderChannels();
 }
 function selectSource(id){
   if(source===id&&channels.length)return;
@@ -157,7 +164,10 @@ function renderChannels(){
   visible=all;
   T(D("result-count"),visible.length+" canais");
   if(!all.length){
-    area.appendChild(E("p","loading",channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte."));
+    var emptyText=channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte.";
+    if(search==="globo"&&source==="lista-2"&&country==="BR")
+      emptyText="Nenhum canal com Globo foi encontrado no catálogo brasileiro carregado. O Globoplay oficial está no atalho acima.";
+    area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
     var row=E("div","channel-row"+(selected&&selected.id===c.id?" current":""));
@@ -202,7 +212,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#find-globo,#globo-official,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -289,6 +299,7 @@ function init(){
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
+  on(D("find-globo"),"click",findGlobo);
   on(D("show-more"),"click",function(){
     var next=visible[limit];
     limit+=60;renderChannels();
