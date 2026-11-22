@@ -12,7 +12,8 @@ const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/tv/tv.css":"tv.css","/stream/tv/tv.js":"tv.js",
   "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
   "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
-  "/stream/listas/sources.json":"playlist-sources.json"};
+  "/stream/listas/sources.json":"playlist-sources.json",
+  "/stream/listas/brasil-servicos.json":"brasil-servicos.json"};
 
 const TV_SOURCE_URLS={
   "lista-1":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8",
@@ -20,7 +21,8 @@ const TV_SOURCE_URLS={
   "lista-4":"https://iptv-org.github.io/iptv/categories/sports.m3u",
   "lista-5":"https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u",
   "lista-6":"https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u",
-  "lista-7":"https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u"
+  "lista-7":"https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u",
+  "lista-8":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8"
 };
 const TV_COUNTRIES=["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"];
 async function publicCatalogue(address){
