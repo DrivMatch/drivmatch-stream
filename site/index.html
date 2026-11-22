@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#071327">
-  <title>DrivMatch Stream • Minha TV Internacional</title>
+  <title>DrivMatch Stream • TV Internacional</title>
   <link rel="stylesheet" href="./stream.css">
 </head>
 <body>
@@ -19,34 +19,60 @@
     </section>
     <section id="tv" hidden>
       <header class="topbar">
-        <div><div class="eyebrow">DRIVMATCH • STREAM</div><h1>DrivMatch <span>Stream</span></h1><p>Selecione o canal e assista aqui mesmo.</p></div>
-        <div class="private-mark">Acesso pessoal <form method="post" action="./logout"><button type="submit">Sair</button></form></div>
+        <div>
+          <div class="eyebrow">DRIVMATCH • STREAM</div>
+          <h1>DrivMatch <span>Stream</span></h1>
+          <p>Notícias, esportes e transmissões ao vivo de 12 países.</p>
+        </div>
+        <div class="private-mark">Acesso pessoal
+          <form method="post" action="./logout"><button type="submit">Sair</button></form>
+        </div>
       </header>
       <div class="layout">
         <section class="viewer" aria-label="Tela de reprodução">
           <div class="screen" id="screen">
             <video id="video" playsinline controls preload="none" aria-label="Canal selecionado" hidden></video>
-            <div class="screen-message" id="screen-message"><div class="play-mark">▶</div><h2>Escolha um canal</h2><p>Selecione uma transmissão na lista ao lado.</p></div>
+            <div class="screen-message" id="screen-message">
+              <div class="play-mark">▶</div>
+              <h2>Escolha um canal</h2>
+              <p>Selecione uma transmissão na lista de canais.</p>
+            </div>
           </div>
-          <div class="channel-info"><div><strong id="current-channel">Nenhum canal selecionado</strong><p id="current-country">Os sinais dependem de disponibilidade e direitos.</p></div><button id="full-screen" type="button" disabled>Tela cheia</button></div>
+          <div class="channel-info">
+            <div>
+              <strong id="current-channel">Nenhum canal selecionado</strong>
+              <p id="current-country">Os sinais dependem de disponibilidade e direitos.</p>
+            </div>
+            <button id="full-screen" type="button" disabled>Tela cheia</button>
+          </div>
           <p id="player-error" class="alert" role="alert" hidden></p>
-          <p class="disclaimer">Esta página não retransmite nem armazena vídeos. Algumas emissoras bloqueiam reprodução externa, CORS ou acesso fora da região. Links comunitários não são garantia de transmissão ou autorização de uso.</p>
+          <p class="disclaimer">O Stream não retransmite nem armazena vídeos. Os canais são listados a partir de fontes públicas, sem garantia de reprodução ou autorização de uso. Algumas emissoras bloqueiam reprodução externa, CORS ou acesso fora da região. A confirmação de reprodução vale apenas para esta sessão e este dispositivo.</p>
         </section>
         <aside class="guide" aria-label="Guia de canais">
-          <h2>Canais</h2>
-          <label for="search" class="sr-only">Buscar canais</label><input id="search" type="search" placeholder="Buscar canal…" autocomplete="off">
+          <div class="guide-heading">
+            <h2>Canais</h2>
+            <button id="refresh-channels" type="button">Atualizar lista</button>
+          </div>
+          <label for="search" class="sr-only">Buscar canais</label>
+          <input id="search" type="search" placeholder="Buscar canal…" autocomplete="off">
+          <h3 class="filter-heading">Países</h3>
           <div class="filters" id="countries" role="group" aria-label="Filtrar por país"></div>
+          <h3 class="filter-heading">Categorias</h3>
           <div class="filters" id="categories" role="group" aria-label="Filtrar por categoria">
-            <button type="button" data-category="all" class="chosen">Todos</button>
-            <button type="button" data-category="news">Notícias</button>
-            <button type="button" data-category="sports">Esportes BR</button>
+            <button type="button" data-category="live" class="chosen">🔴 Ao vivo</button>
+            <button type="button" data-category="sports">⚽ Esportes</button>
+            <button type="button" data-category="news">📰 Notícias</button>
+            <button type="button" data-category="ppv">🎟 Pay-per-view</button>
             <button type="button" id="favorites-only">★ Favoritos</button>
           </div>
           <p id="catalog-status" role="status" class="status">Aguardando autorização…</p>
+          <p id="result-count" class="result-count"></p>
+          <p id="ppv-notice" class="ppv-notice" hidden>Pay-per-view requer uma integração oficial autorizada e, quando aplicável, assinatura ou compra do evento. Nenhum evento PPV está integrado neste momento. A lista pública não concede acesso a canais pagos.</p>
           <div class="channels" id="channels"></div>
+          <button id="more-channels" class="more-channels" type="button" hidden>Mostrar mais canais</button>
         </aside>
       </div>
-      <footer>Fontes: playlists públicas IPTV-org • Reprodução no navegador apenas de sinais que a origem permitir • Redes esportivas pagas exigem acesso oficial autorizado.</footer>
+      <footer>Fontes: playlists públicas IPTV-org • Canais catalogados não equivalem a canais disponíveis • Pay-per-view somente com autorização oficial • DrivMatch Stream é independente de DrivMatch News e DrivMatch TV.</footer>
     </section>
   </main>
   <script defer src="./stream.js"></script>
