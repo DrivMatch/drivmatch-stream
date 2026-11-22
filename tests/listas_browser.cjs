@@ -44,8 +44,8 @@ async function main(){
   let browser;
   try{
     browser=await chromium.launch({headless:true});
-    const newContext=async()=>{
-      const context=await browser.newContext();
+    const newContext=async(mobile=false)=>{
+      const context=await browser.newContext(mobile?{viewport:{width:375,height:780},isMobile:true,hasTouch:true}:{});
       await context.addInitScript(()=>{
         HTMLMediaElement.prototype.canPlayType=function(t){
           return /mpegurl/i.test(t)?"probably":"";
@@ -101,6 +101,46 @@ async function main(){
       });
       await page.getByText(/Lista 8 • meus-canais.m3u/).first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),8);
+      await context.close();
+    }
+    // On a narrow mobile device, choosing a playlist moves to its actual channels
+    // and choosing a channel takes the user back to the visible player.
+    {
+      authorized=true;
+      const context=await newContext(true),page=await context.newPage();
+      await page.goto(origin+"/stream/listas/");
+      await page.locator("#source-list .source").first().waitFor();
+      await page.locator("#source-list .source").first().click();
+      await page.locator("#channel-list .channel").first().waitFor();
+      await page.waitForFunction(()=>{
+        const r=document.getElementById("channel-catalog").getBoundingClientRect();
+        return r.top>=-24 && r.top<window.innerHeight/2;
+      });
+      assert.match(await page.locator("#catalog-status").textContent(),/2 neste filtro/);
+      await page.locator("#channel-list .pick").first().click();
+      await page.waitForFunction(()=>{
+        const r=document.querySelector(".viewer").getBoundingClientRect();
+        return r.top>=-24 && r.top<window.innerHeight/2;
+      });
+      await page.locator("#now-name").getByText(/Canal Notícias Brasil|Free Sports US/).waitFor();
+      await page.getByRole("button",{name:/Escolher outra lista/}).click();
+      await page.waitForFunction(()=>{
+        const r=document.getElementById("sources-title").getBoundingClientRect();
+        return r.top>=-24 && r.top<window.innerHeight/2;
+      });
+      await context.close();
+    }
+    // Unreachable playlist shows a local retry action, not an apparent dead tap.
+    {
+      authorized=true;
+      const context=await newContext(true);
+      await context.route("https://raw.githubusercontent.com/**",r=>r.abort());
+      const page=await context.newPage();
+      await page.goto(origin+"/stream/listas/");
+      await page.locator("#source-list .source").first().click();
+      await page.locator("#retry-catalog").waitFor({state:"visible"});
+      assert.match(await page.locator("#catalog-status").textContent(),/0 canais carregados/);
+      assert.match(await page.locator("#load-error").textContent(),/Não conseguimos ler a playlist/);
       await context.close();
     }
     process.stdout.write("IPTV library browser smoke PASS (auth, 7 playlists, filters, import, player mock).\n");

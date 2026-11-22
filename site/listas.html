@@ -39,8 +39,11 @@
     <p id="player-error" role="alert" class="error" hidden></p>
     <p class="notice">Canais importados não são necessariamente reproduzíveis ou autorizados. O status “reproduziu” é observado somente neste navegador e nesta sessão. Bloqueios regionais, CORS, DRM e limites de direitos podem impedir reprodução.</p>
   </section>
-  <section class="catalog panel" aria-labelledby="catalog-title">
-    <h2 id="catalog-title">Catálogo de canais</h2>
+  <section class="catalog panel" id="channel-catalog" aria-labelledby="catalog-title">
+    <div class="catalog-heading">
+      <h2 id="catalog-title">Catálogo de canais</h2>
+      <button id="back-to-lists" type="button">← Escolher outra lista</button>
+    </div>
     <p class="current-source" id="active-source">Selecione uma lista para começar.</p>
     <div class="filters">
       <label for="search">Buscar canal</label><input id="search" type="search" placeholder="Nome, grupo ou país…" autocomplete="off">
@@ -64,6 +67,8 @@
       <label class="check"><input id="favorites-only" type="checkbox"> Somente favoritos</label>
     </div>
     <p id="catalog-status" role="status" class="status">Nenhuma lista selecionada.</p>
+    <div id="load-error" class="load-error" role="alert" hidden></div>
+    <button type="button" id="retry-catalog" class="more" hidden>Tentar carregar novamente</button>
     <div id="channel-list" class="channel-list"></div>
     <button id="show-more" class="more" hidden>Mostrar mais 60 canais</button>
     <p class="notice">M3U/M3U8: nomes, grupos, logos e IDs de EPG são importados quando disponíveis. Um guia XMLTV completo e pay-per-view oficial exigem integrações adicionais.</p>
