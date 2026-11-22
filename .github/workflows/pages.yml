@@ -25,6 +25,10 @@ jobs:
       - name: Syntax and separation gates
         run: |
           node --check site/stream.js
+          node --check site/stream-boot.js
+          node --check site/stream-tv.js
+          test -s site/stream-boot.js
+          test -s site/stream-tv.js
           node --check site/listas.js
           node --check tests/listas_browser.cjs
           test -s site/listas.html
@@ -34,7 +38,7 @@ jobs:
           test -s site/index.html
           grep -q 'fetch("./session"' site/stream.js
           grep -q 'STREAM_ACCESS_PASSWORD' cloudflare/stream-proxy.mjs
-          grep -q 'authenticated(request,password)' cloudflare/stream-proxy.mjs
+          grep -q 'authenticated(request,sessionSecret)' cloudflare/stream-proxy.mjs
           ! grep -i 'supabase' site/stream.js
           ! grep -i 'supabase' cloudflare/stream-proxy.mjs
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
