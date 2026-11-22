@@ -21,3 +21,23 @@ body{font:14px/1.55 Arial,Helvetica,sans-serif;background:var(--bg)}
 .channel-info button{border-radius:4px;background:#091a2b;color:#fff}.status,.disclaimer,footer{color:#607283}
 .alert{color:#844e07;background:#fffaf1;border-color:#d7a85d}
 @media(max-width:950px){.topbar{padding:16px}.guide{padding:16px}}
+
+
+/* Stream catalogue v2: countries, playback health and mobile pagination. */
+.guide-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.guide-heading h2{margin:0}
+#refresh-channels{border:1px solid #c7d7e7;border-radius:8px;background:#f4f8fc;color:#175d9b;padding:7px 10px;font-size:12px;cursor:pointer}
+.filter-heading{color:#203e59;font-size:12px;font-weight:700;margin:12px 0 8px}
+#countries{max-height:190px;overflow:auto;align-content:start;padding-bottom:4px}
+#countries button{white-space:nowrap}
+.result-count{font-size:13px;font-weight:700;color:#264b6a;margin:8px 0}
+.ppv-notice{padding:15px;border-radius:10px;background:#f1f6fb;border:1px solid #cddfed;color:#294966;font-size:13px;line-height:1.6;margin:12px 0}
+.channel .pick small{display:block;line-height:1.45;font-size:12px;margin-top:5px;white-space:normal}
+.channel .pick small.signal-ok{color:#157747}
+.channel .pick small.signal-bad{color:#a4492d}
+.more-channels{display:block;width:100%;border:1px solid #cbdbea;background:#eef5fc;color:#175d9b;border-radius:10px;padding:12px;margin-top:11px;cursor:pointer;font-weight:700}
+@media(max-width:950px){
+  #countries{max-height:205px}
+  .guide-heading{align-items:flex-start}
+  .channels{max-height:55vh}
+}
