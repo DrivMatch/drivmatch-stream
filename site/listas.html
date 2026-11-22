@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#091727">
+<title>DrivMatch Stream • Biblioteca IPTV</title>
+<link rel="stylesheet" href="/stream/listas/listas.css">
+</head>
+<body>
+<section id="access-error" class="access-error" hidden>Acesso pessoal não autorizado. <a href="/stream/">Entrar no Stream</a>.</section>
+<main id="library" hidden>
+<header class="header">
+  <div><div class="eyebrow">DRIVMATCH STREAM / BIBLIOTECA</div><h1>Minhas listas <span>IPTV</span></h1><p>Playlists separadas, canais organizados e reprodução no navegador.</p></div>
+  <a class="back" href="/stream/">← Stream atual</a>
+</header>
+<section class="sources panel" aria-labelledby="sources-title">
+  <div class="section-head"><div><h2 id="sources-title">Fontes catalogadas</h2><p id="library-status" role="status">Carregando fontes públicas…</p></div></div>
+  <div id="source-list" class="source-list"></div>
+  <details class="add-source">
+    <summary>+ Adicionar minha lista M3U/M3U8 autorizada</summary>
+    <p>Esta importação ocorre apenas no seu navegador. Não cole URLs com senha, token privado ou credenciais de assinatura. Listas remotas precisam permitir CORS; não fazemos proxy de sinais.</p>
+    <form id="source-form">
+      <label for="custom-name">Nome da lista</label><input id="custom-name" maxlength="80" placeholder="Minha lista" required>
+      <label for="custom-url">URL pública HTTPS terminada em .m3u ou .m3u8</label><input id="custom-url" type="url" placeholder="https://exemplo.com/lista.m3u" autocomplete="off">
+      <button type="submit">Adicionar URL nesta sessão</button>
+    </form>
+    <div class="file-input">
+      <label for="custom-file">Ou abrir um arquivo M3U/M3U8 local (até 5 MB)</label>
+      <input id="custom-file" type="file" accept=".m3u,.m3u8,text/plain,audio/x-mpegurl">
+    </div>
+    <p id="import-status" role="status"></p>
+  </details>
+</section>
+<div class="workspace">
+  <section class="viewer panel" aria-label="Reprodutor IPTV">
+    <div class="screen"><video id="video" controls playsinline preload="none" hidden></video><div id="placeholder"><span>▶</span><strong>Selecione um canal</strong><p>Escolha uma lista e depois uma transmissão.</p></div></div>
+    <div class="now-playing"><div><strong id="now-name">Nenhum canal selecionado</strong><p id="now-detail">Status: não verificado</p></div><button id="fullscreen" disabled>Tela cheia</button></div>
+    <p id="player-error" role="alert" class="error" hidden></p>
+    <p class="notice">Canais importados não são necessariamente reproduzíveis ou autorizados. O status “reproduziu” é observado somente neste navegador e nesta sessão. Bloqueios regionais, CORS, DRM e limites de direitos podem impedir reprodução.</p>
+  </section>
+  <section class="catalog panel" aria-labelledby="catalog-title">
+    <h2 id="catalog-title">Catálogo de canais</h2>
+    <p class="current-source" id="active-source">Selecione uma lista para começar.</p>
+    <div class="filters">
+      <label for="search">Buscar canal</label><input id="search" type="search" placeholder="Nome, grupo ou país…" autocomplete="off">
+      <div class="filter-grid">
+        <div><label for="country">País</label>
+        <select id="country">
+          <option value="ALL">🌐 Todos os países</option>
+          <option value="BR">🇧🇷 Brasil</option><option value="PT">🇵🇹 Portugal</option>
+          <option value="ES">🇪🇸 Espanha</option><option value="JP">🇯🇵 Japão</option>
+          <option value="CN">🇨🇳 China</option><option value="US">🇺🇸 Estados Unidos</option>
+          <option value="AR">🇦🇷 Argentina</option><option value="UK">🇬🇧 UK</option>
+          <option value="BE">🇧🇪 Bélgica</option><option value="IT">🇮🇹 Itália</option>
+          <option value="FR">🇫🇷 França</option><option value="DE">🇩🇪 Alemanha</option>
+          <option value="OTHER">Outros / não informado</option>
+        </select></div>
+        <div><label for="genre">Tipo</label><select id="genre">
+          <option value="all">🔴 Todos ao vivo</option><option value="news">📰 Notícias</option>
+          <option value="sports">⚽ Esportes</option><option value="other">📺 Outros</option>
+        </select></div>
+      </div>
+      <label class="check"><input id="favorites-only" type="checkbox"> Somente favoritos</label>
+    </div>
+    <p id="catalog-status" role="status" class="status">Nenhuma lista selecionada.</p>
+    <div id="channel-list" class="channel-list"></div>
+    <button id="show-more" class="more" hidden>Mostrar mais 60 canais</button>
+    <p class="notice">M3U/M3U8: nomes, grupos, logos e IDs de EPG são importados quando disponíveis. Um guia XMLTV completo e pay-per-view oficial exigem integrações adicionais.</p>
+  </section>
+</div>
+<footer>Biblioteca independente do catálogo original • Sem retransmissão ou hospedagem de vídeo • Fontes comunitárias não têm verificação contratual de direitos</footer>
+</main>
+<script defer src="/stream/listas/listas.js"></script>
+</body>
+</html>
