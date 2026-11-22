@@ -158,3 +158,7 @@ button,input,a{font-size:20px}
   .player-empty strong{font-size:24px}
   .player-empty p{font-size:18px}
 }
+
+#find-sportv,#find-espn{display:inline-block;width:48.5%;margin-top:6px;min-height:48px;
+  font-size:18px;text-align:center;padding:8px 5px}
+#find-sportv{margin-right:1.5%}
