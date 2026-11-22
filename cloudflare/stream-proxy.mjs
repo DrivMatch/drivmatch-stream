@@ -6,7 +6,10 @@
  */
 const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
 const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
-  "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js"};
+  "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
+  "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
+  "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
+  "/stream/listas/sources.json":"playlist-sources.json"};
 const COOKIE="dm_stream_session", MAXAGE=604800, encoder=new TextEncoder();
 const baseHeaders={"Cache-Control":"private, no-store",
   "X-Content-Type-Options":"nosniff","X-Frame-Options":"DENY",
@@ -120,7 +123,8 @@ export default {async fetch(request,env){
  if(request.method!=="GET"&&request.method!=="HEAD")
    return new Response("Method Not Allowed",{status:405,headers:{...baseHeaders,Allow:"GET, HEAD"}});
  if(!await authenticated(request,password)){
-   if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/login")
+   if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/listas/"||
+      path==="/stream/listas/index.html"||path==="/stream/login")
      return loginPage(false,request.method);
    return plain(403,"Acesso pessoal não autorizado.");
  }
@@ -133,7 +137,8 @@ export default {async fetch(request,env){
    const upstream=await fetch(ORIGIN+file,{method:request.method,redirect:"manual"});
    if(!upstream.ok)return plain(upstream.status===404?404:502,"Stream indisponível");
    const kind=file.endsWith(".js")?"text/javascript; charset=utf-8":
-     file.endsWith(".css")?"text/css; charset=utf-8":"text/html; charset=utf-8";
+     file.endsWith(".css")?"text/css; charset=utf-8":
+     file.endsWith(".json")?"application/json; charset=utf-8":"text/html; charset=utf-8";
    return new Response(request.method==="HEAD"?null:upstream.body,{
      status:200,headers:{...appHeaders,"Content-Type":kind}});
  }catch{return plain(502,"Stream temporariamente indisponível");}
