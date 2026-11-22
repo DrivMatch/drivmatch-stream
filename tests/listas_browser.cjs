@@ -83,7 +83,7 @@ async function main(){
       const context=await newContext(),page=await context.newPage();
       await page.goto(origin+"/stream/listas/");
       await page.locator("#source-list .source").first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),10);
+      assert.equal(await page.locator("#source-list .source").count(),9);
       assert.equal(await page.locator("#country option").count(),14);
       await page.getByRole("button",{name:/Lista 1/}).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
@@ -116,7 +116,7 @@ async function main(){
         buffer:Buffer.from(playlist)
       });
       await page.getByText(/Lista 10 • meus-canais.m3u/).first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),9);
+      assert.equal(await page.locator("#source-list .source").count(),10);
       await page.locator("#source-list .source").nth(7).click();
       assert.equal(await page.getByText("DAZN",{exact:true}).count(),0);
       assert.equal(await page.locator("#official-access").count(),0);
