@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "lastReviewed": "2026-11-22",
+  "status": "PUBLIC_SOURCES_NOT_PLAYBACK_VERIFIED",
+  "sources": [
+    {
+      "id": "lista-1",
+      "title": "Lista 1 • Free-TV",
+      "kind": "independente",
+      "description": "Seleção internacional de TV gratuita publicada pelo projeto Free-TV. Acesso e direitos variam por canal.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV"
+    },
+    {
+      "id": "lista-2",
+      "title": "Lista 2 • IPTV-org 12 países",
+      "kind": "países",
+      "description": "Diretório internacional organizado pelos 12 países do DrivMatch Stream. Mesma fonte-base do Stream atual, apresentada separadamente.",
+      "urls": [
+        "https://iptv-org.github.io/iptv/countries/br.m3u",
+        "https://iptv-org.github.io/iptv/countries/pt.m3u",
+        "https://iptv-org.github.io/iptv/countries/es.m3u",
+        "https://iptv-org.github.io/iptv/countries/jp.m3u",
+        "https://iptv-org.github.io/iptv/countries/cn.m3u",
+        "https://iptv-org.github.io/iptv/countries/us.m3u",
+        "https://iptv-org.github.io/iptv/countries/ar.m3u",
+        "https://iptv-org.github.io/iptv/countries/uk.m3u",
+        "https://iptv-org.github.io/iptv/countries/be.m3u",
+        "https://iptv-org.github.io/iptv/countries/it.m3u",
+        "https://iptv-org.github.io/iptv/countries/fr.m3u",
+        "https://iptv-org.github.io/iptv/countries/de.m3u"
+      ],
+      "source": "https://github.com/iptv-org/iptv"
+    },
+    {
+      "id": "lista-3",
+      "title": "Lista 3 • Notícias",
+      "kind": "recorte",
+      "description": "Playlists de notícias IPTV-org, recorte temático da mesma fonte da Lista 2.",
+      "urls": [
+        "https://iptv-org.github.io/iptv/categories/news.m3u"
+      ],
+      "source": "https://github.com/iptv-org/iptv"
+    },
+    {
+      "id": "lista-4",
+      "title": "Lista 4 • Esportes",
+      "kind": "recorte",
+      "description": "Playlists de esportes IPTV-org, recorte temático da mesma fonte da Lista 2. Canais pagos não estão liberados automaticamente.",
+      "urls": [
+        "https://iptv-org.github.io/iptv/categories/sports.m3u"
+      ],
+      "source": "https://github.com/iptv-org/iptv"
+    },
+    {
+      "id": "lista-5",
+      "title": "Lista 5 • Nexonic",
+      "kind": "independente",
+      "description": "Diretório alternativo que declara executar checagens automáticas. Declarações do mantenedor não substituem nossa verificação no aparelho.",
+      "urls": [
+        "https://shahrukhalid.github.io/nexonic-iptv/playlists/all.m3u"
+      ],
+      "source": "https://github.com/Shahrukhalid/nexonic-iptv"
+    },
+    {
+      "id": "lista-6",
+      "title": "Lista 6 • Open/Legal Live",
+      "kind": "especializada",
+      "description": "Pequena coleção de transmissões ao vivo publicadas com justificativas de utilização pelo mantenedor.",
+      "urls": [
+        "https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u"
+      ],
+      "source": "https://github.com/biskyt/legalFreeIPTVplaylist"
+    },
+    {
+      "id": "lista-7",
+      "title": "Lista 7 • FreeCastHub",
+      "kind": "experimental",
+      "description": "Diretório comunitário adicional, sujeito à auditoria de origem, disponibilidade e permissões.",
+      "urls": [
+        "https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u"
+      ],
+      "source": "https://github.com/freecasthub/public-iptv"
+    }
+  ]
+}
