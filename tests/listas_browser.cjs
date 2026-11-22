@@ -115,8 +115,8 @@ async function main(){
         mimeType:"audio/x-mpegURL",
         buffer:Buffer.from(playlist)
       });
-      await page.getByText(/Lista 8 • meus-canais.m3u/).first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),8);
+      await page.getByText(/Lista 9 • meus-canais.m3u/).first().waitFor();
+      assert.equal(await page.locator("#source-list .source").count(),9);
       await page.locator("#source-list .source").nth(7).click();
       await page.getByText("DAZN",{exact:true}).first().waitFor();
       await page.locator("#channel-list .pick").filter({hasText:"DAZN"}).click();
