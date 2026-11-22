@@ -182,7 +182,7 @@ function renderChannels(){
     title.textContent=c.name;
     meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
-      " • "+(c.premium?"Acesso oficial necessário":status(c))+
+      " • "+(c.officialUrl?"Site oficial · "+c.access:c.premium?"Acesso oficial necessário":status(c))+
        (c.originalName?" • Fonte: "+c.originalName:"")+(c.epgId?" • ID EPG":"");
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
@@ -205,6 +205,19 @@ function renderChannels(){
     const p=document.createElement("p");p.className="status";
     p.textContent=state.channels.length?"Nenhum canal corresponde a estes filtros.":"Esta lista não apresentou canais reproduzíveis no catálogo.";area.append(p);
   }
+}
+async function loadBrazilGuide(s){
+  if(s.id!=="lista-8")return [];
+  const r=await fetch("/stream/listas/brasil-servicos.json",{credentials:"same-origin",cache:"no-store"});
+  if(!r.ok)throw Error("Brazil directory unavailable");
+  const data=await r.json();
+  if(!Array.isArray(data.services))throw Error("Invalid Brazil directory");
+  return data.services.filter(v=>v&&v.id&&v.name&&/^https:\/\//i.test(v.url||"")).map(v=>({
+    id:"official:"+v.id,sourceId:"lista-8",name:v.name,originalName:"",
+    group:v.group||"Serviço oficial",kind:v.genre||"other",country:"BR",
+    epgId:"",logo:null,urls:[],premium:false,officialUrl:v.url,
+    access:v.access||"Consultar serviço oficial"
+  }));
 }
 async function selectSource(s){
   const token=++state.loadToken;
@@ -230,6 +243,13 @@ async function selectSource(s){
       else combined.set(c.id,c);
     }
   }
+  if(s.id==="lista-8"){
+    try{
+      const guide=await loadBrazilGuide(s);
+      if(token!==state.loadToken)return;
+      for(const c of guide)combined.set(c.id,c);
+    }catch{/* Still show public broadcast entries when the directory is offline. */}
+  }
   state.channels=[...combined.values()];
   renderChannels();
   const fails=response.filter(r=>r.status==="rejected").length;
@@ -244,6 +264,8 @@ async function selectSource(s){
   }
 }
 function stopPlayer(){
+  $("official-access").hidden=true;
+  $("official-access").removeAttribute("href");
   state.playToken++;
   clearTimeout(state.timeout);state.timeout=null;
   try{video.pause();}catch{}
@@ -317,6 +339,16 @@ async function attach(c,index){
   }catch{fail(token,c,index);}
 }
 async function chooseChannel(c){
+  if(c.officialUrl){
+    stopPlayer();state.selected=c;
+    $("now-name").textContent=c.name;
+    $("now-detail").textContent="Site oficial · "+c.access;
+    error("Acesso externo ao serviço oficial. A transmissão não é incorporada ao Stream; conta, região ou assinatura podem ser exigidas.");
+    $("official-access").href=c.officialUrl;
+    $("official-access").textContent="Abrir "+c.name+" no site oficial";
+    $("official-access").hidden=false;
+    jumpToPlayer();renderChannels();return;
+  }
   if(c.premium){
     stopPlayer();state.selected=c;
     $("now-name").textContent=c.name;
@@ -400,7 +432,7 @@ async function start(){
     const data=await r.json();
     if(!Array.isArray(data.sources))throw Error("sources format");
     state.sources=data.sources;renderSources();
-    $("library-status").textContent=state.sources.length+" listas de diretórios públicos"+
+    $("library-status").textContent=state.sources.length+" listas de canais e serviços oficiais"+
       " • disponibilidade e direitos de cada transmissão não verificados";
   }catch{$("library-status").textContent="Não foi possível carregar as fontes.";}
 }
