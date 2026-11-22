@@ -54,7 +54,7 @@ jobs:
         env:
           TV_PIN: ${{ secrets.STREAM_TV_PIN }}
         run: |
-          python3 -c 'import os,re,sys; p=os.environ.get("TV_PIN","").strip(); ok=(not p or bool(re.fullmatch(r"[0-9]{8}",p))); print("::error::STREAM_TV_PIN must contain exactly 8 digits, with no letters or internal spaces." if not ok else "::notice::TV PIN format checked."); sys.exit(0 if ok else 1)'
+          python3 -c 'import os,re,sys; p=os.environ.get("TV_PIN","").strip(); ok=bool(re.fullmatch(r"[0-9]{8}",p)); print("::error::STREAM_TV_PIN must contain exactly 8 digits, with no letters or internal spaces." if not ok else "::notice::TV PIN format checked."); sys.exit(0 if ok else 1)'
       - name: Deploy private Worker and encrypted password together
         if: steps.password.outputs.ready == 'true'
         env:
