@@ -94,3 +94,36 @@ test("unexpected methods denied",async()=>{
  const r=await stream.fetch(new Request(origin,{method:"PUT"}),env);
  assert.equal(r.status,405);
 });
+
+test("independent IPTV library is protected by the same signed session",async()=>{
+ const entry=await stream.fetch(new Request(origin+"listas/"),env);
+ assert.equal(entry.status,200);
+ assert.match(await entry.text(),/Senha de acesso/);
+ const denied=await stream.fetch(new Request(origin+"listas/sources.json"),env);
+ assert.equal(denied.status,403);
+ const c=await cookie(),before=globalThis.fetch,seen=[];
+ try{
+   globalThis.fetch=async url=>{
+     seen.push(String(url));return new Response("mock",{status:200});
+   };
+   for(const [path,kind] of [
+     ["listas/","text/html"],["listas/listas.js","text/javascript"],
+     ["listas/listas.css","text/css"],["listas/sources.json","application/json"]
+   ]){
+     const r=await stream.fetch(new Request(origin+path,{headers:{Cookie:c}}),env);
+     assert.equal(r.status,200,path);
+     assert.match(r.headers.get("content-type"),new RegExp(kind),path);
+     assert.equal(await r.text(),"mock");
+   }
+   assert.deepEqual(seen,[
+     "listas.html","listas.js","listas.css","playlist-sources.json"
+   ].map(s=>"https://drivmatch.github.io/drivmatch-stream/"+s));
+ }finally{globalThis.fetch=before;}
+});
+test("library unrelated paths are not exposed",async()=>{
+ const c=await cookie();
+ for(const path of ["listas/private.json","listas/.env","listas/secret.m3u"]){
+   const r=await stream.fetch(new Request(origin+path,{headers:{Cookie:c}}),env);
+   assert.equal(r.status,404,path);
+ }
+});
