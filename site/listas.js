@@ -8,7 +8,7 @@ BE:"🇧🇪 Bélgica",IT:"🇮🇹 Itália",FR:"🇫🇷 França",DE:"🇩🇪 
 const norm=s=>String(s||"").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
 const NEWS=/news|not[ií]cias|jornal|actualidad|actualit[eé]s|nieuws|nachrichten|noticiero|informa|新闻|ニュース|報道/i;
 const SPORTS=/sport|esport|deport|football|futebol|soccer|calcio|スポーツ|体育/i;
-const PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|sport\s*tv|dazn|ppv|pay.per.view)\b/i;
+const PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|ppv|pay.per.view)\b/i;
 const state={sources:[],source:null,channels:[],limit:60,favorites:new Set(),onlyFavorites:false,
 health:new Map(),selected:null,hls:null,playToken:0,loadToken:0,timeout:null,attempt:null};
 const video=$("video");let hlsPromise=null;
