@@ -18,3 +18,7 @@ Verificar login e logout na URL temporária https://drivmatch-stream-proxy.drivm
 Em seguida conectar apenas rotas Workers drivmatch.com/stream e drivmatch.com/stream/*, não a raiz do domínio.
 Nunca modificar Worker drivmatch-news-proxy ou original TV /TV.
 Testes automatizados são simulados. Reprodução real dos HLS e direitos permanecem não verificados.
+
+## Optional TV-friendly PIN (2026-11-22)
+
+Keep the strong original `STREAM_ACCESS_PASSWORD` as the HMAC signing secret. To enable the eight-digit numeric TV login, create another GitHub Actions secret named `STREAM_TV_PIN` with exactly 8 decimal digits. The Worker then accepts **only the PIN** for interactive login; the original secret remains server-side for signing, and new sessions are bound to the PIN so changing it expires previous sessions. Login is limited using Cloudflare Workers rate-limit binding `STREAM_LOGIN_LIMITER` at about five attempts per minute per Cloudflare location, not a strict global guarantee. If rate limiter is absent, PIN login fails closed. Without this optional PIN secret, prior long password login remains available. Never put PIN or signing secret in HTML, Git history or chat; the PIN has weaker entropy than a strong password. Avoid obvious PINs and rotate if exposed.

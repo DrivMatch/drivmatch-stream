@@ -3,5 +3,15 @@
   "main": "./cloudflare/stream-proxy.mjs",
   "compatibility_date": "2026-11-22",
   "workers_dev": true,
-  "keep_vars": true
+  "keep_vars": true,
+  "ratelimits": [
+    {
+      "name": "STREAM_LOGIN_LIMITER",
+      "namespace_id": "845921",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    }
+  ]
 }

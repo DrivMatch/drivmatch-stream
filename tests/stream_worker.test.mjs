@@ -127,3 +127,39 @@ test("library unrelated paths are not exposed",async()=>{
    assert.equal(r.status,404,path);
  }
 });
+
+test("short TV PIN is easy to enter, but needs strong signing secret and limiter",async()=>{
+  const e={...env,STREAM_TV_PIN:"82741639",STREAM_LOGIN_LIMITER:{limit:async()=>({success:true})}};
+  const form=new URLSearchParams({password:e.STREAM_TV_PIN}).toString();
+  const entered=await stream.fetch(new Request(origin+"login",{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form}),e);
+  assert.equal(entered.status,303);
+  assert.match(entered.headers.get("set-cookie"),/HttpOnly; Secure/);
+  const page=await stream.fetch(new Request(origin),e);
+  assert.match(await page.text(),/PIN de 8 números/);
+  const cookie=entered.headers.get("set-cookie").split(";")[0];
+  const accepted=await stream.fetch(new Request(origin+"session",{headers:{Cookie:cookie}}),e);
+  assert.equal(accepted.status,200);
+  const oldPinRejected=await stream.fetch(new Request(origin+"session",{headers:{Cookie:cookie}}),{...e,STREAM_TV_PIN:"92518436"});
+  assert.equal(oldPinRejected.status,403);
+});
+test("wrong TV PIN rejects without revealing signed session",async()=>{
+  const e={...env,STREAM_TV_PIN:"82741639",STREAM_LOGIN_LIMITER:{limit:async()=>({success:true})}};
+  const r=await stream.fetch(new Request(origin+"login",{
+    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"password=11111111"}),e);
+  assert.equal(r.status,401);
+  assert.equal(r.headers.get("set-cookie"),null);
+});
+test("PIN login fails closed if rate limiting is missing or exceeded",async()=>{
+  const base={...env,STREAM_TV_PIN:"82741639"};
+  const body="password=82741639",headers={"Content-Type":"application/x-www-form-urlencoded"};
+  const missing=await stream.fetch(new Request(origin+"login",{method:"POST",headers,body}),base);
+  assert.equal(missing.status,503);
+  const blocked=await stream.fetch(new Request(origin+"login",{method:"POST",headers,body}),{
+    ...base,STREAM_LOGIN_LIMITER:{limit:async()=>({success:false})}});
+  assert.equal(blocked.status,429);
+});
+test("malformed TV PIN configuration never permits login",async()=>{
+  const r=await stream.fetch(new Request(origin),{...env,STREAM_TV_PIN:"1234567"});
+  assert.equal(r.status,503);
+});

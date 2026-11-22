@@ -22,7 +22,7 @@ const appHeaders={...baseHeaders,
    "base-uri 'none'; form-action 'self'"};
 function plain(status,msg){return new Response(msg,{status,
   headers:{...baseHeaders,"Content-Type":"text/plain; charset=utf-8"}});}
-function loginPage(error=false,method="GET"){
+function loginPage(error=false,method="GET",pinMode=false){
  const html=[
  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
@@ -37,10 +37,13 @@ function loginPage(error=false,method="GET"){
  'button{width:100%;padding:15px;border:0;border-radius:12px;background:#091a2b;color:white;font-size:1rem;font-weight:700;margin-top:18px}',
  '.alert{color:#a81f25;font-weight:600}small{display:block;margin-top:20px;color:#667788}',
  '</style></head><body><main><div class="eyebrow">DRIVMATCH · ACESSO PESSOAL</div>',
- '<h1>Minha TV Internacional</h1><p>Digite sua senha particular para assistir aos canais.</p>',
- error?'<p role="alert" class="alert">Senha incorreta. Tente novamente.</p>':'',
+ '<h1>Minha TV Internacional</h1>',
+ pinMode?'<p>Digite seu PIN pessoal de 8 números para assistir aos canais.</p>':
+ '<p>Digite sua senha particular para assistir aos canais.</p>',
+ error?'<p role="alert" class="alert">'+(pinMode?'PIN incorreto.':'Senha incorreta.')+' Tente novamente.</p>':'',
  '<form method="post" action="/stream/login">',
- '<label for="password">Senha de acesso</label>',
+ '<label for="password">'+(pinMode?'PIN de 8 números':'Senha de acesso')+'</label>',
+ pinMode?'<input id="password" type="password" inputmode="numeric" pattern="[0-9]{8}" name="password" autocomplete="off" required autofocus maxlength="8">':
  '<input id="password" type="password" name="password" autocomplete="current-password" required autofocus maxlength="256">',
  '<button type="submit">Entrar no Stream</button></form>',
  '<small>Área pessoal · DrivMatch Stream</small></main></body></html>'
@@ -99,6 +102,12 @@ export default {async fetch(request,env){
  const password=env?.STREAM_ACCESS_PASSWORD;
  if(typeof password!=="string"||password.length<16||password.length>256)
    return plain(503,"Acesso pessoal ainda não configurado.");
+ const pin=env?.STREAM_TV_PIN;
+ const pinMode=typeof pin==="string"&&pin.length>0;
+ if(pinMode&&!/^[0-9]{8}$/.test(pin))return plain(503,"PIN pessoal mal configurado.");
+ // Keep high-entropy original secret as the session HMAC signing key.
+ // Bind each session to the current PIN so rotation expires older sessions.
+ const sessionSecret=pinMode?password+"::tv-pin::"+pin:password;
  if(path==="/stream/login"&&request.method==="POST"){
    // A valid private password is the sole credential for login.
    // Some mobile in-app browsers send Origin: null or a wrapper origin;
@@ -112,8 +121,16 @@ export default {async fetch(request,env){
      if(text.length>2048)return plain(413,"Payload Too Large");
      submitted=new URLSearchParams(text).get("password");
    }catch{return plain(400,"Bad Request");}
-   if(!await samePassword(submitted,password))return loginPage(true);
-   return goHome(url,await issueCookie(password));
+   if(pinMode){
+     // Short numeric PIN requires an effective login limiter; deny if unavailable.
+     if(!env?.STREAM_LOGIN_LIMITER?.limit)return plain(503,"Proteção de PIN indisponível.");
+     let allowed;
+     try{allowed=await env.STREAM_LOGIN_LIMITER.limit({key:"drivmatch-stream-private-pin"});}
+     catch{return plain(503,"Proteção de PIN temporariamente indisponível.");}
+     if(!allowed?.success)return plain(429,"Muitas tentativas. Aguarde um minuto e tente novamente.");
+   }
+   if(!await samePassword(submitted,pinMode?pin:password))return loginPage(true,"GET",pinMode);
+   return goHome(url,await issueCookie(sessionSecret));
  }
  if(path==="/stream/logout"&&request.method==="POST"){
    const origin=request.headers.get("Origin");
@@ -122,10 +139,10 @@ export default {async fetch(request,env){
  }
  if(request.method!=="GET"&&request.method!=="HEAD")
    return new Response("Method Not Allowed",{status:405,headers:{...baseHeaders,Allow:"GET, HEAD"}});
- if(!await authenticated(request,password)){
+ if(!await authenticated(request,sessionSecret)){
    if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/listas/"||
       path==="/stream/listas/index.html"||path==="/stream/login")
-     return loginPage(false,request.method);
+     return loginPage(false,request.method,pinMode);
    return plain(403,"Acesso pessoal não autorizado.");
  }
  if(path==="/stream/session")
