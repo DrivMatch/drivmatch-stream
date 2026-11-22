@@ -10,7 +10,7 @@ var favorites=[],limit=60,serial=0,session=false,cache={},MAX_CHANNELS=15000,vid
 var STORE="drivmatch-tv-guide-favorites-v1";
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
-var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|sport\s*tv|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
+var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
 function T(el,s){if(el)el.textContent=s;}
 function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(typeof s==="string")T(x,s);return x;}
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
@@ -54,13 +54,13 @@ function parse(raw,forcedCode){
     var m=inf.lastIndexOf(","),name=m>=0?trim(inf.substring(m+1)):"";
     var group=dataAttr(inf,"group-title");
     var sourceMeta=inf;inf="";
-    if(!name||PREMIUM.test(name+" "+group)||/\[(geo.blocked|blocked)\]/i.test(name))continue;
+    if(!name||/\[(geo.blocked|blocked)\]/i.test(name))continue;
     if(!/^https:\/\//i.test(ln)||!/\.(?:m3u8|mp4)(?:[?#]|$)/i.test(ln))continue;
     var code=inferCountry(sourceMeta,group,name,marker);
     var genre=source==="lista-3"?"news":source==="lista-4"?"sports":SPORTS.test(name+" "+group)?"sports":NEWS.test(name+" "+group)?"news":"other";
-    var k=code+"|"+lower(name),orig=dedupe[k];
-    if(orig){if(orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);continue;}
-    var item={id:source+":"+k,source:source,name:name,code:code,genre:genre,group:group,urls:[ln]};
+    var premium=PREMIUM.test(name),k=code+"|"+lower(name),orig=dedupe[k];
+    if(orig){if(!orig.premium&&orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);continue;}
+    var item={id:source+":"+k,source:source,name:name,code:code,genre:genre,group:group,premium:premium,urls:premium?[]:[ln]};
     dedupe[k]=item;result.push(item);
   }
   return result;
@@ -99,14 +99,15 @@ function drawCategories(){
 function refresh(){
   cache={};loadChannels();
 }
-function findGlobo(){
+function findNamed(term){
   var needsLoad=source!=="lista-2"||country!=="BR"||!channels.length;
-  source="lista-2";country="BR";category="all";search="globo";limit=60;
-  D("search").value="Globo";
+  source="lista-2";country="BR";category="all";search=lower(term);limit=60;
+  D("search").value=term;
   T(D("head-source"),sourceName());
   drawSources();drawCountries();drawCategories();
   if(needsLoad)loadChannels();else renderChannels();
 }
+function findGlobo(){findNamed("Globo");}
 function selectSource(id){
   if(source===id&&channels.length)return;
   source=id;country=id==="lista-2"?"BR":"ALL";
@@ -165,8 +166,8 @@ function renderChannels(){
   T(D("result-count"),visible.length+" canais");
   if(!all.length){
     var emptyText=channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte.";
-    if(search==="globo"&&source==="lista-2"&&country==="BR")
-      emptyText="Nenhum canal com Globo foi encontrado no catálogo brasileiro carregado. O Globoplay oficial está no atalho acima.";
+    if(search&&source==="lista-2"&&country==="BR")
+      emptyText="Nenhum resultado para "+D("search").value+" nesta lista. Experimente escolher outra lista à esquerda.";
     area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
@@ -174,7 +175,7 @@ function renderChannels(){
     row.appendChild(E("span","channel-number",String(j+1)));
     var btn=E("button","channel-btn");btn.type="button";
     btn.appendChild(E("strong","",c.name));
-    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")));
+    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")));
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
@@ -188,6 +189,17 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c){
+  if(c.premium){
+    try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+    selected=c;T(D("now-name"),c.name);
+    T(D("now-meta"),countryName(c.code)+" · Listado, sem autorização de transmissão verificada");
+    T(D("play-status"),"Acesso oficial necessário");
+    visibleEl(D("player-empty"),true);visibleEl(video,false);
+    T(D("player-error"),"Este canal aparece numa lista pública, mas o link não comprova autorização. Use o serviço oficial ou a assinatura aplicável.");
+    visibleEl(D("player-error"),true);
+    D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
+    updateFavButton();renderChannels();focusChannelAfterRender(c.id,false);return;
+  }
   selected=c;T(D("now-name"),c.name);
   T(D("now-meta"),countryName(c.code)+" · "+(c.group||"Ao vivo")+" · verificando reprodução…");
   T(D("play-status"),"Conectando…");updateFavButton();
@@ -212,7 +224,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#find-globo,#globo-official,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#find-globo,#find-sportv,#find-espn,#globo-official,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -300,6 +312,8 @@ function init(){
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
   on(D("find-globo"),"click",findGlobo);
+  on(D("find-sportv"),"click",function(){findNamed("SporTV");});
+  on(D("find-espn"),"click",function(){findNamed("ESPN");});
   on(D("show-more"),"click",function(){
     var next=visible[limit];
     limit+=60;renderChannels();
@@ -313,11 +327,11 @@ function init(){
   });
   on(video,"playing",function(){
     T(D("play-status"),"● Reproduzindo");
-    if(selected)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
+    if(selected&&!selected.premium)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
     visibleEl(D("player-error"),false);
   });
   on(video,"error",function(){
-    if(!selected)return;
+    if(!selected||selected.premium)return;
     T(D("play-status"),"Sinal indisponível");
     T(D("player-error"),"O sinal não reproduziu nesta TV. Pode haver incompatibilidade de formato, bloqueio ou indisponibilidade.");
     visibleEl(D("player-error"),true);

@@ -80,7 +80,11 @@ async function main(){
       assert.equal(await page.locator("#country option").count(),14);
       await page.getByRole("button",{name:/Lista 1/}).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
-      assert.equal(await page.locator("#channel-list .channel").count(),2);
+      assert.equal(await page.locator("#channel-list .channel").count(),3);
+      assert.match(await page.locator("#channel-list").textContent(),/ESPN Premium/);
+      await page.locator("#channel-list .pick").filter({hasText:"ESPN Premium"}).click();
+      assert.match(await page.locator("#player-error").textContent(),/direito de transmissão/);
+      assert.equal(await page.locator("#video").getAttribute("src"),null);
       await page.locator("#country").selectOption("BR");
       assert.equal(await page.locator("#channel-list .channel").count(),1);
       await page.locator("#genre").selectOption("sports");
@@ -116,7 +120,7 @@ async function main(){
         const r=document.getElementById("channel-catalog").getBoundingClientRect();
         return r.top>=-24 && r.top<window.innerHeight/2;
       });
-      assert.match(await page.locator("#catalog-status").textContent(),/2 neste filtro/);
+      assert.match(await page.locator("#catalog-status").textContent(),/3 neste filtro/);
       await page.locator("#channel-list .pick").first().click();
       await page.waitForFunction(()=>{
         const r=document.querySelector(".viewer").getBoundingClientRect();
