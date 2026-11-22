@@ -108,26 +108,40 @@ function drawCategories(){
 function refresh(){
   cache={};loadChannels();
 }
-function findNamed(term){
-  var needsLoad=source!=="lista-2"||country!=="BR"||!channels.length;
-  source="lista-2";country="BR";category="all";search=lower(term);limit=60;
-  D("search").value=term;
-  T(D("head-source"),sourceName());
-  drawSources();drawCountries();drawCategories();
-  if(needsLoad)loadChannels();else renderChannels();
-}
-function findGlobo(){findNamed("Globo");}
 function selectSource(id){
   if(source===id&&channels.length)return;
-  source=id;country=id==="lista-2"?"BR":"ALL";
+  source=id;country=(id==="lista-2"||id==="lista-8")?"BR":"ALL";
   category="all";search="";D("search").value="";limit=60;
   T(D("head-source"),sourceName());
   drawSources();drawCountries();drawCategories();
   selectNewSourceFocus(id);
   loadChannels();
 }
+function appendBrazilServices(seq,base,sourceFailed){
+  http("/stream/listas/brasil-servicos.json",function(st,body){
+    if(seq!==serial||source!=="lista-8")return;
+    var result=base.slice(0);
+    if(st===200){
+      try{
+        var data=JSON.parse(body),entries=data.services||[];
+        for(var i=0;i<entries.length;i++){
+          var v=entries[i];
+          if(!v||!v.id||!v.name||!/^https:\/\//i.test(v.url||""))continue;
+          result.push({id:"lista-8:oficial:"+v.id,source:"lista-8",name:v.name,code:"BR",
+            genre:v.genre||"other",group:v.group||"Serviço oficial",access:v.access||"",
+            officialUrl:v.url,service:true,premium:false,urls:[]});
+        }
+      }catch(e){}
+    }
+    channels=result;cache["lista-8:BR"]=result;
+    T(D("catalog-status"),sourceFailed
+      ?"Transmissões públicas indisponíveis; acessos oficiais disponíveis."
+      :"Transmissões públicas + serviços oficiais. Alguns exigem assinatura.");
+    renderChannels();
+  });
+}
 function loadChannels(){
-  serial++;var seq=serial,code=source==="lista-2"?country:"ALL";
+  serial++;var seq=serial,code=(source==="lista-2"||source==="lista-8")?country:"ALL";
   var cacheKey=source+":"+code;
   T(D("catalog-title"),sourceName().replace(/^Lista\s*\d+\s*•\s*/,""));
   T(D("catalog-subtitle"),country==="ALL"?"Todos os países":countryName(country));
@@ -140,11 +154,14 @@ function loadChannels(){
   http("/stream/catalog?list="+encodeURIComponent(source)+"&country="+encodeURIComponent(code),function(st,body){
     if(seq!==serial)return;
     if(st!==200){
+      if(source==="lista-8"){appendBrazilServices(seq,[],true);return;}
       channels=[];renderChannels();
       T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou escolha outra lista.");
       return;
     }
-    channels=parse(body,source==="lista-2"&&code!=="ALL"?code:"ALL");
+    var parsed=parse(body,(source==="lista-2"||source==="lista-8")&&code!=="ALL"?code:"ALL");
+    if(source==="lista-8"){appendBrazilServices(seq,parsed,false);return;}
+    channels=parsed;
     cache[cacheKey]=channels;
     T(D("catalog-status"),"Lista pública · reprodução ainda não verificada nesta TV.");
     renderChannels();
@@ -172,7 +189,7 @@ function renderChannels(){
   for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
   all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
   visible=all;
-  T(D("result-count"),visible.length+" canais");
+  T(D("result-count"),visible.length+(source==="lista-8"?" opções":" canais"));
   if(!all.length){
     var emptyText=channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte.";
     if(search&&source==="lista-2"&&country==="BR")
@@ -184,7 +201,7 @@ function renderChannels(){
     row.appendChild(E("span","channel-number",String(j+1)));
     var btn=E("button","channel-btn");btn.type="button";
     btn.appendChild(E("strong","",c.name));
-    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")+
+    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.service?" · Site oficial · "+c.access:c.premium?" · Acesso oficial necessário":"")+
       (c.originalName?" · Fonte: "+c.originalName:"")));
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
@@ -199,6 +216,20 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c){
+  visibleEl(D("player-open-official"),false);
+  if(c.service){
+    try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+    selected=c;T(D("now-name"),c.name);
+    T(D("now-meta"),"Brasil · "+c.group+" · "+c.access);
+    T(D("play-status"),"Abrir no serviço oficial");
+    T(D("player-error"),"Este item é um acesso ao site oficial, não uma transmissão incorporada ao Stream. A disponibilidade depende da plataforma e do plano.");
+    visibleEl(D("player-error"),true);
+    visibleEl(D("player-empty"),true);visibleEl(video,false);
+    D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
+    T(D("player-open-official"),"Abrir "+c.name+" no site oficial");
+    visibleEl(D("player-open-official"),true);
+    updateFavButton();renderChannels();focusChannelAfterRender(c.id,false);return;
+  }
   if(c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
@@ -236,7 +267,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#find-globo,#find-sportv,#find-espn,#globo-official,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#player-open-official,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -323,9 +354,6 @@ function init(){
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
-  on(D("find-globo"),"click",findGlobo);
-  on(D("find-sportv"),"click",function(){findNamed("SporTV");});
-  on(D("find-espn"),"click",function(){findNamed("ESPN");});
   on(D("show-more"),"click",function(){
     var next=visible[limit];
     limit+=60;renderChannels();
@@ -333,17 +361,21 @@ function init(){
   });
   on(D("player-favorite"),"click",function(){if(selected)toggleFavorite(selected);});
   on(D("player-retry"),"click",function(){if(selected)play(selected);});
+  on(D("player-open-official"),"click",function(){
+    if(selected&&selected.service&&/^https:\/\//i.test(selected.officialUrl||""))
+      window.location.href=selected.officialUrl;
+  });
   on(D("player-fullscreen"),"click",function(){
     var fn=video.requestFullscreen||video.webkitRequestFullscreen||video.webkitEnterFullscreen;
     if(fn)try{fn.call(video);}catch(e){}
   });
   on(video,"playing",function(){
     T(D("play-status"),"● Reproduzindo");
-    if(selected&&!selected.premium)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
+    if(selected&&!selected.premium&&!selected.service)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
     visibleEl(D("player-error"),false);
   });
   on(video,"error",function(){
-    if(!selected||selected.premium)return;
+    if(!selected||selected.premium||selected.service)return;
     T(D("play-status"),"Sinal indisponível");
     T(D("player-error"),"O sinal não reproduziu nesta TV. Pode haver incompatibilidade de formato, bloqueio ou indisponibilidade.");
     visibleEl(D("player-error"),true);
@@ -360,7 +392,7 @@ function init(){
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
-      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-[1-7]$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
+      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-[1-8]$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
       SOURCES=verified;drawSources();drawCountries();drawCategories();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
       selectSource("lista-2");
