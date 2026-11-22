@@ -53,10 +53,7 @@ jobs:
         env:
           TV_PIN: ${{ secrets.STREAM_TV_PIN }}
         run: |
-          if [ -n "$TV_PIN" ] && ! [[ "$TV_PIN" =~ ^[0-9]{8}$ ]]; then
-            echo "::error::STREAM_TV_PIN must contain exactly 8 digits."
-            exit 1
-          fi
+          python3 -c 'import os,re,sys; p=os.environ.get("TV_PIN","").strip(); ok=(not p or bool(re.fullmatch(r"[0-9]{8}",p))); print("::error::STREAM_TV_PIN must contain exactly 8 digits, with no letters or internal spaces." if not ok else "::notice::TV PIN format checked."); sys.exit(0 if ok else 1)'
       - name: Deploy private Worker and encrypted password together
         if: steps.password.outputs.ready == 'true'
         env:
@@ -68,5 +65,5 @@ jobs:
           umask 077
           SECRET_FILE="$(mktemp)"
           trap 'rm -f "$SECRET_FILE"' EXIT
-          python3 -c 'import os,json,sys; d={"STREAM_ACCESS_PASSWORD":os.environ["STREAM_PASSWORD"]}; p=os.environ.get("STREAM_TV_PIN",""); d.update({"STREAM_TV_PIN":p} if p else {}); json.dump(d,open(sys.argv[1],"w"))' "$SECRET_FILE"
+          python3 -c 'import os,json,sys; d={"STREAM_ACCESS_PASSWORD":os.environ["STREAM_PASSWORD"]}; p=os.environ.get("STREAM_TV_PIN","").strip(); d.update({"STREAM_TV_PIN":p} if p else {}); json.dump(d,open(sys.argv[1],"w"))' "$SECRET_FILE"
           npx --yes wrangler@4 deploy --config wrangler.jsonc --secrets-file "$SECRET_FILE"
