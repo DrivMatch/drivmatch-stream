@@ -75,7 +75,7 @@ async function main(){
       await page.getByText('NHK World-Japan').first().waitFor();
       assert.equal(await page.locator('#countries button').count(),13);
       await page.getByRole('button',{name:/Pay-per-view/}).click();
-      await page.getByText(/Nenhum evento PPV está integrado/).waitFor();
+      await page.getByText(/Não há eventos PPV integrados/).waitFor();
       assert.equal(await page.locator('#channels .channel').count(),0);
       await page.getByRole('button',{name:'Todos',exact:true}).click();
       await page.getByText('24 Horas (720p)').first().click();
