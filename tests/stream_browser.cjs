@@ -223,7 +223,27 @@ async function main(){
       await news.first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
-      assert.match(await page.locator('#channel-items').textContent(),/Origem: Lista 1/);
+      assert.match(await page.locator('#channel-items .channel-btn').first().getAttribute('title'),/Origem: Lista 1/);
+      // Channel names match exactly across left and middle; rows use a
+      // separate inline classification rather than a second metadata row.
+      const metrics=await page.evaluate(()=>{
+        const left=document.querySelector('.tree-channel-btn .tree-channel-name');
+        const middle=document.querySelector('.channel-row .channel-title');
+        const right=document.querySelector('.channel-row .channel-classification');
+        const row=document.querySelector('.channel-row');
+        const a=middle.getBoundingClientRect(),b=right.getBoundingClientRect();
+        return {leftFont:parseFloat(getComputedStyle(left).fontSize),
+          middleFont:parseFloat(getComputedStyle(middle).fontSize),
+          rowHeight:row.getBoundingClientRect().height,
+          leftY:a.y,rightY:b.y,rightX:b.x,nameRight:a.right,
+          label:right.textContent};
+      });
+      assert.equal(metrics.leftFont,metrics.middleFont);
+      assert(metrics.leftFont>=23);
+      assert(metrics.rowHeight<=53,'Compact guide row should fit more channels');
+      assert(metrics.rightX>=metrics.nameRight-2,'Classification is a right-hand column');
+      assert(Math.abs(metrics.rightY-metrics.leftY)<14,'Classification stays on the same line');
+      assert.equal(metrics.label,'Brasil');
       assert.equal(await page.evaluate(()=>document.activeElement.className.includes('tree-channel-btn')),true);
 
       // Multiple countries remain visible and expand independently.
@@ -301,6 +321,10 @@ async function main(){
       assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
       assert.equal(await page.locator('#favorite-count').textContent(),'0');
       assert.equal(await page.locator('#recent-count').textContent(),'0/25');
+      assert.equal(await page.locator('#favorite-items').isVisible(),false);
+      assert.equal(await page.locator('#recent-items').isVisible(),false);
+      assert.equal(await page.locator('#favorite-toggle').getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('#recent-toggle').getAttribute('aria-expanded'),'false');
 
       // Click one favorite and twenty-six distinct channels in sequence.
       await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').click();
@@ -321,7 +345,13 @@ async function main(){
       },testNames);
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
       assert.equal(await page.locator('#recent-items .quick-entry-btn').count(),25);
+      assert.equal(await page.locator('#recent-items').isVisible(),false,'Recent list stays folded as it fills');
+      await page.locator('#recent-toggle').click();
+      assert.equal(await page.locator('#recent-items').isVisible(),true);
+      assert.equal(await page.locator('#recent-toggle').getAttribute('aria-expanded'),'true');
       assert((await page.locator('#recent-items .quick-entry-btn').first().textContent()).includes(testNames[25]));
+      await page.locator('#recent-toggle').click();
+      assert.equal(await page.locator('#recent-items').isVisible(),false);
       assert.equal(await page.locator('#recent-items').getByText(testNames[0],{exact:true}).count(),0);
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       assert.equal(await page.locator('#favorite-items .quick-entry-btn').count(),1);
@@ -341,12 +371,17 @@ async function main(){
       assert.match(await page.locator('#favorite-items').textContent(),/Canal México/);
       assert.match(await page.locator('#favorite-items').textContent(),/Canal Teste 2/);
       const before=await page.locator('#favorite-items .quick-entry-btn').count();
+      assert.equal(await page.locator('#favorite-items').isVisible(),false,'Favorites stay folded when new stars added');
 
       // Tizen browser reload keeps all starred channels and recent order.
       await page.reload();
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
+      assert.equal(await page.locator('#recent-items').isVisible(),false);
+      assert.equal(await page.locator('#favorite-items').isVisible(),false);
       assert.equal(await page.locator('#favorite-items .quick-entry-btn').count(),before);
+      await page.locator('#favorite-toggle').click();
+      assert.equal(await page.locator('#favorite-items').isVisible(),true);
       await page.locator('#favorite-items .quick-entry-btn').filter({hasText:'Canal México'}).click();
       await page.locator('video[src="https://mock.example/mexico.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'Canal México');

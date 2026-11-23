@@ -17,14 +17,14 @@
   <main class="tv-layout" id="tv-layout">
     <nav class="column sidebar" aria-label="Recentes, favoritos, países, categorias e canais">
       <section class="quick-section" aria-label="Canais recentemente visitados">
-        <h2 class="quick-title">RECÉM VISITADO <b id="recent-count">0/25</b></h2>
-        <div id="recent-items" class="quick-items">
+        <h2 class="quick-title"><button id="recent-toggle" class="quick-toggle" type="button" aria-expanded="false" aria-controls="recent-items"><span class="quick-chevron">▸</span> RECÉM VISITADO <b id="recent-count">0/25</b></button></h2>
+        <div id="recent-items" class="quick-items" hidden>
           <p class="quick-empty">Nenhum canal visitado ainda.</p>
         </div>
       </section>
       <section class="quick-section" aria-label="Canais favoritos">
-        <h2 class="quick-title">FAVORITOS <b id="favorite-count">0</b></h2>
-        <div id="favorite-items" class="quick-items">
+        <h2 class="quick-title"><button id="favorite-toggle" class="quick-toggle" type="button" aria-expanded="false" aria-controls="favorite-items"><span class="quick-chevron">▸</span> FAVORITOS <b id="favorite-count">0</b></button></h2>
+        <div id="favorite-items" class="quick-items" hidden>
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
       </section>
