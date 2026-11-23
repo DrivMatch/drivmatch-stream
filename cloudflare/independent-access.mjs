@@ -349,6 +349,8 @@ async function handle(request, env) {
     return redirect(url.origin,"/stream/login",sessionCookie("",0));
   }
   if (!user) {
+    if (method === "GET" && path === "/stream/admin")
+      return redirect(url.origin, "/stream/login");
     if (method === "GET" && ["/stream/","/stream/index.html","/stream/tv/",
       "/stream/listas/"].includes(path)) return loginPage();
     return plain(401,"Autenticação necessária.");
@@ -391,7 +393,11 @@ async function handle(request, env) {
     return json(200,{ok:true});
   }
   if (path === "/stream/admin" && method === "GET")
-    return requireAdmin(user) ? adminPage(user,env) : plain(403,"Forbidden");
+    return requireAdmin(user) ? adminPage(user,env) :
+      page("Conta sem permissão de administrador",
+        "<p>Você entrou com uma conta que não tem acesso a este painel.</p>" +
+        "<p>Confirme que utilizou o e-mail da sua conta administradora.</p>" +
+        "<form action='/stream/logout' method='post'><button type='submit'>Sair desta conta</button></form>",403);
   if (path.startsWith("/stream/admin/") && method === "POST") {
     if (!csrf(request,url) || !requireAdmin(user)) return plain(403,"Forbidden");
     if (!await limit(request,env,"admin")) return plain(429,"Muitas operações.");
