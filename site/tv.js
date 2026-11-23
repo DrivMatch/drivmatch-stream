@@ -45,6 +45,9 @@ function genreFits(c,id){
  if(id==="movies_unknown")return c.genre==="movies"&&!c.lang;
  return c.genre===id;
 }
+function classificationName(c){
+  return c.code==="OTHER"?"Outros":countryName(c.code);
+}
 function genreName(id){
  for(var i=0;i<TREE_GENRES.length;i++)if(TREE_GENRES[i][0]===id)return TREE_GENRES[i][1];
  return "Todos os canais";
@@ -147,7 +150,7 @@ function drawQuickGroup(id,items,kind){
   b.setAttribute("data-quick-kind",kind);
   b.appendChild(E("span","quick-entry-name",
     (kind==="favorite"?"★ ":"")+item.name));
-  b.appendChild(E("small","quick-entry-meta",countryName(item.code)));
+  b.appendChild(E("span","quick-entry-meta",classificationName(item)));
   on(b,"click",function(){openQuickChannel(item,kind);});
   target.appendChild(b);
  }(items[i]));}
@@ -451,9 +454,11 @@ function drawCountries(){
       var ch=E("button","tree-channel-btn"+(selected&&selected.id===channel.id?" active":""));
       ch.type="button";ch.setAttribute("data-channel-id",channel.id);
       ch.setAttribute("data-country",code);
-      ch.appendChild(E("span","tree-channel-name",channel.name));
+      ch.appendChild(E("span","tree-channel-name",
+        channel.name+(channel.officialUrl&&(!channel.urls||!channel.urls.length)?" ↗":"")));
+      ch.appendChild(E("span","tree-channel-class",classificationName(channel)));
       if(channel.officialUrl&&(!channel.urls||!channel.urls.length))
-       ch.appendChild(E("small","tree-external-label","Site/app oficial"));
+        ch.setAttribute("title","Site/app oficial externo — "+channel.name);
       on(ch,"click",function(){chooseTreeChannel(code,id,channel);});list.appendChild(ch);
     }(filtered[n]));}
     if(filtered.length>max){
@@ -602,14 +607,20 @@ function renderChannels(){
     var row=E("div","channel-row"+(selected&&selected.id===c.id?" current":""));
     row.appendChild(E("span","channel-number",String(j+1)));
     var btn=E("button","channel-btn");btn.type="button";
-    btn.appendChild(E("strong","",c.name));
+    var extra=(c.officialUrl&&(!c.urls||!c.urls.length)?" ↗":"");
+    btn.appendChild(E("strong","channel-title",c.name+extra));
+    btn.appendChild(E("span","channel-classification",classificationName(c)));
     var from="";
     if(source==="lista-2"&&c.origins&&c.origins.length){
-      from=" · Origem: "+c.origins.map(function(x){return x.replace(/^lista-/,"Lista ");}).join(", ");
+      from="Origem: "+c.origins.map(function(x){return x.replace(/^lista-/,"Lista ");}).join(", ");
     }
-    btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")+
+    var details=(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":genreName(c.genre))+
+      (c.premium?" · Assinatura":"")+
       (c.originalName?" · Nome da fonte: "+c.originalName:"")+
-      (c.officialUrl?" · "+(c.urls&&c.urls.length?"Site oficial alternativo":"Site/app oficial, externo"):"")+from));
+      (c.officialUrl?" · Site/app oficial externo":"")+
+      (from?" · "+from:"");
+    btn.setAttribute("title",details);
+    btn.setAttribute("aria-label",c.name+" · "+classificationName(c)+" · "+details);
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
@@ -680,7 +691,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".quick-toggle,.quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -761,9 +772,19 @@ function initRemote(){
     if(code===38&&idx===0){col.scrollTop=0;}
   });
 }
+function toggleQuickGroup(kind){
+  var id=kind==="recent"?"recent":"favorite";
+  var list=D(id+"-items"),button=D(id+"-toggle");
+  var expanded=list.hidden;
+  list.hidden=!expanded;
+  button.setAttribute("aria-expanded",expanded?"true":"false");
+  T(button.getElementsByTagName("span")[0],expanded?"▾":"▸");
+}
 function init(){
   COUNTRY.sort(compareCountries);
   loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
+  on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   checkConnection();
   on(window,"online",checkConnection);
   on(window,"offline",function(){setConnectionStatus(false);});
