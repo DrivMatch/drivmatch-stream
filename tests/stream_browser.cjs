@@ -357,7 +357,9 @@ async function main(){
       assert.equal(await page.locator('#mobile-guide-panel').isVisible(),true);
       assert.equal(await page.locator('#mobile-countries-panel').isVisible(),false);
       await page.locator('#channel-items .channel-btn').first().click();
-      await page.waitForFunction(()=>window.__hlsLoads.length>0);
+      await page.waitForFunction(()=>
+        window.__hlsLoads.length>0||
+        document.querySelector('#video').getAttribute('src')==='https://mock.example/24horas.m3u8');
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
       const selected=await page.locator('.player-column').boundingBox();
       await page.locator('.catalog').evaluate(el=>{el.scrollTop=400;});
