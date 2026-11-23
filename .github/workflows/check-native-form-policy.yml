@@ -1,0 +1,29 @@
+name: Verify live Stream native-form policy
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/check-native-form-policy.yml']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Check Cloudflare staging HTML form referrer policy and csrf token
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="https://drivmatch-stream-v2-test.drivmatch.workers.dev"
+          curl -fsS --max-time 20 -D /tmp/login-headers -o /tmp/login-html "$root/stream/login"
+          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/login-headers
+          grep -q "name='_csrf'" /tmp/login-html
+          echo "Live page Referrer-Policy: same-origin — PASS"
+          curl -fsS --max-time 20 -D /tmp/recover-headers -o /tmp/recover-html "$root/stream/recover"
+          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/recover-headers
+          grep -q "name='_csrf'" /tmp/recover-html
+          echo "Live recovery Referrer-Policy: same-origin — PASS"
+          # Public surfaces should never use no-referrer for POST HTML forms.
+          curl -fsS --max-time 20 -D /tmp/activate-headers -o /tmp/activate-html "$root/stream/activate"
+          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/activate-headers
+          echo "Live activation Referrer-Policy: same-origin — PASS"
