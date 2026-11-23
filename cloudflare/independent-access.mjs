@@ -241,6 +241,35 @@ async function supabase(env, method, endpoint, data, admin = false, accessToken 
   try {result = await res.json();} catch {}
   return {ok:res.ok, status:res.status, data:result};
 }
+function invitationError(result){
+  if(result.status===429)return "limit";
+  if(result.status===401||result.status===403)return "permissions";
+  const data=result.data||{};
+  const code=String(data.error_code||data.code||"").toLowerCase();
+  const msg=String(data.msg||data.message||data.error_description||data.error||"").toLowerCase();
+  if(code.includes("rate_limit")||msg.includes("rate limit")||msg.includes("too many"))return "limit";
+  if(code.includes("email_address_not_authorized")||
+     code.includes("email_address_invalid")||msg.includes("not authorized")||
+     msg.includes("not allowed")||msg.includes("smtp")||msg.includes("send email")||
+     msg.includes("error sending"))return "smtp";
+  if(code.includes("already_registered")||code.includes("user_already_exists")||
+     msg.includes("already registered")||msg.includes("already exists"))return "existing";
+  return "provider";
+}
+function authUserFromResponse(result){
+  return result?.data?.user?.id || result?.data?.id || null;
+}
+function validInviteActionLink(urlText,env){
+  try{
+    const link=new URL(urlText);
+    const project=new URL(authBase(env));
+    return link.protocol==="https:" && link.origin===project.origin &&
+      link.pathname==="/auth/v1/verify" &&
+      ["invite","recovery"].includes(link.searchParams.get("type")) &&
+      !!link.searchParams.get("token") &&
+      link.searchParams.get("redirect_to")==="https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/activate";
+  }catch{return false;}
+}
 async function limit(request, env, prefix) {
   if (!env.STREAM_LOGIN_LIMITER?.limit) return false;
   const key = prefix + ":" + (request.headers.get("CF-Connecting-IP") || "unknown");
@@ -272,7 +301,7 @@ async function revokeCurrent(request, env) {
 function requireAdmin(user) {
   return user && user.role === "admin" && user.status === "active";
 }
-async function adminPage(user,env,url) {
+async function adminPage(user,env,url,extra={}) {
   const token=await issueFormToken(env);
   const [members,activity,sessionCounts]=await Promise.all([
     env.STREAM_USERS_DB.prepare(
@@ -296,7 +325,8 @@ async function adminPage(user,env,url) {
   }));
   const {html,nonce}=renderAccessConsole({
     users,actorId:user.user_id,token,events:activity.results||[],
-    notice:url.searchParams.get("result")||""
+    notice:url.searchParams.get("result")||"",
+    error:extra.error||"",manualLink:extra.manualLink||"",manualEmail:extra.manualEmail||""
   });
   return stampForm(new Response(html,{status:200,headers:{
     ...HEADERS,"Content-Type":"text/html; charset=utf-8",
@@ -486,24 +516,63 @@ async function handle(request, env) {
     const data = await form(request);
     if (!await verifyFormToken(request,url,data,env)) return plain(403,"Formulário expirado. Reabra o painel.");
     if (!await limit(request,env,"admin")) return plain(429,"Muitas operações.");
-    if (path === "/stream/admin/invite") {
-      const email = String(data.get("email") || "").trim().toLowerCase();
-      if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-        return plain(400,"E-mail inválido.");
-      const exists = await env.STREAM_USERS_DB.prepare(
-        "SELECT user_id FROM stream_users WHERE email=?"
+    if (path === "/stream/admin/invite" ||
+        path === "/stream/admin/link-invite") {
+      const manual=path === "/stream/admin/link-invite";
+      const email=String(data.get("email")||"").trim().toLowerCase();
+      if(email.length>254||! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+        return adminPage(user,env,url,{error:"failure"});
+      const exists=await env.STREAM_USERS_DB.prepare(
+        "SELECT user_id,status,role FROM stream_users WHERE email=?"
       ).bind(email).first();
-      if (exists) return plain(409,"Conta já cadastrada. Utilize a ação adequada no painel.");
-      const result = await supabase(env,"POST","invite?redirect_to=" +
-        encodeURIComponent(url.origin + "/stream/activate"),{email},true);
-      if (!result.ok || !result.data?.id) return plain(502,"Não foi possível enviar o convite.");
-      await env.STREAM_USERS_DB.prepare(
-        "INSERT INTO stream_users(user_id,email,role,status) VALUES(?,?,'viewer','invited')"
-      ).bind(result.data.id,email).run();
-      await env.STREAM_USERS_DB.prepare(
-        "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
-      ).bind(crypto.randomUUID(),user.user_id,"invite",result.data.id).run();
-      return redirect(url.origin,"/stream/admin?result=invited");
+      if(exists && (!manual || exists.role!=="viewer" || exists.status!=="invited"))
+        return adminPage(user,env,url,{error:"existing"});
+      const endpoint="invite?redirect_to="+
+        encodeURIComponent(url.origin+"/stream/activate");
+      if(!manual){
+        const result=await supabase(env,"POST",endpoint,{email},true);
+        const uid=authUserFromResponse(result);
+        if(!result.ok||!uid)
+          return adminPage(user,env,url,{error:invitationError(result)});
+        await env.STREAM_USERS_DB.batch([
+          env.STREAM_USERS_DB.prepare(
+            "INSERT INTO stream_users(user_id,email,role,status) VALUES(?,?,'viewer','invited')"
+          ).bind(uid,email),
+          env.STREAM_USERS_DB.prepare(
+            "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
+          ).bind(crypto.randomUUID(),user.user_id,"invite",uid)
+        ]);
+        return redirect(url.origin,"/stream/admin?result=invited");
+      }
+      // Generates a one-time Supabase link without triggering email delivery.
+      // For an existing pending Stream invitation use a recovery-type token,
+      // but never create/authorize a second identity for an existing email.
+      const type=exists?"recovery":"invite";
+      const generated=await supabase(env,"POST","admin/generate_link",
+        {type,email,redirect_to:url.origin+"/stream/activate"},true);
+      const uid=authUserFromResponse(generated);
+      const actionLink=generated.data?.action_link||
+        generated.data?.properties?.action_link;
+      if(!generated.ok||!uid||
+         (exists && uid!==exists.user_id)||
+         typeof actionLink!=="string"||
+         !validInviteActionLink(actionLink,env))
+        return adminPage(user,env,url,{error:invitationError(generated)});
+      if(!exists){
+        await env.STREAM_USERS_DB.batch([
+          env.STREAM_USERS_DB.prepare(
+            "INSERT INTO stream_users(user_id,email,role,status) VALUES(?,?,'viewer','invited')"
+          ).bind(uid,email),
+          env.STREAM_USERS_DB.prepare(
+            "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
+          ).bind(crypto.randomUUID(),user.user_id,"invite-link",uid)
+        ]);
+      }else{
+        await env.STREAM_USERS_DB.prepare(
+          "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
+        ).bind(crypto.randomUUID(),user.user_id,"invite-link",uid).run();
+      }
+      return adminPage(user,env,url,{manualLink:actionLink,manualEmail:email});
     }
     const target = String(data.get("user_id") || "");
     const targetRow = await env.STREAM_USERS_DB.prepare(
