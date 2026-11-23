@@ -1286,6 +1286,14 @@ function init(){
       visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);return;
     }
     session=true;
+    // Stop a player when this account is suspended or its session expires.
+    setInterval(function(){http("/stream/session",function(st,raw){
+      if(st!==200||raw.indexOf('"allowed":true')<0){
+        session=false;clearPlaybackWatch();
+        try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+        visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);
+      }
+    });},300000);
     try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";}}catch(e){}
     if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
     else{loadHidden();loadFav();loadQuickHistory();drawQuickLists();}
