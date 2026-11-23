@@ -599,3 +599,70 @@ test("viewer is blocked from generating private invite links",async()=>{
     assert.equal(result.status,403);
   });
 });
+
+test("20 accepted email requests per São Paulo day shared by admin recovery and invites",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,emailBudget,events}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    for(let i=0;i<20;i++) {
+      const response=await adminAction(env,a,"recover",users[1].id);
+      assert.equal(response.status,303,"Recovery email "+(i+1)+" should be accepted");
+    }
+    assert.equal(emailBudget.length,20);
+    assert.ok(emailBudget.every(x=>x.status==="accepted"));
+    assert.equal(events.filter(x=>x.action==="recover").length,20);
+    const after=await adminAction(env,a,"recover",users[1].id);
+    assert.equal(after.status,200);
+    const html=await after.text();
+    assert.match(html,/Limite diário atingido: 20/);
+    assert.match(html,/E-mails solicitados hoje: 20 de 20/);
+    assert.equal(emailBudget.length,20);
+    assert.equal(events.filter(x=>x.action==="recover").length,20);
+    // Manual-link operations do not send mail and must not consume the quota.
+    const form=await getForm("/stream/admin",env,a);
+    const link=await worker.fetch(req("/stream/admin/link-invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"no-mail@example.test"})
+    }),env);
+    assert.equal(link.status,200);
+    assert.equal(emailBudget.length,20);
+  });
+});
+test("known Supabase rejected SMTP invitation or rate limit consumes zero budget",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,emailBudget}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    for(const email of ["outside@example.test","limited@example.test"]){
+      const form=await getForm("/stream/admin",env,a);
+      const rejected=await worker.fetch(req("/stream/admin/invite",{
+        method:"POST",headers:{Cookie:a+"; "+form.cookie,
+          "Content-Type":"application/x-www-form-urlencoded"},
+        body:new URLSearchParams({_csrf:form.token,email})
+      }),env);
+      assert.equal(rejected.status,200);
+      assert.match(await rejected.text(),/Falha no convite/);
+      assert.equal(emailBudget.length,0,"Rejected request should refund its slot");
+    }
+  });
+});
+test("public password recovery uses no more than 5 of the global 20 daily slots",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,emailBudget}=testEnvironment();
+    for(let i=0;i<8;i++){
+      const f=await getForm("/stream/recover",env);
+      const result=await worker.fetch(req("/stream/recover",{
+        method:"POST",headers:{Cookie:f.cookie,
+          "Content-Type":"application/x-www-form-urlencoded"},
+        body:new URLSearchParams({_csrf:f.token,email:"public-user@example.test"})
+      }),env);
+      assert.equal(result.status,200);
+      assert.match(await result.text(),/Solicitação recebida/);
+    }
+    assert.equal(emailBudget.length,5);
+    assert.ok(emailBudget.every(x=>x.kind==="public-recover"));
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:a}}),env);
+    assert.match(await admin.text(),/E-mails solicitados hoje: 5 de 20/);
+  });
+});
