@@ -11,30 +11,50 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
-      - name: Verify public entry and mobile form behavior without real credentials
+      - name: Verify mobile-private-browser login form and CSRF protection without real credentials
         shell: bash
         run: |
           set -euo pipefail
           origin="https://drivmatch-stream-v2-test.drivmatch.workers.dev"
           login="$origin/stream/login"
-          st_get=$(curl -fsS -o /tmp/stream-login.html -w '%{http_code}' "$login")
+          st_get=$(curl -sS --max-time 30 -c /tmp/stream-cookie-jar -o /tmp/stream-login.html -w '%{http_code}' "$login")
           echo "GET login HTTP: $st_get"
           test "$st_get" = 200
           grep -q "Acesso individual" /tmp/stream-login.html
-          st_admin=$(curl -sS -o /dev/null -w '%{http_code}' "$origin/stream/admin")
-          echo "GET admin without cookie HTTP: $st_admin"
-          test "$st_admin" = 303
-          st_foreign=$(curl -sS -o /dev/null -w '%{http_code}' "$login" \
-            -X POST -H "Origin: https://attacker.example" -H "Sec-Fetch-Site: same-origin" \
+          csrf=$(python3 - <<'PY'
+          import re
+          html=open("/tmp/stream-login.html",encoding="utf-8").read()
+          match=re.search(r"name='_csrf' value='([A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43})'",html)
+          if not match: raise SystemExit("Missing signed CSRF hidden token")
+          print(match.group(1))
+          PY
+          )
+          echo "Signed CSRF token rendered: YES (never printing token)"
+          grep -q "__Host-dm_stream_form_csrf" /tmp/stream-cookie-jar
+          st_mobile=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar \
+            -o /tmp/stream-invalid.html -w '%{http_code}' "$login" \
+            -X POST -H "Content-Type: application/x-www-form-urlencoded" \
             --data-urlencode 'email=invalid-qa@example.invalid' \
-            --data-urlencode 'password=invalid-forbidden-test')
-          echo "POST forged foreign Origin HTTP: $st_foreign"
-          test "$st_foreign" = 403
-          st_mobile=$(curl -sS -o /tmp/stream-invalid.html -w '%{http_code}' "$login" \
-            -X POST -H "Sec-Fetch-Site: same-origin" \
-            --data-urlencode 'email=invalid-qa@example.invalid' \
-            --data-urlencode 'password=invalid-forbidden-test')
-          echo "POST same-origin mobile form with invalid credentials HTTP: $st_mobile"
+            --data-urlencode 'password=invalid-test-only' \
+            --data-urlencode "_csrf=$csrf")
+          echo "POST no Origin/Referer/Fetch Metadata with valid signed CSRF HTTP: $st_mobile"
           test "$st_mobile" = 401
           grep -q 'Não foi possível entrar' /tmp/stream-invalid.html
-          echo "PASS: legitimate mobile browser form reached auth validation instead of 403."
+          st_missing=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar \
+            -o /dev/null -w '%{http_code}' "$login" -X POST \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-test-only')
+          echo "POST no CSRF field HTTP: $st_missing"
+          test "$st_missing" = 403
+          st_foreign=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar \
+            -o /dev/null -w '%{http_code}' "$login" -X POST \
+            -H 'Origin: https://attacker.example' \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-test-only' \
+            --data-urlencode "_csrf=$csrf")
+          echo "POST foreign Origin with valid signed CSRF HTTP: $st_foreign"
+          test "$st_foreign" = 403
+          st_admin=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$origin/stream/admin")
+          echo "GET admin without user cookie HTTP: $st_admin"
+          test "$st_admin" = 303
+          echo "PASS: private-mobile form works and cross-site/missing-CSRF posts are denied."
