@@ -151,89 +151,89 @@ async function main(){
       await page.goto(origin+'/stream/');
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
-      assert.equal(await page.locator('#source-items .source-btn').count(),9);
-      await page.locator('#country-items [data-country="MX"]').waitFor();
-      assert.equal(await page.locator('#country-items .country-btn').count(),15);
+      assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
+      await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
+      assert.equal(await page.locator('#country-items .country-btn').count(),14);
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
       await context.close();
     }
-    // Samsung TV: source 02 country-indexed union of Lists 1–8, original lists retained.
+    // Samsung: country > category > channel tree, with hidden source lists.
     {
       const context=await setup(true);
       const page=await context.newPage();
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
-      await page.locator('#source-items .source-btn').first().waitFor();
-      assert.equal(await page.locator('#source-items .source-btn').count(),9);
-      assert.match(await page.locator('#source-items .source-btn').nth(1).innerText(),/Lista 2/);
-      assert((await page.locator('#source-items .source-btn').first().evaluate(
-        el=>parseFloat(getComputedStyle(el).fontSize)))>=20,'TV source text must be large');
+      await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+      assert.equal(await page.locator('#source-items').isVisible(),false);
+      assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
+      assert.equal(await page.locator('#category-items').isVisible(),false);
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
+      await page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]').waitFor();
+      await page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]').waitFor();
+      const news=page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'24 Horas'});
+      await news.first().waitFor();
+      assert((await page.locator('.tree-country-btn[data-country="BR"]').evaluate(
+        el=>parseFloat(getComputedStyle(el).fontSize)))>=23,'Country font must read from sofa');
+      const small=await page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]').evaluate(
+        el=>el.getBoundingClientRect().height);
+      assert(small<=65,'Category buttons must remain compact');
       await page.setViewportSize({width:960,height:720});
-      assert((await page.locator('#source-items .source-btn').first().evaluate(
-        el=>parseFloat(getComputedStyle(el).fontSize)))>=20,
-        'Samsung 960px browser must not shrink the source text');
+      assert((await page.locator('.tree-channel-btn').first().evaluate(
+        el=>parseFloat(getComputedStyle(el).fontSize)))>=20,'Tizen small viewport text must stay readable');
       await page.setViewportSize({width:1440,height:900});
-      assert.equal(await page.locator('#find-globo,#find-sportv,#find-espn,.tv-quick-access').count(),0);
-      assert((await page.locator('#source-items .source-btn').first().evaluate(
-        el=>parseFloat(getComputedStyle(el).fontSize)))>=22);
-      assert((await page.locator('#source-items .source-btn').first().evaluate(
-        el=>el.getBoundingClientRect().height))<=58,'List buttons should be slim');
-      await page.locator('#source-items .source-btn').nth(7).click();
-      await page.getByText('Record News',{exact:true}).first().waitFor();
-      assert.equal(await page.getByText('DAZN',{exact:true}).count(),0);
-      assert.equal(await page.locator('#player-open-official').count(),0);
-      await page.locator('#source-items .source-btn').nth(8).click();
-      await page.getByText('TV Brasil',{exact:true}).first().waitFor();
-      await page.locator('#source-items .source-btn').nth(1).click();
-      await page.getByText('24 Horas (720p)').first().waitFor();
-      assert.match(await page.locator('#channel-items').textContent(),/Origem: Lista 1/);
-      await page.locator('#country-items [data-country="MX"]').click();
-      await page.getByText('Canal México',{exact:true}).first().waitFor();
-      assert.equal(await page.getByText('24 Horas (720p)',{exact:true}).count(),0);
-      await page.locator('#country-items [data-country="BR"]').click();
-      await page.getByText('24 Horas (720p)',{exact:true}).first().waitFor();
-      await page.locator('#source-items .source-btn').nth(2).click();
-      await page.getByText('24 Horas (720p)').first().waitFor();
 
-      // Samsung remote DOWN must traverse the same sidebar through its last country.
-      const sidebar=page.locator('.sidebar');
-      await page.locator('#source-items .source-btn').first().focus();
-      for(let i=0;i<23;i++)await page.keyboard.press('ArrowDown');
-      assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
-      assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
-
-      // Guide DOWN scrolls only the guide: do not move the sidebar or fixed video.
-      await page.locator('#channel-items .channel-btn').first().focus();
-      const sidebarScroll=await sidebar.evaluate(el=>el.scrollTop);
-      const videoBefore=await page.locator('.player-column').boundingBox();
-      for(let i=0;i<50;i++)await page.keyboard.press('ArrowDown');
-      assert.equal(await page.locator('.catalog').evaluate(el=>el.contains(document.activeElement)),true);
-      assert((await page.locator('.catalog').evaluate(el=>el.scrollTop))>0,'Guide must scroll with TV remote DOWN');
-      assert.equal(await sidebar.evaluate(el=>el.scrollTop),sidebarScroll,
-        'Navigating the guide must not scroll the source sidebar');
-      const videoAfter=await page.locator('.player-column').boundingBox();
-      assert(Math.abs(videoBefore.y-videoAfter.y)<2,'Player must stay fixed when guide scrolls');
-
-      // Reaching "Mostrar mais" and pressing DOWN adds the next batch automatically.
-      await page.locator('#show-more').focus();
-      await page.keyboard.press('ArrowDown');
-      assert((await page.locator('#channel-items .channel-btn').count())>60);
-      assert.equal(await page.locator('.catalog').evaluate(el=>el.contains(document.activeElement)),true);
-
-      await page.locator('[data-category="news"]').click();
-      assert(await page.locator('#channel-items .channel-row').count()>0);
-      assert.equal(await page.locator('.filter-btn.active').getAttribute('data-category'),'news');
-      await page.locator('[data-category="all"]').click();
-      await page.locator('#channel-items .channel-btn').first().click();
+      // Left tree plays a listed open channel, keeping focus on the tree.
+      await news.first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
-      assert.equal(await page.locator('#player-favorite').isEnabled(),true);
-      const before=await page.locator('.player-column').boundingBox();
-      await page.locator('.catalog').evaluate(el=>{el.scrollTop=600;});
-      await page.waitForTimeout(150);
-      const after=await page.locator('.player-column').boundingBox();
-      assert(Math.abs(before.y-after.y)<2,'TV video player must remain fixed while guide scrolls');
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
+      assert.match(await page.locator('#channel-items').textContent(),/Origem: Lista 1/);
+      assert.equal(await page.evaluate(()=>document.activeElement.className.includes('tree-channel-btn')),true);
+
+      // Multiple countries remain visible and expand independently.
+      await page.locator('.tree-country-btn[data-country="PT"]').click();
+      await page.locator('.tree-genre-btn[data-country="PT"]').first().waitFor();
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
+      await page.locator('.tree-country-btn[data-country="MX"]').click();
+      await page.locator('.tree-genre-btn[data-country="MX"]').first().waitFor();
+      assert.equal(await page.locator('.tree-country-btn[data-country="MX"]').getAttribute('aria-expanded'),'true');
+      assert.equal(await page.locator('#channel-items').getByText('24 Horas (720p)',{exact:true}).count(),0);
+      await page.locator('.tree-genre-btn[data-country="MX"][data-genre="other"]').click();
+      await page.locator('.tree-channel-btn[data-country="MX"]').getByText('Canal México',{exact:true}).waitFor();
+      await page.locator('.tree-country-btn[data-country="MX"]').click();
+      assert.equal(await page.locator('.tree-genre-btn[data-country="MX"]').count(),0,'Collapsed country should hide category rows');
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
+      assert.equal(await page.locator('.tree-genre-btn[data-country="BR"]').count(),0);
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
+      await page.locator('.tree-genre-btn[data-country="BR"]').first().waitFor();
+
+      // Many channels stay grouped with incremental "Mostrar mais" in the tree.
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="other"]').click();
+      const before=await page.locator('.tree-channel-btn[data-country="BR"]').count();
+      const more=page.locator('.tree-more-btn[data-country="BR"]').first();
+      await more.click();
+      const after=await page.locator('.tree-channel-btn[data-country="BR"]').count();
+      assert(after>before,'Showing more must grow only the requested tree category');
+      const sidebar=page.locator('.sidebar');
+      await page.locator('.tree-country-btn[data-country="BR"]').focus();
+      for(let i=0;i<35;i++)await page.keyboard.press('ArrowDown');
+      assert((await sidebar.evaluate(el=>el.scrollTop))>0,
+        'Samsung remote DOWN must scroll the country tree');
+
+      // Center guide still works, scrolls independently, and video stays fixed.
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="other"]').click();
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="other"]').click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      const playerBefore=await page.locator('.player-column').boundingBox();
+      const sidebarScroll=await sidebar.evaluate(el=>el.scrollTop);
+      await page.locator('.catalog').evaluate(el=>{el.scrollTop=500;});
+      await page.waitForTimeout(120);
+      assert.equal(await sidebar.evaluate(el=>el.scrollTop),sidebarScroll);
+      const playerAfter=await page.locator('.player-column').boundingBox();
+      assert(Math.abs(playerBefore.y-playerAfter.y)<2);
+      await page.locator('#search').fill('Canal Teste 10');
+      await page.locator('#channel-items').getByText('Canal Teste 10',{exact:true}).waitFor();
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');

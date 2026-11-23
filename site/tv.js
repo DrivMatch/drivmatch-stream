@@ -6,11 +6,38 @@ var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],
  ["ES","Espanha"],["AR","Argentina"],["JP","Japão"],["CN","China"],["UK","Reino Unido"],
  ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
 var SOURCES=[],source="lista-2",country="BR",category="all",search="",channels=[],visible=[],selected=null;
+var openCountries={BR:true},openGenres={"BR:sports":true,"BR:news":true},treeLimits={},treeErrors={};
 var favorites=[],limit=60,serial=0,session=false,cache={},MAX_CHANNELS=15000,video=D("video");
 var STORE="drivmatch-tv-guide-favorites-v1";
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
+
+var TREE_GENRES=[
+ ["sports","Esportes"],["news","Notícias"],["movies","Filmes e séries"],
+ ["kids","Infantil"],["music","Música e entretenimento"],
+ ["religion","Religião"],["education","Educação"],["other","Outros / sem categoria"]
+];
+var MOVIES=/movies?|film|filmes?|cinema|telecine|s[eé]ries|series|pel[ií]culas/i;
+var KIDS=/kids?|children|infantil|crian[cç]as|cartoon|desenhos?|junior/i;
+var MUSIC=/music|m[uú]sica|show|entreten|variedades|entertainment/i;
+var RELIGION=/relig|gospel|crist[aã]|igreja|evangel|cat[oó]lic|faith/i;
+var EDUCATION=/educa|educat|learning|ensino|cultur|documentar/i;
+function channelGenre(name,group,origin){
+ var text=name+" "+group;
+ if(origin==="lista-4"||SPORTS.test(text)||/\b(espn|premiere|combate|dazn|sportv|spor\s*tv)\b/i.test(name))return "sports";
+ if(origin==="lista-3"||NEWS.test(text))return "news";
+ if(MOVIES.test(text))return "movies";
+ if(KIDS.test(text))return "kids";
+ if(RELIGION.test(text))return "religion";
+ if(EDUCATION.test(text))return "education";
+ if(MUSIC.test(text))return "music";
+ return "other";
+}
+function genreName(id){
+ for(var i=0;i<TREE_GENRES.length;i++)if(TREE_GENRES[i][0]===id)return TREE_GENRES[i][1];
+ return "Todos os canais";
+}
 function T(el,s){if(el)el.textContent=s;}
 function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(typeof s==="string")T(x,s);return x;}
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
@@ -65,9 +92,9 @@ function parse(raw,forcedCode){
     if(!name||/\[(geo.blocked|blocked)\]/i.test(name))continue;
     if(!/^https:\/\//i.test(ln)||!/\.(?:m3u8|mp4)(?:[?#]|$)/i.test(ln))continue;
     var code=inferCountry(sourceMeta,group,name,marker);
-    var genre=source==="lista-3"?"news":source==="lista-4"?"sports":SPORTS.test(name+" "+group)?"sports":NEWS.test(name+" "+group)?"news":"other";
-    var premium=PREMIUM.test(name),k=code+"|"+lower(name),orig=dedupe[k];
     var origin=dataAttr(sourceMeta,"dm-source")||source;
+    var genre=channelGenre(name,group,origin);
+    var premium=PREMIUM.test(name),k=code+"|"+lower(name),orig=dedupe[k];
     if(orig){
       if(!orig.premium&&orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);
       if(!has(orig.origins,origin))orig.origins.push(origin);
@@ -120,19 +147,97 @@ function hasCountry(code){
   for(var i=0;i<COUNTRY.length;i++)if(COUNTRY[i][0]===code)return true;
   return false;
 }
+
+function treeKey(code,genre){return code+":"+genre;}
+function treeGroups(code,genre){
+ var src=cache["lista-2:"+code]||[],items=[];
+ for(var i=0;i<src.length;i++)if(src[i].genre===genre)items.push(src[i]);
+ items.sort(function(a,b){
+  var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);
+  return x<y?-1:x>y?1:0;
+ });
+ return items;
+}
 function drawCountries(){
-  var area=D("country-items");clear(area);
-  for(var i=0;i<COUNTRY.length;i++){(function(c){
-    var btn=E("button","country-btn"+(country===c[0]?" active":""),c[1]);
-    btn.type="button";btn.setAttribute("data-country",c[0]);
-    on(btn,"click",function(){
-      if(country===c[0])return;
-      country=c[0];limit=60;drawCountries();
-      selectNewCountryFocus(c[0]);
-      if(source==="lista-2")loadChannels();else renderChannels();
-    });
-    area.appendChild(btn);
-  }(COUNTRY[i]));}
+ var area=D("country-items");clear(area);
+ // "Todos" is a search/filter, not a geographical country.
+ for(var i=1;i<COUNTRY.length;i++){(function(entry){
+  var code=entry[0],opened=!!openCountries[code],items=cache["lista-2:"+code];
+  var wrap=E("div","tree-country");area.appendChild(wrap);
+  var btn=E("button","country-btn tree-country-btn"+(country===code?" active":""));
+  btn.type="button";btn.setAttribute("data-country",code);
+  btn.setAttribute("aria-expanded",opened?"true":"false");
+  btn.appendChild(E("span","tree-chevron",opened?"▾":"▸"));
+  btn.appendChild(E("span","tree-label",entry[1]));
+  if(items)btn.appendChild(E("span","tree-count",String(items.length)));
+  on(btn,"click",function(){chooseCountry(code);});wrap.appendChild(btn);
+  if(!opened)return;
+  var subtree=E("div","tree-categories");wrap.appendChild(subtree);
+  if(treeErrors[code]){subtree.appendChild(E("p","tree-error","Falha no catálogo. Selecione novamente."));return;}
+  if(!items){subtree.appendChild(E("p","tree-loading","Carregando canais…"));return;}
+  if(!items.length){subtree.appendChild(E("p","tree-loading","Nenhum canal encontrado."));return;}
+  for(var g=0;g<TREE_GENRES.length;g++){(function(genre){
+    var id=genre[0],filtered=treeGroups(code,id);
+    if(!filtered.length)return;
+    var key=treeKey(code,id),expanded=!!openGenres[key];
+    var cat=E("button","tree-genre-btn"+(country===code&&category===id?" active":""));
+    cat.type="button";cat.setAttribute("data-country",code);
+    cat.setAttribute("data-genre",id);cat.setAttribute("aria-expanded",expanded?"true":"false");
+    cat.appendChild(E("span","tree-chevron",expanded?"▾":"▸"));
+    cat.appendChild(E("span","tree-label",genre[1]));
+    cat.appendChild(E("span","tree-count",String(filtered.length)));
+    on(cat,"click",function(){chooseGenre(code,id);});subtree.appendChild(cat);
+    if(!expanded)return;
+    var list=E("div","tree-channel-list");subtree.appendChild(list);
+    var max=treeLimits[key]||20;
+    for(var n=0;n<filtered.length&&n<max;n++){(function(channel){
+      var ch=E("button","tree-channel-btn"+(selected&&selected.id===channel.id?" active":""));
+      ch.type="button";ch.setAttribute("data-channel-id",channel.id);
+      ch.setAttribute("data-country",code);
+      ch.appendChild(E("span","tree-channel-name",channel.name));
+      on(ch,"click",function(){chooseTreeChannel(code,id,channel);});list.appendChild(ch);
+    }(filtered[n]));}
+    if(filtered.length>max){
+      var more=E("button","tree-more-btn","Mostrar mais "+Math.min(20,filtered.length-max));
+      more.type="button";more.setAttribute("data-country",code);
+      on(more,"click",function(){
+        var next=filtered[max];treeLimits[key]=max+20;drawCountries();
+        if(next)focusTreeChannel(code,next.id);
+      });
+      list.appendChild(more);
+    }
+  }(TREE_GENRES[g]));}
+ }(COUNTRY[i]));}
+}
+function focusTreeChannel(code,id){
+ var list=D("country-items").getElementsByTagName("button");
+ for(var i=0;i<list.length;i++)
+  if(list[i].getAttribute("data-country")===code &&
+    list[i].getAttribute("data-channel-id")===id){focusTV(list[i]);return;}
+}
+function focusTreeGenre(code,genre){
+ var list=D("country-items").getElementsByTagName("button");
+ for(var i=0;i<list.length;i++)
+  if(list[i].getAttribute("data-country")===code &&
+    list[i].getAttribute("data-genre")===genre){focusTV(list[i]);return;}
+}
+function chooseCountry(code){
+ if(openCountries[code]){
+  openCountries[code]=false;drawCountries();selectNewCountryFocus(code);return;
+ }
+ openCountries[code]=true;country=code;category="all";search="";
+ D("search").value="";limit=60;drawCountries();
+ selectNewCountryFocus(code);loadChannels();
+}
+function chooseGenre(code,genre){
+ country=code;category=genre;search="";D("search").value="";limit=60;
+ openCountries[code]=true;
+ var k=treeKey(code,genre);openGenres[k]=!openGenres[k];
+ drawCountries();focusTreeGenre(code,genre);loadChannels();
+}
+function chooseTreeChannel(code,genre,c){
+ country=code;category=genre;search="";limit=60;D("search").value="";
+ channels=cache["lista-2:"+code]||[];renderChannels();play(c,true);
 }
 function drawCategories(){
   var area=D("category-items"),btns=area.getElementsByTagName("button");
@@ -142,7 +247,7 @@ function drawCategories(){
   }
 }
 function refresh(){
-  cache={};loadChannels();
+  cache={};treeErrors={};loadChannels();
 }
 function selectSource(id){
   if(source===id&&channels.length)return;
@@ -156,19 +261,26 @@ function selectSource(id){
 function loadChannels(){
   serial++;var seq=serial,code=(source==="lista-2"||source==="lista-8"||source==="lista-9")?country:"ALL";
   var cacheKey=source+":"+code;
-  T(D("catalog-title"),sourceName().replace(/^Lista\s*\d+\s*•\s*/,""));
-  T(D("catalog-subtitle"),country==="ALL"?"Todos os países":countryName(country));
-  T(D("catalog-status"),source==="lista-2"?"Consolidando canais das Listas 1 a 8…":"Carregando canais…");
+  T(D("catalog-title"),countryName(country));
+  T(D("catalog-subtitle"),category==="all"?"Todos os canais":genreName(category));
+  T(D("catalog-status"),"Organizando canais de "+countryName(country)+"…");
   T(D("result-count"),"Carregando");
   clear(D("channel-items"));visibleEl(D("show-more"),false);
   if(cache[cacheKey]){
-    channels=cache[cacheKey];T(D("catalog-status"),"Catálogo público · sinais não verificados");renderChannels();return;
+    channels=cache[cacheKey];T(D("catalog-status"),"Listas 1–8 organizadas por país · Sinais não verificados");
+    renderChannels();drawCountries();return;
   }
+  treeErrors[code]=false;drawCountries();
   http("/stream/catalog?list="+encodeURIComponent(source)+"&country="+encodeURIComponent(code),function(st,body){
-    if(seq!==serial)return;
+    if(seq!==serial){
+      // Keep independently expanded countries usable even after switching focus.
+      if(st===200)cache[cacheKey]=parse(body,code);
+      else treeErrors[code]=true;
+      drawCountries();return;
+    }
     if(st!==200){
-      channels=[];renderChannels();
-      T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou escolha outra lista.");
+      channels=[];treeErrors[code]=true;renderChannels();drawCountries();
+      T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou selecione o país novamente.");
       return;
     }
     var parsed=parse(body,(source==="lista-2"||source==="lista-8"||source==="lista-9")&&code!=="ALL"?code:"ALL");
@@ -178,18 +290,17 @@ function loadChannels(){
       var count=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
         missing=/#DM_PARTIAL:([^\r\n]+)/.exec(body),
         cut=/#DM_TRUNCATED:1/.test(body);
-      T(D("catalog-status"),"Listas 1–8 consolidadas"+
+      T(D("catalog-status"),"Canais do país"+
         (count?" · Fontes: "+count[1]:"")+
         (missing?" · Fontes indisponíveis: "+missing[1]:"")+
         (cut?" · Catálogo geral parcial; selecione um país":"")+
         " · Reprodução não garantida.");
     }else T(D("catalog-status"),"Lista pública · reprodução ainda não verificada nesta TV.");
-    renderChannels();
+    renderChannels();drawCountries();
   });
 }
 function fits(c){
-  if(country!=="ALL" && source!=="lista-2" && c.code!==country)return false;
-  if(country==="OTHER" && source==="lista-2" && c.code!=="OTHER")return false;
+  if(country!=="ALL" && c.code!==country)return false;
   if(category!=="all"&&category!=="fav"&&c.genre!==category)return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
   if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
@@ -211,9 +322,7 @@ function renderChannels(){
   visible=all;
   T(D("result-count"),visible.length+" canais");
   if(!all.length){
-    var emptyText=channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte.";
-    if(search&&source==="lista-2"&&country==="BR")
-      emptyText="Nenhum resultado para "+D("search").value+" nesta lista. Experimente escolher outra lista à esquerda.";
+    var emptyText=channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
     area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
@@ -239,7 +348,7 @@ function renderChannels(){
   visibleEl(D("show-more"),all.length>limit);
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
-function play(c){
+function play(c,fromTree){
   if(c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
@@ -249,7 +358,9 @@ function play(c){
     T(D("player-error"),"Este canal aparece numa lista pública, mas o link não comprova autorização. Use o serviço oficial ou a assinatura aplicável.");
     visibleEl(D("player-error"),true);
     D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
-    updateFavButton();renderChannels();focusChannelAfterRender(c.id,false);return;
+    updateFavButton();renderChannels();drawCountries();
+    if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
+    return;
   }
   selected=c;T(D("now-name"),c.name);
   T(D("now-meta"),countryName(c.code)+" · "+
@@ -262,8 +373,8 @@ function play(c){
     var task=video.play();
     if(task&&typeof task.catch==="function")task.catch(function(){T(D("player-error"),"Toque no Play do vídeo. A origem também pode bloquear reprodução nesta TV.");visibleEl(D("player-error"),true);});
   }catch(e){T(D("player-error"),"Formato ou sinal não suportado neste navegador Samsung.");visibleEl(D("player-error"),true);}
-  renderChannels();
-  focusChannelAfterRender(c.id,false);
+  renderChannels();drawCountries();
+  if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
 }
 /* Directional navigation stays inside the focused column on UP/DOWN.
  * LEFT/RIGHT changes columns; only that column scrolls, never the video.
@@ -277,7 +388,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -402,7 +513,7 @@ function init(){
       SOURCES=verified;drawSources();drawCountries();drawCategories();
       addCountryOptions();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
-      selectSource("lista-2");
+      source="lista-2";T(D("head-source"),"Países e categorias");loadChannels();
     });
   });
 }
