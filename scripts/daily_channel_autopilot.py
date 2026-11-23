@@ -442,8 +442,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
             errors[sid] = type(exc).__name__
     if not scans:
         raise RuntimeError("All source feeds failed; do not update the published channel list")
-    if FULL_AUDIT and errors:
-        raise RuntimeError("Full audit blocked by unavailable feeds; refusing to publish partial coverage: " + ", ".join(sorted(errors)))
+    if (FULL_AUDIT or ROTATING_AUDIT) and errors:
+        raise RuntimeError("Audit blocked by unavailable feeds; refusing to publish incomplete catalog: " + ", ".join(sorted(errors)))
     if ROTATING_AUDIT:
         chosen, rotation_cursor, priority_count = select_rotating(
             discovered, previous, str(prev.get("rotation_cursor", "")))
@@ -457,6 +457,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         for future in cf.as_completed(futures):
             key, ok = future.result()
             checks[key] = ok
+    if ROTATING_AUDIT and len(checks) != len(chosen):
+        raise RuntimeError("Rotating batch incomplete; refusing to publish")
     if FULL_AUDIT and len(checks) != len(discovered):
         raise RuntimeError("Full audit incomplete: not every discovered channel was tested")
     state = {}
