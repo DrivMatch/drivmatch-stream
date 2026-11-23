@@ -264,7 +264,7 @@ test("owner-only global search finds CNN across Brazil, Portugal and US and reje
    assert(body.includes(","+name+"\n"),"missing channel "+name);
   }
   assert.equal((body.match(/#EXTINF/g)||[]).length,3);
-  assert.equal(seen.length,26,"all 14 configured sources + 12 original countries must be searched");
+  assert.equal(seen.length,25,"13 independent feeds plus 12 country feeds; Lista 2 is their logical merged view");
  }finally{globalThis.fetch=old;}
 });
 
