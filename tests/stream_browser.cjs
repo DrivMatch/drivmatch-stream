@@ -243,6 +243,10 @@ async function main(){
           'Mozilla/5.0 (SMART-TV; Linux; Tizen 2.4) AppleWebKit/538.1 SamsungBrowser/1.0 TV Safari/538.1'});
       });
       await page.goto(origin+'/stream/');
+      await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
