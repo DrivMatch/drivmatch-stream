@@ -1,0 +1,61 @@
+name: Verify live Stream Console and D1 data retention
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/verify-stream-control-center.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: stream-independent-test
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Check new control-center login routing and unauthorized requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://drivmatch-stream-v2-test.drivmatch.workers.dev"
+          status=$(curl -sS --max-time 20 -D /tmp/stream-admin-h -o /dev/null -w '%{http_code}' "$origin/stream/admin")
+          test "$status" = 303
+          grep -qi 'location: .*\/stream\/login?next=admin' /tmp/stream-admin-h
+          curl -fsS --max-time 20 "$origin/stream/login?next=admin" > /tmp/stream-login.html
+          grep -q "Acesso individual" /tmp/stream-login.html
+          grep -Fq "action='/stream/login?next=admin'" /tmp/stream-login.html
+          test "$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' "$origin/stream/session")" = 401
+          echo "PASS: admin deep link, authentication gate and login route"
+      - name: Verify only dedicated test D1 and additive columns without exposing account data
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          base="https://api.cloudflare.com/client/v4/accounts/"+os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          hdr={"Authorization":"Bearer "+os.environ["CLOUDFLARE_API_TOKEN"],
+               "Accept":"application/json","Content-Type":"application/json"}
+          def call(path,body=None):
+              r=urllib.request.Request(base+path,headers=hdr,
+                data=json.dumps(body).encode() if body is not None else None,
+                method="POST" if body is not None else "GET")
+              with urllib.request.urlopen(r,timeout=25) as response:
+                  result=json.loads(response.read())
+              if not result.get("success"):raise RuntimeError("Cloudflare read-only API call failed")
+              return result["result"]
+          dbs=call("/d1/database?per_page=100")
+          matches=[d for d in dbs if d["name"]=="drivmatch-stream-users-test"]
+          assert len(matches)==1, "Dedicated staging D1 not uniquely found"
+          endpoint="/d1/database/"+matches[0]["uuid"]+"/query"
+          def read(sql):
+              rows=call(endpoint,{"sql":sql})
+              assert rows and rows[0].get("success"), "Read query failed"
+              return rows[0].get("results",[])
+          fields={r["name"] for r in read("PRAGMA table_info(stream_users)")}
+          for key in ("created_at","activated_at","first_login_at","last_login_at","canceled_invite_at"):
+              assert key in fields,key+" not deployed"
+          counts=read("SELECT COUNT(*) AS total FROM stream_users")
+          assert counts and counts[0]["total"]>=2,"Accounts unexpectedly missing"
+          print("PASS: account records preserved and lifecycle fields deployed")
+          print("No accounts, emails, access tokens or session hashes printed")
+          PY
