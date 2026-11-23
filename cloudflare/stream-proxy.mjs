@@ -219,7 +219,7 @@ export default {async fetch(request,env){
  if(path==="/stream/search"){
    // Authenticated, bounded search of known sources; no arbitrary URL proxy.
    const q=(url.searchParams.get("q")||"").trim();
-   if(q.length<2||q.length>60||!/^[\p{L}\p{N} ._+\-]+$/u.test(q))
+   if(q.length<2||q.length>60||!/^[\p{L}\p{N} ._+\-–—()'&]+$/u.test(q))
      return plain(400,"Invalid search query");
    try{
      const result=await searchCatalog(q,TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
