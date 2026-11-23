@@ -3,11 +3,11 @@
   "use strict";
   var ua = navigator.userAgent || "";
   var tv = /SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(ua);
-  // Reuse the same three-column Samsung guide on desktop. Keep mobile on its
-  // existing responsive viewer, with an explicit legacy option for support.
-  var mobile = /Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(ua);
+  // All devices share one channel guide and catalog. Its phone layout fixes
+  // the player above the independently scrollable country and guide panes.
+  // The legacy viewer remains available only when explicitly requested.
   var classic = /(?:^|[?&])layout=classic(?:&|$)/i.test(window.location.search || "");
-  if (tv || (!mobile && !classic)) {
+  if (tv || !classic) {
     window.location.replace('/stream/tv/');
     return;
   }

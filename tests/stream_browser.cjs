@@ -299,15 +299,92 @@ async function main(){
       assert.equal(await page.locator('#catalog-title').textContent(),'Brasil');
       await context.close();
     }
-    // Mobile phones retain the original responsive player and channel list.
+    // Android/iOS share Samsung's country tree and the same guide, with the
+    // player fixed above independently scrollable mobile tabs.
+    for(const agent of [
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'
+    ]){
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.setViewportSize({width:390,height:844});
+      await page.addInitScript(ua => {
+        Object.defineProperty(navigator,'userAgent',{get:() => ua});
+        window.__hlsLoads=[];
+        function FakeHls(){this.handlers={};}
+        FakeHls.Events={MEDIA_ATTACHED:'attached',MANIFEST_PARSED:'parsed',ERROR:'error'};
+        FakeHls.isSupported=()=>true;
+        FakeHls.prototype.on=function(type,fn){this.handlers[type]=fn;};
+        FakeHls.prototype.attachMedia=function(){
+          if(this.handlers.attached)this.handlers.attached();
+        };
+        FakeHls.prototype.loadSource=function(url){
+          window.__hlsLoads.push(url);
+          if(this.handlers.parsed)this.handlers.parsed();
+        };
+        FakeHls.prototype.destroy=function(){};
+        window.Hls=FakeHls;
+      },agent);
+      await page.goto(origin+'/stream/');
+      const brazil=page.locator('.tree-country-btn[data-country="BR"]');
+      await brazil.waitFor();
+      assert.equal(new URL(page.url()).pathname,'/stream/tv/');
+      assert.equal(await page.locator('html').evaluate(el=>el.classList.contains('dm-mobile-guide')),true);
+      assert.equal(await page.locator('html').evaluate(el=>el.classList.contains('dm-desktop-compact')),false);
+      assert.equal(await page.locator('#mobile-countries').getAttribute('aria-pressed'),'true');
+      assert.equal(await page.locator('#mobile-countries-panel').isVisible(),true);
+      assert.equal(await page.locator('#mobile-guide-panel').isVisible(),false);
+      assert.equal(await brazil.getAttribute('aria-expanded'),'false');
+      const viewport=await page.evaluate(()=>({
+        inner:innerHeight,scroll:document.scrollingElement.scrollHeight,
+        body:getComputedStyle(document.body).overflow,columns:
+          getComputedStyle(document.getElementById('tv-layout')).gridTemplateColumns
+      }));
+      assert(viewport.scroll<=viewport.inner+3,
+        'Phone page itself must remain fixed: '+JSON.stringify(viewport));
+      assert.equal(viewport.body,'hidden');
+      const playerBefore=await page.locator('.player-column').boundingBox();
+      await page.locator('.sidebar').evaluate(el=>{el.scrollTop=600;});
+      assert((await page.locator('.sidebar').evaluate(el=>el.scrollTop))>0,
+        'Phone country tree must scroll independently');
+      const playerAfter=await page.locator('.player-column').boundingBox();
+      assert(Math.abs(playerBefore.y-playerAfter.y)<2,
+        'Phone player must remain at fixed position during country browsing');
+      assert(playerBefore.height<360,'Phone player must leave space for channel browsing');
+      await brazil.click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      assert.equal(await page.locator('#mobile-guide').getAttribute('aria-pressed'),'true');
+      assert.equal(await page.locator('#mobile-guide-panel').isVisible(),true);
+      assert.equal(await page.locator('#mobile-countries-panel').isVisible(),false);
+      await page.locator('#channel-items .channel-btn').first().click();
+      await page.waitForFunction(()=>
+        window.__hlsLoads.length>0||
+        document.querySelector('#video').getAttribute('src')==='https://mock.example/24horas.m3u8');
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
+      const selected=await page.locator('.player-column').boundingBox();
+      await page.locator('.catalog').evaluate(el=>{el.scrollTop=400;});
+      assert(Math.abs((await page.locator('.player-column').boundingBox()).y-selected.y)<2);
+      await page.locator('#search').fill('CNN');
+      await page.waitForFunction(() =>
+        document.getElementById('catalog-status').textContent.includes('Fontes consultadas'));
+      assert.match(await page.locator('#result-count').textContent(),/3 países/);
+      for(const country of ['Brasil','Portugal','Estados Unidos'])
+        assert((await page.locator('#channel-items').textContent()).includes(country),
+          'Global mobile guide should include '+country);
+      await page.locator('#mobile-countries').click();
+      assert.equal(await page.locator('#mobile-countries-panel').isVisible(),true);
+      assert.equal(await page.locator('#mobile-guide-panel').isVisible(),false);
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
+      await page.locator('#mobile-guide').click();
+      assert.equal(await page.locator('#mobile-guide-panel').isVisible(),true);
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
+      await context.close();
+    }
+    // The classic viewer remains an explicit opt-in for support.
     {
       const context=await setup(true);
       const page=await context.newPage();
-      await page.addInitScript(() => {
-        Object.defineProperty(navigator,'userAgent',{get:() =>
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'});
-      });
-      await page.goto(origin+'/stream/');
+      await page.goto(origin+'/stream/?layout=classic');
       await page.locator('#countries button').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/');
       await context.close();

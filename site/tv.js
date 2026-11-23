@@ -7,8 +7,10 @@ var D=function(id){return document.getElementById(id);};
 var agent=navigator.userAgent||"";
 var samsungTV=/SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(agent);
 var portable=/Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(agent);
-var desktopMode=!samsungTV&&!portable;
-if(desktopMode)document.documentElement.className+=" dm-desktop-compact";
+var mobileMode=portable&&!samsungTV;
+var desktopMode=!samsungTV; // Browsers, including Android, need HLS.js; Samsung remains native.
+if(mobileMode)document.documentElement.className+=" dm-mobile-guide";
+else if(desktopMode)document.documentElement.className+=" dm-desktop-compact";
 var desktopHls=null,desktopHlsLoading=false,desktopHlsWaiters=[];
 var desktopSourceGeneration=0,desktopFailureReason="";
 var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],["PT","Portugal"],
@@ -280,7 +282,9 @@ function startPlaybackWatch(c){
    video.pause();
    if(desktopMode)destroyDesktopHls();
    video.removeAttribute("src");video.load();
-   if(desktopMode&&/\.m3u8(?:[?#]|$)/i.test(urls[idx])){
+   if(desktopMode&&/\.m3u8(?:[?#]|$)/i.test(urls[idx])&&
+     !(mobileMode&&(video.canPlayType("application/vnd.apple.mpegurl")||
+                     video.canPlayType("application/x-mpegURL")))){
      startDesktopHls(c,urls[idx],token,generation,playVideo);
    }else{
      video.src=urls[idx];video.load();playVideo();
@@ -301,7 +305,7 @@ function startPlaybackWatch(c){
   if(token!==playbackToken||playbackConfirmed||autoplayBlocked||
      !selected||selected.id!==c.id)return;
   if(desktopMode){
-   T(D("play-status"),"Sem reprodução neste desktop");
+   T(D("play-status"),mobileMode?"Sem reprodução neste celular":"Sem reprodução neste desktop");
    T(D("player-error"),desktopFailureReason||
      "Não houve reprodução após 60 segundos. Pode haver bloqueio CORS, região, "+
      "codec incompatível ou indisponibilidade na origem. Nenhum canal foi ocultado.");
@@ -662,6 +666,18 @@ function treeGroups(code,genre){
  });
  return items;
 }
+function switchMobilePane(name){
+ if(!mobileMode)return;
+ var countryPane=name!=="guide",left=D("mobile-countries-panel"),
+     right=D("mobile-guide-panel");
+ document.documentElement.className=document.documentElement.className
+   .replace(/\s*dm-mobile-pane-(?:countries|guide)/g,"")+
+   (countryPane?" dm-mobile-pane-countries":" dm-mobile-pane-guide");
+ left.setAttribute("aria-hidden",countryPane?"false":"true");
+ right.setAttribute("aria-hidden",countryPane?"true":"false");
+ D("mobile-countries").setAttribute("aria-pressed",countryPane?"true":"false");
+ D("mobile-guide").setAttribute("aria-pressed",countryPane?"false":"true");
+}
 function drawCountries(){
  var area=D("country-items");clear(area);
  // "Todos" is a search/filter, not a geographical country.
@@ -758,7 +774,7 @@ function chooseCountry(code){
  cancelGlobalSearch();
  openCountries[code]=true;country=code;category="all";search="";
  D("search").value="";limit=60;drawCountries();
- selectNewCountryFocus(code);loadChannels();
+ selectNewCountryFocus(code);loadChannels();switchMobilePane("guide");
 }
 function chooseGenre(code,genre){
  var k=treeKey(code,genre),expanding=!openGenres[k];
@@ -768,12 +784,13 @@ function chooseGenre(code,genre){
  country=code;category=expanding?genre:"all";
  search="";D("search").value="";limit=60;
  openCountries[code]=true;
- drawCountries();focusTreeGenre(code,genre);loadChannels();
+ drawCountries();focusTreeGenre(code,genre);loadChannels();switchMobilePane("guide");
 }
 function chooseTreeChannel(code,genre,c){
  cancelGlobalSearch();
  country=code;category=genre;search="";limit=60;D("search").value="";
  channels=cache["lista-2:"+code]||[];renderChannels();play(c,true);
+ switchMobilePane("guide");
 }
 function drawCategories(){
   var area=D("category-items"),btns=area.getElementsByTagName("button");
@@ -1168,6 +1185,11 @@ function toggleQuickGroup(kind){
 function init(){
   COUNTRY.sort(compareCountries);
   loadHidden();loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  if(mobileMode){
+   switchMobilePane("countries");
+   on(D("mobile-countries"),"click",function(){switchMobilePane("countries");});
+   on(D("mobile-guide"),"click",function(){switchMobilePane("guide");});
+  }
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   on(D("search"),"input",runGlobalSearch);
