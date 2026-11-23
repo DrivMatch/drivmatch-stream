@@ -914,8 +914,8 @@ function runGlobalSearch(){
    }
    var results=parse(body,"ALL");
    globalResults=globalSearchMatches(results,value);
-   var sources=/#DM_SOURCES_LOADED:([^\\r\\n]+)/.exec(body),
-       partial=/#DM_PARTIAL:([^\\r\\n]+)/.exec(body),
+   var sources=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
+       partial=/#DM_PARTIAL:([^\r\n]+)/.exec(body),
        cut=/#DM_TRUNCATED:1/.test(body);
    globalStatus="Busca global"+(sources?" · Fontes consultadas: "+sources[1]:"")+
      (partial?" · Alguns catálogos indisponíveis":"")+
