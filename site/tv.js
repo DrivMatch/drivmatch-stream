@@ -23,6 +23,7 @@ var STORE="drivmatch-tv-guide-favorites-v1";
 var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
 var HIDDEN_STORE="drivmatch-tv-hidden-failed-60s-v1",HIDDEN_TTL=24*60*60*1000;
 var hiddenFailed={},playbackToken=0,playbackTimers=[],playbackConfirmed=false,autoplayBlocked=false;
+var officialFrame=D("official-embed");
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
@@ -471,6 +472,26 @@ function detectLanguage(info,group){
  return "";
 }
 function validOfficialUrl(url){return /^https:\/\/[^/@\s]+(?:\/|$)/i.test(String(url||""));}
+/* Only publisher-backed providers with a validated channel ID may be framed.
+ * Never embed arbitrary links, scrape streaming URLs or bypass restrictions. */
+function officialEmbedUrl(c){
+ if(!c||c.premium||c.urls&&c.urls.length||!c.embed)return "";
+ var e=c.embed;
+ if(e.provider==="youtube_live_channel"&&/^UC[A-Za-z0-9_-]{22}$/.test(e.channelId||""))
+   return "https://www.youtube.com/embed/live_stream?channel="+e.channelId;
+ if(e.provider==="twitch_channel"&&/^[A-Za-z0-9_]{3,25}$/.test(e.channel||"")){
+   var host=window.location.hostname||"";
+   if(!/^[A-Za-z0-9.-]{1,120}$/.test(host))return "";
+   return "https://player.twitch.tv/?channel="+encodeURIComponent(e.channel)+
+     "&parent="+encodeURIComponent(host)+"&autoplay=false";
+ }
+ return "";
+}
+function clearOfficialFrame(){
+ if(!officialFrame)return;
+ officialFrame.removeAttribute("src");
+ visibleEl(officialFrame,false);
+}
 function attachOfficial(code,items){
  var out=items.slice(0);
  for(var i=0;i<officialFree.length;i++){
@@ -483,12 +504,13 @@ function attachOfficial(code,items){
   if(existing){
    if(!existing.officialUrl){existing.officialUrl=x.url;
      existing.officialAccess=x.access;existing.officialNotes=x.notes;}
+   if(x.embed&&!existing.embed)existing.embed=x.embed;
    if(!existing.lang&&x.lang)existing.lang=x.lang;
   }else{
    out.push({id:"official:"+x.id,source:"official",name:x.name,code:code,
     genre:x.genre||"other",group:"Site/app oficial",origins:["Emissora"],
     premium:false,urls:[],lang:x.lang||"",officialUrl:x.url,
-    officialAccess:x.access,officialNotes:x.notes});
+    officialAccess:x.access,officialNotes:x.notes,embed:x.embed||null});
   }
  }
  return out;
@@ -884,19 +906,30 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
-  clearPlaybackWatch();recordVisit(c);
+  clearPlaybackWatch();clearOfficialFrame();recordVisit(c);
   visibleEl(D("official-open"),!!c.officialUrl);
   T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
   if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
     T(D("now-meta"),countryName(c.code)+" · "+(c.officialAccess||"Site oficial"));
-    T(D("play-status"),"Acesso oficial externo");
-    T(D("player-error"),"Este item abre um site ou aplicativo oficial. "+
-      "Não é um sinal de vídeo incorporado ao Stream. "+
-      "O acesso depende do fornecedor, região e navegador.");
-    visibleEl(D("player-empty"),true);visibleEl(video,false);visibleEl(D("player-error"),true);
-    D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
+    var url=officialEmbedUrl(c),framed=!!url&&!!officialFrame;
+    if(framed){
+      officialFrame.src=url;
+      officialFrame.title="Player oficial · "+c.name;
+      visibleEl(officialFrame,true);
+      T(D("play-status"),"Player oficial · live não verificada");
+      T(D("player-error"),"Player oficial incorporado. O Stream não confirma "+
+        "se há transmissão agora. Se não houver imagem, pode estar encerrada, "+
+        "restrita ou com incorporação bloqueada. Tente Abrir no site/app oficial.");
+    }else{
+      T(D("play-status"),"Acesso oficial externo");
+      T(D("player-error"),"Este serviço abre no site ou aplicativo oficial; "+
+        "não há player incorporável verificado para esta fonte.");
+    }
+    visibleEl(D("player-empty"),!framed);visibleEl(video,false);
+    visibleEl(D("player-error"),true);
+    D("player-retry").disabled=!framed;D("player-fullscreen").disabled=!framed;
     updateFavButton();renderChannels();drawCountries();
     if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
     return;
@@ -1059,8 +1092,9 @@ function init(){
     T(D("technical-toggle"),(open?"▾":"▸")+" Fontes técnicas (listas)");
   });
   on(D("player-fullscreen"),"click",function(){
-    var fn=video.requestFullscreen||video.webkitRequestFullscreen||video.webkitEnterFullscreen;
-    if(fn)try{fn.call(video);}catch(e){}
+    var target=officialFrame&&!officialFrame.hidden?officialFrame:video;
+    var fn=target.requestFullscreen||target.webkitRequestFullscreen||target.webkitEnterFullscreen;
+    if(fn)try{fn.call(target);}catch(e){}
   });
   on(video,"playing",function(){
     completePlayback();
