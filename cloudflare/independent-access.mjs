@@ -280,8 +280,10 @@ async function adminPage(user,env,url) {
       "last_login_at,canceled_invite_at FROM stream_users ORDER BY created_at DESC LIMIT 150"
     ).all(),
     env.STREAM_USERS_DB.prepare(
-      "SELECT e.action,e.created_at,t.email AS subject_email " +
-      "FROM stream_admin_events e LEFT JOIN stream_users t ON t.user_id=e.subject_id " +
+      "SELECT e.action,e.created_at,t.email AS subject_email,a.email AS admin_email " +
+      "FROM stream_admin_events e " +
+      "LEFT JOIN stream_users t ON t.user_id=e.subject_id " +
+      "LEFT JOIN stream_users a ON a.user_id=e.admin_id " +
       "ORDER BY e.created_at DESC LIMIT 15"
     ).all(),
     env.STREAM_USERS_DB.prepare(
