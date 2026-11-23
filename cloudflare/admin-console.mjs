@@ -48,6 +48,7 @@ const css=[
 "tbody tr:hover{background:#f9fbfd}",
 ".user-mail{font-weight:750;overflow-wrap:anywhere;color:#18324b}",
 ".secondary{display:block;color:#617186;font-size:12px;margin-top:3px}",
+".mobile-status{display:none}",
 ".chip{display:inline-block;font-size:12px;font-weight:750;border:1px solid;border-radius:100px;padding:4px 10px;white-space:nowrap}",
 ".chip-active{background:#e5f5f0;color:#126449;border-color:#a8ddc9}",
 ".chip-invited{background:#fff4dc;color:#755500;border-color:#f0d99b}",
@@ -77,7 +78,7 @@ const css=[
 ".fineprint{font-size:12px;color:#617289;margin:13px 0 0}",
 "footer{text-align:center;font-size:12px;color:#66798e;padding:18px}",
 "[hidden]{display:none!important}",
-"@media(max-width:760px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}table{min-width:0}th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}td,th{padding:12px 8px}.masthead .wrap{gap:8px}.logo{font-size:13px}.toplink{font-size:12px;padding:9px}.panel{padding:15px}.wrap,main{padding-left:13px;padding-right:13px}.user-mail{font-size:13px}.cell-actions .btn{font-size:12px;padding:7px 9px}.metric{padding:13px}.metric strong{font-size:25px}}",
+"@media(max-width:760px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}table{min-width:0}th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}.mobile-status{display:block;margin-top:5px}td,th{padding:12px 8px}.masthead .wrap{gap:8px}.logo{font-size:13px}.toplink{font-size:12px;padding:9px}.panel{padding:15px}.wrap,main{padding-left:13px;padding-right:13px}.user-mail{font-size:13px}.cell-actions .btn{font-size:12px;padding:7px 9px}.metric{padding:13px}.metric strong{font-size:25px}}",
 "@media(max-width:430px){.metrics{gap:8px}.data-list{grid-template-columns:1fr 1fr;gap:6px}.detail{padding:18px}.detail h2{font-size:18px}.metrics .metric span{font-size:12px}}"
 ].join("\n");
 
@@ -171,7 +172,8 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     const index=i+1;
     const userHtml="<span class='user-mail'>"+esc(u.email)+"</span>"+
       "<span class='secondary'>"+(u.role==="admin"?"Administrador":"Usuário")+
-      (u.user_id===actorId?" · você":"")+"</span>";
+      (u.user_id===actorId?" · você":"")+"</span>"+
+      "<span class='mobile-status chip chip-"+cls+"'>"+esc(label)+"</span>";
     rows.push("<tr data-user-row data-email='"+esc(String(u.email).toLowerCase())+
       "' data-state='"+esc(u.status)+"'>"+
       "<td>"+userHtml+"</td>"+
@@ -187,7 +189,9 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     ["Suspensos/cancelados",totals.suspended]
   ].map(([title,count])=>"<div class='metric'><span>"+esc(title)+"</span><strong>"+esc(count)+"</strong></div>").join("");
   const history=events.length?events.map(e=>"<li><span><strong>"+esc(activityName(e.action))+"</strong>"+
-    (e.subject_email?" · "+esc(e.subject_email):"")+"</span><time>"+esc(fmt(e.created_at))+"</time></li>").join(""):
+    (e.subject_email?" · "+esc(e.subject_email):"")+
+    (e.admin_email?" <span class='secondary'>por "+esc(e.admin_email)+"</span>":"")+
+    "</span><time>"+esc(fmt(e.created_at))+"</time></li>").join(""):
     "<li>Nenhuma atividade administrativa registrada.</li>";
   const nonce=Array.from(crypto.getRandomValues(new Uint8Array(16)),
     x=>x.toString(16).padStart(2,"0")).join("");
