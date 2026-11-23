@@ -15,6 +15,7 @@ class GlobalDiscoveryTests(unittest.TestCase):
         self.assertEqual(row["international_name"], "Rossiya 24")
         self.assertEqual(row["display_name_pt"], "Rossiya 24 — Notícias da Rússia")
         self.assertIn("Россия 24", row["aliases"])
+        self.assertIn("Russia 24", row["aliases"])
         self.assertEqual(row["original_script"], "Cyrillic")
         self.assertEqual(row["name_provenance"], "curated_reference")
 
@@ -59,6 +60,8 @@ class GlobalDiscoveryTests(unittest.TestCase):
                '#EXTINF:-1,Canal Livre\n'
                'https://media.example.org/live.m3u8\n')
         rows = gd.parse_public_feed(m3u, "RU", s)
+        self.assertFalse(gd.safe_url("https://192.168.1.10/private.m3u8"))
+        self.assertFalse(gd.safe_url("https://127.0.0.1/private.m3u8"))
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["stream_url"], "https://media.example.org/live.m3u8")
 
