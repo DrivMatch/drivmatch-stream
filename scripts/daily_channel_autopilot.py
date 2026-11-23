@@ -31,10 +31,11 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
-MAX_CHECKS = min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
-MAX_WORKERS = min(16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
+FULL_AUDIT = os.getenv("DM_FULL_AUDIT", "0") == "1"
+MAX_CHECKS = max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))) if FULL_AUDIT else min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
+MAX_WORKERS = min(32 if FULL_AUDIT else 16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
 VALID_DAYS = 8
-MAX_LIVE = 360
+MAX_LIVE = 100000 if FULL_AUDIT else 360
 PROBE_SECONDS = 60
 CATALOG_LIMIT = 5_000_000
 UA = "DrivMatch-Public-TV-Health/1.0 (+https://drivmatch.com/stream/tv/)"
@@ -351,6 +352,8 @@ def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list
     day = now.strftime("%Y%m%d")
     randomizer = random.Random(int(day))
     items = list(candidates.values())
+    if FULL_AUDIT:
+        return sorted(items, key=lambda item: (priority(item), item["id"]))
     randomizer.shuffle(items)
     cutoff = (now - dt.timedelta(days=3)).strftime("%Y-%m-%d")
     buckets = {"new": [], "stale": [], "failed": [], "recent": []}
@@ -417,6 +420,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
             errors[sid] = type(exc).__name__
     if not scans:
         raise RuntimeError("All source feeds failed; do not update the published channel list")
+    if FULL_AUDIT and errors:
+        raise RuntimeError("Full audit blocked by unavailable feeds; refusing to publish partial coverage: " + ", ".join(sorted(errors)))
     chosen = select_for_check(discovered, previous, now)
     checks = {}
     with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
@@ -424,6 +429,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         for future in cf.as_completed(futures):
             key, ok = future.result()
             checks[key] = ok
+    if FULL_AUDIT and len(checks) != len(discovered):
+        raise RuntimeError("Full audit incomplete: not every discovered channel was tested")
     state = {}
     for key, item in discovered.items():
         old = previous.get(key, {})
@@ -456,7 +463,10 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     # no video could be tested (e.g. a GitHub network outage).
     failures = sum(1 for good in checks.values() if not good)
     research=research_pages()
-    report = {"schema": 1, "date_utc": today, "state": "COMPLETED",
+    report = {"schema": 1, "date_utc": today, "state": "COMPLETED" if FULL_AUDIT else "SAMPLED",
+              "scope": "CURATED_DISCOVERY_FEEDS_ONLY_NOT_ALL_STREAM_LISTS",
+              "full_audit_of_curated_candidates": bool(FULL_AUDIT and len(checks) == len(discovered) and not errors),
+              "total_catalog_coverage_confirmed": False,
               "sources_responded": len(scans), "sources_total": len(SOURCES),
               "source_counts": scans, "source_errors": errors,
               "community_candidates_research_only": researched,
