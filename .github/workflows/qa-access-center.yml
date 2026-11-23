@@ -1,0 +1,46 @@
+name: QA Stream Access Control Center
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/qa-access-center.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  security-and-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and backend account integration tests
+        run: |
+          set -e
+          node --check cloudflare/admin-console.mjs
+          node --check cloudflare/independent-access.mjs
+          node --check site/tv.js
+          node --test tests/independent_access.test.mjs
+      - name: Test non-destructive database migration with existing identity, favorites and sessions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import sqlite3
+          c=sqlite3.connect(":memory:")
+          c.execute("PRAGMA foreign_keys=ON")
+          c.executescript(open("migrations/0001_stream_identities.sql").read())
+          c.execute("INSERT INTO stream_users(user_id,email,role,status) VALUES('u1','user@sample.test','viewer','active')")
+          c.execute("INSERT INTO stream_favorites(user_id,favorite_key) VALUES('u1','BR:favorite-a')")
+          c.execute("INSERT INTO stream_sessions(token_hash,user_id,expires_at) VALUES('opaque-hash','u1',9999999999)")
+          c.commit()
+          c.executescript(open("migrations/0002_stream_access_audit.sql").read())
+          columns={x[1] for x in c.execute("PRAGMA table_info(stream_users)")}
+          for col in ("activated_at","first_login_at","last_login_at","canceled_invite_at"):
+              assert col in columns, col
+          assert c.execute("SELECT favorite_key FROM stream_favorites").fetchone()[0]=="BR:favorite-a"
+          assert c.execute("SELECT token_hash FROM stream_sessions").fetchone()[0]=="opaque-hash"
+          assert c.execute("SELECT status,created_at,last_login_at FROM stream_users").fetchone()[0]=="active"
+          assert not c.execute("PRAGMA foreign_key_check").fetchall()
+          print("PASS: additive migration preserves user, session, favorite and constraints")
+          PY
