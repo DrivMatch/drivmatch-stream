@@ -1,0 +1,41 @@
+name: Deploy isolated Stream Worker (manual only)
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type DEPLOY_OWN_STREAM to confirm this is your own separate Cloudflare account'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  deploy:
+    if: ${{ inputs.confirmation == 'DEPLOY_OWN_STREAM' }}
+    runs-on: ubuntu-24.04
+    environment:
+      name: stream-independent-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate isolated credentials and database identifier
+        env:
+          CF_ACCOUNT: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
+          D1_ID: ${{ secrets.STREAM_INDEPENDENT_D1_ID }}
+        run: |
+          test -n "$CF_ACCOUNT"
+          test -n "$CF_API_TOKEN"
+          echo "$D1_ID" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$'
+          test "$CF_ACCOUNT" != "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+      - name: Deploy only the separate Stream Worker
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
+          D1_ID: ${{ secrets.STREAM_INDEPENDENT_D1_ID }}
+        run: |
+          cp wrangler.independent.toml.example wrangler.independent.toml
+          sed -i "s/REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID/$D1_ID/g" wrangler.independent.toml
+          npx --yes wrangler@4 deploy -c wrangler.independent.toml
+          echo "Worker deployed. IMPORTANT: configure private Worker secrets and Supabase redirect URLs before enabling logins." >> "$GITHUB_STEP_SUMMARY"
