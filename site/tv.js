@@ -272,7 +272,12 @@ function loadChannels(){
   }
   treeErrors[code]=false;drawCountries();
   http("/stream/catalog?list="+encodeURIComponent(source)+"&country="+encodeURIComponent(code),function(st,body){
-    if(seq!==serial)return;
+    if(seq!==serial){
+      // Keep independently expanded countries usable even after switching focus.
+      if(st===200)cache[cacheKey]=parse(body,code);
+      else treeErrors[code]=true;
+      drawCountries();return;
+    }
     if(st!==200){
       channels=[];treeErrors[code]=true;renderChannels();drawCountries();
       T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou selecione o país novamente.");
