@@ -218,6 +218,15 @@ async function main(){
       assert.equal(await page.locator('#restore-hidden').isVisible(),false,
         'Unsupported desktop playback must not hide channels as offline');
       assert.equal(await page.locator('#channel-items .channel-btn').first().count(),1);
+      await page.locator('#provider-toggle').click();
+      const netflixLink=page.locator('#provider-items a.provider-entry').filter({hasText:'Netflix'}).first();
+      await netflixLink.waitFor();
+      assert.equal(await netflixLink.getAttribute('href'),'https://www.netflix.com/br/');
+      assert.equal(await netflixLink.getAttribute('target'),'_blank',
+        'Desktop provider must open via a user-activated external link');
+      assert.match(await netflixLink.textContent(),/Abrir site oficial/);
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)',
+        'Showing provider links must not change or interrupt the channel');
       await brazil.click();
       assert.equal(await brazil.getAttribute('aria-expanded'),'false');
       assert.equal(await page.locator('#channel-items .channel-btn').count(),0,
@@ -455,13 +464,20 @@ async function main(){
       assert.match(await page.locator('#play-status').textContent(),/Acesso oficial externo/);
       assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
 
-      // Subscription brands are only visible in the collapsed footer.
+      // Subscription providers must have a visible real official URL.
+      // Their destination is external: inspecting the href must not start
+      // a stream, navigate the test page or claim free premium access.
       assert.equal(await page.locator('#provider-items').isVisible(),false);
       await page.locator('#provider-toggle').click();
-      await page.locator('.provider-entry').filter({hasText:'Netflix'}).first().click();
-      assert.match(await page.locator('#play-status').textContent(),/Acesso oficial necessário/);
-      assert.equal(await page.locator('#video').getAttribute('src'),null);
-      assert.equal(await page.locator('#official-open').isVisible(),true);
+      const netflix=page.locator('#provider-items a.provider-entry').filter({hasText:'Netflix'}).first();
+      await netflix.waitFor();
+      assert.equal(await netflix.getAttribute('href'),'https://www.netflix.com/br/');
+      assert.match(await netflix.textContent(),/Abrir site oficial/);
+      assert.equal(await netflix.getAttribute('target'),null,
+        'Samsung should use same-tab navigation when user chooses a provider');
+      assert.match(await page.locator('.provider-note').textContent(),/assinatura/);
+      assert.equal(await page.locator('#video').getAttribute('src'),null,
+        'External subscription links must not be inserted as video sources');
       await page.locator('#technical-toggle').click();
       assert.equal(await page.locator('#technical-items .technical-source-name').count(),12);
       await context.close();
