@@ -105,6 +105,26 @@
       ],
       "source": "https://github.com/SamuelSantos-R/cattv-playlist",
       "filtered_catalog": "/stream/catalog?list=lista-9&country=BR"
+    },
+    {
+      "id": "lista-10",
+      "title": "Lista 10 • Filmes FAST internacionais (Free-TV)",
+      "kind": "canais públicos · filmes",
+      "description": "Recorte temático do Free-TV, não uma assinatura nem filmes específicos. Alguns links são HTTP e não entram no player HTTPS; o nome do canal não prova que o sinal funciona na Samsung.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_movies.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV"
+    },
+    {
+      "id": "lista-11",
+      "title": "Lista 11 • Notícias internacionais (Free-TV)",
+      "kind": "canais públicos · notícias",
+      "description": "Recorte de canais gratuitos em inglês, incluindo NBC News NOW, CBS News, ABC News Live, FOX LiveNOW e FOX Weather quando seus sinais são HTTPS HLS. Algumas entradas usam YouTube e não são URLs M3U8.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV"
     }
   ]
 }
