@@ -29,11 +29,11 @@ jobs:
           node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs
       - name: Validate deployment inputs
         env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ACCESS_KEY: ${{ secrets.STREAM_ACCESS_PASSWORD }}
         run: |
-          test -n "$CF_TOKEN" || { echo "::error::Cloudflare token missing"; exit 1; }
+          test -n "$CF_TOKEN" || { echo "::error::Cloudflare Pages token missing (requires Account:Cloudflare Pages:Edit)"; exit 1; }
           test -n "$CF_ACCOUNT" || { echo "::error::Cloudflare account ID missing"; exit 1; }
           test "${#ACCESS_KEY}" -ge 16 || { echo "::error::Stream access secret missing or short"; exit 1; }
       - name: Build Pages static assets and advanced-mode Worker
@@ -47,20 +47,24 @@ jobs:
           test -s dist/daily-autopilot.m3u8
       - name: Create or reuse Cloudflare Pages project
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          npx --yes wrangler@4 pages project create streamnow --production-branch main --config wrangler.streamnow.jsonc || echo "::notice::Project may already exist; deployment will verify."
+          if ! npx --yes wrangler@4 pages project create streamnow --production-branch main --config wrangler.streamnow.jsonc; then
+            echo "::notice::Checking whether streamnow already exists and is accessible"
+            npx --yes wrangler@4 pages project list --config wrangler.streamnow.jsonc > /tmp/streamnow-pages-project-list.txt
+            grep -Fq streamnow /tmp/streamnow-pages-project-list.txt || { echo "::error::Pages project unavailable or Cloudflare Pages:Edit permission missing"; exit 1; }
+          fi
       - name: Configure protected access on Pages
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ACCESS_KEY: ${{ secrets.STREAM_ACCESS_PASSWORD }}
         run: |
           printf %s "$ACCESS_KEY" | npx --yes wrangler@4 pages secret put STREAM_ACCESS_PASSWORD --project-name streamnow --config wrangler.streamnow.jsonc
       - name: Deploy no-cost Pages hostname
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch main --config wrangler.streamnow.jsonc
