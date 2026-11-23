@@ -102,6 +102,8 @@
       if(!res.ok || session.allowed!==true)throw Error("unauthorized");
       state.userId=typeof session.user_id==="string"?session.user_id:null;
       state.userRole=session.role||null;
+      const adminLink=$("admin-link");
+      if(adminLink)adminLink.hidden=state.userRole!=="admin";
       state.authorised=true;
       $("gate").hidden=true;
       $("tv").hidden=false;
