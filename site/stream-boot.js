@@ -3,7 +3,14 @@
   "use strict";
   var ua = navigator.userAgent || "";
   var tv = /SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(ua);
-  if (tv) { window.location.replace('/stream/tv/'); return; }
+  // Reuse the same three-column Samsung guide on desktop. Keep mobile on its
+  // existing responsive viewer, with an explicit legacy option for support.
+  var mobile = /Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(ua);
+  var classic = /(?:^|[?&])layout=classic(?:&|$)/i.test(window.location.search || "");
+  if (tv || (!mobile && !classic)) {
+    window.location.replace('/stream/tv/');
+    return;
+  }
   var modern = !tv &&
     typeof window.fetch === "function" &&
     typeof window.Promise === "function" &&
