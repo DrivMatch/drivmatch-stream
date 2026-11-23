@@ -1,8 +1,9 @@
-# DrivMatch Stream
+# Stream Now
 
-Visualizador privado pessoal de TV — projeto independente do DrivMatch News e DrivMatch TV.
+Visualizador Stream Now, com marca independente e novo endereço gratuito previsto em https://streamnow.pages.dev/.
 
-- Stream original: https://drivmatch.com/stream/ (ou a prévia https://drivmatch-stream-proxy.drivmatch.workers.dev/stream/).
+- Endereço novo pretendido: https://streamnow.pages.dev/ (publicação só depois de validação real).
+- Hospedagem nova: Cloudflare Pages + Functions + ASSETS, independente do GitHub Pages original; endereço antigo mantido como rollback até validação.
 - Biblioteca IPTV: /stream/listas/ — nove listas numeradas. A Lista 2 é um índice consolidado por país que reúne as Listas 1 a 8 (não inclui a 9), preservando a origem de cada canal, até três alternativas e a classificação de país quando há metadados. A Lista 8 contém canais públicos da Free-TV Brasil; a Lista 9 permanece separada e contém uma seleção restrita de emissoras abertas extraídas de uma fonte comunitária com testes diários de manifesto HLS, sem comprovar direito de retransmissão nem funcionamento na Samsung. Disney+, DAZN, ESPN, SporTV, Premiere, Telecine e SKY+ não são falsamente exibidos como canais reproduzíveis por meio de links de páginas institucionais.
 - Autenticação: Cloudflare Worker com segredo de acesso STREAM_ACCESS_PASSWORD e cookie HttpOnly assinado. O JavaScript cliente e o GitHub Pages não contêm a senha.
 - A biblioteca reutiliza **apenas** a sessão privada. Mantém arquivos, UI e gerenciamento próprios, sem alterar DrivMatch News (/news) ou DrivMatch TV (/TV).
@@ -122,3 +123,8 @@ Monitoramento: GitHub → Actions → **DrivMatch - Autopiloto diario de canais*
 ### Fontes adicionais pesquisadas a partir de 23/11/2026
 
 A rotina contempla também `Broadcast Atlas Official`, `Teleonline`, `Cold Open IPTV`, `Nexonic All`, `Biskyt Open All`, `RW1986 FAST` (pesquisa, sem autopublicação) e coleções do `iptv-org` de México, Canadá, Colômbia, Chile, Uruguai e Índia. Um segundo conjunto de buscas públicas tenta encontrar referências em `GitHub Search`, `Reddit Search`, `YouTube Search` e `Twitch Search`. Esses resultados são somente pesquisa: páginas e republicações sem autorização identificada **não** viram streams automáticos. O relatório diferencia busca realizada de busca que falhou/foi bloqueada pelo site. **Sites privados, dark web e credenciais vazadas não fazem parte da rotina**.
+
+
+## Migração Stream Now
+
+Veja docs/STREAMNOW_MIGRATION.md. O novo host aceita acesso pela raiz, mantém a sessão assinada, serve assets locais e exige senha forte; o PIN numérico exige uma proteção de tentativas equivalente antes de ser ativado na nova hospedagem.
