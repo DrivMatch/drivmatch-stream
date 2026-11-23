@@ -1,0 +1,77 @@
+name: Browser QA Stream Access Console
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/browser-qa-access-center.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Core (system Chrome)
+        run: |
+          command -v google-chrome || command -v google-chrome-stable
+          npm install --no-save --no-audit --no-fund playwright-core@1.58.2
+      - name: Preview server-rendered admin console with fictitious users
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          import {renderAccessConsole} from "./cloudflare/admin-console.mjs";
+          const now=Math.floor(Date.now()/1000);
+          const accounts=[
+            {user_id:"owner-id",email:"owner@example.test",role:"admin",status:"active",created_at:now-200000,
+              first_login_at:now-172800,last_login_at:now-1200,session_count:1},
+            {user_id:"test-1",email:"brotherlongaccountnametesting@example.test",role:"viewer",
+              status:"invited",created_at:now-86400,activated_at:null,first_login_at:null,last_login_at:null,session_count:0},
+            {user_id:"test-2",email:"viewer@example.test",role:"viewer",status:"active",
+              created_at:now-90000,activated_at:now-50000,first_login_at:now-40000,last_login_at:now-900,session_count:2},
+            {user_id:"test-3",email:"suspended@example.test",role:"viewer",status:"suspended",
+              created_at:now-100000,activated_at:now-70000,first_login_at:now-60000,last_login_at:now-50000,session_count:0}
+          ];
+          const d=renderAccessConsole({users:accounts,actorId:"owner-id",token:"fictional-signed-form-token",
+            events:[{action:"recover",created_at:now-120,subject_email:"viewer@example.test",admin_email:"owner@example.test"}]});
+          fs.writeFileSync("/tmp/stream-admin-preview.html",d.html);
+          console.log("Fake user preview created without any real customer information.");
+          JS
+      - name: Confirm mobile/desktop layout, search, drawer and commands in actual Chrome
+        shell: bash
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright-core');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome'});
+            for(const [label,options] of [['Android',{...devices['Pixel 7']}],['Desktop',{viewport:{width:1280,height:800}}]]){
+              const context=await browser.newContext(options);
+              const page=await context.newPage();
+              await page.goto('file:///tmp/stream-admin-preview.html');
+              const width=await page.evaluate(()=>document.documentElement.scrollWidth);
+              const inner=await page.evaluate(()=>window.innerWidth);
+              console.log(label,'viewport',inner,'document width',width);
+              if(width>inner+2)throw new Error(label+' has horizontal page overflow');
+              const count=await page.locator('tr[data-user-row]').count();
+              if(count!==4)throw new Error('Expected four fake users, got '+count);
+              await page.getByRole('button',{name:'Gerenciar'}).nth(2).click();
+              const modal=page.locator('dialog[open]');
+              if(await modal.count()!==1)throw new Error('Account dialog did not open');
+              if(!(await modal.getByText('Enviar recuperação de senha').count()))throw new Error('Missing recovery action');
+              if(!(await modal.getByText('Desconectar dispositivos').count()))throw new Error('Missing session revoke action');
+              await modal.getByRole('button',{name:'Fechar detalhes'}).click();
+              await page.locator('#member-search').fill('brotherlong');
+              const visible=await page.locator('tr[data-user-row]:visible').count();
+              console.log(label,'filtered users',visible);
+              if(visible!==1)throw new Error('Search/filter failed');
+              await page.screenshot({path:'/tmp/stream-console-'+label.toLowerCase()+'.png',fullPage:true});
+              await context.close();
+            }
+            await browser.close();
+            console.log('PASS: real Android and desktop Chrome control center');
+          })().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          JS
