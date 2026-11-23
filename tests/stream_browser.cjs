@@ -98,6 +98,15 @@ async function main(){
       await context.route('https://mock.example/**',route=>route.abort());
       return context;
     };
+    // TV-specific smoke must emulate a real Samsung user agent, not desktop Chromium.
+    const samsungPage=async context=>{
+      const page=await context.newPage();
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator,'userAgent',{get:() =>
+          'Mozilla/5.0 (SMART-TV; Linux; Tizen 2.4) AppleWebKit/538.1 SamsungBrowser/1.0 TV Safari/538.1'});
+      });
+      return page;
+    };
     // Missing Cloudflare owner session must not reveal player or playlist.
     {
       const context=await setup(false);
@@ -149,6 +158,23 @@ async function main(){
       const context=await setup(true);
       const page=await context.newPage();
       await page.setViewportSize({width:1366,height:768});
+      await page.clock.install();
+      await page.addInitScript(() => {
+        window.__hlsLoads=[];
+        function FakeHls(){this.handlers={};}
+        FakeHls.Events={MEDIA_ATTACHED:'attached',MANIFEST_PARSED:'parsed',ERROR:'error'};
+        FakeHls.isSupported=()=>true;
+        FakeHls.prototype.on=function(type,fn){this.handlers[type]=fn;};
+        FakeHls.prototype.attachMedia=function(){
+          if(this.handlers.attached)this.handlers.attached();
+        };
+        FakeHls.prototype.loadSource=function(url){
+          window.__hlsLoads.push(url);
+          if(this.handlers.parsed)this.handlers.parsed();
+        };
+        FakeHls.prototype.destroy=function(){};
+        window.Hls=FakeHls;
+      });
       await page.goto(origin+'/stream/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
@@ -173,7 +199,16 @@ async function main(){
       assert(left.x+left.width<=middle.x&&middle.x+middle.width<=right.x,
         'Columns must follow Samsung order: countries, channels, player');
       await page.locator('#channel-items .channel-btn').first().click();
-      await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
+      await page.waitForFunction(() => window.__hlsLoads.length===1);
+      assert.deepEqual(await page.evaluate(()=>window.__hlsLoads),
+        ['https://mock.example/24horas.m3u8'],
+        'Desktop must use HLS.js rather than give the .m3u8 URL to the native video element');
+      assert.equal(await page.locator('#video').getAttribute('src'),null,
+        'HLS.js is responsible for the media source on desktop');
+      await page.clock.fastForward(60000);
+      assert.equal(await page.locator('#restore-hidden').isVisible(),false,
+        'Unsupported desktop playback must not hide channels as offline');
+      assert.equal(await page.locator('#channel-items .channel-btn').first().count(),1);
       await context.close();
     }
     // Mobile phones retain the original responsive player and channel list.
@@ -217,7 +252,7 @@ async function main(){
     // Samsung: country > category > channel tree, with hidden source lists.
     {
       const context=await setup(true);
-      const page=await context.newPage();
+      const page=await samsungPage(context);
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
@@ -406,7 +441,7 @@ async function main(){
     // Samsung private TV: priority recent history, persistent uncategorized favorites.
     {
       const context=await setup(true);
-      const page=await context.newPage();
+      const page=await samsungPage(context);
       await page.goto(origin+'/stream/tv/');
       await page.locator('#channel-items .channel-btn').filter({hasText:'Canal Teste 26'}).waitFor();
       assert.equal(await page.locator('.sidebar > :first-child').getAttribute('class'),'quick-section');
@@ -490,7 +525,7 @@ async function main(){
     // 60 seconds. Never delete a playlist or silently remove favorites.
     {
       const context=await setup(true);
-      const page=await context.newPage();
+      const page=await samsungPage(context);
       await page.clock.install();
       await page.goto(origin+'/stream/tv/');
       const second=page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]');
