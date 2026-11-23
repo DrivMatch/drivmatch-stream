@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
@@ -27,7 +27,9 @@ async function main(){
   const server=http.createServer((req,res)=>{
     if(req.url==="/stream/listas/sources.json"){
       if(!authorized){res.writeHead(403);res.end();return;}
-      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"}]}));return;
+      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"},
+        {id:"lista-10",title:"Lista 10 • Filmes livres internacionais"},
+        {id:"lista-11",title:"Lista 11 • Notícias livres internacionais"}]}));return;
     }
     if(req.url==="/stream/countries?list=lista-2"){
       if(!authorized){res.writeHead(403);res.end();return;}
@@ -234,6 +236,25 @@ async function main(){
       assert(Math.abs(playerBefore.y-playerAfter.y)<2);
       await page.locator('#search').fill('Canal Teste 10');
       await page.locator('#channel-items').getByText('Canal Teste 10',{exact:true}).waitFor();
+
+      // Free sites must never be confused with a playable HLS stream.
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="movies_pt"]').waitFor();
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="movies_pt"]').click();
+      await page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'NetMovies'}).click();
+      assert.equal(await page.locator('#video').getAttribute('src'),null);
+      assert.equal(await page.locator('#official-open').isVisible(),true);
+      assert.match(await page.locator('#play-status').textContent(),/Acesso oficial externo/);
+      assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
+
+      // Subscription brands are only visible in the collapsed footer.
+      assert.equal(await page.locator('#provider-items').isVisible(),false);
+      await page.locator('#provider-toggle').click();
+      await page.locator('.provider-entry').filter({hasText:'Netflix'}).first().click();
+      assert.match(await page.locator('#play-status').textContent(),/Acesso oficial necessário/);
+      assert.equal(await page.locator('#video').getAttribute('src'),null);
+      assert.equal(await page.locator('#official-open').isVisible(),true);
+      await page.locator('#technical-toggle').click();
+      assert.equal(await page.locator('#technical-items .technical-source-name').count(),11);
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
