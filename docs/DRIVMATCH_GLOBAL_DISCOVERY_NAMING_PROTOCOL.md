@@ -60,6 +60,6 @@ O workflow existente .github/workflows/daily-channel-autopilot.yml deve executar
 
 **Trilha A — publicação:** scripts/daily_channel_autopilot.py conserva lista curada, validação de manifesto e segmento e publicação de sinais já elegíveis. Isso não certifica direitos, região ou Samsung.
 
-**Trilha B — pesquisa mundial:** scripts/global_channel_discovery.py realiza varredura rotativa de países por continente + países adicionais e pesquisas multilíngues de repositórios. Registra candidatos, nomes originais/transliterados e alternativas em site/global-discovery-state.json, com relatório próprio. Nenhuma URL descoberta nessa trilha é promovida automaticamente à lista reproduzível antes de cumprir critérios de integração.
+**Trilha B — pesquisa mundial:** scripts/global_channel_discovery.py realiza varredura rotativa de países por continente + países adicionais e pesquisas multilíngues de repositórios. Registra candidatos, nomes originais/transliterados e alternativas em data/global-discovery-state.json, com relatório próprio. Nenhuma URL descoberta nessa trilha é promovida automaticamente à lista reproduzível antes de cumprir critérios de integração.
 
 Tudo integra a MESMA rotina diária, sem agendamento duplicado. Falhas parciais de descoberta não apagam acervo anterior. O relatório registra resultado real; candidato não é publicado, teste simulado não é reprodução real.
