@@ -234,7 +234,7 @@ async function main(){
       assert.notEqual(theme.sidebar,theme.guide,'The columns require visible separation');
       assert.notEqual(theme.guide,theme.player,'The player must be visually distinct');
       assert.equal(theme.guideFont,theme.treeFont,'Keep text size equal in both columns');
-      const rgba=x=>(x.match(/[\\d.]+/g)||[]).slice(0,3).map(Number);
+      const rgba=x=>(x.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
       const luminance=x=>{
         const v=rgba(x).map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4));
         return v[0]*.2126+v[1]*.7152+v[2]*.0722;
