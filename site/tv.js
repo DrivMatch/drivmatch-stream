@@ -469,7 +469,6 @@ function closeAllGenres(){
 function chooseCountry(code){
  if(openCountries[code]){
   openCountries[code]=false;closeAllGenres();
-  if(country===code)category="all";
   drawCountries();selectNewCountryFocus(code);return;
  }
  closeAllGenres();
