@@ -107,6 +107,15 @@ class AutopilotTests(unittest.TestCase):
                                 autopilot.MAX_CHECKS // 2)
         self.assertGreaterEqual(sum(x["id"].startswith("failed-") for x in selected), 1)
 
+    def test_balanced_verification_includes_small_international_markets(self):
+        pool = ([{"id":f"br-{i}", "country":"BR"} for i in range(250)] +
+                [{"id":f"ru-{i}", "country":"RU"} for i in range(5)] +
+                [{"id":f"cn-{i}", "country":"CN"} for i in range(5)] +
+                [{"id":f"au-{i}", "country":"AU"} for i in range(5)])
+        result = autopilot.geographically_balanced(pool, 24)
+        self.assertEqual(len(result), 24)
+        self.assertEqual({x["country"] for x in result}, {"BR", "RU", "CN", "AU"})
+
     def test_daily_run_only_publishes_eligible_and_verified(self):
         feed = ("source", "https://source.example.org/free.m3u8", "", "", True)
         research = ("research", "https://source.example.org/unknown.m3u8", "", "", False)
@@ -133,6 +142,26 @@ class AutopilotTests(unittest.TestCase):
         self.assertNotIn("DAZN", playlist)
         self.assertNotIn("Cine Livre", playlist)
         self.assertEqual(len(state["channels"]), 3)
+
+
+    def test_cyrillic_display_name_and_original_are_preserved_in_vetted_m3u(self):
+        item = {
+            "name": "Россия 24", "country": "RU", "language": "ru",
+            "genre": "news", "checked": "2026-11-23",
+            "original_name": "Россия 24",
+            "display_name_pt": "Rossiya 24 — Notícias da Rússia",
+            "aliases": ["Россия 24", "Rossiya 24"]
+        }
+        value = autopilot.as_extinf(item)
+        self.assertIn('dm-original-name="Россия 24"', value)
+        self.assertIn('dm-aliases="Россия 24 | Rossiya 24"', value)
+        self.assertIn(",Rossiya 24 — Notícias da Rússia", value)
+
+    def test_daily_sampler_records_name_profile_without_claiming_official_name(self):
+        profile = autopilot.describe_channel("Россия 24", "RU")
+        self.assertEqual(profile["original_name"], "Россия 24")
+        self.assertEqual(profile["official_name"], "")
+        self.assertIn("Rossiya 24", profile["aliases"])
 
 if __name__ == "__main__":
     unittest.main()

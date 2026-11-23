@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+from collections import deque
 import datetime as dt
 import hashlib
 import ipaddress
@@ -28,6 +29,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Work when executed directly by GitHub Actions and imported in offline tests.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from global_channel_discovery import describe_channel
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
@@ -346,6 +350,21 @@ def priority(item: dict) -> tuple:
     g = {"news": 0, "sports": 1, "movies": 2}.get(item["genre"], 3)
     return (p, g)
 
+def geographically_balanced(items: list[dict], limit: int) -> list[dict]:
+    """Avoid a few high-volume countries consuming every media probe slot."""
+    groups = {}
+    for row in items:
+        groups.setdefault(row.get("country") or "OTHER", deque()).append(row)
+    result = []
+    while groups and len(result) < limit:
+        for code in sorted(list(groups)):
+            if len(result) >= limit:
+                break
+            result.append(groups[code].popleft())
+            if not groups[code]:
+                del groups[code]
+    return result
+
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
     """Daily quotas stop repeated failures starving new discoveries forever."""
     day = now.strftime("%Y%m%d")
@@ -372,27 +391,30 @@ def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list
     result = []
     selected = set()
     for name in ("new", "stale", "failed"):
-        pool = buckets[name]
-        pool.sort(key=lambda item: priority(item))
-        for item in pool[:quotas[name]]:
+        pool = geographically_balanced(buckets[name], quotas[name])
+        for item in pool:
             if item["id"] not in selected:
                 selected.add(item["id"])
                 result.append(item)
     # Backfill unused quotas from all remaining, including OTHER countries.
     remaining = [v for v in items if v["id"] not in selected]
-    remaining.sort(key=priority)
-    for item in remaining[:max(0, MAX_CHECKS-len(result))]:
+    for item in geographically_balanced(remaining, max(0, MAX_CHECKS-len(result))):
         result.append(item)
     return result[:MAX_CHECKS]
 
 def as_extinf(item: dict) -> str:
     def clean(s: str) -> str:
         return str(s).replace('"', "'").replace("\r", " ").replace("\n", " ")[:120]
+    original = clean(item.get("original_name", item["name"]))
+    display = clean(item.get("display_name_pt") or item["name"])
+    aliases = clean(" | ".join(item.get("aliases", [])[:4]))
     return ('#EXTINF:-1 tvg-country="' + item["country"] +
             '" tvg-language="' + item.get("language", "") +
             '" group-title="' + clean(item["genre"]) +
             '" dm-source="lista-12" dm-auto-checked="' + clean(item["checked"]) +
-            '",' + clean(item["name"]))
+            '" dm-original-name="' + original +
+            '" dm-aliases="' + aliases +
+            '",' + display)
 
 def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) -> dict:
     now = now or dt.datetime.now(dt.timezone.utc)
@@ -430,6 +452,9 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         checked = key in checks
         successful = checks.get(key, False)
         record = {k: item[k] for k in ("id", "name", "country", "genre", "language", "url", "source")}
+        profile = describe_channel(item["name"], item["country"])
+        record.update(profile)
+        record["language_codes"] = [item["language"]] if item["language"] else []
         if checked:
             record["status"] = "ok" if successful else "failed"
             record["checked"] = today
