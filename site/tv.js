@@ -285,6 +285,41 @@ function drawPaidProviders(){
 }
 function sourceName(){for(var i=0;i<SOURCES.length;i++)if(SOURCES[i].id===source)return SOURCES[i].title;return "Lista IPTV";}
 function countryName(code){for(var i=0;i<COUNTRY.length;i++)if(COUNTRY[i][0]===code)return COUNTRY[i][1];return code;}
+/* Fixed priority: Brasil, Portugal, Espanha, Estados Unidos; rest alphabetical. */
+var PRIORITY_COUNTRIES=["BR","PT","ES","US"];
+function compareCountries(a,b){
+ if(a[0]==="ALL")return -1;if(b[0]==="ALL")return 1;
+ if(a[0]==="OTHER")return 1;if(b[0]==="OTHER")return -1;
+ var x=PRIORITY_COUNTRIES.indexOf(a[0]),y=PRIORITY_COUNTRIES.indexOf(b[0]);
+ if(x>=0&&y>=0)return x-y;
+ if(x>=0)return -1;if(y>=0)return 1;
+ var aa=lower(a[1]),bb=lower(b[1]);return aa<bb?-1:aa>bb?1:0;
+}
+function setConnectionStatus(online){
+ var area=D("connection-status");
+ if(!area)return;
+ area.className="connection-status "+(online?"online":"offline");
+ area.setAttribute("aria-label","Conexão com o site: "+(online?"ON":"OFF"));
+ T(D("connection-label"),online?"ON":"OFF");
+}
+/* An HTTP response from our own origin verifies site connectivity, not a live
+ * stream. Network failures or a browser offline event show OFF. */
+function checkConnection(){
+ if(navigator.onLine===false){setConnectionStatus(false);return;}
+ var req=new XMLHttpRequest(),done=false;
+ function finish(ok){if(done)return;done=true;setConnectionStatus(ok);}
+ req.onreadystatechange=function(){
+   if(req.readyState===4)finish(req.status>0);
+ };
+ req.onerror=function(){finish(false);};
+ req.ontimeout=function(){finish(false);};
+ try{
+   req.open("GET","/stream/session?connectivity="+new Date().getTime(),true);
+   req.timeout=7000;
+   req.setRequestHeader("Cache-Control","no-store");
+   req.send();
+ }catch(e){finish(false);}
+}
 function dataAttr(s,k){var m=new RegExp("(?:^|\\s)"+k+'="([^"]*)"',"i").exec(s);return m?m[1]:"";}
 function inferCountry(meta,group,name,defaultCode){
   var merged=dataAttr(meta,"dm-country");
@@ -356,11 +391,7 @@ function addCountryOptions(){
       COUNTRY.splice(COUNTRY.length-1,0,[id,String(c.name||id).slice(0,80)]);
       added++;
     }
-    COUNTRY.sort(function(a,b){
-      if(a[0]==="ALL")return -1;if(b[0]==="ALL")return 1;
-      if(a[0]==="OTHER")return 1;if(b[0]==="OTHER")return -1;
-      var aa=lower(a[1]),bb=lower(b[1]);return aa<bb?-1:aa>bb?1:0;
-    });
+    COUNTRY.sort(compareCountries);
     if(added){var focus=document.activeElement,
         current=focus&&focus.getAttribute("data-country");
       drawCountries();
@@ -731,7 +762,12 @@ function initRemote(){
   });
 }
 function init(){
+  COUNTRY.sort(compareCountries);
   loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  checkConnection();
+  on(window,"online",checkConnection);
+  on(window,"offline",function(){setConnectionStatus(false);});
+  setInterval(checkConnection,30000);
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
@@ -791,7 +827,7 @@ function init(){
         tech.appendChild(E("p","technical-source-name",SOURCES[n].title||SOURCES[n].id));
       addCountryOptions();loadOfficialDirectory();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
-      source="lista-2";T(D("head-source"),"Países e categorias");loadChannels();
+      source="lista-2";loadChannels();
     });
   });
 }

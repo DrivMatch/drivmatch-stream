@@ -66,7 +66,8 @@ async function main(){
       res.end(req.url.endsWith("BR")?m3uES:'#EXTM3U');
       return;
     }
-    if(req.url==="/stream/session"){
+    if(req.url==="/stream/session"||
+       (req.url&&req.url.startsWith("/stream/session?connectivity="))){
       res.writeHead(authorized?200:403,{"Content-Type":"application/json","Cache-Control":"no-store"});
       res.end(JSON.stringify({allowed:authorized}));
       return;
@@ -168,6 +169,38 @@ async function main(){
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+
+      // Compact header without tagline, source label, or the "Privado" text.
+      const top=page.locator('.topbar');
+      assert((await top.boundingBox()).height<=61,'Header must leave room for the guide');
+      assert((await page.locator('.topbar .logo').boundingBox()).width<=36);
+      assert.equal(await top.getByText('TV INTERNACIONAL · ACESSO PESSOAL').count(),0);
+      assert.equal(await top.getByText('Países e categorias').count(),0);
+      assert.equal(await top.getByText('Privado',{exact:true}).count(),0);
+      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
+      assert.equal(await page.locator('#connection-status').getAttribute('aria-label'),'Conexão com o site: ON');
+
+      // Four requested countries remain pinned, even with new detected countries.
+      await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
+      const firstFour=await page.locator('.tree-country-btn .tree-label').allTextContents();
+      assert.deepEqual(firstFour.slice(0,4),['Brasil','Portugal','Espanha','Estados Unidos']);
+
+      // Offline endpoint is red/OFF, not a claim that the channel is live.
+      await page.route('**/stream/session?connectivity=*',route=>route.abort());
+      await page.evaluate(()=>{
+        window.dispatchEvent(new Event('offline'));
+        window.dispatchEvent(new Event('online'));
+      });
+      await page.waitForTimeout(150);
+      assert.equal(await page.locator('#connection-label').textContent(),'OFF');
+      assert.equal(await page.locator('#connection-status').getAttribute('class'),'connection-status offline');
+      await page.unroute('**/stream/session?connectivity=*');
+      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
+
+      await page.setViewportSize({width:960,height:720});
+      assert((await top.boundingBox()).height<=55,'Header must remain compact at Tizen 960px');
+      await page.setViewportSize({width:1440,height:900});
       assert.equal(await page.locator('#source-items').isVisible(),false);
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       assert.equal(await page.locator('#category-items').isVisible(),false);

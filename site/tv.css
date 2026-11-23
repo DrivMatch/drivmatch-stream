@@ -290,3 +290,28 @@ html,body{font-size:24px;line-height:1.4}
  .quick-entry-btn{font-size:19px;min-height:35px}
  .quick-entry-btn .quick-entry-meta{font-size:14px}
 }
+
+/* Compact Samsung header: preserve large readable guide typography below it. */
+.topbar{height:59px;padding:9px 17px}
+.tv-layout{height:calc(100vh - 59px)}
+.logo{width:35px;height:35px;line-height:35px;font-size:15px;border-radius:9px;margin-right:9px}
+.brand b{font-size:27px;line-height:35px;letter-spacing:-.5px}
+.toplinks{line-height:35px;font-size:18px}
+.top-link{display:inline-block;padding:4px 11px;line-height:25px;border-radius:7px;font-size:18px}
+.connection-status{display:inline-block;line-height:29px;vertical-align:middle;
+ font-size:19px;font-weight:bold;letter-spacing:.3px;margin-right:14px}
+.connection-status .status-dot{display:inline-block;vertical-align:middle;width:11px;height:11px;
+ border-radius:50%;margin-right:6px}
+.connection-status.offline{color:#ff8e89}
+.connection-status.offline .status-dot{background:#ed4f4f}
+.connection-status.online{color:#8cf0af}
+.connection-status.online .status-dot{background:#2fd078}
+@media(max-width:1000px){
+ .topbar{height:54px;padding:8px 10px}
+ .tv-layout{height:calc(100vh - 54px)}
+ .logo{width:30px;height:30px;line-height:30px;font-size:14px;margin-right:7px;border-radius:7px}
+ .brand b{font-size:24px;line-height:30px}
+ .toplinks{line-height:30px}
+ .top-link{font-size:16px;padding:3px 8px;line-height:23px}
+ .connection-status{font-size:17px;line-height:28px;margin-right:9px}
+}
