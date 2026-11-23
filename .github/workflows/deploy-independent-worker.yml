@@ -1,7 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Isolated staging was successfully deployed on 2026-11-23.
-  # Future deployments require explicit workflow dispatch, not every code edit.
+  # Controlled single deploy of the Supabase Auth opaque-key fix.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
