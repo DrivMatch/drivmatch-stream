@@ -176,7 +176,16 @@ async function main(){
         window.Hls=FakeHls;
       });
       await page.goto(origin+'/stream/');
-      await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+      const brazil=page.locator('.tree-country-btn[data-country="BR"]');
+      await brazil.waitFor();
+      assert.equal(await brazil.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0,
+        'Initial desktop guide must not show channels before user opens a country');
+      assert.equal(await page.locator('.tree-genre-btn').count(),0,
+        'Brazil must start folded like every other country on desktop');
+      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
+      await brazil.click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
       assert.equal(await page.locator('html').evaluate(el=>el.classList.contains('dm-desktop-compact')),true,
         'Desktop must receive the compact typographic class');
@@ -239,6 +248,9 @@ async function main(){
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
       assert.equal(await page.locator('#country-items .country-btn').count(),14);
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
@@ -279,6 +291,11 @@ async function main(){
       assert.equal(await page.locator('#source-items').isVisible(),false);
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       assert.equal(await page.locator('#category-items').isVisible(),false);
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('.tree-genre-btn[data-country="BR"]').count(),0);
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
       const sportsCategory=page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]');
       const newsCategory=page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]');
@@ -443,6 +460,7 @@ async function main(){
       const context=await setup(true);
       const page=await samsungPage(context);
       await page.goto(origin+'/stream/tv/');
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
       await page.locator('#channel-items .channel-btn').filter({hasText:'Canal Teste 26'}).waitFor();
       assert.equal(await page.locator('.sidebar > :first-child').getAttribute('class'),'quick-section');
       assert.equal(await page.locator('.sidebar > :nth-child(2)').getAttribute('class'),'quick-section');
@@ -528,6 +546,7 @@ async function main(){
       const page=await samsungPage(context);
       await page.clock.install();
       await page.goto(origin+'/stream/tv/');
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
       const second=page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]');
       const third=page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 3"]');
       await second.waitFor();
@@ -552,6 +571,9 @@ async function main(){
       // A reload keeps the channel hidden until user explicitly restores it.
       await page.reload();
       await page.locator('#restore-hidden').waitFor();
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
+      await page.locator('.tree-country-btn[data-country="BR"]').click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
       assert.equal(await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').count(),0);
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       await page.locator('#restore-hidden').click();
