@@ -1320,6 +1320,8 @@ function init(){
       }
     });},300000);
     try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";}}catch(e){}
+    // Management link is visible only for a server-confirmed admin session.
+    visibleEl(D("admin-link"),streamUserRole==="admin");
     if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
     else{loadHidden();loadFav();loadQuickHistory();drawQuickLists();}
     http("/stream/listas/sources.json",function(st,raw){
