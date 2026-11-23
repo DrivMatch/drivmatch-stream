@@ -1,6 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Signed CSRF fix deployed and verified. No automatic staging changes.
+  # One-time staging update for non-sensitive CSRF failure diagnostic.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
