@@ -81,7 +81,14 @@ function channelAlias(name,code){
  * after sixty seconds, for up to 24h. Favorites and playlists stay intact.
  * Official-site/paid entries never get treated as failed video streams. */
 function hiddenKey(c){return favorKey(c);}
-function isHidden(c){return !!hiddenFailed[hiddenKey(c)];}
+function isHidden(c){
+ var key=hiddenKey(c),t=hiddenFailed[key];
+ if(!t)return false;
+ if(new Date().getTime()-t>=HIDDEN_TTL){
+  delete hiddenFailed[key];saveHidden();updateHiddenRestore();return false;
+ }
+ return true;
+}
 function countHidden(){var n=0;for(var k in hiddenFailed)
  if(Object.prototype.hasOwnProperty.call(hiddenFailed,k))n++;return n;}
 function saveHidden(){try{localStorage.setItem(HIDDEN_STORE,JSON.stringify(hiddenFailed));}catch(e){}}
@@ -730,7 +737,7 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
-  recordVisit(c);
+  clearPlaybackWatch();recordVisit(c);
   visibleEl(D("official-open"),!!c.officialUrl);
   T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
   if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
@@ -768,10 +775,7 @@ function play(c,fromTree){
   T(D("play-status"),"Conectando…");updateFavButton();
   visibleEl(D("player-empty"),false);visibleEl(video,true);visibleEl(D("player-error"),false);
   D("player-retry").disabled=false;D("player-fullscreen").disabled=false;
-  try{video.pause();video.src=c.urls[0];video.load();
-    var task=video.play();
-    if(task&&typeof task.catch==="function")task.catch(function(){T(D("player-error"),"Toque no Play do vídeo. A origem também pode bloquear reprodução nesta TV.");visibleEl(D("player-error"),true);});
-  }catch(e){T(D("player-error"),"Formato ou sinal não suportado neste navegador Samsung.");visibleEl(D("player-error"),true);}
+  startPlaybackWatch(c);
   renderChannels();drawCountries();
   if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
 }
@@ -787,7 +791,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".quick-toggle,.quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".quick-toggle,.quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#restore-hidden,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -878,13 +882,14 @@ function toggleQuickGroup(kind){
 }
 function init(){
   COUNTRY.sort(compareCountries);
-  loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  loadHidden();loadFav();loadQuickHistory();drawQuickLists();initRemote();
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
+  on(D("restore-hidden"),"click",restoreHidden);
   on(D("show-more"),"click",function(){
     var next=visible[limit];
     limit+=60;renderChannels();
@@ -911,15 +916,28 @@ function init(){
     if(fn)try{fn.call(video);}catch(e){}
   });
   on(video,"playing",function(){
+    completePlayback();
     T(D("play-status"),"● Reproduzindo");
     if(selected&&!selected.premium)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
     visibleEl(D("player-error"),false);
   });
   on(video,"error",function(){
-    if(!selected||selected.premium)return;
-    T(D("play-status"),"Sinal indisponível");
-    T(D("player-error"),"O sinal não reproduziu nesta TV. Pode haver incompatibilidade de formato, bloqueio ou indisponibilidade.");
+    if(!selected||selected.premium||video.hidden||playbackConfirmed)return;
+    T(D("play-status"),"Verificando sinal…");
+    T(D("player-error"),"Sinal ainda sem reprodução. "+
+      "O Stream verificará as alternativas disponíveis por até 60 segundos.");
     visibleEl(D("player-error"),true);
+  });
+  // When Samsung denies automatic play, the sixty-second watch starts only
+  // after the viewer actually presses Play.
+  on(video,"play",function(){
+    if(!autoplayBlocked||playbackConfirmed||!selected||selected.premium)return;
+    autoplayBlocked=false;
+    var token=playbackToken,c=selected;
+    playbackTimers.push(setTimeout(function(){
+      if(token===playbackToken&&!playbackConfirmed&&selected&&selected.id===c.id)
+        hideFailed(c);
+    },60000));
   });
   var btns=D("category-items").getElementsByTagName("button");
   for(var i=0;i<btns.length;i++){(function(b){
