@@ -10,7 +10,9 @@ const users = [
 
 function testEnvironment() {
   const accounts = new Map(users.map(x=>[x.id,{
-    user_id:x.id,email:x.email,role:x.role,status:"active"
+    user_id:x.id,email:x.email,role:x.role,status:"active",
+    created_at:Math.floor(Date.now()/1000)-86400,first_login_at:null,last_login_at:null,
+    activated_at:null,canceled_invite_at:null
   }]));
   const sessions = new Map();
   const favorites = new Map();
@@ -46,6 +48,15 @@ function testEnvironment() {
             return {results:[...list].map(favorite_key=>({favorite_key}))};
           }
           if(statement.includes("FROM stream_users ORDER")) return {results:[...accounts.values()]};
+          if(statement.includes("FROM stream_admin_events e"))
+            return {results:events.map(e=>({...e,subject_email:accounts.get(e.subject)?.email||null})).reverse()};
+          if(statement.includes("FROM stream_sessions WHERE expires_at>?")) {
+            const counts=new Map();
+            for(const session of sessions.values()){
+              if(session.expires_at>args[0])counts.set(session.user_id,(counts.get(session.user_id)||0)+1);
+            }
+            return {results:[...counts].map(([user_id,total])=>({user_id,total}))};
+          }
           throw Error("Unhandled all: "+statement);
         },
         async run(){
@@ -60,16 +71,28 @@ function testEnvironment() {
             favorites.get(args[0]).add(args[1]);
           } else if(statement.startsWith("DELETE FROM stream_favorites")) {
             favorites.get(args[0])?.delete(args[1]);
-          } else if(statement.startsWith("UPDATE stream_users SET status=?")) {
+          } else if(statement.startsWith("UPDATE stream_users SET first_login_at=")) {
             const account=accounts.get(args[2]);
-            if(account?.status===args[3]) account.status=args[0];
+            if(account?.status==="active"){
+              account.first_login_at??=args[0];account.last_login_at=args[1];
+            }
+          } else if(statement.startsWith("UPDATE stream_users SET status=?")) {
+            const account=accounts.get(args[3]);
+            if(account?.status===args[4]){
+              account.status=args[0];account.canceled_invite_at=args[2];
+            }
           } else if(statement.startsWith("UPDATE stream_users SET status='active'")) {
-            const account=accounts.get(args[1]);
-            if(account?.status==="invited") account.status="active";
+            const account=accounts.get(args[2]);
+            if(account?.status==="invited"){
+              account.status="active";account.activated_at??=args[0];
+            }
           } else if(statement.startsWith("INSERT INTO stream_admin_events")){
-            events.push({admin:args[1],action:args[2],target:args[3]});
+            events.push({admin:args[1],action:args[2],subject:args[3],
+              created_at:Math.floor(Date.now()/1000)});
           } else if(statement.startsWith("INSERT INTO stream_users")) {
-            accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited"});
+            accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited",
+              created_at:Math.floor(Date.now()/1000),activated_at:null,first_login_at:null,
+              last_login_at:null,canceled_invite_at:null});
           } else throw Error("Unhandled run: "+statement);
           return {success:true};
         }
@@ -249,7 +272,7 @@ test("Android browser form POST with Sec-Fetch-Site same-origin works when Origi
     const c=cookie(response);
     const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:c}}),env);
     assert.equal(admin.status,200);
-    assert.match(await admin.text(),/Gerenciamento de acessos/);
+    assert.match(await admin.text(),/Central de Controle/);
   });
 });
 test("foreign Origin remains blocked even with forged same-origin fetch metadata",async()=>{
@@ -319,7 +342,7 @@ test("admin destination survives login redirect and opens real management panel"
     assert.equal(result.headers.get("Location"),base+"/stream/admin");
     const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:cookie(result)}}),env);
     assert.equal(admin.status,200);
-    assert.match(await admin.text(),/Gerenciamento de acessos/);
+    assert.match(await admin.text(),/Central de Controle/);
   });
 });
 test("viewer cannot use admin redirect; arbitrary next values cannot redirect elsewhere",async()=>{
