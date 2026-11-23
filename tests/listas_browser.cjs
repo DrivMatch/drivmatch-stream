@@ -34,6 +34,25 @@ const playlist=[
 async function main(){
   let authorized=false;
   const server=http.createServer((req,res)=>{
+    if(req.url==="/stream/countries?list=lista-2"){
+      if(!authorized){res.writeHead(403);res.end();return;}
+      res.writeHead(200,{"Content-Type":"application/json"});
+      res.end(JSON.stringify({countries:[{code:"MX",name:"México"}],loaded:7,total:7}));return;
+    }
+    if(req.url && req.url.startsWith("/stream/catalog?list=lista-2")){
+      if(!authorized){res.writeHead(403);res.end();return;}
+      const country=new URL(req.url,origin).searchParams.get("country");
+      const br=['#EXTM3U','#DM_MERGED:LISTAS-1-8',
+        '#EXTINF:-1 dm-country="BR" dm-source="lista-2" group-title="Geral",TV Guará',
+        'https://mock.example/guara.m3u8',
+        '#EXTINF:-1 dm-country="BR" dm-source="lista-1" group-title="Geral",Canal Brasil da Lista 1',
+        'https://mock.example/br-from-one.m3u8'].join("\n");
+      const mx=['#EXTM3U','#DM_MERGED:LISTAS-1-8',
+        '#EXTINF:-1 dm-country="MX" dm-source="lista-7" group-title="Geral",Canal México',
+        'https://mock.example/mx.m3u8'].join("\n");
+      res.writeHead(200,{"Content-Type":"text/plain"});
+      res.end(country==="MX"?mx:country==="ALL"?br+"\n"+mx:br);return;
+    }
     if(req.url==="/stream/session"){
       res.writeHead(authorized?200:403,{"Content-Type":"application/json"});
       res.end(JSON.stringify({allowed:authorized}));
@@ -84,7 +103,8 @@ async function main(){
       await page.goto(origin+"/stream/listas/");
       await page.locator("#source-list .source").first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),9);
-      assert.equal(await page.locator("#country option").count(),14);
+      await page.locator('#country option[value="MX"]').waitFor();
+      assert.equal(await page.locator("#country option").count(),15);
       await page.getByRole("button",{name:/Lista 1/}).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
       assert.equal(await page.locator("#channel-list .channel").count(),3);
@@ -103,7 +123,13 @@ async function main(){
       assert.equal(await page.locator('a[target="_blank"]').count(),0);
       await page.locator("#source-list .source").nth(1).click();
       await page.getByText("Record News",{exact:true}).first().waitFor();
-      assert.match(await page.locator("#channel-list").textContent(),/Fonte: TV Guará/);
+      assert.match(await page.locator("#channel-list").textContent(),/Nome da fonte: TV Guará/);
+      assert.match(await page.locator("#channel-list").textContent(),/Origens: Lista 1/);
+      await page.locator("#country").selectOption("MX");
+      await page.getByText("Canal México",{exact:true}).first().waitFor();
+      assert.equal(await page.getByText("Record News",{exact:true}).count(),0);
+      await page.locator("#country").selectOption("BR");
+      await page.getByText("Record News",{exact:true}).first().waitFor();
       await page.locator("#search").fill("TV Guará");
       await page.getByText("Record News",{exact:true}).first().waitFor();
       await page.locator("#search").fill("Record News");
