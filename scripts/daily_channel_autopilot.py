@@ -28,6 +28,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Work when executed directly by GitHub Actions and imported in offline tests.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from global_channel_discovery import describe_channel
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
@@ -388,11 +391,16 @@ def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list
 def as_extinf(item: dict) -> str:
     def clean(s: str) -> str:
         return str(s).replace('"', "'").replace("\r", " ").replace("\n", " ")[:120]
+    original = clean(item.get("original_name", item["name"]))
+    display = clean(item.get("display_name_pt") or item["name"])
+    aliases = clean(" | ".join(item.get("aliases", [])[:4]))
     return ('#EXTINF:-1 tvg-country="' + item["country"] +
             '" tvg-language="' + item.get("language", "") +
             '" group-title="' + clean(item["genre"]) +
             '" dm-source="lista-12" dm-auto-checked="' + clean(item["checked"]) +
-            '",' + clean(item["name"]))
+            '" dm-original-name="' + original +
+            '" dm-aliases="' + aliases +
+            '",' + display)
 
 def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) -> dict:
     now = now or dt.datetime.now(dt.timezone.utc)
@@ -430,6 +438,9 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         checked = key in checks
         successful = checks.get(key, False)
         record = {k: item[k] for k in ("id", "name", "country", "genre", "language", "url", "source")}
+        profile = describe_channel(item["name"], item["country"])
+        record.update(profile)
+        record["language_codes"] = [item["language"]] if item["language"] else []
         if checked:
             record["status"] = "ok" if successful else "failed"
             record["checked"] = today
