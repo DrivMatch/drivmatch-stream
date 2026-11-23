@@ -1,8 +1,6 @@
 name: Apply real DrivMatch Stream Supabase invitation branding
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/apply-stream-invite-branding.yml']
+  # Verified missing Management API token; subsequent attempts require manual dispatch.
   workflow_dispatch:
 permissions:
   contents: read
