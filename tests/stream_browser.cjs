@@ -72,7 +72,8 @@ async function main(){
       res.end(JSON.stringify({allowed:authorized}));
       return;
     }
-    const file=paths[req.url];
+    // Versioned Samsung assets must resolve to the same file, ignoring query.
+    const file=paths[new URL(req.url,origin).pathname];
     if(!file){res.writeHead(404);res.end();return;}
     res.writeHead(200,{"Content-Type":file.endsWith(".html")?"text/html":file.endsWith(".css")?"text/css":"text/javascript"});
     fs.createReadStream(path.join(ROOT,file)).pipe(res);
@@ -172,38 +173,77 @@ async function main(){
 
       // Compact header without tagline, source label, or the "Privado" text.
       const top=page.locator('.topbar');
-      assert((await top.boundingBox()).height<=61,'Header must leave room for the guide');
-      assert((await page.locator('.topbar .logo').boundingBox()).width<=36);
+      assert((await top.boundingBox()).height<=43,'Header must be truly compact');
+      assert((await page.locator('.topbar .logo').boundingBox()).width<=29);
       assert.equal(await top.getByText('TV INTERNACIONAL · ACESSO PESSOAL').count(),0);
       assert.equal(await top.getByText('Países e categorias').count(),0);
       assert.equal(await top.getByText('Privado',{exact:true}).count(),0);
       await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
-      assert.equal(await page.locator('#connection-status').getAttribute('aria-label'),'Conexão com o site: ON');
+      assert.equal(await page.locator('#connection-status').getAttribute('aria-label'),'Conexão com o Stream: ON');
 
       // Four requested countries remain pinned, even with new detected countries.
       await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
       const firstFour=await page.locator('.tree-country-btn .tree-label').allTextContents();
       assert.deepEqual(firstFour.slice(0,4),['Brasil','Portugal','Espanha','Estados Unidos']);
 
-      // Offline endpoint is red/OFF, not a claim that the channel is live.
-      await page.route('**/stream/session?connectivity=*',route=>route.abort());
+      // Samsung's navigator.onLine may lie: successful origin requests take
+      // precedence and must keep ON even with an 'offline' browser event.
       await page.evaluate(()=>{
+        Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});
         window.dispatchEvent(new Event('offline'));
-        window.dispatchEvent(new Event('online'));
       });
-      await page.waitForTimeout(150);
-      assert.equal(await page.locator('#connection-label').textContent(),'OFF');
-      assert.equal(await page.locator('#connection-status').getAttribute('class'),'connection-status offline');
+      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
+      // A blocked session probe is not a failed internet connection: the
+      // same-origin stylesheet fallback can still prove our site is reachable.
+      await page.route('**/stream/session?connectivity=*',route=>route.abort());
+      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
+      assert.equal(await page.locator('#connection-status').getAttribute('class'),'connection-status online');
+
+      // Both probe failures while a recent successful app request exists
+      // must not flash a false red OFF. The state may remain ON or be neutral.
+      await page.route('**/stream/tv/tv.css?connectivity=*',route=>route.abort());
+      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+      await page.waitForTimeout(160);
+      assert.notEqual(await page.locator('#connection-label').textContent(),'OFF');
+      await page.unroute('**/stream/tv/tv.css?connectivity=*');
       await page.unroute('**/stream/session?connectivity=*');
       await page.evaluate(()=>window.dispatchEvent(new Event('online')));
       await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
 
       await page.setViewportSize({width:960,height:720});
-      assert((await top.boundingBox()).height<=55,'Header must remain compact at Tizen 960px');
+      assert((await top.boundingBox()).height<=41,'Tizen header must actually be shorter');
       await page.setViewportSize({width:1440,height:900});
       assert.equal(await page.locator('#source-items').isVisible(),false);
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       assert.equal(await page.locator('#category-items').isVisible(),false);
+      // Different, brighter panels and readable channel names (not low-contrast).
+      const theme=await page.evaluate(()=>{
+        const css=x=>getComputedStyle(document.querySelector(x));
+        const color=el=>css(el).backgroundColor;
+        const foreground=el=>css(el).color;
+        return {sidebar:color('.sidebar'),guide:color('.catalog'),
+          player:color('.player-column'),
+          row:color('.channel-row'),
+          text:foreground('.channel-row .channel-title'),
+          selected:foreground('.tree-country-btn.active'),
+          guideFont:parseFloat(css('.channel-row .channel-title').fontSize),
+          treeFont:parseFloat(css('.tree-channel-btn').fontSize),
+          focusRing:css('.tree-country-btn').outlineColor};
+      });
+      assert.notEqual(theme.sidebar,theme.guide,'The columns require visible separation');
+      assert.notEqual(theme.guide,theme.player,'The player must be visually distinct');
+      assert.equal(theme.guideFont,theme.treeFont,'Keep text size equal in both columns');
+      const rgba=x=>(x.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+      const luminance=x=>{
+        const v=rgba(x).map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4));
+        return v[0]*.2126+v[1]*.7152+v[2]*.0722;
+      };
+      const contrast=(a,b)=>{
+        const x=luminance(a),y=luminance(b);
+        return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+      };
+      assert(contrast(theme.text,theme.row)>=7,'Channel text needs strong contrast');
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
       await page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]').waitFor();
       await page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]').waitFor();
