@@ -103,7 +103,7 @@
       state.userId=typeof session.user_id==="string"?session.user_id:null;
       state.userRole=session.role||null;
       const accountLabel=$("account-identity");
-      if(accountLabel)accountLabel.textContent="Conta: "+String(session.email||"não identificada");
+      if(accountLabel)accountLabel.textContent="Conta: "+String(session.email||"não identificada")+(session.role==="admin"?" · ADMIN":" · USUÁRIO");
       const adminLink=$("admin-link");
       if(adminLink)adminLink.hidden=state.userRole!=="admin";
       state.authorised=true;
