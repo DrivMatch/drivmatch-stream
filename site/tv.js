@@ -671,7 +671,7 @@ function switchMobilePane(name){
  var countryPane=name!=="guide",left=D("mobile-countries-panel"),
      right=D("mobile-guide-panel");
  document.documentElement.className=document.documentElement.className
-   .replace(/\\s*dm-mobile-pane-(?:countries|guide)/g,"")+
+   .replace(/\s*dm-mobile-pane-(?:countries|guide)/g,"")+
    (countryPane?" dm-mobile-pane-countries":" dm-mobile-pane-guide");
  left.setAttribute("aria-hidden",countryPane?"false":"true");
  right.setAttribute("aria-hidden",countryPane?"true":"false");
