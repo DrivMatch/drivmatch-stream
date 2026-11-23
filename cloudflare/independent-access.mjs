@@ -489,7 +489,13 @@ async function handle(request, env) {
     return page("Solicitação recebida","<p>Se o endereço possuir acesso, receberá um e-mail com instruções.</p>" +
       "<p><a href='/stream/login'>Voltar ao login</a></p>");
   }
-  if (method === "GET" && path === "/stream/activate") return setupPage();
+  if (method === "GET" && path === "/stream/activate") {
+    // A new invite/recovery opened in a shared browser must NEVER inherit
+    // somebody else's current session (especially an admin session).
+    const response=setupPage();
+    response.headers.set("Set-Cookie",sessionCookie("",0));
+    return response;
+  }
   if (method === "POST" && path === "/stream/activate") {
     if (!csrf(request,url)) return plain(403,"Forbidden");
     if (!await limit(request,env,"activate")) return plain(429,"Tente mais tarde.");
@@ -514,7 +520,11 @@ async function handle(request, env) {
     }
     await env.STREAM_USERS_DB.prepare("DELETE FROM stream_sessions WHERE user_id=?")
       .bind(account.user_id).run();
-    return json(200,{ok:true});
+    const response=json(200,{ok:true});
+    // Successful password activation also clears a previously authenticated
+    // browser cookie to require a fresh login as the actual invited account.
+    response.headers.set("Set-Cookie",sessionCookie("",0));
+    return response;
   }
   if (method === "POST" && path === "/stream/logout") {
     if (!csrf(request,url)) return plain(403,"Forbidden");
