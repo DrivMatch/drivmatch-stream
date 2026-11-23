@@ -278,7 +278,7 @@ function startPlaybackWatch(c){
    video.pause();
    if(desktopMode)destroyDesktopHls();
    video.removeAttribute("src");video.load();
-   if(desktopMode&&/\\.m3u8(?:[?#]|$)/i.test(urls[idx])){
+   if(desktopMode&&/\.m3u8(?:[?#]|$)/i.test(urls[idx])){
      startDesktopHls(c,urls[idx],token,generation,playVideo);
    }else{
      video.src=urls[idx];video.load();playVideo();
