@@ -1,8 +1,5 @@
 name: Stream Staging login HTTP smoke test
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/stream-login-http-smoke.yml']
   workflow_dispatch:
 permissions:
   contents: read
