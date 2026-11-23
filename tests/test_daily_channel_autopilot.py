@@ -3,6 +3,7 @@ import datetime as dt
 import importlib.util
 import json
 import pathlib
+import socket
 import tempfile
 import unittest
 from unittest import mock
@@ -96,7 +97,8 @@ class AutopilotTests(unittest.TestCase):
             p = pathlib.Path(td)
             with mock.patch.multiple(autopilot, STATE=p / "state.json", OUTPUT=p / "auto.m3u8",
                                      REPORT=p / "report.json", SOURCES=(feed, research)), \
-                 mock.patch.object(autopilot, "safe_url", return_value=True):
+                 mock.patch.object(autopilot.socket, "getaddrinfo",
+                     return_value=[(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("8.8.8.8",443))]):
                 result = autopilot.run(dt.datetime(2026, 11, 23, tzinfo=dt.timezone.utc),
                     fetch=lambda url, cap: SAMPLE.encode(),
                     probe=lambda item: (item["id"], item["name"] != "Cine Livre"))
