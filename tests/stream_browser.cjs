@@ -102,7 +102,7 @@ async function main(){
     {
       const context=await setup(false);
       const page=await context.newPage();
-      await page.goto(origin+'/stream/');
+      await page.goto(origin+'/stream/?layout=classic');
       await page.getByText(/Acesso pessoal indisponível/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
@@ -111,7 +111,7 @@ async function main(){
     {
       const context=await setup(false);
       const page=await context.newPage();
-      await page.goto(origin+'/stream/');
+      await page.goto(origin+'/stream/?layout=classic');
       await page.getByText(/Acesso pessoal indisponível/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
@@ -120,7 +120,7 @@ async function main(){
     {
       const context=await setup(true);
       const page=await context.newPage();
-      await page.goto(origin+'/stream/');
+      await page.goto(origin+'/stream/?layout=classic');
       await page.getByText('NHK World-Japan').first().waitFor();
       assert.equal(await page.locator('#countries button').count(),13);
       await page.getByRole('button',{name:/Pay-per-view/}).click();
@@ -142,6 +142,39 @@ async function main(){
         'Mobile TV player must remain visibly pinned while the channel list scrolls: '+JSON.stringify(stickyRect));
       assert((await page.locator('#viewer').boundingBox()).height < 370,
         'Mobile sticky player must leave room to browse the channel list');
+      await context.close();
+    }
+    // Desktop computers now use the very same Samsung three-column layout.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.setViewportSize({width:1366,height:768});
+      await page.goto(origin+'/stream/');
+      await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+      assert.equal(new URL(page.url()).pathname,'/stream/tv/');
+      const left=await page.locator('.sidebar').boundingBox();
+      const middle=await page.locator('.catalog').boundingBox();
+      const right=await page.locator('.player-column').boundingBox();
+      assert(left&&middle&&right,'All three columns must be visible on desktop');
+      assert(left.width>250&&middle.width>250&&right.width>250,
+        'Desktop columns must be comfortably sized');
+      assert(left.x+left.width<=middle.x&&middle.x+middle.width<=right.x,
+        'Columns must follow Samsung order: countries, channels, player');
+      await page.locator('#channel-items .channel-btn').first().click();
+      await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
+      await context.close();
+    }
+    // Mobile phones retain the original responsive player and channel list.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator,'userAgent',{get:() =>
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'});
+      });
+      await page.goto(origin+'/stream/');
+      await page.locator('#countries button').first().waitFor();
+      assert.equal(new URL(page.url()).pathname,'/stream/');
       await context.close();
     }
     // Tizen/Samsung TV user agents require an ES5-compatible private guide.
