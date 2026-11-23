@@ -1,0 +1,67 @@
+name: Diagnose mobile browser form on live isolated Stream
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/diagnose-live-mobile-login.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set up Chromium
+        run: |
+          npm install --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Replay real Chrome mobile form with throwaway credentials
+        shell: bash
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            let bad=0;
+            for(const type of ['android-mobile-private','android-mobile-utm','desktop-private']){
+              const settings=type.startsWith('android') ?
+                {...devices['Pixel 7'],locale:'pt-BR'} : {locale:'pt-BR'};
+              const context=await browser.newContext(settings);
+              const page=await context.newPage();
+              const base='https://drivmatch-stream-v2-test.drivmatch.workers.dev';
+              const uri=base+'/stream/login'+(type.endsWith('utm')?'?utm_source=chatgpt.com':'');
+              const get=await page.goto(uri,{waitUntil:'domcontentloaded'});
+              const cookies=await context.cookies(base);
+              console.log(type, 'GET',get.status(),'cookieNames',cookies.map(x=>x.name));
+              const hidden=await page.locator('input[name="_csrf"]').count();
+              console.log(type,'hasSignedField',hidden===1);
+              let postCode=0;
+              page.on('request',req=>{
+                if(req.method()==='POST'&&new URL(req.url()).pathname==='/stream/login'){
+                  const h=req.headers();
+                  console.log(type,'POST headers diagnostic',{
+                    origin:h.origin||'absent',
+                    referrer:h.referer?'same origin or other':'absent',
+                    site:h['sec-fetch-site']||'absent',
+                    cookiePresent:!!h.cookie
+                  });
+                }
+              });
+              await page.locator('input[name=email]').fill('invalid-qa@example.invalid');
+              await page.locator('input[name=password]').fill('invalid-diagnostic-only');
+              const response=await Promise.all([
+                page.waitForResponse(r=>r.url().includes('/stream/login')&&r.request().method()==='POST'),
+                page.getByRole('button',{name:'Entrar'}).click()
+              ]).then(x=>x[0]);
+              postCode=response.status();
+              console.log(type,'POST HTTP',postCode,'pageTitle',await page.title());
+              if(postCode!==401)bad++;
+              await context.close();
+            }
+            await browser.close();
+            if(bad)process.exit(1);
+          })().catch(e=>{console.error(e.message);process.exit(1);});
+          JS
