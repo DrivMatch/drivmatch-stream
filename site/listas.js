@@ -27,9 +27,11 @@ function attribute(line,key){
 }
 function canonicalCountry(c){
   const code=String(c||"").toUpperCase().trim();
-  return code==="GB"?"UK":Object.hasOwn(countries,code)?code:"OTHER";
+  return code==="GB"?"UK":/^[A-Z]{2}$/.test(code)?code:"OTHER";
 }
 function inferCountry(ext,group,hint){
+  const merged=attribute(ext,"dm-country");
+  if(merged)return canonicalCountry(merged);
   if(hint)return canonicalCountry(hint);
   const direct=attribute(ext,"tvg-country").split(/[;,\s]/)[0];
   if(direct)return canonicalCountry(direct);
@@ -73,12 +75,18 @@ function parseM3u(text,source,hint){
     const code=inferCountry(metadata,group,hint);
     const kind=classify(name,group,source);
     const id=(epgId?"epg:"+norm(epgId):"name:"+norm(name))+"|"+code;
+    const origin=attribute(metadata,"dm-source")||source.id;
     const existing=found.get(id);
-    if(existing){if(!existing.premium&&existing.urls.length<4&&!existing.urls.includes(url))existing.urls.push(url);continue;}
+    if(existing){
+      if(!existing.premium&&existing.urls.length<4&&!existing.urls.includes(url))existing.urls.push(url);
+      if(!existing.origins.includes(origin))existing.origins.push(origin);
+      continue;
+    }
     if(found.size>=12000)break;
     const display=channelAlias(name,source,code);
     found.set(id,{id,name:display,originalName:display===name?"":name,group,epgId,country:code,kind,
-      logo:safeUrl(attribute(metadata,"tvg-logo")),urls:premium?[]:[url],premium,sourceId:source.id});
+      logo:safeUrl(attribute(metadata,"tvg-logo")),urls:premium?[]:[url],premium,
+      origins:[origin],sourceId:source.id});
   }
   return [...found.values()];
 }
@@ -183,7 +191,10 @@ function renderChannels(){
     meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
       " • "+(c.premium?"Acesso oficial necessário":status(c))+
-       (c.originalName?" • Fonte: "+c.originalName:"")+(c.epgId?" • ID EPG":"");
+       (c.originalName?" • Nome da fonte: "+c.originalName:"")+
+       (state.source?.id==="lista-2"&&c.origins?.length?" • Origens: "+
+         c.origins.map(x=>x.replace(/^lista-/,"Lista ")).join(", "):"")+
+       (c.epgId?" • ID EPG":"");
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
     const fav=document.createElement("button");fav.type="button";
@@ -206,16 +217,63 @@ function renderChannels(){
     p.textContent=state.channels.length?"Nenhum canal corresponde a estes filtros.":"Esta lista não apresentou canais reproduzíveis no catálogo.";area.append(p);
   }
 }
+async function loadCountryOptions(){
+  try{
+    const res=await fetch("/stream/countries?list=lista-2",
+      {credentials:"same-origin",cache:"no-store"});
+    if(!res.ok)return;
+    const data=await res.json();
+    if(!Array.isArray(data.countries))return;
+    const select=$("country"),existing=new Set([...select.options].map(o=>o.value));
+    for(const c of data.countries){
+      if(!/^[A-Z]{2}$/.test(c.code)||existing.has(c.code))continue;
+      const opt=document.createElement("option");
+      opt.value=c.code;opt.textContent=String(c.name||c.code);
+      select.insertBefore(opt,select.querySelector('option[value="OTHER"]')||null);
+      existing.add(c.code);
+      countries[c.code]=String(c.name||c.code);
+    }
+  }catch{/* Base countries remain available when the index is offline. */}
+}
+async function loadMergedCountry(code){
+  if(!state.source||state.source.id!=="lista-2")return;
+  const token=++state.loadToken;
+  stopPlayer();state.channels=[];state.limit=60;
+  $("channel-list").replaceChildren();$("show-more").hidden=true;
+  $("catalog-status").textContent="Consolidando Listas 1–8 por país…";
+  try{
+    const response=await fetch("/stream/catalog?list=lista-2&country="+encodeURIComponent(code),
+      {credentials:"same-origin",cache:"no-store"});
+    if(!response.ok)throw Error("Fonte temporariamente indisponível");
+    const body=await response.text();
+    if(token!==state.loadToken)return;
+    state.channels=parseM3u(body,state.source,code==="ALL"?null:code);
+    renderChannels();
+    const count=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body);
+    const missing=/#DM_PARTIAL:([^\r\n]+)/.exec(body);
+    const trunc=/#DM_TRUNCATED:1/.test(body);
+    $("catalog-status").textContent=state.channels.length+" canais catalogados"+
+      (count?" • Fontes: "+count[1]:"")+
+      (missing?" • Indisponíveis: "+missing[1]:"")+
+      (trunc?" • Lista geral parcial; selecione um país":"")+
+      " • Reprodução não garantida";
+  }catch{
+    if(token!==state.loadToken)return;
+    $("catalog-status").textContent="Não foi possível carregar o país selecionado.";
+    setCatalogError("Uma ou mais fontes estão inacessíveis. Tente Atualizar.");
+  }
+}
 async function selectSource(s){
   const token=++state.loadToken;
   stopPlayer();state.source=s;state.channels=[];state.limit=60;
-  $("search").value="";$("country").value="ALL";$("genre").value="all";
+  $("search").value="";$("country").value=s.id==="lista-2"?"BR":"ALL";$("genre").value="all";
   $("favorites-only").checked=false;state.onlyFavorites=false;
   $("active-source").textContent=s.title+" — "+s.description;
   $("channel-list").replaceChildren();$("show-more").hidden=true;
   $("catalog-status").textContent="Abrindo "+s.title+"…";
   clearCatalogError();renderSources();jumpToCatalog();
   if(s.channels){state.channels=s.channels;renderChannels();return;}
+  if(s.id==="lista-2"){await loadMergedCountry("BR");return;}
   const response=await Promise.allSettled(s.urls.map(async url=>{
     const country=s.id==="lista-2"?/\/countries\/([a-z]{2})\.m3u/i.exec(url)?.[1]:null;
     if(s.id==="lista-9"){
@@ -342,7 +400,12 @@ function setup(){
     if(state.source)void selectSource(state.source);
   });
   for(const id of ["search","country","genre"]){
-    $(id).addEventListener(id==="search"?"input":"change",()=>{state.limit=60;renderChannels();});
+    $(id).addEventListener(id==="search"?"input":"change",()=>{
+      state.limit=60;
+      if(id==="country"&&state.source?.id==="lista-2"){
+        void loadMergedCountry($("country").value);
+      }else renderChannels();
+    });
   }
   $("favorites-only").addEventListener("change",e=>{
     state.onlyFavorites=e.target.checked;state.limit=60;renderChannels();
@@ -406,6 +469,7 @@ async function start(){
     const data=await r.json();
     if(!Array.isArray(data.sources))throw Error("sources format");
     state.sources=data.sources;renderSources();
+    void loadCountryOptions();
     $("library-status").textContent=state.sources.length+" listas IPTV; funcionamento depende do canal e do dispositivo"+
       " • disponibilidade e direitos de cada transmissão não verificados";
   }catch{$("library-status").textContent="Não foi possível carregar as fontes.";}

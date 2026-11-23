@@ -1,3 +1,4 @@
+import {countryIndex,mergedCatalog} from "./catalog-merge.mjs";
 /**
  * DrivMatch Stream personal TV — independent password gate, no Zero Trust plan.
  * Password is held in Worker secret STREAM_ACCESS_PASSWORD, never shipped to
@@ -139,7 +140,7 @@ export default {async fetch(request,env){
  if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
  if(path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
-    path!=="/stream/logout"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
+    path!=="/stream/logout"&&path!=="/stream/countries"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
@@ -196,6 +197,14 @@ export default {async fetch(request,env){
    return new Response(request.method==="HEAD"?null:JSON.stringify({allowed:true}),{
      status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
  if(path==="/stream/login")return Response.redirect(new URL("/stream/",url.origin),303);
+ if(path==="/stream/countries"){
+   if(url.searchParams.get("list")!=="lista-2")return plain(400,"Unsupported list");
+   try{
+     const result=await countryIndex(TV_SOURCE_URLS,TV_COUNTRIES,publicCatalogue);
+     return new Response(request.method==="HEAD"?null:JSON.stringify(result),{
+       status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
+   }catch{return plain(502,"Country index temporarily unavailable");}
+ }
  if(path==="/stream/catalog"){
    // Private, fixed-list source catalog only. Never proxy arbitrary URLs or video.
    const list=url.searchParams.get("list");
@@ -203,19 +212,9 @@ export default {async fetch(request,env){
    try{
      let body;
      if(list==="lista-2"){
-       if(!TV_COUNTRIES.includes(code)&&code!=="all")return plain(400,"Unsupported country");
-       if(code==="all"){
-         const entries=await Promise.allSettled(TV_COUNTRIES.map(async country=>{
-           const data=await publicCatalogue("https://iptv-org.github.io/iptv/countries/"+country+".m3u");
-           return "#DM_COUNTRY:"+country.toUpperCase()+"\n"+data;
-         }));
-         const ok=entries.filter(r=>r.status==="fulfilled").map(r=>r.value);
-         if(!ok.length)return plain(502,"Catalogue temporarily unavailable");
-         body="#EXTM3U\n"+ok.join("\n");
-       }else{
-         const data=await publicCatalogue("https://iptv-org.github.io/iptv/countries/"+code+".m3u");
-         body="#EXTM3U\n#DM_COUNTRY:"+code.toUpperCase()+"\n"+data;
-       }
+       if(!/^[a-z]{2}$/.test(code)&&code!=="all"&&code!=="other")
+         return plain(400,"Unsupported country");
+       body=await mergedCatalog(code.toUpperCase(),TV_SOURCE_URLS,TV_COUNTRIES,publicCatalogue);
      }else if(Object.hasOwn(TV_SOURCE_URLS,list||"")){
        body=await publicCatalogue(TV_SOURCE_URLS[list]);
         if(list==="lista-9")body=publicBrazilPlaylist(body);

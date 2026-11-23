@@ -35,6 +35,8 @@ function sourceName(){for(var i=0;i<SOURCES.length;i++)if(SOURCES[i].id===source
 function countryName(code){for(var i=0;i<COUNTRY.length;i++)if(COUNTRY[i][0]===code)return COUNTRY[i][1];return code;}
 function dataAttr(s,k){var m=new RegExp("(?:^|\\s)"+k+'="([^"]*)"',"i").exec(s);return m?m[1]:"";}
 function inferCountry(meta,group,name,defaultCode){
+  var merged=dataAttr(meta,"dm-country");
+  if(merged)return merged==="GB"?"UK":merged;
   if(defaultCode && defaultCode!=="ALL")return defaultCode;
   var code=dataAttr(meta,"tvg-country").toUpperCase().split(/[;, ]/)[0];
   if(!code){var m=/\.([A-Za-z]{2})(?:@|$)/.exec(dataAttr(meta,"tvg-id"));if(m)code=m[1].toUpperCase();}
@@ -47,7 +49,7 @@ function inferCountry(meta,group,name,defaultCode){
     for(var i=0;i<candidates.length;i++)if(candidates[i][1].test(text)){code=candidates[i][0];break;}
   }
   if(code==="GB")code="UK";
-  for(var k=1;k<COUNTRY.length;k++)if(COUNTRY[k][0]===code)return code;
+  if(/^[A-Z]{2}$/.test(code))return code;
   return "OTHER";
 }
 function parse(raw,forcedCode){
@@ -65,11 +67,16 @@ function parse(raw,forcedCode){
     var code=inferCountry(sourceMeta,group,name,marker);
     var genre=source==="lista-3"?"news":source==="lista-4"?"sports":SPORTS.test(name+" "+group)?"sports":NEWS.test(name+" "+group)?"news":"other";
     var premium=PREMIUM.test(name),k=code+"|"+lower(name),orig=dedupe[k];
-    if(orig){if(!orig.premium&&orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);continue;}
+    var origin=dataAttr(sourceMeta,"dm-source")||source;
+    if(orig){
+      if(!orig.premium&&orig.urls.length<3&&!has(orig.urls,ln))orig.urls.push(ln);
+      if(!has(orig.origins,origin))orig.origins.push(origin);
+      continue;
+    }
     var display=channelAlias(name,code);
     var item={id:source+":"+k,source:source,name:display,
       originalName:display!==name?name:"",code:code,genre:genre,group:group,
-      premium:premium,urls:premium?[]:[ln]};
+      premium:premium,urls:premium?[]:[ln],origins:[origin]};
     dedupe[k]=item;result.push(item);
   }
   return result;
@@ -83,6 +90,35 @@ function drawSources(){
     on(btn,"click",function(){selectSource(s.id);});area.appendChild(btn);
   }(SOURCES[i],i));}
   T(D("source-count"),SOURCES.length+" listas");
+}
+function addCountryOptions(){
+  http("/stream/countries?list=lista-2",function(status,raw){
+    if(status!==200)return;
+    var values;
+    try{values=JSON.parse(raw).countries||[];}catch(e){return;}
+    var added=0;
+    for(var j=0;j<values.length;j++){
+      var c=values[j],id=String(c.code||"").toUpperCase();
+      if(!/^[A-Z]{2}$/.test(id)||id==="UK"&&hasCountry("UK")||hasCountry(id))continue;
+      COUNTRY.splice(COUNTRY.length-1,0,[id,String(c.name||id).slice(0,80)]);
+      added++;
+    }
+    COUNTRY.sort(function(a,b){
+      if(a[0]==="ALL")return -1;if(b[0]==="ALL")return 1;
+      if(a[0]==="OTHER")return 1;if(b[0]==="OTHER")return -1;
+      var aa=lower(a[1]),bb=lower(b[1]);return aa<bb?-1:aa>bb?1:0;
+    });
+    if(added){var focus=document.activeElement,
+        current=focus&&focus.getAttribute("data-country");
+      drawCountries();
+      if(current)selectNewCountryFocus(current);
+    }
+    T(D("country-caption"),String(COUNTRY.length-2)+" países");
+  });
+}
+function hasCountry(code){
+  for(var i=0;i<COUNTRY.length;i++)if(COUNTRY[i][0]===code)return true;
+  return false;
 }
 function drawCountries(){
   var area=D("country-items");clear(area);
@@ -122,7 +158,7 @@ function loadChannels(){
   var cacheKey=source+":"+code;
   T(D("catalog-title"),sourceName().replace(/^Lista\s*\d+\s*•\s*/,""));
   T(D("catalog-subtitle"),country==="ALL"?"Todos os países":countryName(country));
-  T(D("catalog-status"),"Carregando canais…");
+  T(D("catalog-status"),source==="lista-2"?"Consolidando canais das Listas 1 a 8…":"Carregando canais…");
   T(D("result-count"),"Carregando");
   clear(D("channel-items"));visibleEl(D("show-more"),false);
   if(cache[cacheKey]){
@@ -138,7 +174,16 @@ function loadChannels(){
     var parsed=parse(body,(source==="lista-2"||source==="lista-8"||source==="lista-9")&&code!=="ALL"?code:"ALL");
     channels=parsed;
     cache[cacheKey]=channels;
-    T(D("catalog-status"),"Lista pública · reprodução ainda não verificada nesta TV.");
+    if(source==="lista-2"){
+      var count=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
+        missing=/#DM_PARTIAL:([^\r\n]+)/.exec(body),
+        cut=/#DM_TRUNCATED:1/.test(body);
+      T(D("catalog-status"),"Listas 1–8 consolidadas"+
+        (count?" · Fontes: "+count[1]:"")+
+        (missing?" · Fontes indisponíveis: "+missing[1]:"")+
+        (cut?" · Catálogo geral parcial; selecione um país":"")+
+        " · Reprodução não garantida.");
+    }else T(D("catalog-status"),"Lista pública · reprodução ainda não verificada nesta TV.");
     renderChannels();
   });
 }
@@ -176,8 +221,12 @@ function renderChannels(){
     row.appendChild(E("span","channel-number",String(j+1)));
     var btn=E("button","channel-btn");btn.type="button";
     btn.appendChild(E("strong","",c.name));
+    var from="";
+    if(source==="lista-2"&&c.origins&&c.origins.length){
+      from=" · Origem: "+c.origins.map(function(x){return x.replace(/^lista-/,"Lista ");}).join(", ");
+    }
     btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")+
-      (c.originalName?" · Fonte: "+c.originalName:"")));
+      (c.originalName?" · Nome da fonte: "+c.originalName:"")+from));
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
@@ -351,6 +400,7 @@ function init(){
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
       var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-[1-9]$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
       SOURCES=verified;drawSources();drawCountries();drawCategories();
+      addCountryOptions();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
       selectSource("lista-2");
     });
