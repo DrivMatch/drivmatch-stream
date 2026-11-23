@@ -107,6 +107,15 @@ class AutopilotTests(unittest.TestCase):
                                 autopilot.MAX_CHECKS // 2)
         self.assertGreaterEqual(sum(x["id"].startswith("failed-") for x in selected), 1)
 
+    def test_balanced_verification_includes_small_international_markets(self):
+        pool = ([{"id":f"br-{i}", "country":"BR"} for i in range(250)] +
+                [{"id":f"ru-{i}", "country":"RU"} for i in range(5)] +
+                [{"id":f"cn-{i}", "country":"CN"} for i in range(5)] +
+                [{"id":f"au-{i}", "country":"AU"} for i in range(5)])
+        result = autopilot.geographically_balanced(pool, 24)
+        self.assertEqual(len(result), 24)
+        self.assertEqual({x["country"] for x in result}, {"BR", "RU", "CN", "AU"})
+
     def test_daily_run_only_publishes_eligible_and_verified(self):
         feed = ("source", "https://source.example.org/free.m3u8", "", "", True)
         research = ("research", "https://source.example.org/unknown.m3u8", "", "", False)
