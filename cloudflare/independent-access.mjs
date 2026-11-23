@@ -31,6 +31,7 @@ const APP_CSP = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net;
 
 const TE = new TextEncoder();
 const COOKIE = "dm_stream_user";
+const FORM_COOKIE = "__Host-dm_stream_form_csrf";
 const SESSION_SECONDS = 7 * 24 * 3600;
 const HEADERS = {
   "Cache-Control": "private, no-store",
@@ -99,6 +100,50 @@ function csrf(request, url) {
     return previous.origin === url.origin &&
       previous.protocol === "https:";
   } catch { return false; }
+}
+// Signed double-submit form token. It is not dependent on Origin,
+// Referer, or Fetch Metadata that mobile private browsers can omit.
+async function signFormNonce(nonce, env) {
+  const key=await crypto.subtle.importKey("raw",
+    TE.encode("dm-stream-form-v1:" + env.STREAM_ACCESS_PASSWORD),
+    {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  return b64(new Uint8Array(await crypto.subtle.sign("HMAC",key,TE.encode(nonce))));
+}
+async function issueFormToken(env) {
+  const nonce=random();
+  return nonce+"."+await signFormNonce(nonce,env);
+}
+function formTokenCookie(token) {
+  return FORM_COOKIE+"="+token+
+    "; Path=/; Max-Age=1200; Secure; HttpOnly; SameSite=Strict";
+}
+function formTokenInput(token) {
+  return "<input type='hidden' name='_csrf' value='"+token+"'>";
+}
+function stampForm(response,token) {
+  response.headers.set("Set-Cookie",formTokenCookie(token));
+  return response;
+}
+async function verifyFormToken(request,url,params,env) {
+  const origin=request.headers.get("Origin");
+  if (origin && origin!==url.origin) return false;
+  const ref=request.headers.get("Referer");
+  if (ref) {
+    try {if (new URL(ref).origin!==url.origin) return false;}
+    catch {return false;}
+  }
+  if (request.headers.get("Sec-Fetch-Site")==="cross-site") return false;
+  const supplied=String(params.get("_csrf")||"");
+  if (!/^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/.test(supplied)) return false;
+  const received=(request.headers.get("Cookie")||"").split(";")
+    .map(x=>x.trim()).find(x=>x.startsWith(FORM_COOKIE+"="));
+  if (!received || received.slice(FORM_COOKIE.length+1)!==supplied) return false;
+  const [nonce,signature]=supplied.split(".");
+  const expected=await signFormNonce(nonce,env);
+  let diff=0;
+  for(let i=0;i<expected.length;i++)
+    diff|=expected.charCodeAt(i)^signature.charCodeAt(i);
+  return diff===0;
 }
 async function form(request) {
   const size = Number(request.headers.get("Content-Length") || 0);
