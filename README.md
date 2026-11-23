@@ -55,6 +55,13 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Uma busca de pelo menos 2 caracteres usa debounce de 450ms e limites no endpoint (até 60 caracteres; 250 canais; 750KB de dados); as respostas atrasadas são descartadas ao mudar o texto/país. Busca vazia restaura o estado normal do país, mantendo a reprodução na coluna 3. Sem fontes disponíveis o sistema informa pesquisa parcial/indisponível, sem inventar canais.
 - Os testes com **CNN Brasil**, **CNN Portugal** e **CNN EUA** utilizam playlists simuladas para comprovar indexação e apresentação. Os nomes são exemplos de teste; eles não certificam canais reais adicionais nem reprodução ao vivo.
 
+## Celular: mesmo guia Samsung/desktop com player fixo (23/11/2026)
+
+- A entrada `/stream/` em **Android e iPhone** agora abre a interface compartilhada `/stream/tv/` por padrão. O visualizador anterior fica como alternativa explícita em `/stream/?layout=classic`.
+- O celular usa o mesmo catálogo, fontes, países e categorias recolhíveis, lista ordenada, favoritos, recentes e busca global das versões Samsung/desktop. A diferença é apenas o layout: player fixo acima e abas **Países e categorias** / **Guia e busca** abaixo. Cada aba rola independentemente; a página não é rolável. Tocar um país ou categoria abre automaticamente o guia; as abas podem ser alternadas sem interromper o canal escolhido.
+- A versão móvel tem fonte e botões adequados à largura do telefone, sem modificar a tipografia da Samsung nem as três colunas do desktop. Safari/iOS mantém HLS nativo quando disponível; Android e outros navegadores podem usar HLS.js, sem promessa de compatibilidade de toda fonte.
+- Testes de navegador em tamanhos de telefone com user agents Android/iOS conferem redirecionamento, rolagem independente, player fixo, seleção de canal e pesquisa global; são testes com canais simulados, não certificação da reprodução externa de mídia real.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
