@@ -1,4 +1,4 @@
-name: QA Stream Access Control Center
+name: QA Stream Access Control Center — privileged login fix
 on:
   push:
     branches: [feature/independent-cloudflare-access]
