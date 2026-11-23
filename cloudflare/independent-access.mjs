@@ -155,11 +155,13 @@ function setupPage() {
 }
 async function supabase(env, method, endpoint, data, admin = false, accessToken = "") {
   const key = admin ? env.SUPABASE_SECRET_KEY : env.SUPABASE_PUBLIC_KEY;
-  const token = accessToken || key;
+  // Supabase sb_publishable_* / sb_secret_* keys are NOT JWTs.
+  // Only an authenticated user's actual access token belongs in Authorization.
+  const headers = {"apikey":key, "Content-Type":"application/json",
+    "Accept":"application/json"};
+  if (accessToken) headers.Authorization = "Bearer " + accessToken;
   const res = await fetch(authBase(env) + "/auth/v1/" + endpoint, {
-    method, redirect:"manual",
-    headers: {"apikey":key, "Authorization":"Bearer " + token,
-      "Content-Type":"application/json", "Accept":"application/json"},
+    method, redirect:"manual", headers,
     ...(data === undefined ? {} : {body: JSON.stringify(data)})
   });
   let result = {};
