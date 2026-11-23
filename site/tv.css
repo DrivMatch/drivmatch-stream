@@ -369,3 +369,12 @@ html,body{font-size:24px;line-height:1.4}
  .channel-row{min-height:44px}
  .channel-row .channel-btn,.channel-row .fav-btn{min-height:42px}
 }
+
+/* Override older .country-items button rules by using higher specificity. */
+.country-items .tree-channel-btn{font-size:24px;min-height:42px;
+ padding:5px 6px;margin:2px 0;line-height:1.15;white-space:nowrap}
+.country-items .tree-genre-btn{font-size:24px;min-height:41px;
+ padding:5px 5px;margin:2px 0;line-height:1.15}
+@media(max-width:1000px){
+ .country-items .tree-channel-btn,.country-items .tree-genre-btn{font-size:23px}
+}
