@@ -810,3 +810,10 @@ html.dm-mobile-guide .technical-source-name{font-size:12px!important}
  html.dm-mobile-guide .now-playing h2{font-size:13px!important}
  html.dm-mobile-guide .player-actions button{min-height:24px!important}
 }
+
+/* Account management is available from the Stream guide when role=admin.
+   Keep it readable and tappable on narrow Android screens. */
+.toplinks .admin-link{background:#146653;color:#fff;border-color:#3ac9a8;font-weight:bold}
+html.dm-mobile-guide .toplinks{line-height:29px}
+html.dm-mobile-guide .toplinks .admin-link{font-size:13px!important;min-height:29px;padding:5px 9px}
+html.dm-mobile-guide .toplinks #home-link{display:none}
