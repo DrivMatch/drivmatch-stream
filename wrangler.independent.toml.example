@@ -3,6 +3,16 @@ main = "cloudflare/independent-access.mjs"
 compatibility_date = "2026-11-23"
 workers_dev = true
 
+# Bundle the exact version of the website with this Worker.
+# Security requires the Worker to run BEFORE serving any asset.
+[assets]
+directory = "./site"
+binding = "ASSETS"
+base_path = "/stream"
+run_worker_first = true
+html_handling = "none"
+not_found_handling = "none"
+
 # Fill the real UUID only after creating a D1 database in YOUR Cloudflare account.
 [[d1_databases]]
 binding = "STREAM_USERS_DB"
