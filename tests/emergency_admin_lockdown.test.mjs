@@ -63,7 +63,7 @@ test("user-facing TV page contains identity and logout but no admin navigation",
   for(const file of ["site/tv.html","site/index.html"]){
     const html=readFileSync(new URL("../"+file,import.meta.url),"utf8");
     assert.match(html,/id="account-identity"/);
-    assert.match(html,/action="(?:\/stream)?\/logout"/);
+    assert.match(html,/action="(?:\.|\/stream)?\/logout"/);
     assert.doesNotMatch(html,/href="\/stream\/admin"/);
   }
 });
