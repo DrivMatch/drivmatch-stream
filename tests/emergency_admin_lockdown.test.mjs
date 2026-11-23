@@ -25,7 +25,7 @@ function fakeEnv(role){
   };
   return {env,wasActionTouched:()=>actionTouched};
 }
-test("emergency: all admin endpoints locked for all authenticated roles",async()=>{
+test("security: viewer cannot manage, while admin requires fresh password step-up",async()=>{
   for(const role of ["admin","viewer"]){
     const {env,wasActionTouched}=fakeEnv(role);
     for(const [method,path] of [
@@ -42,8 +42,10 @@ test("emergency: all admin endpoints locked for all authenticated roles",async()
         method,headers:{Cookie:"dm_stream_user="+token},
         ...(method==="POST"?{body:"_csrf=invalid"}:{})
       }),env);
-      assert.equal(response.status,403,role+" "+method+" "+path);
-      assert.match(await response.text(),/bloqueado por segurança/);
+      const expected=(role==="admin" && method==="GET" && path==="/stream/admin")?200:403;
+      assert.equal(response.status,expected,role+" "+method+" "+path);
+      const body=await response.text();
+      if(expected===200)assert.match(body,/Confirmar acesso administrativo/);
       assert.equal(wasActionTouched(),false);
     }
   }
