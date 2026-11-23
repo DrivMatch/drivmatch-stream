@@ -529,7 +529,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
               "not_tested_this_run": max(0, len(discovered) - len(checks)),
               "published_healthy": len(live),
               "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification"}
-    if len(checks) == 0 and previous:
+    if len(checks) == 0 and previous and discovered:
         raise RuntimeError("No candidates tested; fail safely instead of wiping the list")
     STATE.parent.mkdir(parents=True, exist_ok=True)
     write_json(STATE, {"schema": 1, "last_run": today, "channels": state,
