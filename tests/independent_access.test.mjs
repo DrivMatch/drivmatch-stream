@@ -679,3 +679,77 @@ test("public password recovery uses no more than 5 of the global 20 daily slots"
     assert.match(await admin.text(),/E-mails solicitados hoje: 5 de 20/);
   });
 });
+
+test("existing administrator session requires their actual password before opening console",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,sessions}=testEnvironment();
+    // Normal Stream login is not a privileged login.
+    const frm=await getForm("/stream/login",env);
+    const signed=await worker.fetch(req("/stream/login",{
+      method:"POST",
+      headers:{Cookie:frm.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:frm.token,email:users[0].email,password:users[0].password})
+    }),env);
+    assert.equal(signed.status,303);
+    const sessionCookie=cookie(signed);
+    let verify=await getForm("/stream/admin",env,sessionCookie);
+    assert.match(verify.html,/Confirmar acesso administrativo/);
+    assert.doesNotMatch(verify.html,/Central de Controle/);
+    const wrong=await worker.fetch(req("/stream/admin/verify",{
+      method:"POST",
+      headers:{Cookie:sessionCookie+"; "+verify.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:verify.token,password:"invalid-secret"})
+    }),env);
+    assert.equal(wrong.status,401);
+    assert.match(await wrong.text(),/Senha administrativa não validada/);
+    assert.equal([...sessions.values()][0].admin_verified_until,0);
+    verify=await getForm("/stream/admin",env,sessionCookie);
+    const success=await worker.fetch(req("/stream/admin/verify",{
+      method:"POST",
+      headers:{Cookie:sessionCookie+"; "+verify.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:verify.token,password:users[0].password})
+    }),env);
+    assert.equal(success.status,303);
+    assert.equal(success.headers.get("Location"),base+"/stream/admin");
+    const after=await worker.fetch(req("/stream/admin",{headers:{Cookie:sessionCookie}}),env);
+    assert.equal(after.status,200);
+    assert.match(await after.text(),/Central de Controle/);
+    assert.ok([...sessions.values()][0].admin_verified_until>Math.floor(Date.now()/1000));
+  });
+});
+test("expired admin verification immediately locks management without removing admin role",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,sessions,accounts}=testEnvironment();
+    const adminCookie=cookie(await login(users[0].email,users[0].password,env));
+    for(const session of sessions.values())if(session.user_id===users[0].id)
+      session.admin_verified_until=Math.floor(Date.now()/1000)-1;
+    const view=await worker.fetch(req("/stream/admin",{headers:{Cookie:adminCookie}}),env);
+    assert.equal(view.status,200);
+    assert.match(await view.text(),/Confirmar acesso administrativo/);
+    const denied=await worker.fetch(req("/stream/admin/status",{
+      method:"POST",
+      headers:{Cookie:adminCookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({user_id:users[1].id,status:"suspended"})
+    }),env);
+    assert.equal(denied.status,403);
+    assert.equal(accounts.get(users[0].id).role,"admin");
+    assert.equal(accounts.get(users[1].id).status,"active");
+  });
+});
+test("viewer cannot step up as administrator even with administrator password",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const viewerCookie=cookie(await login(users[1].email,users[1].password,env));
+    const frm=await getForm("/stream/login",env);
+    const result=await worker.fetch(req("/stream/admin/verify",{
+      method:"POST",
+      headers:{Cookie:viewerCookie+"; "+frm.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:frm.token,password:users[0].password})
+    }),env);
+    assert.equal(result.status,403);
+    const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:viewerCookie}}),env);
+    assert.equal(admin.status,403);
+    assert.doesNotMatch(await admin.text(),/Central de Controle/);
+  });
+});
