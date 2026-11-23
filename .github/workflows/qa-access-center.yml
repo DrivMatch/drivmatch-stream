@@ -22,6 +22,24 @@ jobs:
           node --check cloudflare/independent-access.mjs
           node --check site/tv.js
           node --test tests/independent_access.test.mjs
+      - name: Verify Portuguese invitation email template and secure activation link placeholder
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          subject=Path("supabase/email/invite-subject.txt").read_text().strip()
+          html=Path("supabase/email/invite.html").read_text()
+          assert subject=="Seu convite para o DrivMatch Stream | TV de vários países"
+          assert html.count("{{ .ConfirmationURL }}")==1
+          assert "Criar minha senha e ativar o acesso" in html
+          assert "crie sua senha pessoal" in html
+          assert "DrivMatch Stream" in html
+          assert "password=" not in html.lower()
+          assert "<script" not in html.lower()
+          HTMLParser().feed(html)
+          print("PASS: invitation email ready for Supabase Invite user template")
+          PY
       - name: Test non-destructive database migration with existing identity, favorites and sessions
         shell: bash
         run: |
