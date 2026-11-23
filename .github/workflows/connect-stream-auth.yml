@@ -1,9 +1,6 @@
 name: Connect Stream test authentication (manual)
 on:
-  # Run once on this workflow update to connect the now-configured GitHub secrets.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/connect-stream-auth.yml']
+  # Credentials were installed and smoke-tested successfully. Future changes are manual-only.
   workflow_dispatch:
 permissions:
   contents: read
