@@ -274,19 +274,22 @@ async function main(){
       await page.locator('#player-favorite').click();
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       assert.match(await page.locator('#favorite-items').textContent(),/★ Canal Teste 2/);
-      await page.evaluate(()=>{
-        for(let i=1;i<=26;i++){
-          const name='Canal Teste '+i;
+      const testNames=await page.evaluate(()=>
+        [...document.querySelectorAll('#channel-items .channel-btn strong')]
+          .map(el=>el.textContent).filter(x=>x.startsWith('Canal Teste ')).slice(0,26));
+      assert.equal(testNames.length,26);
+      await page.evaluate(names=>{
+        for(const name of names){
           const b=[...document.querySelectorAll('#channel-items .channel-btn')]
             .find(el=>el.querySelector('strong')?.textContent===name);
           if(!b)throw new Error('test channel not found: '+name);
           b.click();
         }
-      });
+      },testNames);
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
       assert.equal(await page.locator('#recent-items .quick-entry-btn').count(),25);
-      assert.match(await page.locator('#recent-items .quick-entry-btn').first().textContent(),/Canal Teste 26/);
-      assert.equal(await page.locator('#recent-items').getByText('Canal Teste 1',{exact:true}).count(),0);
+      assert((await page.locator('#recent-items .quick-entry-btn').first().textContent()).includes(testNames[25]));
+      assert.equal(await page.locator('#recent-items').getByText(testNames[0],{exact:true}).count(),0);
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       assert.equal(await page.locator('#favorite-items .quick-entry-btn').count(),1);
       const persisted=await page.evaluate(()=>({
