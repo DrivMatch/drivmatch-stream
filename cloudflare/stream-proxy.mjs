@@ -25,7 +25,9 @@ const TV_SOURCE_URLS={
   "lista-6":"https://biskyt.github.io/legalFreeIPTVplaylist/live.m3u",
   "lista-7":"https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u",
   "lista-8":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8",
-  "lista-9":"https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u"
+  "lista-9":"https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u",
+  "lista-10":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_movies.m3u8",
+  "lista-11":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8"
 };
 /* Lista 9: no known subscription-network links; HLS health is not a rights audit. */
 const BR9_PUBLIC=new Set(["agrocanal","agrobrasil tv","bem mais tv","canal educacao","canal futura","canal gov","canal saude","canal do boi","canal uol","cultura fast","futura","istv","rede brasil","rede minas","rede ngt","rede vida","rede familia","sbt nacional","sesc tv","tv brasil","tv camara","tv cultura","tv justica","tv senado","tve rs","tve bahia","tv vicosa","tv gazeta","tv a critica","tv brasil oeste","tv cidade verde cuiaba","tv show fortaleza","tv comunitaria","tv sao raimundo","tv vila real","record news","tv guara","amazon sat","cindie tv","classique tv","mytime movie network"]);
@@ -46,6 +48,10 @@ function publicBrazilPlaylist(raw){
   return out.join("\n");
 }
 const TV_COUNTRIES=["br","pt","es","jp","cn","us","ar","uk","be","it","fr","de"];
+async function curatedCatalogue(url,id){
+  const body=await publicCatalogue(url);
+  return id==="lista-9"?publicBrazilPlaylist(body):body;
+}
 async function publicCatalogue(address){
   const upstream=await fetch(address,{redirect:"follow",headers:{"Accept":"text/plain,application/x-mpegURL,*/*"}});
   if(!upstream.ok)throw Error("upstream unavailable");
@@ -201,7 +207,7 @@ export default {async fetch(request,env){
  if(path==="/stream/countries"){
    if(url.searchParams.get("list")!=="lista-2")return plain(400,"Unsupported list");
    try{
-     const result=await countryIndex(TV_SOURCE_URLS,TV_COUNTRIES,publicCatalogue);
+     const result=await countryIndex(TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
      return new Response(request.method==="HEAD"?null:JSON.stringify(result),{
        status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
    }catch{return plain(502,"Country index temporarily unavailable");}
@@ -215,7 +221,7 @@ export default {async fetch(request,env){
      if(list==="lista-2"){
        if(!/^[a-z]{2}$/.test(code)&&code!=="all"&&code!=="other")
          return plain(400,"Unsupported country");
-       body=await mergedCatalog(code.toUpperCase(),TV_SOURCE_URLS,TV_COUNTRIES,publicCatalogue);
+       body=await mergedCatalog(code.toUpperCase(),TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
      }else if(Object.hasOwn(TV_SOURCE_URLS,list||"")){
        body=await publicCatalogue(TV_SOURCE_URLS[list]);
         if(list==="lista-9")body=publicBrazilPlaylist(body);
