@@ -179,16 +179,17 @@ function page(title, body, status = 200, script = "", nonce = "") {
   return new Response(html, {status, headers: {...HEADERS, "Content-Type":"text/html; charset=utf-8",
     "Content-Security-Policy":csp}});
 }
-function loginPage(error = false) {
-  return page("Acesso individual",
+async function loginPage(error = false, env) {
+  const token=await issueFormToken(env);
+  return stampForm(page("Acesso individual",
     "<p>Entre com seu e-mail e sua senha pessoal.</p>" +
     (error ? "<p role='alert'>Não foi possível entrar. Confira os dados e o acesso à conta.</p>" : "") +
-    "<form method='post' action='/stream/login'>" +
+    "<form method='post' action='/stream/login'>" + formTokenInput(token) +
     "<label>E-mail<input type='email' name='email' autocomplete='username' maxlength='254' required></label>" +
     "<label>Senha<input type='password' name='password' autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Entrar</button></form>" +
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
-    "<small>Novas contas são criadas apenas por convite.</small>", error ? 401 : 200);
+    "<small>Novas contas são criadas apenas por convite.</small>", error ? 401 : 200),token);
 }
 function setupPage() {
   const nonce = b64(crypto.getRandomValues(new Uint8Array(16)));
@@ -324,24 +325,25 @@ async function handle(request, env) {
     return redirect(url.origin, "/stream/");
   const user = await currentUser(request, env);
   if (method === "GET" && (path === "/stream/login"))
-    return user ? redirect(url.origin, "/stream/") : loginPage();
+    return user ? redirect(url.origin, "/stream/") : await loginPage(false,env);
   if (method === "POST" && path === "/stream/login") {
-    if (!csrf(request,url)) return page("Acesso não validado",
-      "<p>O navegador não confirmou a origem do formulário.</p>" +
-      "<p>Abra novamente o login e tente entrar. Nenhuma senha foi alterada.</p>" +
-      "<p><a href='/stream/login'>Voltar ao login</a></p>",403);
-    if (!await limit(request,env,"login")) return plain(429,"Muitas tentativas. Tente mais tarde.");
     const data = await form(request);
+    if (!await verifyFormToken(request,url,data,env))
+      return page("Acesso não validado",
+        "<p>O formulário expirou ou os cookies do site estão bloqueados.</p>" +
+        "<p>Abra novamente o login e tente entrar.</p>" +
+        "<p><a href='/stream/login'>Reabrir login</a></p>",403);
+    if (!await limit(request,env,"login")) return plain(429,"Muitas tentativas. Tente mais tarde.");
     const email = String(data.get("email") || "").trim().toLowerCase();
     const password = String(data.get("password") || "");
     if (email.length > 254 || !email.includes("@") || !password || password.length > 256)
-      return loginPage(true);
+      return await loginPage(true,env);
     const result = await supabase(env,"POST","token?grant_type=password",{email,password});
-    if (!result.ok || !result.data?.user?.id) return loginPage(true);
+    if (!result.ok || !result.data?.user?.id) return await loginPage(true,env);
     const account = await env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active'"
     ).bind(result.data.user.id,email).first();
-    if (!account) return loginPage(true);
+    if (!account) return await loginPage(true,env);
     return redirect(url.origin,"/stream/",await createSession(account,env));
   }
   if (method === "GET" && path === "/stream/recover")
