@@ -29,7 +29,7 @@ jobs:
       - name: Verify syntax and unit tests
         run: |
           python3 -m py_compile scripts/daily_channel_autopilot.py
-          python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Exhaustive curated-feed audit
         env:
           DM_FULL_AUDIT: '1'
