@@ -31,7 +31,7 @@ function testEnvironment() {
             const session=sessions.get(args[0]);
             if(!session || session.expires_at <= args[1])return null;
             const user=accounts.get(session.user_id);
-            return user?.status==="active"?{...user}:null;
+            return user?.status==="active"?{...user,admin_verified_until:session.admin_verified_until||0}:null;
           }
           if(statement.includes("WHERE user_id=? AND email=? AND status='active'")) {
             const user=accounts.get(args[0]);
@@ -82,7 +82,17 @@ function testEnvironment() {
             const idx=emailBudget.findIndex(x=>x.request_id===args[0] && x.status==="reserved");
             if(idx>=0)emailBudget.splice(idx,1);
           } else if(statement.startsWith("INSERT INTO stream_sessions")) {
-            sessions.set(args[0],{user_id:args[1],expires_at:args[2]});
+            sessions.set(args[0],{user_id:args[1],expires_at:args[2],
+              admin_verified_until:args[3]||0});
+          } else if(statement.startsWith("UPDATE stream_sessions SET admin_verified_until=")) {
+            const entry=sessions.get(args[1]);
+            const account=accounts.get(args[2]);
+            if(!entry || entry.user_id!==args[2] || entry.expires_at<=args[3] ||
+                account?.user_id!==args[4] || account?.email!==args[5] ||
+                account?.role!=="admin" || account?.status!=="active")
+              return {success:true,meta:{changes:0}};
+            entry.admin_verified_until=args[0];
+            return {success:true,meta:{changes:1}};
           } else if(statement.startsWith("DELETE FROM stream_sessions WHERE token_hash")) {
             sessions.delete(args[0]);
           } else if(statement.startsWith("DELETE FROM stream_sessions WHERE user_id")) {
@@ -147,8 +157,11 @@ async function getForm(path,env,session="") {
   return {token,cookie:csrfCookie,html};
 }
 async function login(email,password,env) {
-  const form=await getForm("/stream/login",env);
-  return worker.fetch(req("/stream/login",{
+  // Administrator explicitly starts from the admin destination, so the
+  // password-based login grants a fresh 10-minute elevated D1 session.
+  const path=email===users[0].email?"/stream/login?next=admin":"/stream/login";
+  const form=await getForm(path,env);
+  return worker.fetch(req(path,{
     method:"POST",headers:{Cookie:form.cookie,"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({email,password,_csrf:form.token}).toString()
   }),env);
