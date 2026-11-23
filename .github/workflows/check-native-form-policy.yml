@@ -1,8 +1,6 @@
 name: Verify live Stream native-form policy
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/check-native-form-policy.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
