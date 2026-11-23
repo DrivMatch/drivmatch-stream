@@ -242,9 +242,18 @@ async function limit(request, env, prefix) {
 }
 async function createSession(user, env) {
   const token = random();
-  await env.STREAM_USERS_DB.prepare(
-    "INSERT INTO stream_sessions (token_hash,user_id,expires_at) VALUES(?,?,?)"
-  ).bind(await hash(token), user.user_id, now() + SESSION_SECONDS).run();
+  const timestamp = now();
+  // Both effects commit together: the timestamp means a successful D1-backed
+  // Stream login, not merely viewing a page or clicking an invitation link.
+  await env.STREAM_USERS_DB.batch([
+    env.STREAM_USERS_DB.prepare(
+      "INSERT INTO stream_sessions (token_hash,user_id,expires_at) VALUES(?,?,?)"
+    ).bind(await hash(token),user.user_id,timestamp+SESSION_SECONDS),
+    env.STREAM_USERS_DB.prepare(
+      "UPDATE stream_users SET first_login_at=COALESCE(first_login_at,?),last_login_at=? " +
+      "WHERE user_id=? AND status='active'"
+    ).bind(timestamp,timestamp,user.user_id)
+  ]);
   return sessionCookie(token);
 }
 async function revokeCurrent(request, env) {
@@ -401,8 +410,9 @@ async function handle(request, env) {
     if (!saved.ok) return plain(502,"Não foi possível definir a senha.");
     if (account.status === "invited") {
       await env.STREAM_USERS_DB.prepare(
-        "UPDATE stream_users SET status='active',updated_at=? WHERE user_id=? AND status='invited'"
-      ).bind(now(),account.user_id).run();
+        "UPDATE stream_users SET status='active',activated_at=COALESCE(activated_at,?), " +
+        "updated_at=? WHERE user_id=? AND status='invited'"
+      ).bind(now(),now(),account.user_id).run();
     }
     await env.STREAM_USERS_DB.prepare("DELETE FROM stream_sessions WHERE user_id=?")
       .bind(account.user_id).run();
