@@ -1,0 +1,56 @@
+name: Fast live Chrome Stream login check
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/fast-live-chrome-login.yml']
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reuse preinstalled Chrome rather than install a new browser
+        run: |
+          command -v google-chrome || command -v google-chrome-stable
+          npm install --no-save --no-audit --no-fund playwright-core@1.58.2
+      - name: Native mobile form submit must reach auth and not CSRF 403
+        shell: bash
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright-core');
+          (async()=>{
+            const exe=process.env.CHROME_BIN||'/usr/bin/google-chrome';
+            const browser=await chromium.launch({headless:true,executablePath:exe});
+            let errors=0;
+            for(const [name,descriptor] of [
+              ['Android Chrome',devices['Pixel 7']],['Desktop Chrome',{}]
+            ]) {
+              const context=await browser.newContext({...descriptor,locale:'pt-BR'});
+              const page=await context.newPage();
+              const uri='https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/login?fresh=policy-fix';
+              const get=await page.goto(uri,{waitUntil:'domcontentloaded'});
+              console.log(name,'GET',get.status(),'policy',get.headers()['referrer-policy']);
+              console.log(name,'csrfFieldPresent',await page.locator('input[name="_csrf"]').count()===1);
+              await page.locator('input[name=email]').fill('invalid-qa@example.invalid');
+              await page.locator('input[name=password]').fill('not-real-credentials');
+              page.on('request',req=>{
+                if(req.method()==='POST'&&req.url().includes('/stream/login')){
+                  console.log(name,'POST origin',req.headers().origin||'absent');
+                }
+              });
+              const [res]=await Promise.all([
+                page.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes('/stream/login')),
+                page.getByRole('button',{name:'Entrar'}).click()
+              ]);
+              console.log(name,'POST result',res.status());
+              if(res.status()!==401)errors++;
+              await context.close();
+            }
+            await browser.close();
+            if(errors)process.exit(1);
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          JS
