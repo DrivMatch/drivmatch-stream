@@ -497,3 +497,76 @@ button:focus,a:focus,input:focus{outline:3px solid #ffe28b!important;
  .sidebar,.catalog,.player-column{padding:7px}
  .section-title{font-size:18px}
 }
+
+/* TV UI v2: charcoal + teal contrast, not three similar dark-blue panels.
+   High-luminance text, clearly separated columns, remote focus in amber.
+   No CSS variables/flex/grid dependency: conservative Samsung/Tizen layout. */
+html,body,.tv-shell{background:#0d1218;color:#ffffff}
+.tv-layout{background:#0d1218}
+.topbar{background:#111d27;border-bottom:2px solid #4acac3}
+.brand b{color:#fff}.brand em{color:#80f3e5}
+.logo{background:#008a85;color:#fff}
+.top-link{background:#26394a;border:1px solid #a0c6cf;color:#fff}
+.column{border:2px solid #6a8191;border-radius:9px}
+.sidebar{background:#202b36;border-color:#6f8796}
+.catalog{background:#2a3541;border-color:#8093a2}
+.player-column{background:#16232d;border-color:#648594}
+.section-title{background:#354552;color:#e8ffff;border-left:4px solid #4ce1cc;
+ border-radius:5px;font-weight:bold}
+.section-title b{background:#4a6171;color:#fff}
+.overline,.player-caption{color:#9ffcef}
+.catalog-header h1,.now-playing h2{color:#fff}
+.catalog-header p,.catalog-status{color:#f4faff}
+.catalog-status{background:#394b5b;border-left:4px solid #4acdbf;color:#f3fdff}
+.channel-heading span{color:#fff}
+.channel-heading button,.more-btn{background:#116a70;color:#fff;border:1px solid #6ee7d3}
+.search-row input{background:#f7fbff;color:#101f28;border:2px solid #9fc2c7}
+.search-row button{background:#d7e7ec;color:#172c3c}
+.quick-toggle{background:#3b4e60;color:#fff;border:2px solid #8db5c7;border-left:4px solid #4ce1cc}
+.quick-toggle .quick-chevron,.tree-chevron{color:#8fffee}
+.quick-toggle b{color:#fff}
+.quick-entry-btn{background:#354b60;border:1px solid #87a6b8;color:#fff}
+.quick-entry-btn:nth-child(even){background:#40566a}
+.quick-entry-btn.active{background:#075d60;border-color:#81f4e0;color:#fff}
+.quick-entry-btn .quick-entry-meta{color:#f3f9ff}
+.country-items .tree-country-btn{background:#344b5f;border:1px solid #91aebf;
+ border-left:4px solid #42e1c9;color:#fff}
+.country-items .tree-country-btn.active{background:#08666b;border-color:#7deddc;color:#fff}
+.country-items .tree-genre-btn{background:#3a4f60;border:1px solid #8daabc;
+ color:#fff}
+.country-items .tree-genre-btn.active{background:#075c65;border-color:#72edde;color:#fff}
+.country-items .tree-channel-btn{background:#364a5b;border:1px solid #7d9baa;color:#fff}
+.country-items .tree-channel-btn:nth-child(even){background:#40576a}
+.country-items .tree-channel-btn.active{background:#075965;border-color:#6ee7d4;color:#fff}
+.tree-count,.tree-channel-class,.tree-external-label{color:#ebfaff}
+.tree-categories{border-left:3px solid #7da5ad}
+.tree-more-btn{background:#235e68;border:1px solid #70dcd1;color:#fff}
+.channel-row{background:#35495c;border:1px solid #91b0c0;color:#fff}
+.channel-row:nth-child(even){background:#40566b}
+.channel-row.current{background:#075962;border:2px solid #74f6dc;
+ border-left:5px solid #74f6dc}
+.channel-row .channel-btn .channel-title{color:#fff;font-weight:bold}
+.channel-row .channel-btn{color:#fff}
+.channel-number{color:#e6f4fc}
+.channel-classification{color:#f5fcff}
+.channel-row .fav-btn{color:#d2e3ea}
+.channel-row .fav-btn.marked{color:#ffd567}
+.play-status{color:#d1edee}
+.player-frame{background:#030608;border:2px solid #8facb9}
+.player-empty strong,.player-empty p,.now-playing p{color:#f7fbff}
+.player-actions button{background:#265767;color:#fff;border:1px solid #8dc6cf}
+#official-open{background:#087878;border-color:#83f5df}
+.sidebar-note,.disclaimer,.remote-hint{color:#e5f0f7}
+.remote-hint{border-top-color:#829aa8}
+.provider-footer,.technical-footer{border-top-color:#829aa8}
+#provider-toggle,#technical-toggle{background:#334c5c;color:#fff;border:1px solid #91b6c2}
+.provider-entry{background:#354e5d;color:#fff;border-color:#829eaf}
+.technical-source-name{color:#e7f7ff}
+.restore-hidden{display:block;width:100%;margin:5px 0 10px;padding:7px 9px;
+ min-height:39px;font-size:18px;font-weight:bold;text-align:left;
+ background:#195b57;color:#fff;border:2px solid #79e5d1;border-radius:7px}
+.restore-hidden:focus,button:focus,a:focus{outline:3px solid #ffe29b!important;
+ outline-offset:1px;background:#12666c!important;color:#fff!important}
+@media(max-width:1000px){
+ .restore-hidden{font-size:17px;min-height:36px}
+}
