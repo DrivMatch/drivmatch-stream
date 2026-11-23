@@ -1,7 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Console published after 18/18 tests, browser QA, D1 export and migration.
-  # No automatic deployment; future changes must be explicitly dispatched.
+  # One controlled staging rollout: show invitation errors and manual-link fallback.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
