@@ -28,11 +28,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      # Ubuntu GitHub-hosted runners include Android SDK; the old setup action
-      # attempts to install the retired 'tools' package and fails.
-      - name: Ensure required Android SDK components
-        run: |
-          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      # GitHub Ubuntu runners already provide Android SDK; Gradle resolves the required platform.
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
