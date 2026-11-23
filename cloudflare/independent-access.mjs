@@ -6,6 +6,29 @@
  */
 import legacy from "./stream-proxy.mjs";
 
+/*
+ * The independent Stream MUST serve its own deployed asset bundle, not the
+ * public GitHub Pages main branch (which does not know the logged-in user).
+ * Only a fixed allowlist of files is exposed, and only after D1 auth.
+ */
+const STATIC_FILES = {
+  "/stream/":"index.html", "/stream/index.html":"index.html",
+  "/stream/stream.css":"stream.css", "/stream/stream.js":"stream.js",
+  "/stream/stream-boot.js":"stream-boot.js", "/stream/stream-tv.js":"stream-tv.js",
+  "/stream/tv/":"tv.html", "/stream/tv/index.html":"tv.html",
+  "/stream/tv/tv.css":"tv.css", "/stream/tv/tv.js":"tv.js",
+  "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
+  "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
+  "/stream/listas/sources.json":"playlist-sources.json",
+  "/stream/listas/brasil-servicos.json":"brasil-servicos.json",
+  "/stream/official-access.json":"official-access.json"
+};
+const APP_CSP = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; " +
+  "style-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; " +
+  "worker-src blob:; img-src 'self' https: data:; " +
+  "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv; " +
+  "frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+
 const TE = new TextEncoder();
 const COOKIE = "dm_stream_user";
 const SESSION_SECONDS = 7 * 24 * 3600;
@@ -196,6 +219,23 @@ async function adminPage(user, env) {
     "<button type='submit'>Enviar convite</button></form>" +
     "<h2>Usuários</h2><table><thead><tr><th>E-mail</th><th>Tipo</th><th>Situação</th><th>Ações</th></tr></thead><tbody>" +
     rows + "</tbody></table><p><a href='/stream/'>Voltar ao Stream</a></p>");
+}
+async function bundledAsset(request, env, url, path) {
+  if (!Object.hasOwn(STATIC_FILES, path)) return null;
+  // Fail closed: falling back to GitHub Pages would reintroduce shared favorites.
+  if (!env.ASSETS?.fetch) return plain(503, "Arquivos protegidos indisponíveis.");
+  const name = STATIC_FILES[path];
+  const assetUrl = new URL("/stream/" + name, url.origin);
+  const response = await env.ASSETS.fetch(new Request(assetUrl, {method:request.method}));
+  if (!response.ok) return plain(502, "Arquivo protegido indisponível.");
+  const headers = {...HEADERS, "Content-Security-Policy":APP_CSP,
+    "Content-Type":response.headers.get("Content-Type") ||
+      (name.endsWith(".html") ? "text/html; charset=utf-8" :
+      name.endsWith(".js") ? "text/javascript; charset=utf-8" :
+      name.endsWith(".css") ? "text/css; charset=utf-8" :
+      "application/json; charset=utf-8")};
+  return new Response(request.method==="HEAD" ? null : response.body,
+    {status:200,headers});
 }
 async function proxyLegacy(request, env, url) {
   // Transitional adapter: validates the D1 session BEFORE producing an internal
@@ -398,6 +438,8 @@ async function handle(request, env) {
       !/^\/stream(?:\/|$)/.test(path)) return plain(404,"Not Found");
   if (path === "/stream/tv" || path === "/stream/listas")
     return redirect(url.origin,path + "/");
+  const pageAsset = await bundledAsset(request,env,url,path);
+  if (pageAsset) return pageAsset;
   return proxyLegacy(request,env,url);
 }
 export default {
