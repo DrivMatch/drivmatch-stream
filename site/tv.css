@@ -659,3 +659,154 @@ html.dm-desktop-compact .provider-note{font-size:12px}
 .player-frame #official-embed{position:absolute;left:0;top:0;width:100%;height:100%;
   border:0;background:#01060b;display:block}
 .player-frame #official-embed[hidden]{display:none!important}
+
+
+/* Phone edition reuses the exact Samsung/desktop channel tree, search, favorites
+   and player. Only the phone receives this viewport-locked stacked arrangement.
+   Scroll the country or guide pane, NEVER the page or video viewport. */
+.mobile-panes{display:none}
+html.dm-mobile-guide,html.dm-mobile-guide body{
+ width:100%;height:100%;max-width:100%;overflow:hidden!important;
+ font-size:15px!important;line-height:1.3;
+ overscroll-behavior:none
+}
+html.dm-mobile-guide .tv-shell{
+ height:100vh;height:100dvh;max-height:100dvh;overflow:hidden
+}
+html.dm-mobile-guide .topbar{
+ height:42px!important;padding:6px 9px!important
+}
+html.dm-mobile-guide .brand b{font-size:20px!important;line-height:27px}
+html.dm-mobile-guide .logo{height:28px;width:28px;line-height:28px}
+html.dm-mobile-guide .top-link{font-size:12px!important;padding:2px 8px}
+html.dm-mobile-guide .tv-layout{
+ height:calc(100vh - 42px)!important;
+ height:calc(100dvh - 42px)!important;
+ width:100%!important;max-width:100%!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(185px,39%) 43px minmax(0,1fr);
+ gap:5px;padding:5px!important;overflow:hidden!important
+}
+html.dm-mobile-guide .tv-layout > .column{
+ float:none!important;margin:0!important;width:100%!important;max-width:100%;
+ min-width:0;height:auto!important;min-height:0;padding:7px!important;
+ border-radius:8px;box-sizing:border-box
+}
+html.dm-mobile-guide .tv-layout > .player-column{
+ grid-column:1;grid-row:1;display:block!important;overflow-y:auto;
+ overscroll-behavior:contain;scrollbar-width:thin
+}
+html.dm-mobile-guide .tv-layout > .mobile-panes{
+ display:flex;grid-column:1;grid-row:2;align-items:stretch;
+ gap:6px;min-width:0
+}
+html.dm-mobile-guide .mobile-panes button{
+ flex:1;min-width:0;border:1px solid #89bbc2;background:#34495b;
+ color:#f8ffff;border-radius:7px;font-size:14px;font-weight:bold;
+ min-height:40px;padding:5px 4px
+}
+html.dm-mobile-guide .mobile-panes button[aria-pressed="true"]{
+ background:#087979;border-color:#67ebdc;color:#fff
+}
+html.dm-mobile-guide .tv-layout > .sidebar,
+html.dm-mobile-guide .tv-layout > .catalog{
+ grid-column:1;grid-row:3;overflow-y:auto;overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;scrollbar-width:thin
+}
+html.dm-mobile-guide.dm-mobile-pane-countries .tv-layout > .catalog,
+html.dm-mobile-guide.dm-mobile-pane-guide .tv-layout > .sidebar{display:none!important}
+html.dm-mobile-guide .player-caption{
+ font-size:12px!important;height:22px!important;letter-spacing:0
+}
+html.dm-mobile-guide .play-status{font-size:11px!important}
+html.dm-mobile-guide .player-frame{
+ height:clamp(128px,22dvh,205px)!important;aspect-ratio:auto!important;
+ border-width:1px;border-radius:7px
+}
+html.dm-mobile-guide .player-frame:before{display:none!important}
+html.dm-mobile-guide .play-symbol{
+ width:40px;height:40px;line-height:40px;margin:0 auto 5px;
+ border-radius:10px;font-size:19px
+}
+html.dm-mobile-guide .player-empty{padding:11px 7px 0}
+html.dm-mobile-guide .player-empty strong{font-size:16px!important}
+html.dm-mobile-guide .player-empty p{font-size:11px!important;line-height:1.25;margin:4px 0}
+html.dm-mobile-guide .now-playing{padding:5px 1px 2px}
+html.dm-mobile-guide .now-playing .overline{display:none}
+html.dm-mobile-guide .now-playing h2{font-size:16px!important;margin:0 0 2px;
+ white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+html.dm-mobile-guide .now-playing p{font-size:11px!important;margin:0;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.dm-mobile-guide .player-actions{margin:3px 0 0;display:flex;flex-wrap:wrap;gap:4px}
+html.dm-mobile-guide .player-actions button{
+ flex:1;min-width:0;font-size:12px!important;min-height:30px!important;
+ padding:4px 5px!important;margin:0!important;border-radius:6px
+}
+html.dm-mobile-guide .player-actions #official-open{flex-basis:100%}
+html.dm-mobile-guide .player-error{font-size:12px!important;padding:6px;margin:5px 0}
+html.dm-mobile-guide .disclaimer,html.dm-mobile-guide .remote-hint{display:none}
+html.dm-mobile-guide .section-title{font-size:13px!important;margin-bottom:5px;padding:5px}
+html.dm-mobile-guide .section-title b{font-size:11px}
+html.dm-mobile-guide .quick-section{margin-bottom:3px;padding-bottom:3px}
+html.dm-mobile-guide .quick-toggle{font-size:15px!important;min-height:35px!important;padding:5px}
+html.dm-mobile-guide .quick-toggle b{font-size:12px}
+html.dm-mobile-guide .quick-entry-btn,html.dm-mobile-guide .quick-entry-name{
+ font-size:15px!important;min-height:33px
+}
+html.dm-mobile-guide .country-items .tree-country-btn{
+ font-size:16px!important;min-height:38px!important;padding:5px 7px
+}
+html.dm-mobile-guide .country-items .tree-genre-btn{
+ font-size:15px!important;min-height:37px!important;padding:5px 7px
+}
+html.dm-mobile-guide .country-items .tree-channel-btn{
+ font-size:14px!important;min-height:34px!important;padding:5px 7px
+}
+html.dm-mobile-guide .tree-count,html.dm-mobile-guide .tree-channel-class{
+ font-size:12px!important
+}
+html.dm-mobile-guide .tree-channel-name{font-size:14px!important}
+html.dm-mobile-guide .sidebar-note{font-size:11px!important;margin-top:7px}
+html.dm-mobile-guide .catalog-header h1{font-size:18px!important;margin:2px 0}
+html.dm-mobile-guide .catalog-header p{font-size:12px!important;margin:1px 0 7px}
+html.dm-mobile-guide .overline{font-size:11px}
+html.dm-mobile-guide .search-row{height:40px!important;margin-bottom:5px}
+html.dm-mobile-guide .search-row input{
+ height:39px!important;font-size:16px!important;padding:5px 39px 5px 9px
+}
+html.dm-mobile-guide .search-row button{
+ height:35px!important;width:36px!important;font-size:20px!important
+}
+html.dm-mobile-guide .channel-heading{min-height:30px}
+html.dm-mobile-guide .channel-heading span{font-size:12px!important;line-height:27px}
+html.dm-mobile-guide .channel-heading button{
+ font-size:12px!important;padding:4px 7px
+}
+html.dm-mobile-guide .catalog-status{font-size:12px!important;margin:3px 0 5px;padding:5px}
+html.dm-mobile-guide .channel-row{min-height:44px!important;margin-bottom:4px}
+html.dm-mobile-guide .channel-number{font-size:12px!important;width:24px;padding:12px 2px 0 1px}
+html.dm-mobile-guide .channel-row .channel-btn{
+ width:calc(100% - 61px)!important;min-height:42px!important;padding:6px 3px
+}
+html.dm-mobile-guide .channel-row .channel-btn .channel-title{
+ font-size:15px!important;width:68%;line-height:1.3
+}
+html.dm-mobile-guide .channel-classification{
+ font-size:11px!important;width:30%;margin-top:4px
+}
+html.dm-mobile-guide .channel-row .fav-btn{
+ min-height:42px!important;width:37px!important;font-size:19px!important
+}
+html.dm-mobile-guide .restore-hidden,
+html.dm-mobile-guide .more-btn{font-size:13px!important;min-height:33px;padding:6px}
+html.dm-mobile-guide #provider-toggle,
+html.dm-mobile-guide #technical-toggle{font-size:13px!important;min-height:32px}
+html.dm-mobile-guide .provider-entry,
+html.dm-mobile-guide .technical-source-name{font-size:12px!important}
+@media(orientation:landscape) and (max-height:500px){
+ html.dm-mobile-guide .tv-layout{grid-template-rows:155px 37px minmax(0,1fr)}
+ html.dm-mobile-guide .player-frame{height:105px!important}
+ html.dm-mobile-guide .player-caption{height:17px!important}
+ html.dm-mobile-guide .now-playing h2{font-size:13px!important}
+ html.dm-mobile-guide .player-actions button{min-height:24px!important}
+}
