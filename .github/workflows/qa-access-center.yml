@@ -57,6 +57,7 @@ jobs:
           c.execute("INSERT INTO stream_sessions(token_hash,user_id,expires_at) VALUES('opaque-hash','u1',9999999999)")
           c.commit()
           c.executescript(open("migrations/0002_stream_access_audit.sql").read())
+          c.executescript(open("migrations/0003_stream_email_budget.sql").read())
           columns={x[1] for x in c.execute("PRAGMA table_info(stream_users)")}
           for col in ("activated_at","first_login_at","last_login_at","canceled_invite_at"):
               assert col in columns, col
@@ -65,4 +66,20 @@ jobs:
           assert c.execute("SELECT status,created_at,last_login_at FROM stream_users").fetchone()[0]=="active"
           assert not c.execute("PRAGMA foreign_key_check").fetchall()
           print("PASS: additive migration preserves user, session, favorite and constraints")
+          # Atomic same-statement reservation: exactly 20 slots per local day.
+          sql="""INSERT INTO stream_email_budget(request_id,local_day,kind,status)
+          SELECT ?,?,?,'reserved' WHERE
+          (SELECT COUNT(*) FROM stream_email_budget WHERE local_day=?)<?
+          AND (? != 'public-recover' OR
+          (SELECT COUNT(*) FROM stream_email_budget WHERE local_day=? AND kind='public-recover')<?)"""
+          day="2026-11-23"
+          for i in range(22):
+              cur=c.execute(sql,(str(i),day,"invite",day,20,"invite",day,5))
+              assert cur.rowcount==(1 if i<20 else 0),(i,cur.rowcount)
+          assert c.execute("SELECT COUNT(*) FROM stream_email_budget WHERE local_day=?",(day,)).fetchone()[0]==20
+          c.execute("DELETE FROM stream_email_budget WHERE request_id=? AND status='reserved'",("0",))
+          assert c.execute(sql,("replacement",day,"invite",day,20,"invite",day,5)).rowcount==1
+          assert c.execute(sql,("other", "2026-11-24","invite","2026-11-24",20,"invite","2026-11-24",5)).rowcount==1
+          assert c.execute("SELECT favorite_key FROM stream_favorites").fetchone()[0]=="BR:favorite-a"
+          print("PASS: daily quota 20, refund and next-day reset without changing favorites")
           PY
