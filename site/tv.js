@@ -17,12 +17,14 @@ var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],
 var SOURCES=[],source="lista-2",country="ALL",category="all",search="",channels=[],visible=[],selected=null;
 var openCountries={},openGenres={},treeLimits={},treeErrors={};
 var officialFree=[],officialPaid=[];
+var globalSearchMode=false,globalResults=[],globalStatus="",globalSearchTimer=null,globalSearchSeq=0;
 var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
 var STORE="drivmatch-tv-guide-favorites-v1";
 var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
 var HIDDEN_STORE="drivmatch-tv-hidden-failed-60s-v1",HIDDEN_TTL=24*60*60*1000;
 var hiddenFailed={},playbackToken=0,playbackTimers=[],playbackConfirmed=false,autoplayBlocked=false;
+var officialFrame=D("official-embed");
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
@@ -417,6 +419,7 @@ function focusQuickItem(key,kind){
  }
 }
 function playFromQuick(c,record,kind){
+ cancelGlobalSearch();
  // Premium service entries are never turned into free HLS links.
  if(c.source!=="paid"&&c.id&&String(c.id).indexOf("paid:")!==0){
   country=c.code;category="all";openCountries[c.code]=true;closeAllGenres();
@@ -471,6 +474,26 @@ function detectLanguage(info,group){
  return "";
 }
 function validOfficialUrl(url){return /^https:\/\/[^/@\s]+(?:\/|$)/i.test(String(url||""));}
+/* Only publisher-backed providers with a validated channel ID may be framed.
+ * Never embed arbitrary links, scrape streaming URLs or bypass restrictions. */
+function officialEmbedUrl(c){
+ if(!c||c.premium||c.urls&&c.urls.length||!c.embed)return "";
+ var e=c.embed;
+ if(e.provider==="youtube_live_channel"&&/^UC[A-Za-z0-9_-]{22}$/.test(e.channelId||""))
+   return "https://www.youtube.com/embed/live_stream?channel="+e.channelId;
+ if(e.provider==="twitch_channel"&&/^[A-Za-z0-9_]{3,25}$/.test(e.channel||"")){
+   var host=window.location.hostname||"";
+   if(!/^[A-Za-z0-9.-]{1,120}$/.test(host))return "";
+   return "https://player.twitch.tv/?channel="+encodeURIComponent(e.channel)+
+     "&parent="+encodeURIComponent(host)+"&autoplay=false";
+ }
+ return "";
+}
+function clearOfficialFrame(){
+ if(!officialFrame)return;
+ officialFrame.removeAttribute("src");
+ visibleEl(officialFrame,false);
+}
 function attachOfficial(code,items){
  var out=items.slice(0);
  for(var i=0;i<officialFree.length;i++){
@@ -483,12 +506,13 @@ function attachOfficial(code,items){
   if(existing){
    if(!existing.officialUrl){existing.officialUrl=x.url;
      existing.officialAccess=x.access;existing.officialNotes=x.notes;}
+   if(x.embed&&!existing.embed)existing.embed=x.embed;
    if(!existing.lang&&x.lang)existing.lang=x.lang;
   }else{
    out.push({id:"official:"+x.id,source:"official",name:x.name,code:code,
     genre:x.genre||"other",group:"Site/app oficial",origins:["Emissora"],
     premium:false,urls:[],lang:x.lang||"",officialUrl:x.url,
-    officialAccess:x.access,officialNotes:x.notes});
+    officialAccess:x.access,officialNotes:x.notes,embed:x.embed||null});
   }
  }
  return out;
@@ -714,6 +738,7 @@ function closeAllGenres(){
 /* Countries start closed, including Brazil; the guide only shows channels
  * after a country is intentionally opened. The video remains untouched. */
 function showCountryPrompt(){
+ cancelGlobalSearch();
  country="ALL";category="all";search="";limit=60;
  D("search").value="";
  channels=[];visible=[];
@@ -730,6 +755,7 @@ function chooseCountry(code){
   drawCountries();selectNewCountryFocus(code);return;
  }
  closeAllGenres();
+ cancelGlobalSearch();
  openCountries[code]=true;country=code;category="all";search="";
  D("search").value="";limit=60;drawCountries();
  selectNewCountryFocus(code);loadChannels();
@@ -738,12 +764,14 @@ function chooseGenre(code,genre){
  var k=treeKey(code,genre),expanding=!openGenres[k];
  closeAllGenres();
  if(expanding)openGenres[k]=true;
+ cancelGlobalSearch();
  country=code;category=expanding?genre:"all";
  search="";D("search").value="";limit=60;
  openCountries[code]=true;
  drawCountries();focusTreeGenre(code,genre);loadChannels();
 }
 function chooseTreeChannel(code,genre,c){
+ cancelGlobalSearch();
  country=code;category=genre;search="";limit=60;D("search").value="";
  channels=cache["lista-2:"+code]||[];renderChannels();play(c,true);
 }
@@ -755,6 +783,7 @@ function drawCategories(){
   }
 }
 function refresh(){
+  if(globalSearchMode){runGlobalSearch();return;}
   closeAllGenres();category="all";cache={};treeErrors={};
   if(source==="lista-2"&&country==="ALL"){
     showCountryPrompt();drawCountries();return;
@@ -762,6 +791,7 @@ function refresh(){
   loadChannels();
 }
 function selectSource(id){
+  cancelGlobalSearch();
   if(source===id&&channels.length)return;
   source=id;country=(id==="lista-2"||id==="lista-8"||id==="lista-9")?"BR":"ALL";
   category="all";search="";D("search").value="";limit=60;
@@ -822,6 +852,82 @@ function fits(c){
   if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
   return true;
 }
+
+/* Global search is independent of the expanded country. It reads one
+ * authenticated cross-country server endpoint, plus official-site listings.
+ * The country tree, active player and favorites remain unchanged. */
+function cancelGlobalSearch(){
+ globalSearchSeq++;
+ if(globalSearchTimer!==null){clearTimeout(globalSearchTimer);globalSearchTimer=null;}
+ globalSearchMode=false;globalResults=[];globalStatus="";
+}
+function globalSearchMatches(serverItems,query){
+ var found=[],seen={},i,k,c,code;
+ function append(item){
+  if(!item||!item.code||isHidden(item))return;
+  k=item.code+"|"+lower(item.originalName||item.name);
+  if(seen[k])return;
+  seen[k]=true;found.push(item);
+ }
+ for(var a=0;a<serverItems.length;a++)append(serverItems[a]);
+ for(var key in cache)if(Object.prototype.hasOwnProperty.call(cache,key)&&
+     key.indexOf("lista-2:")===0){
+  var list=cache[key]||[];
+  for(i=0;i<list.length;i++){
+   c=list[i];
+   if(lower(c.name+" "+(c.originalName||"")).indexOf(query)>=0)append(c);
+  }
+ }
+ for(i=0;i<officialFree.length;i++){
+  var x=officialFree[i];
+  if(!validOfficialUrl(x.url)||lower(x.name).indexOf(query)<0)continue;
+  append({id:"official:"+x.id,source:"official",name:x.name,code:x.code,
+   genre:x.genre||"other",group:"Site/app oficial",origins:["Emissora"],
+   premium:false,urls:[],lang:x.lang||"",officialUrl:x.url,
+   officialAccess:x.access,officialNotes:x.notes,embed:x.embed||null});
+ }
+ return found;
+}
+function runGlobalSearch(){
+ var value=lower(D("search").value),token=++globalSearchSeq;
+ if(globalSearchTimer!==null){clearTimeout(globalSearchTimer);globalSearchTimer=null;}
+ search=value;limit=60;
+ if(!value){
+  globalSearchMode=false;globalResults=[];globalStatus="";
+  if(country==="ALL"){showCountryPrompt();return;}
+  channels=cache[source+":"+country]||channels;
+  T(D("catalog-title"),countryName(country));
+  T(D("catalog-subtitle"),category==="all"?"Todos os canais":genreName(category));
+  T(D("catalog-status"),"Exibindo novamente os canais de "+countryName(country)+".");
+  renderChannels();return;
+ }
+ globalSearchMode=true;
+ globalResults=globalSearchMatches([],value);
+ globalStatus=value.length<2?"Digite pelo menos 2 caracteres para pesquisar todos os países.":
+   "Pesquisando canais em todos os países e listas…";
+ renderChannels();
+ if(value.length<2)return;
+ globalSearchTimer=setTimeout(function(){
+  globalSearchTimer=null;
+  http("/stream/search?q="+encodeURIComponent(value),function(st,body){
+   if(token!==globalSearchSeq||!globalSearchMode||lower(D("search").value)!==value)return;
+   if(st!==200){
+    globalStatus="Busca geral indisponível. Mostrando apenas resultados locais já conhecidos.";
+    renderChannels();return;
+   }
+   var results=parse(body,"ALL");
+   globalResults=globalSearchMatches(results,value);
+   var sources=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
+       partial=/#DM_PARTIAL:([^\r\n]+)/.exec(body),
+       cut=/#DM_TRUNCATED:1/.test(body);
+   globalStatus="Busca global"+(sources?" · Fontes consultadas: "+sources[1]:"")+
+     (partial?" · Alguns catálogos indisponíveis":"")+
+     (cut?" · Resultados limitados; refine a busca":"");
+   renderChannels();
+  });
+ },450);
+}
+
 function toggleFavorite(c){
   var k=favorKey(c),idx=favorites.indexOf(k);
   if(idx>=0){
@@ -838,19 +944,40 @@ function updateFavButton(){
   T(b,selected&&has(favorites,favorKey(selected))?"★ Favoritado":"☆ Favoritar");
 }
 function renderChannels(){
-  if(source==="lista-2"&&country==="ALL"){showCountryPrompt();return;}
+  if(!globalSearchMode&&source==="lista-2"&&country==="ALL"){showCountryPrompt();return;}
   var all=[],i,area=D("channel-items");clear(area);
-  for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
-  all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
+  if(globalSearchMode){
+    for(i=0;i<globalResults.length;i++)if(!isHidden(globalResults[i]))all.push(globalResults[i]);
+    var rank={BR:0,PT:1,US:2};
+    all.sort(function(a,b){
+      var ar=Object.prototype.hasOwnProperty.call(rank,a.code)?rank[a.code]:3;
+      var br=Object.prototype.hasOwnProperty.call(rank,b.code)?rank[b.code]:3;
+      if(ar!==br)return ar-br;
+      if(a.code!==b.code)return a.code<b.code?-1:1;
+      var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);
+      return x<y?-1:x>y?1:0;
+    });
+    T(D("catalog-title"),"Resultados em todos os países");
+    T(D("catalog-subtitle"),"Busca global: "+D("search").value);
+    T(D("catalog-status"),globalStatus);
+  }else{
+    for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
+    all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
+  }
   visible=all;
   var videos=0,external=0;
   for(i=0;i<visible.length;i++){
     if(visible[i].urls&&visible[i].urls.length)videos++;
     else if(visible[i].officialUrl)external++;
   }
-  T(D("result-count"),videos+" sinais · "+external+" sites oficiais");
+  if(globalSearchMode){
+    var codes={},countries=0;
+    for(i=0;i<all.length;i++)if(!codes[all[i].code]){codes[all[i].code]=true;countries++;}
+    T(D("result-count"),all.length+" resultados em "+countries+" países · "+
+      videos+" sinais · "+external+" sites oficiais");
+  }else T(D("result-count"),videos+" sinais · "+external+" sites oficiais");
   if(!all.length){
-    var emptyText=channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
+    var emptyText=globalSearchMode?(search.length<2?"Digite 2 ou mais caracteres.":globalStatus.indexOf("Pesquisando")===0?"Buscando canais em todos os países…":globalStatus.indexOf("indisponível")>=0?"Não foi possível consultar todas as listas. Tente novamente.":"Nenhum canal encontrado para esta busca."):channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
     area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
@@ -861,7 +988,7 @@ function renderChannels(){
     btn.appendChild(E("strong","channel-title",c.name+extra));
     btn.appendChild(E("span","channel-classification",classificationName(c)));
     var from="";
-    if(source==="lista-2"&&c.origins&&c.origins.length){
+    if((source==="lista-2"||globalSearchMode)&&c.origins&&c.origins.length){
       from="Origem: "+c.origins.map(function(x){return x.replace(/^lista-/,"Lista ");}).join(", ");
     }
     var details=(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":genreName(c.genre))+
@@ -884,19 +1011,30 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
-  clearPlaybackWatch();recordVisit(c);
+  clearPlaybackWatch();clearOfficialFrame();recordVisit(c);
   visibleEl(D("official-open"),!!c.officialUrl);
   T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
   if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
     T(D("now-meta"),countryName(c.code)+" · "+(c.officialAccess||"Site oficial"));
-    T(D("play-status"),"Acesso oficial externo");
-    T(D("player-error"),"Este item abre um site ou aplicativo oficial. "+
-      "Não é um sinal de vídeo incorporado ao Stream. "+
-      "O acesso depende do fornecedor, região e navegador.");
-    visibleEl(D("player-empty"),true);visibleEl(video,false);visibleEl(D("player-error"),true);
-    D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
+    var url=officialEmbedUrl(c),framed=!!url&&!!officialFrame;
+    if(framed){
+      officialFrame.src=url;
+      officialFrame.title="Player oficial · "+c.name;
+      visibleEl(officialFrame,true);
+      T(D("play-status"),"Player oficial · live não verificada");
+      T(D("player-error"),"Player oficial incorporado. O Stream não confirma "+
+        "se há transmissão agora. Se não houver imagem, pode estar encerrada, "+
+        "restrita ou com incorporação bloqueada. Tente Abrir no site/app oficial.");
+    }else{
+      T(D("play-status"),"Acesso oficial externo");
+      T(D("player-error"),"Este serviço abre no site ou aplicativo oficial; "+
+        "não há player incorporável verificado para esta fonte.");
+    }
+    visibleEl(D("player-empty"),!framed);visibleEl(video,false);
+    visibleEl(D("player-error"),true);
+    D("player-retry").disabled=!framed;D("player-fullscreen").disabled=!framed;
     updateFavButton();renderChannels();drawCountries();
     if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
     return;
@@ -1032,9 +1170,9 @@ function init(){
   loadHidden();loadFav();loadQuickHistory();drawQuickLists();initRemote();
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
-  on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
-  on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
-  on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
+  on(D("search"),"input",runGlobalSearch);
+  on(D("search"),"keyup",function(e){if(!("oninput" in D("search")))runGlobalSearch();});
+  on(D("clear-search"),"click",function(){D("search").value="";runGlobalSearch();});
   on(D("refresh"),"click",refresh);
   on(D("restore-hidden"),"click",restoreHidden);
   on(D("show-more"),"click",function(){
@@ -1059,8 +1197,9 @@ function init(){
     T(D("technical-toggle"),(open?"▾":"▸")+" Fontes técnicas (listas)");
   });
   on(D("player-fullscreen"),"click",function(){
-    var fn=video.requestFullscreen||video.webkitRequestFullscreen||video.webkitEnterFullscreen;
-    if(fn)try{fn.call(video);}catch(e){}
+    var target=officialFrame&&!officialFrame.hidden?officialFrame:video;
+    var fn=target.requestFullscreen||target.webkitRequestFullscreen||target.webkitEnterFullscreen;
+    if(fn)try{fn.call(target);}catch(e){}
   });
   on(video,"playing",function(){
     completePlayback();
@@ -1099,7 +1238,7 @@ function init(){
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
-      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-(?:[1-9]|1[0-2])$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
+      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-(?:[1-9]|1[0-4])$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
       SOURCES=verified;drawSources();drawCountries();drawCategories();
       var tech=D("technical-items");clear(tech);
       for(var n=0;n<SOURCES.length;n++)

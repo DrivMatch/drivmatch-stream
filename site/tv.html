@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#101820">
 <title>DrivMatch Stream | TV Samsung</title>
-<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-providerlinks1">
+<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-embeds1">
 </head>
 <body>
 <div class="tv-shell" id="tv-shell">
@@ -58,8 +58,8 @@
         <button type="button" class="filter-btn" data-category="fav">★ Favoritos</button>
       </div>
       <div class="search-row">
-        <label for="search" class="sr-only">Buscar canal</label>
-        <input id="search" type="search" placeholder="Buscar um canal…" autocomplete="off">
+        <label for="search" class="sr-only">Buscar canal em todos os países e listas</label>
+        <input id="search" type="search" placeholder="Buscar em todos os países e listas…" autocomplete="off">
         <button id="clear-search" class="small-btn" type="button" aria-label="Limpar busca">×</button>
       </div>
       <div class="channel-heading"><span id="result-count">Aguardando seleção</span><button id="refresh" type="button">↻ Atualizar</button></div>
@@ -72,6 +72,7 @@
       <div class="player-caption"><span>▶ REPRODUÇÃO</span><span class="play-status" id="play-status">Pronto</span></div>
       <div class="player-frame" id="player-frame">
         <video id="video" controls preload="none" playsinline hidden></video>
+        <iframe id="official-embed" title="Player oficial da transmissão" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen loading="lazy" hidden></iframe>
         <div id="player-empty" class="player-empty"><div class="play-symbol">▶</div><strong>Escolha um canal</strong><p>A transmissão aparece aqui.<br>O guia permanece visível ao lado.</p></div>
       </div>
       <div class="now-playing">
@@ -86,12 +87,12 @@
         <button id="player-fullscreen" type="button" disabled>⛶ Tela cheia</button>
         <button id="official-open" type="button" hidden>Abrir transmissão no site oficial</button>
       </div>
-      <p class="disclaimer">Sinal HLS, site oficial gratuito e assinatura são acessos diferentes. Os links externos não reproduzem dentro deste player. Região, conta, direitos e compatibilidade podem limitar o acesso.</p>
+      <p class="disclaimer">Sinais HLS e players oficiais permitidos podem abrir aqui. Lives do YouTube/Twitch dependem da transmissão ativa e da autorização para incorporar; sites de assinatura e serviços incompatíveis abrem externamente.</p>
       <div class="remote-hint">CONTROLE REMOTO <b>◀ ▶ ▲ ▼</b> navegar · <b>OK</b> selecionar</div>
     </section>
   </main>
   <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream e entre com seu PIN de 8 números.</p><a href="/stream/">Entrar no DrivMatch Stream</a></div>
 </div>
-<script src="/stream/tv/tv.js?v=20261123-providerlinks1"></script>
+<script src="/stream/tv/tv.js?v=20261123-globalsearch1"></script>
 </body>
 </html>

@@ -208,28 +208,64 @@ test("Samsung TV lounge page is private and served from fixed worker route",asyn
   assert.deepEqual(seen,["tv.html","tv.css","tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
  }finally{globalThis.fetch=before;}
 });
-test("all 12 IPTV source entries (including daily verified public channels) are whitelisted and authenticated",async()=>{
+test("all 14 IPTV source entries (including new curated public sources) are whitelisted and authenticated",async()=>{
  const c=await cookie(),before=globalThis.fetch,seen=[];
  try{
   globalThis.fetch=async u=>{seen.push(String(u));return new Response("#EXTM3U\n#EXTINF:-1,News TV\nhttps://example.org/news.m3u8",{status:200});};
   const blocked=await stream.fetch(new Request(origin+"catalog?list=lista-1&country=ALL"),env);
   assert.equal(blocked.status,403);
-  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9","lista-10","lista-11","lista-12"]){
+  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9","lista-10","lista-11","lista-12","lista-13","lista-14"]){
    const res=await stream.fetch(new Request(origin+"catalog?list="+id+"&country=ALL",{headers:{Cookie:c}}),env);
    assert.equal(res.status,200,id);
   }
   const list2=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=BR",{headers:{Cookie:c}}),env);
   assert.equal(list2.status,200);
-  assert.match(await list2.text(),/#DM_MERGED:LISTAS-1-12/);
+  assert.match(await list2.text(),/#DM_MERGED:LISTAS-1-14/);
   const all=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=ALL",{headers:{Cookie:c}}),env);
   assert.equal(all.status,200);
   assert.match(await all.text(),/#DM_COUNTRY_VIEW:ALL/);
-  for(const list of ["lista-13","../../admin","https://example.org/playlist.m3u"]){
+  for(const list of ["lista-15","../../admin","https://example.org/playlist.m3u"]){
     const res=await stream.fetch(new Request(origin+"catalog?list="+encodeURIComponent(list),{headers:{Cookie:c}}),env);
     assert.equal(res.status,400);
   }
-  assert.equal(seen.length,46);
+  assert.equal(seen.length,52);
  }finally{globalThis.fetch=before;}
+});
+
+test("owner-only global search finds CNN across Brazil, Portugal and US and rejects malformed queries",async()=>{
+ const c=await cookie(),old=globalThis.fetch,seen=[];
+ const m3u=(name,code,slug)=>["#EXTM3U",
+   '#EXTINF:-1 tvg-country="'+code+'" group-title="News",'+name,
+   "https://media.example/"+slug+".m3u8"].join("\n");
+ try{
+  globalThis.fetch=async u=>{
+   const uri=String(u);seen.push(uri);
+   if(uri.endsWith("/countries/br.m3u"))
+     return new Response(m3u("CNN Brasil","BR","cnn-br"),{status:200});
+   if(uri.endsWith("/countries/pt.m3u"))
+     return new Response(m3u("CNN Portugal","PT","cnn-pt"),{status:200});
+   if(uri.endsWith("/countries/us.m3u"))
+     return new Response(m3u("CNN EUA","US","cnn-us"),{status:200});
+   return new Response("#EXTM3U",{status:200});
+  };
+  const unauth=await stream.fetch(new Request(origin+"search?q=CNN"),env);
+  assert.equal(unauth.status,403,"private search must require owner session");
+  for(const bad of ["C","%2E%2E%2Fadmin","http%3A%2F%2Fexample.com"]){
+   const result=await stream.fetch(new Request(origin+"search?q="+bad,{headers:{Cookie:c}}),env);
+   assert.equal(result.status,400);
+  }
+  const result=await stream.fetch(new Request(origin+"search?q=CNN",{headers:{Cookie:c}}),env);
+  assert.equal(result.status,200);
+  const body=await result.text();
+  assert.match(body,/#DM_SEARCH:cnn/);
+  assert.match(body,/#DM_MATCHED_CHANNELS:3/);
+  for(const [code,name] of [["BR","CNN Brasil"],["PT","CNN Portugal"],["US","CNN EUA"]]){
+   assert(body.includes('dm-country="'+code+'"'),"missing country "+code);
+   assert(body.includes(","+name+"\n"),"missing channel "+name);
+  }
+  assert.equal((body.match(/#EXTINF/g)||[]).length,3);
+  assert.equal(seen.length,25,"13 independent feeds plus 12 country feeds; Lista 2 is their logical merged view");
+ }finally{globalThis.fetch=old;}
 });
 
 test("Brazil Lista 9 allows selected open channels and excludes paid networks",async()=>{

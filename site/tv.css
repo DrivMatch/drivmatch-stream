@@ -652,3 +652,10 @@ html.dm-desktop-compact .provider-entry{font-size:14px;min-height:48px;
 html.dm-desktop-compact .provider-entry .provider-name{font-size:14px}
 html.dm-desktop-compact .provider-entry .provider-open{font-size:12px}
 html.dm-desktop-compact .provider-note{font-size:12px}
+
+
+/* Official embedded players share the existing 16:9 third-column viewport.
+   Keep Samsung/desktop sizing and original HLS HTML5 video unchanged. */
+.player-frame #official-embed{position:absolute;left:0;top:0;width:100%;height:100%;
+  border:0;background:#01060b;display:block}
+.player-frame #official-embed[hidden]{display:none!important}

@@ -1,4 +1,4 @@
-import {countryIndex,mergedCatalog} from "./catalog-merge.mjs";
+import {countryIndex,mergedCatalog,searchCatalog} from "./catalog-merge.mjs";
 /**
  * DrivMatch Stream personal TV — independent password gate, no Zero Trust plan.
  * Password is held in Worker secret STREAM_ACCESS_PASSWORD, never shipped to
@@ -28,7 +28,9 @@ const TV_SOURCE_URLS={
   "lista-9":"https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u",
   "lista-10":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_movies.m3u8",
   "lista-11":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8",
-  "lista-12":"https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8"
+  "lista-12":"https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8",
+  "lista-13":"https://iptv.coldopen.dev/channels.m3u",
+  "lista-14":"https://broadcastatlas.com/official.m3u"
 };
 /* Lista 9: no known subscription-network links; HLS health is not a rights audit. */
 const BR9_PUBLIC=new Set(["agrocanal","agrobrasil tv","bem mais tv","canal educacao","canal futura","canal gov","canal saude","canal do boi","canal uol","cultura fast","futura","istv","rede brasil","rede minas","rede ngt","rede vida","rede familia","sbt nacional","sesc tv","tv brasil","tv camara","tv cultura","tv justica","tv senado","tve rs","tve bahia","tv vicosa","tv gazeta","tv a critica","tv brasil oeste","tv cidade verde cuiaba","tv show fortaleza","tv comunitaria","tv sao raimundo","tv vila real","record news","tv guara","amazon sat","cindie tv","classique tv","mytime movie network"]);
@@ -70,7 +72,8 @@ const baseHeaders={"Cache-Control":"private, no-store",
 const appHeaders={...baseHeaders,
   "Content-Security-Policy":"default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; "+
    "style-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; "+
-   "worker-src blob:; img-src 'self' https: data:; frame-ancestors 'none'; "+
+   "worker-src blob:; img-src 'self' https: data:; "+
+   "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv; frame-ancestors 'none'; "+
    "base-uri 'none'; form-action 'self'"};
 function plain(status,msg){return new Response(msg,{status,
   headers:{...baseHeaders,"Content-Type":"text/plain; charset=utf-8"}});}
@@ -148,7 +151,7 @@ export default {async fetch(request,env){
  if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
  if(path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
-    path!=="/stream/logout"&&path!=="/stream/countries"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
+    path!=="/stream/logout"&&path!=="/stream/countries"&&path!=="/stream/search"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
@@ -213,6 +216,17 @@ export default {async fetch(request,env){
        status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
    }catch{return plain(502,"Country index temporarily unavailable");}
  }
+ if(path==="/stream/search"){
+   // Authenticated, bounded search of known sources; no arbitrary URL proxy.
+   const q=(url.searchParams.get("q")||"").trim();
+   if(q.length<2||q.length>60||!/^[\p{L}\p{N} ._+\-–—()'&]+$/u.test(q))
+     return plain(400,"Invalid search query");
+   try{
+     const result=await searchCatalog(q,TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
+     return new Response(request.method==="HEAD"?null:result,{
+       status:200,headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
+   }catch{return plain(502,"Global search temporarily unavailable");}
+ }
  if(path==="/stream/catalog"){
    // Private, fixed-list source catalog only. Never proxy arbitrary URLs or video.
    const list=url.searchParams.get("list");
@@ -245,6 +259,8 @@ export default {async fetch(request,env){
      file.endsWith(".css")?"text/css; charset=utf-8":
      file.endsWith(".json")?"application/json; charset=utf-8":"text/html; charset=utf-8";
    return new Response(request.method==="HEAD"?null:upstream.body,{
-     status:200,headers:{...appHeaders,"Content-Type":kind}});
+     status:200,headers:{...appHeaders,
+       ...(file==="tv.html"?{"Referrer-Policy":"strict-origin-when-cross-origin"}:{}),
+       "Content-Type":kind}});
  }catch{return plain(502,"Stream temporariamente indisponível");}
 }};

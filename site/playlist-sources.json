@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "lastReviewed": "2026-11-22",
+  "lastReviewed": "2026-11-23",
   "status": "PUBLIC_SOURCES_NOT_PLAYBACK_VERIFIED",
   "sources": [
     {
@@ -135,6 +135,26 @@
         "https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8"
       ],
       "source": "https://github.com/DrivMatch/drivmatch-stream/blob/main/site/daily-autopilot.m3u8"
+    },
+    {
+      "id": "lista-13",
+      "title": "Lista 13 • ColdOpen — fontes públicas por emissora",
+      "kind": "curada · diretos públicos",
+      "description": "Coleção independente que declara critérios rigorosos de origem: canais públicos distribuídos diretamente por emissoras. Listagem não comprova reprodução na Samsung, direitos de uso em outros apps nem ausência de bloqueio regional.",
+      "urls": [
+        "https://iptv.coldopen.dev/channels.m3u"
+      ],
+      "source": "https://github.com/searlsco/iptv"
+    },
+    {
+      "id": "lista-14",
+      "title": "Lista 14 • Broadcast Atlas — streams oficiais",
+      "kind": "diretório independente · público",
+      "description": "Seleção de transmissões que o catálogo apresenta como gratuitas pelos próprios fornecedores. São candidatos com origem declarada, não garantias de autorização para retransmissão, acessibilidade HLS, codec ou região.",
+      "urls": [
+        "https://broadcastatlas.com/official.m3u"
+      ],
+      "source": "https://broadcastatlas.com/official"
     }
   ]
 }
