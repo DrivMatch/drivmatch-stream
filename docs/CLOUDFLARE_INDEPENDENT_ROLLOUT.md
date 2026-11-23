@@ -1,6 +1,6 @@
 # DrivMatch Stream — implantação independente para teste residencial
 
-**Status:** implementation branch, **NOT DEPLOYED**, **NOT CERTIFIED**.
+**Status:** isolated Cloudflare staging Worker + D1 **DEPLOYED** (2026-11-23); login provider **NOT CONFIGURED**, **NOT CERTIFIED**. Existing production unchanged.
 **Scope:** two invited users, separate homes, Android test APK, user-private favorites.
 
 ## Boundaries
@@ -99,3 +99,9 @@ Until the dedicated Cloudflare Worker exists, the APK cannot be end-to-end teste
 - Authentication will **fail closed / 503** until dedicated Supabase Auth project and Worker secrets are configured. This is not a functional multiuser release yet.
 - The production migration of browser-local favorites remains **BLOCKED** until cross-origin export/import is implemented and verified.
 - The deployment workflow was returned to **manual-only** following the successful staging run.
+
+## Activation workflow prepared (2026-11-23)
+
+A separate **manual-only** GitHub Actions workflow `.github/workflows/connect-stream-auth.yml` will upload four secrets directly to the existing staging Worker `drivmatch-stream-v2-test` using `wrangler secret bulk`, and check whether `/stream/login` responds. No secret values are exposed in logs or committed to the repository. Required GitHub Actions secrets: `STREAM_SUPABASE_URL`, `STREAM_SUPABASE_PUBLIC_KEY`, `STREAM_SUPABASE_SECRET_KEY`, `STREAM_ACCESS_PASSWORD` (existing), plus Cloudflare account ID/token. The dedicated Supabase Auth project must exist first, public signups disabled, email transport configured, and redirect `https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/activate` allowlisted. Never use credentials of DrivMatch's Lovable project.
+
+Until these are set, the existing public staging URL correctly responds with HTTP 503 and `Stream independente ainda não configurado.` This is intentional fail-closed behavior, not a deployed and usable login system.
