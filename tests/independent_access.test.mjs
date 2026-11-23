@@ -221,3 +221,41 @@ test("private site uses bundled matching assets only after authentication",async
     assert.equal(missing.status,503);
   });
 });
+
+test("Android browser form POST with Sec-Fetch-Site same-origin works when Origin absent",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const response=await worker.fetch(new Request(base+"/stream/login",{
+      method:"POST",
+      headers:{"Sec-Fetch-Site":"same-origin","Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
+    }),env);
+    assert.equal(response.status,303);
+    const c=cookie(response);
+    const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:c}}),env);
+    assert.equal(admin.status,200);
+    assert.match(await admin.text(),/Gerenciamento de acessos/);
+  });
+});
+test("foreign Origin remains blocked even with forged same-origin fetch metadata",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const response=await worker.fetch(new Request(base+"/stream/login",{
+      method:"POST",
+      headers:{"Origin":"https://attacker.example","Sec-Fetch-Site":"same-origin",
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
+    }),env);
+    assert.equal(response.status,403);
+  });
+});
+test("POST without Origin or trustworthy browser metadata fails closed",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const response=await worker.fetch(new Request(base+"/stream/login",{
+      method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
+    }),env);
+    assert.equal(response.status,403);
+  });
+});
