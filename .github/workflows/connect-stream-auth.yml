@@ -1,0 +1,77 @@
+name: Connect Stream test authentication (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  connect:
+    # Only the isolated staging Worker; never DrivMatch main, News, or live Stream.
+    runs-on: ubuntu-24.04
+    environment: stream-independent-test
+    timeout-minutes: 12
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
+      STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+      STREAM_SUPABASE_PUBLIC_KEY: ${{ secrets.STREAM_SUPABASE_PUBLIC_KEY }}
+      STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+      STREAM_ACCESS_PASSWORD: ${{ secrets.STREAM_ACCESS_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify separate auth configuration and absence of pasted commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN STREAM_SUPABASE_URL STREAM_SUPABASE_PUBLIC_KEY STREAM_SUPABASE_SECRET_KEY STREAM_ACCESS_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          case "$STREAM_SUPABASE_URL" in
+            https://*.supabase.co) ;;
+            *) echo "::error::STREAM_SUPABASE_URL must be a dedicated HTTPS Supabase project URL"; exit 1 ;;
+          esac
+          if [ "${#STREAM_SUPABASE_PUBLIC_KEY}" -lt 12 ] || [ "${#STREAM_SUPABASE_SECRET_KEY}" -lt 12 ]; then
+            echo "::error::Incomplete Supabase keys"; exit 1
+          fi
+          if [ "${#STREAM_ACCESS_PASSWORD}" -lt 16 ]; then
+            echo "::error::Legacy Stream adapter secret must have at least 16 characters"; exit 1
+          fi
+          if [[ "$CLOUDFLARE_API_TOKEN" == curl* || "$CLOUDFLARE_API_TOKEN" == "Bearer "* || "$CLOUDFLARE_API_TOKEN" == *[[:space:]]* ]]; then
+            echo "::error::Cloudflare secret is not a bare API token"; exit 1
+          fi
+          echo "Auth secret preflight: PASS (values never printed)"
+      - name: Install Wrangler
+        run: npm install --no-audit --no-fund --no-save wrangler@4
+      - name: Upload secrets only to isolated DrivMatch Stream test Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 - <<'PY'
+          import os, json
+          names = ["STREAM_SUPABASE_URL", "STREAM_SUPABASE_PUBLIC_KEY",
+                   "STREAM_SUPABASE_SECRET_KEY", "STREAM_ACCESS_PASSWORD"]
+          data = {("SUPABASE_" + k.removeprefix("STREAM_SUPABASE_") if k.startswith("STREAM_SUPABASE_") else k): os.environ[k] for k in names}
+          with open("/tmp/drivmatch-stream-secrets.json","w",encoding="utf-8") as handle:
+              json.dump(data,handle)
+          PY
+          trap 'rm -f /tmp/drivmatch-stream-secrets.json' EXIT
+          npx wrangler secret bulk /tmp/drivmatch-stream-secrets.json --name drivmatch-stream-v2-test
+      - name: Smoke-test test login page (does not test email delivery or playback)
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/login"
+          http=$(curl -sS --retry 3 --retry-delay 2 --max-time 30 -o /tmp/stream-login.html -w '%{http_code}' "$url")
+          echo "Staging login HTTP: $http"
+          test "$http" = "200"
+          grep -q "Acesso individual" /tmp/stream-login.html
+          echo "Stream staging login page: PASS"
+          echo "Invitation, password reset, and two-home testing still require live accounts and email service." >> "$GITHUB_STEP_SUMMARY"
