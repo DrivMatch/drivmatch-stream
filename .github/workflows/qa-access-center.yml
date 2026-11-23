@@ -1,4 +1,4 @@
-name: QA Stream Access Control Center — final admin isolation release
+name: QA Stream Access Control Center — first-access day counter
 on:
   push:
     branches: [feature/independent-cloudflare-access]
@@ -21,7 +21,7 @@ jobs:
           node --check cloudflare/admin-console.mjs
           node --check cloudflare/independent-access.mjs
           node --check site/tv.js
-          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs
+          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs tests/admin_console_days.test.mjs
       - name: Verify Portuguese invitation email template and secure activation link placeholder
         shell: bash
         run: |
