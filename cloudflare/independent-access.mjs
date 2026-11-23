@@ -790,7 +790,6 @@ async function handle(request, env) {
 export default {
   async fetch(request, env) {
     try {return await handle(request,env);}
-    catch (error) {if(env?.SECURITY_TEST_DIAGNOSTICS===true) throw error;
-      return plain(503,"Serviço temporariamente indisponível.");}
+    catch {return plain(503,"Serviço temporariamente indisponível.");}
   }
 };
