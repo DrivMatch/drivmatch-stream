@@ -193,6 +193,25 @@ async function main(){
       assert.equal(await page.locator('#source-items').isVisible(),false);
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       assert.equal(await page.locator('#category-items').isVisible(),false);
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
+      const sportsCategory=page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]');
+      const newsCategory=page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]');
+      await sportsCategory.waitFor();
+      await newsCategory.waitFor();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('.tree-channel-btn[data-country="BR"]').count(),0,
+        'No channels should be expanded initially');
+
+      // Opening Notícias automatically closes Esportes and vice versa.
+      await sportsCategory.click();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'true');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
+      await newsCategory.click();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'true');
+      const news=page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'24 Horas'});
+      await news.first().waitFor();
       // Different, brighter panels and readable channel names (not low-contrast).
       const theme=await page.evaluate(()=>{
         const css=x=>getComputedStyle(document.querySelector(x));
@@ -220,25 +239,6 @@ async function main(){
         return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
       };
       assert(contrast(theme.text,theme.row)>=7,'Channel text needs strong contrast');
-      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
-      const sportsCategory=page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]');
-      const newsCategory=page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]');
-      await sportsCategory.waitFor();
-      await newsCategory.waitFor();
-      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
-      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
-      assert.equal(await page.locator('.tree-channel-btn[data-country="BR"]').count(),0,
-        'No channels should be expanded initially');
-
-      // Opening Notícias automatically closes Esportes and vice versa.
-      await sportsCategory.click();
-      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'true');
-      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
-      await newsCategory.click();
-      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
-      assert.equal(await newsCategory.getAttribute('aria-expanded'),'true');
-      const news=page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'24 Horas'});
-      await news.first().waitFor();
       assert.equal(await page.locator('.tree-genre-btn[aria-expanded="true"]').count(),1);
       assert((await page.locator('.tree-country-btn[data-country="BR"]').evaluate(
         el=>parseFloat(getComputedStyle(el).fontSize)))>=23,'Country font must read from sofa');
