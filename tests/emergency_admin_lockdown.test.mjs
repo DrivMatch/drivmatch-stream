@@ -61,12 +61,13 @@ test("viewer session identifies actual logged-in email without administrative ro
     {allowed:true,role:"viewer",email:"viewer@example.test"});
   assert.ok(!Object.hasOwn(data,"password"));
 });
-test("user-facing TV page contains identity and logout but no admin navigation",()=>{
+test("viewer-facing TV page has identity/logout; admin link is hidden until server role confirms admin",()=>{
   for(const file of ["site/tv.html","site/index.html"]){
     const html=readFileSync(new URL("../"+file,import.meta.url),"utf8");
     assert.match(html,/id="account-identity"/);
     assert.match(html,/action="(?:\.|\/stream)?\/logout"/);
-    assert.doesNotMatch(html,/href="\/stream\/admin"/);
+    assert.match(html,/id="admin-link"[^>]*hidden/);
+    assert.match(html,/href="\/stream\/admin"/);
   }
 });
 
