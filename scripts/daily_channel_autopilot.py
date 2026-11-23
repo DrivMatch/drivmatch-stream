@@ -32,6 +32,10 @@ STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
 FULL_AUDIT = os.getenv("DM_FULL_AUDIT", "0") == "1"
+ROTATING_AUDIT = os.getenv("DM_ROTATING_AUDIT", "0") == "1"
+ROTATING_DAILY_LIMIT = 2000
+ROTATING_PRIORITY_LIMIT = 300
+DELETE_AFTER_FAILURE_DAYS = 50
 MAX_CHECKS = max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))) if FULL_AUDIT else min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
 MAX_WORKERS = min(32 if FULL_AUDIT else 16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
 VALID_DAYS = 8
@@ -347,6 +351,22 @@ def priority(item: dict) -> tuple:
     g = {"news": 0, "sports": 1, "movies": 2}.get(item["genre"], 3)
     return (p, g)
 
+def select_rotating(candidates: dict, previous: dict, cursor: str = "") -> tuple[list[dict], str, int]:
+    """Reserve 300 for new candidates, then cycle through existing candidates."""
+    ordered = sorted(candidates)
+    urgent = [k for k in ordered if k not in previous or previous[k].get("status") == "unverified"]
+    urgent_ids = urgent[:ROTATING_PRIORITY_LIMIT]
+    rotation = [k for k in ordered if k not in set(urgent_ids)]
+    if rotation:
+        start = next((i for i, key in enumerate(rotation) if key > cursor), 0)
+        take = min(ROTATING_DAILY_LIMIT - len(urgent_ids), len(rotation))
+        rotated = [rotation[(start + i) % len(rotation)] for i in range(take)]
+        next_cursor = rotated[-1] if rotated else cursor
+    else:
+        rotated, next_cursor = [], cursor
+    return [candidates[k] for k in urgent_ids + rotated], next_cursor, len(urgent_ids)
+
+
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
     """Daily quotas stop repeated failures starving new discoveries forever."""
     day = now.strftime("%Y%m%d")
@@ -402,6 +422,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     today = now.strftime("%Y-%m-%d")
     prev = read_json(STATE, {"schema": 1, "channels": {}})
     previous = prev.get("channels", {}) if isinstance(prev.get("channels"), dict) else {}
+    tombstones = prev.get("deleted_ids", {}) if isinstance(prev.get("deleted_ids"), dict) else {}
     discovered: dict[str, dict] = {}
     scans, errors, researched = {}, {}, 0
     for source in SOURCES:
@@ -413,7 +434,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
             for row in rows:
                 if allowed:
                     # Favor metadata from first trusted source; do not overwrite.
-                    discovered.setdefault(row["id"], row)
+                    if row["id"] not in tombstones:
+                        discovered.setdefault(row["id"], row)
                 else:
                     researched += 1
         except (OSError, ValueError, urllib.error.URLError, TimeoutError) as exc:
@@ -422,7 +444,13 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         raise RuntimeError("All source feeds failed; do not update the published channel list")
     if FULL_AUDIT and errors:
         raise RuntimeError("Full audit blocked by unavailable feeds; refusing to publish partial coverage: " + ", ".join(sorted(errors)))
-    chosen = select_for_check(discovered, previous, now)
+    if ROTATING_AUDIT:
+        chosen, rotation_cursor, priority_count = select_rotating(
+            discovered, previous, str(prev.get("rotation_cursor", "")))
+    else:
+        chosen = select_for_check(discovered, previous, now)
+        rotation_cursor = str(prev.get("rotation_cursor", ""))
+        priority_count = 0
     checks = {}
     with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = [pool.submit(probe, item) for item in chosen]
@@ -432,6 +460,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     if FULL_AUDIT and len(checks) != len(discovered):
         raise RuntimeError("Full audit incomplete: not every discovered channel was tested")
     state = {}
+    deleted_now = 0
     for key, item in discovered.items():
         old = previous.get(key, {})
         checked = key in checks
@@ -442,11 +471,25 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
             record["checked"] = today
             record["last_ok"] = today if successful else old.get("last_ok", "")
             record["failures"] = 0 if successful else int(old.get("failures", 0)) + 1
+            record["first_failed_at"] = "" if successful else (old.get("first_failed_at") or today)
+            record["last_failed_at"] = "" if successful else today
         else:
             record["status"] = old.get("status", "unverified")
             record["checked"] = old.get("checked", "")
             record["last_ok"] = old.get("last_ok", "")
             record["failures"] = old.get("failures", 0)
+            record["first_failed_at"] = old.get("first_failed_at", "")
+            record["last_failed_at"] = old.get("last_failed_at", "")
+        # Require a fresh failure confirmation on/after day 50, not just aging.
+        if ROTATING_AUDIT and record["status"] == "failed" and record.get("first_failed_at"):
+            try:
+                age = (now.date() - dt.date.fromisoformat(record["first_failed_at"])).days
+            except ValueError:
+                age = 0
+            if age >= DELETE_AFTER_FAILURE_DAYS and checked and not successful:
+                tombstones[key] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
+                deleted_now += 1
+                continue
         state[key] = record
     # Only currently discovered, recently segment-tested channels qualify.
     earliest = (now - dt.timedelta(days=VALID_DAYS)).strftime("%Y-%m-%d")
@@ -463,7 +506,15 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     # no video could be tested (e.g. a GitHub network outage).
     failures = sum(1 for good in checks.values() if not good)
     research=research_pages()
-    report = {"schema": 1, "date_utc": today, "state": "COMPLETED" if FULL_AUDIT else "SAMPLED",
+    report = {"schema": 1, "date_utc": today,
+              "state": "ROTATING_BATCH_COMPLETED" if ROTATING_AUDIT else ("COMPLETED" if FULL_AUDIT else "SAMPLED"),
+              "daily_limit": ROTATING_DAILY_LIMIT if ROTATING_AUDIT else MAX_CHECKS,
+              "priority_capacity": ROTATING_PRIORITY_LIMIT if ROTATING_AUDIT else None,
+              "priority_checked": priority_count,
+              "rotation_checked": len(chosen) - priority_count,
+              "rotation_cursor": rotation_cursor if ROTATING_AUDIT else None,
+              "deleted_after_50_days": deleted_now,
+              "deleted_total": len(tombstones),
               "scope": "CURATED_DISCOVERY_FEEDS_ONLY_NOT_ALL_STREAM_LISTS",
               "full_audit_of_curated_candidates": bool(FULL_AUDIT and len(checks) == len(discovered) and not errors),
               "total_catalog_coverage_confirmed": False,
@@ -479,7 +530,8 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     if len(checks) == 0 and previous:
         raise RuntimeError("No candidates tested; fail safely instead of wiping the list")
     STATE.parent.mkdir(parents=True, exist_ok=True)
-    write_json(STATE, {"schema": 1, "last_run": today, "channels": state})
+    write_json(STATE, {"schema": 1, "last_run": today, "channels": state,
+                       "rotation_cursor": rotation_cursor, "deleted_ids": tombstones})
     OUTPUT.write_text("\n".join(playlist) + "\n", encoding="utf-8")
     write_json(REPORT, report)
     return report
