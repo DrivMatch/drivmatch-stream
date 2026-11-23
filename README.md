@@ -27,6 +27,12 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Falhas de MIME/codecs/rede no desktop são diferenciadas no player e **não ocultam canais automaticamente**. Na Samsung, a política anterior de 60 segundos/24 horas não foi alterada.
 - Testes com mídia simulada comprovam a seleção do motor HLS por dispositivo, não a reprodução efetiva de cada canal remoto.
 
+## Navegação por país inicialmente recolhida (23/11/2026)
+
+- A interface compartilhada Samsung/desktop inicia com **todos os países recolhidos**, inclusive Brasil. Nenhuma categoria ou grade de canais aparece automaticamente no guia central.
+- Selecionar Brasil ou outro país expande as categorias e carrega seus canais sob demanda. Recolher o país ativo fecha também a grade central, sem parar o canal que já estiver reproduzindo.
+- Favoritos, recentes, restauração de canais ocultos e acesso ao site oficial continuam disponíveis. Não há exclusão de listas ou canais; dispositivos móveis com o visualizador clássico não são alterados.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
