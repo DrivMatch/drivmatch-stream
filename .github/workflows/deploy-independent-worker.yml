@@ -1,41 +1,70 @@
-name: Deploy isolated Stream Worker (manual only)
+name: Cloudflare Stream V2 isolated test deployment
 on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths:
+      - 'cloudflare/**'
+      - 'site/**'
+      - 'migrations/**'
+      - 'wrangler.independent.toml.example'
+      - '.github/workflows/deploy-independent-worker.yml'
   workflow_dispatch:
-    inputs:
-      confirmation:
-        description: 'Type DEPLOY_OWN_STREAM to confirm this is your own separate Cloudflare account'
-        required: true
-        type: string
 permissions:
   contents: read
+concurrency:
+  group: stream-v2-independent-test
+  cancel-in-progress: true
 jobs:
-  deploy:
-    if: ${{ inputs.confirmation == 'DEPLOY_OWN_STREAM' }}
+  test-deploy:
+    # Names are test-specific. No routes, existing Workers, DNS, or production changes.
+    if: github.repository == 'DrivMatch/drivmatch-stream'
     runs-on: ubuntu-24.04
-    environment:
-      name: stream-independent-test
+    timeout-minutes: 18
+    environment: stream-independent-test
+    env:
+      CLOUDFLARE_ACCOUNT_ID: \${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: \${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate isolated credentials and database identifier
-        env:
-          CF_ACCOUNT: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID }}
-          CF_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
-          D1_ID: ${{ secrets.STREAM_INDEPENDENT_D1_ID }}
+      - name: Verify account and token in GitHub secrets
         run: |
-          test -n "$CF_ACCOUNT"
-          test -n "$CF_API_TOKEN"
-          echo "$D1_ID" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$'
-          test "$CF_ACCOUNT" != "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
-      - name: Deploy only the separate Stream Worker
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
-          D1_ID: ${{ secrets.STREAM_INDEPENDENT_D1_ID }}
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Cloudflare credentials missing. Set STREAM_INDEPENDENT_CF_ACCOUNT_ID and STREAM_INDEPENDENT_CF_API_TOKEN in GitHub Actions secrets."
+            exit 1
+          fi
+          test "$(printf %s "$CLOUDFLARE_ACCOUNT_ID" | wc -c)" -eq 32
+      - name: Install Wrangler
+        run: npm install --no-save --no-audit --no-fund wrangler@4
+      - name: Find or create isolated D1 test database
+        shell: bash
         run: |
+          set -euo pipefail
+          curl -fSs "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?per_page=100" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /tmp/stream-db-list.json
+          jq -e '.success == true' /tmp/stream-db-list.json >/dev/null
+          db_id="$(jq -r '.result[] | select(.name=="drivmatch-stream-users-test") | .uuid' /tmp/stream-db-list.json | head -1)"
+          if [ -z "$db_id" ]; then
+            curl -fSs "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database" \
+              -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H 'Content-Type: application/json' --data '{"name":"drivmatch-stream-users-test"}' \
+              > /tmp/stream-db-created.json
+            jq -e '.success == true' /tmp/stream-db-created.json >/dev/null
+            db_id="$(jq -r '.result.uuid' /tmp/stream-db-created.json)"
+          fi
+          if ! echo "$db_id" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$'; then
+            echo "::error::Invalid private D1 database ID"
+            exit 1
+          fi
           cp wrangler.independent.toml.example wrangler.independent.toml
-          sed -i "s/REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID/$D1_ID/g" wrangler.independent.toml
-          npx --yes wrangler@4 deploy -c wrangler.independent.toml
-          echo "Worker deployed. IMPORTANT: configure private Worker secrets and Supabase redirect URLs before enabling logins." >> "$GITHUB_STEP_SUMMARY"
+          sed -i "s/REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID/$db_id/g" wrangler.independent.toml
+          sed -i 's/database_name = "drivmatch-stream-users"/database_name = "drivmatch-stream-users-test"/' wrangler.independent.toml
+          sed -i 's/name = "drivmatch-stream-independent"/name = "drivmatch-stream-v2-test"/' wrangler.independent.toml
+          echo "Isolated Cloudflare D1 ready" >> "$GITHUB_STEP_SUMMARY"
+      - name: Apply isolated schema and deploy isolated Worker
+        run: |
+          npx wrangler d1 migrations apply drivmatch-stream-users-test --remote --config wrangler.independent.toml
+          npx wrangler deploy --config wrangler.independent.toml
+          echo "Worker deployed; Auth email/SMTP secrets are still separate approval gates." >> "$GITHUB_STEP_SUMMARY"
