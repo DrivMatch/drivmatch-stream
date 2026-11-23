@@ -34,6 +34,7 @@ const TE = new TextEncoder();
 const COOKIE = "dm_stream_user";
 const FORM_COOKIE = "__Host-dm_stream_form_csrf";
 const SESSION_SECONDS = 7 * 24 * 3600;
+const ADMIN_STEPUP_SECONDS = 600;
 const DAILY_EMAIL_LIMIT = 20;
 const PUBLIC_EMAIL_LIMIT = 5;
 const HEADERS = {
@@ -85,7 +86,7 @@ async function currentUser(request, env) {
   if (!token) return null;
   const tokenHash = await hash(token);
   return env.STREAM_USERS_DB.prepare(
-    "SELECT u.user_id,u.email,u.role,u.status FROM stream_sessions s " +
+    "SELECT u.user_id,u.email,u.role,u.status,s.admin_verified_until FROM stream_sessions s " +
     "JOIN stream_users u ON u.user_id=s.user_id " +
     "WHERE s.token_hash=? AND s.expires_at>? AND u.status='active'"
   ).bind(tokenHash, now()).first();
@@ -330,15 +331,17 @@ async function limit(request, env, prefix) {
   try {return (await env.STREAM_LOGIN_LIMITER.limit({key})).success === true;}
   catch {return false;}
 }
-async function createSession(user, env) {
+async function createSession(user, env, adminJustAuthenticated = false) {
   const token = random();
   const timestamp = now();
   // Both effects commit together: the timestamp means a successful D1-backed
   // Stream login, not merely viewing a page or clicking an invitation link.
   await env.STREAM_USERS_DB.batch([
     env.STREAM_USERS_DB.prepare(
-      "INSERT INTO stream_sessions (token_hash,user_id,expires_at) VALUES(?,?,?)"
-    ).bind(await hash(token),user.user_id,timestamp+SESSION_SECONDS),
+      "INSERT INTO stream_sessions (token_hash,user_id,expires_at,admin_verified_until) " +
+      "VALUES(?,?,?,?)"
+    ).bind(await hash(token),user.user_id,timestamp+SESSION_SECONDS,
+      adminJustAuthenticated && requireAdmin(user) ? timestamp + ADMIN_STEPUP_SECONDS : 0),
     env.STREAM_USERS_DB.prepare(
       "UPDATE stream_users SET first_login_at=COALESCE(first_login_at,?),last_login_at=? " +
       "WHERE user_id=? AND status='active'"
@@ -354,6 +357,21 @@ async function revokeCurrent(request, env) {
 }
 function requireAdmin(user) {
   return user && user.role === "admin" && user.status === "active";
+}
+function hasAdminStepUp(user) {
+  return requireAdmin(user) && Number(user.admin_verified_until||0)>now();
+}
+async function adminStepUpPage(env,error=false) {
+  const token=await issueFormToken(env);
+  return stampForm(page("Confirmar acesso administrativo",
+    "<p>Para proteger suas contas, confirme novamente sua senha de administrador.</p>" +
+    (error ? "<p role='alert'>Senha administrativa não validada.</p>" : "") +
+    "<form method='post' action='/stream/admin/verify'>" + formTokenInput(token) +
+    "<label>Senha do administrador<input type='password' name='password' "+
+    "autocomplete='current-password' maxlength='256' required></label>" +
+    "<button type='submit'>Desbloquear minha administração</button></form>" +
+    "<p><a href='/stream/'>Voltar ao Stream</a> · "+
+    "<a href='/stream/login'>Trocar de conta</a></p>",error?401:200),token);
 }
 async function adminPage(user,env,url,extra={}) {
   const token=await issueFormToken(env);
@@ -464,7 +482,8 @@ async function handle(request, env) {
     ).bind(result.data.user.id,email).first();
     if (!account) return await loginPage(true,env,requestedAdmin);
     const destination = requestedAdmin && requireAdmin(account) ? "/stream/admin" : "/stream/";
-    return redirect(url.origin,destination,await createSession(account,env));
+    return redirect(url.origin,destination,
+      await createSession(account,env,requestedAdmin && requireAdmin(account)));
   }
   if (method === "GET" && path === "/stream/recover") {
     const token=await issueFormToken(env);
@@ -575,19 +594,47 @@ async function handle(request, env) {
     }
     return json(200,{ok:true});
   }
-  // SECURITY INCIDENT LOCKDOWN (2026-11-23): disable administration globally.
-  // No admin UI or mutation may execute until viewer isolation has been
-  // independently confirmed in the deployed Worker and real D1.
-  if (path === "/stream/admin" || path.startsWith("/stream/admin/"))
-    return plain(403,"Painel administrativo temporariamente bloqueado por segurança.");
-  if (path === "/stream/admin" && method === "GET")
-    return requireAdmin(user) ? adminPage(user,env,url) :
-      page("Conta sem permissão de administrador",
-        "<p>Você entrou com uma conta que não tem acesso a este painel.</p>" +
-        "<p>Confirme que utilizou o e-mail da sua conta administradora.</p>" +
-        "<form action='/stream/logout' method='post'><button type='submit'>Sair desta conta</button></form>",403);
+  // Privileged operations require a real, active D1 administrator AND
+  // a recent password re-verification tied to the same user session.
+  if (path === "/stream/admin/" && method === "GET")
+    return redirect(url.origin,"/stream/admin");
+  if (path === "/stream/admin/verify" && method === "POST") {
+    if(!requireAdmin(user))return plain(403,"Acesso administrativo negado.");
+    const data=await form(request);
+    if(!await verifyFormToken(request,url,data,env))
+      return plain(403,"Confirmação expirada. Abra novamente a administração.");
+    if(!await limit(request,env,"admin-verify"))
+      return plain(429,"Muitas tentativas. Aguarde para tentar novamente.");
+    const password=String(data.get("password")||"");
+    if(!password || password.length>256)return await adminStepUpPage(env,true);
+    const result=await supabase(env,"POST","token?grant_type=password",
+      {email:user.email,password});
+    const authenticated=result.ok && result.data?.user?.id===user.user_id &&
+      String(result.data.user.email||"").toLowerCase()===String(user.email).toLowerCase();
+    if(!authenticated)return await adminStepUpPage(env,true);
+    const sessionToken=cookieValue(request);
+    if(!sessionToken)return plain(401,"Sessão expirada.");
+    const updated=await env.STREAM_USERS_DB.prepare(
+      "UPDATE stream_sessions SET admin_verified_until=? " +
+      "WHERE token_hash=? AND user_id=? AND expires_at>? " +
+      "AND EXISTS(SELECT 1 FROM stream_users " +
+      "WHERE user_id=? AND email=? AND role='admin' AND status='active')"
+    ).bind(now()+ADMIN_STEPUP_SECONDS,await hash(sessionToken),
+      user.user_id,now(),user.user_id,user.email).run();
+    if(updated?.meta?.changes!==1)return plain(403,"Acesso administrativo negado.");
+    return redirect(url.origin,"/stream/admin");
+  }
+  if (path === "/stream/admin" && method === "GET") {
+    if(!requireAdmin(user))
+      return page("Conta sem permissão de administrador",
+        "<p>Esta conta não tem acesso à administração.</p>" +
+        "<p>Saia desta conta e entre com sua conta administradora.</p>" +
+        "<p><a href='/stream/'>Voltar ao Stream</a></p>",403);
+    if(!hasAdminStepUp(user))return await adminStepUpPage(env);
+    return adminPage(user,env,url);
+  }
   if (path.startsWith("/stream/admin/") && method === "POST") {
-    if (!requireAdmin(user)) return plain(403,"Forbidden");
+    if (!hasAdminStepUp(user)) return plain(403,"Confirme sua senha em /stream/admin antes de administrar.");
     const data = await form(request);
     if (!await verifyFormToken(request,url,data,env)) return plain(403,"Formulário expirado. Reabra o painel.");
     if (!await limit(request,env,"admin")) return plain(429,"Muitas operações.");
@@ -726,6 +773,7 @@ async function handle(request, env) {
     }
     return plain(404,"Not Found");
   }
+  if(path.startsWith("/stream/admin/"))return plain(404,"Not Found");
   if (method !== "GET" && method !== "HEAD") return plain(405,"Method Not Allowed");
   if (!["/stream/tv","/stream/listas"].includes(path) && path !== "/stream" &&
       !/^\/stream(?:\/|$)/.test(path)) return plain(404,"Not Found");
