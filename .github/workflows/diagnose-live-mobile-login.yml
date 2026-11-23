@@ -1,8 +1,6 @@
 name: Diagnose mobile browser form on live isolated Stream
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/diagnose-live-mobile-login.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
