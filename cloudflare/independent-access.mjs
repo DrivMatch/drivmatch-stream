@@ -124,26 +124,30 @@ function stampForm(response,token) {
   response.headers.set("Set-Cookie",formTokenCookie(token));
   return response;
 }
-async function verifyFormToken(request,url,params,env) {
+async function formTokenStatus(request,url,params,env) {
   const origin=request.headers.get("Origin");
-  if (origin && origin!==url.origin) return false;
+  if (origin && origin!==url.origin) return "L1";
   const ref=request.headers.get("Referer");
   if (ref) {
-    try {if (new URL(ref).origin!==url.origin) return false;}
-    catch {return false;}
+    try {if (new URL(ref).origin!==url.origin) return "L2";}
+    catch {return "L3";}
   }
-  if (request.headers.get("Sec-Fetch-Site")==="cross-site") return false;
+  if (request.headers.get("Sec-Fetch-Site")==="cross-site") return "L4";
   const supplied=String(params.get("_csrf")||"");
-  if (!/^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/.test(supplied)) return false;
+  if (!/^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/.test(supplied)) return "F1";
   const received=(request.headers.get("Cookie")||"").split(";")
     .map(x=>x.trim()).find(x=>x.startsWith(FORM_COOKIE+"="));
-  if (!received || received.slice(FORM_COOKIE.length+1)!==supplied) return false;
+  if (!received) return "C1";
+  if (received.slice(FORM_COOKIE.length+1)!==supplied) return "C2";
   const [nonce,signature]=supplied.split(".");
   const expected=await signFormNonce(nonce,env);
   let diff=0;
   for(let i=0;i<expected.length;i++)
     diff|=expected.charCodeAt(i)^signature.charCodeAt(i);
-  return diff===0;
+  return diff===0?"OK":"S1";
+}
+async function verifyFormToken(request,url,params,env) {
+  return await formTokenStatus(request,url,params,env)==="OK";
 }
 async function form(request) {
   const size = Number(request.headers.get("Content-Length") || 0);
@@ -329,10 +333,12 @@ async function handle(request, env) {
     return user ? redirect(url.origin, "/stream/") : await loginPage(false,env);
   if (method === "POST" && path === "/stream/login") {
     const data = await form(request);
-    if (!await verifyFormToken(request,url,data,env))
+    const status=await formTokenStatus(request,url,data,env);
+    if (status!=="OK")
       return page("Acesso não validado",
-        "<p>O formulário expirou ou os cookies do site estão bloqueados.</p>" +
-        "<p>Abra novamente o login e tente entrar.</p>" +
+        "<p>Não foi possível validar o formulário neste navegador.</p>" +
+        "<p><strong>Código de diagnóstico: "+status+"</strong></p>" +
+        "<p>O código não contém sua senha ou dados pessoais.</p>" +
         "<p><a href='/stream/login'>Reabrir login</a></p>",403);
     if (!await limit(request,env,"login")) return plain(429,"Muitas tentativas. Tente mais tarde.");
     const email = String(data.get("email") || "").trim().toLowerCase();
