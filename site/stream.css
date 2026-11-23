@@ -259,3 +259,6 @@ body.tv-legacy .channel .pick{-webkit-box-flex:1;flex:1}
 body.tv-legacy #more-channels{display:block}
 body.tv-legacy #more-channels[hidden]{display:none!important}
 body.tv-legacy .site-footer{margin-left:58%}
+
+/* The administrative link must never be visible before verified session loading. */
+#admin-link[hidden]{display:none!important}
