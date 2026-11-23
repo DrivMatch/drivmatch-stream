@@ -48,26 +48,17 @@ def api(url, token, method="GET", payload=None):
 def validate_inputs():
     root=get_env("STREAM_SUPABASE_URL")
     parsed=urlsplit(root)
-    expected="https://" + PROJECT_REF + ".supabase.co"
     if parsed.scheme!="https" or parsed.hostname!=PROJECT_REF + ".supabase.co":
         raise ConfigurationBlocked("Dedicated Supabase project URL not verified")
     if parsed.username or parsed.password or parsed.port:
         raise ConfigurationBlocked("Unexpected Supabase URL format")
     manager=get_env("STREAM_SUPABASE_MANAGEMENT_TOKEN")
+    if not manager:
+        raise ConfigurationBlocked("Missing Supabase Management API authorization")
     resend=get_env("STREAM_RESEND_API_KEY")
     sender=get_env("STREAM_EMAIL_SENDER")
-    missing=[name for name,value in [
-        ("STREAM_SUPABASE_MANAGEMENT_TOKEN",manager),
-        ("STREAM_RESEND_API_KEY",resend),
-        ("STREAM_EMAIL_SENDER",sender)
-    ] if not value]
-    if missing:
-        raise ConfigurationBlocked("Required email service credentials unavailable: "+
-                                   ", ".join(missing))
     if manager==resend:
         raise ConfigurationBlocked("Management token and SMTP API key must be distinct")
-    if not re.fullmatch(r"[a-z0-9._%+-]+@drivmatch\.com",sender,re.IGNORECASE):
-        raise ConfigurationBlocked("Sender must use the verified DrivMatch domain")
     return manager,resend,sender
 
 def validate_resend_domain(resend):
@@ -96,34 +87,50 @@ def load_email():
 def run():
     manager,resend,sender=validate_inputs()
     subject,body=load_email()
-    validate_resend_domain(resend)
     target=MGMT_ORIGIN+"/v1/projects/"+PROJECT_REF+"/config/auth"
     existing=api(target,manager)
-    if not isinstance(existing,dict) or "smtp_host" not in existing:
+    if not isinstance(existing,dict):
         raise ConfigurationBlocked("Supabase Auth configuration could not be confirmed")
+
     payload={
-        "external_email_enabled":True,
-        "smtp_admin_email":sender,
-        "smtp_host":"smtp.resend.com",
-        "smtp_port":"465",
-        "smtp_user":"resend",
-        "smtp_pass":resend,
-        "smtp_sender_name":"DrivMatch Stream",
         "mailer_subjects_invite":subject,
         "mailer_templates_invite_content":body,
     }
+    already_smtp=bool(existing.get("smtp_host") and existing.get("smtp_admin_email"))
+    if not already_smtp:
+        if not resend or not sender:
+            raise ConfigurationBlocked(
+                "No custom SMTP configured. Setup requires a verified sender "
+                "and an email provider SMTP credential"
+            )
+        if not re.fullmatch(r"[a-z0-9._%+-]+@drivmatch\\.com",sender,re.IGNORECASE):
+            raise ConfigurationBlocked("Sender must use a verified DrivMatch domain")
+        validate_resend_domain(resend)
+        payload.update({
+            "smtp_admin_email":sender,
+            "smtp_host":"smtp.resend.com",
+            "smtp_port":"465",
+            "smtp_user":"resend",
+            "smtp_pass":resend,
+            "smtp_sender_name":"DrivMatch Stream",
+        })
+    else:
+        print("Existing custom SMTP recognized; will retain sender configuration.")
+
     if get_env("STREAM_EMAIL_APPLY")!="true":
-        print("CHECK PASS: Auth project, verified sender, template; no changes made.")
+        print("CHECK PASS: target project and email template verified; no changes made.")
         return
-    applied=api(target,manager,"PATCH",payload)
-    # Verify only nonsecret fields; do not display full Auth configuration.
+    # This PATCH is deliberately scoped to invitation-related fields plus
+    # SMTP only when the project had no existing configured provider.
+    api(target,manager,"PATCH",payload)
     after=api(target,manager)
-    if after.get("smtp_host")!="smtp.resend.com" or \
-       after.get("smtp_admin_email","").lower()!=sender.lower() or \
-       after.get("mailer_subjects_invite")!=subject:
-        raise ConfigurationBlocked("Supabase did not confirm SMTP/template settings")
-    print("CONFIGURED: dedicated Stream SMTP + branded invite template. No emails sent.")
-    print("Next action: run a consented invitation and confirm actual inbox delivery.")
+    if after.get("mailer_subjects_invite")!=subject or \\
+       after.get("mailer_templates_invite_content")!=body:
+        raise ConfigurationBlocked("Supabase did not confirm the branded invite template")
+    if not already_smtp and after.get("smtp_host")!="smtp.resend.com":
+        raise ConfigurationBlocked("Supabase did not confirm the SMTP server")
+    print("CONFIGURED: dedicated DrivMatch Stream branded invitation template.")
+    print("Next: explicitly test a consented invitation and verify actual inbox delivery.")
 
 if __name__=="__main__":
     try:
