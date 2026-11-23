@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#101820">
 <title>DrivMatch Stream | TV Samsung</title>
-<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-embeds1">
+<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-mobile-fixed1">
 </head>
 <body>
 <div class="tv-shell" id="tv-shell">
@@ -15,7 +15,11 @@
     <div class="toplinks"><a href="/stream/" class="top-link" id="home-link">Início</a></div>
   </header>
   <main class="tv-layout" id="tv-layout">
-    <nav class="column sidebar" aria-label="Recentes, favoritos, países, categorias e canais">
+    <div class="mobile-panes" id="mobile-panes" role="group" aria-label="Navegar entre países e canais">
+      <button type="button" id="mobile-countries" aria-controls="mobile-countries-panel" aria-pressed="true">Países e categorias</button>
+      <button type="button" id="mobile-guide" aria-controls="mobile-guide-panel" aria-pressed="false">Guia e busca</button>
+    </div>
+    <nav id="mobile-countries-panel" class="column sidebar" aria-label="Recentes, favoritos, países, categorias e canais">
       <section class="quick-section" aria-label="Canais recentemente visitados">
         <h2 class="quick-title"><button id="recent-toggle" class="quick-toggle" type="button" aria-expanded="false" aria-controls="recent-items"><span class="quick-chevron">▸</span> RECÉM VISITADO <b id="recent-count">0/25</b></button></h2>
         <div id="recent-items" class="quick-items" hidden>
@@ -44,7 +48,7 @@
         <div id="technical-items" hidden></div>
       </div>
     </nav>
-    <section class="column catalog" aria-label="Canais IPTV">
+    <section id="mobile-guide-panel" class="column catalog" aria-label="Canais IPTV">
       <div class="catalog-header">
         <span class="overline">02 · GUIA DE CANAIS</span>
         <h1 id="catalog-title">Escolha um país</h1>
@@ -93,6 +97,6 @@
   </main>
   <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream e entre com seu PIN de 8 números.</p><a href="/stream/">Entrar no DrivMatch Stream</a></div>
 </div>
-<script src="/stream/tv/tv.js?v=20261123-globalsearch1"></script>
+<script src="/stream/tv/tv.js?v=20261123-mobile-fixed1"></script>
 </body>
 </html>
