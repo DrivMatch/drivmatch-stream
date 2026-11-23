@@ -1,9 +1,7 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # One-time deployment of mobile same-origin login fix to isolated staging only.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/deploy-independent-worker.yml']
+  # Mobile login fix published and live HTTP test passed (2026-11-23).
+  # Future staging deploys require explicit manual dispatch.
   workflow_dispatch:
 permissions:
   contents: read
