@@ -1,0 +1,117 @@
+name: Bootstrap exact verified Stream admin account
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/bootstrap-exact-admin.yml']
+permissions:
+  contents: read
+concurrency:
+  group: stream-onetime-admin-bootstrap
+  cancel-in-progress: false
+jobs:
+  bootstrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    environment: stream-independent-test
+    env:
+      STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+      STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN }}
+    steps:
+      - name: Identify exact Supabase user and grant admin in isolated D1 (no identity details printed)
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,sys,urllib.request,urllib.error,urllib.parse,uuid
+          TARGET_SHA256="2d1a7228bd94423e07a0f59aed9f383855efc214bc03f75b2407a1464321a77a"
+          account=os.environ.get("CLOUDFLARE_ACCOUNT_ID","").strip()
+          token=os.environ.get("CLOUDFLARE_API_TOKEN","").strip()
+          supabase_key=os.environ.get("STREAM_SUPABASE_SECRET_KEY","").strip()
+          parts=urllib.parse.urlsplit(os.environ.get("STREAM_SUPABASE_URL","").strip())
+          if not (parts.scheme=="https" and parts.hostname and
+                  parts.hostname.endswith(".supabase.co") and
+                  parts.username is None and parts.password is None and
+                  not parts.query and not parts.fragment):
+              sys.exit("FAIL: invalid Supabase project URL")
+          if not (account and token and supabase_key):
+              sys.exit("FAIL: missing backend-only secrets")
+          base=parts.scheme+"://"+parts.netloc
+          def request(url,headers,body=None):
+              h=dict(headers)
+              h["Accept"]="application/json"
+              h["User-Agent"]="drivmatch-stream-admin-bootstrap/1"
+              if body is not None:h["Content-Type"]="application/json"
+              q=urllib.request.Request(url,data=None if body is None else json.dumps(body).encode(),
+                                       headers=h,method="GET" if body is None else "POST")
+              try:
+                  with urllib.request.urlopen(q,timeout=24) as r:
+                      status=r.status;data=r.read(1024*1024)
+              except urllib.error.HTTPError as e:
+                  status=e.code;data=e.read(1024*1024)
+              try:result=json.loads(data)
+              except Exception:result={}
+              return status,result
+          # The new sb_secret_* API keys are not JWTs. Admin GET must pass
+          # apikey without Authorization: Bearer sb_secret_*.
+          status,users_json=request(base+"/auth/v1/admin/users?per_page=1000",
+                                    {"apikey":supabase_key})
+          if status!=200:sys.exit("FAIL: Supabase Admin users verification HTTP "+str(status))
+          users=users_json.get("users",[])
+          if not isinstance(users,list):sys.exit("FAIL: invalid Supabase Admin users response")
+          matched=[]
+          for user in users:
+              if not isinstance(user,dict):continue
+              uid=str(user.get("id","")).lower()
+              try:parsed=str(uuid.UUID(uid))
+              except ValueError:continue
+              if hashlib.sha256(parsed.encode()).hexdigest()==TARGET_SHA256:
+                  matched.append(user)
+          if len(matched)!=1:
+              sys.exit("FAIL: requested UID did not uniquely match any Supabase user")
+          found=matched[0]
+          uid=str(uuid.UUID(str(found["id"])))
+          email=str(found.get("email","")).strip().lower()
+          if not(email and "@" in email and len(email)<=254 and
+                 found.get("email_confirmed_at")):
+              sys.exit("FAIL: verified UID missing confirmed email; no D1 write")
+          print("Supabase: exact supplied UID matched one confirmed user (email hidden)")
+          cfheaders={"Authorization":"Bearer "+token}
+          status,dbs=request("https://api.cloudflare.com/client/v4/accounts/"+account+"/d1/database?per_page=100",cfheaders)
+          if status!=200 or not dbs.get("success"):
+              sys.exit("FAIL: Cloudflare D1 database list HTTP "+str(status))
+          databases=[d for d in dbs.get("result",[]) if d.get("name")=="drivmatch-stream-users-test"]
+          if len(databases)!=1:sys.exit("FAIL: dedicated test D1 database not found uniquely")
+          dbid=str(databases[0].get("uuid",""))
+          try:dbid=str(uuid.UUID(dbid))
+          except ValueError:sys.exit("FAIL: invalid D1 UUID")
+          endpoint="https://api.cloudflare.com/client/v4/accounts/"+account+"/d1/database/"+dbid+"/query"
+          def sql(statement,params=()):
+              status,body=request(endpoint,cfheaders,{"sql":statement,"params":list(params)})
+              if status!=200 or not body.get("success"):
+                  sys.exit("FAIL: Cloudflare D1 query HTTP "+str(status))
+              results=body.get("result",[])
+              if not results or not all(d.get("success") for d in results):
+                  sys.exit("FAIL: Cloudflare D1 rejected query")
+              return results[0].get("results",[])
+          existing=sql("SELECT user_id,email,role,status FROM stream_users WHERE role='admin' LIMIT 5")
+          if existing and not (len(existing)==1 and existing[0]["user_id"]==uid and existing[0]["email"]==email):
+              sys.exit("FAIL: another admin already exists; no mutation")
+          existing_uid=sql("SELECT user_id,email,role FROM stream_users WHERE user_id=? LIMIT 1",[uid])
+          if existing_uid and existing_uid[0].get("email")!=email:
+              sys.exit("FAIL: UID/email mismatch in D1; no mutation")
+          if not existing:
+              if existing_uid:
+                  sql("UPDATE stream_users SET role='admin',status='active',updated_at=unixepoch() "+
+                      "WHERE user_id=? AND email=? AND NOT EXISTS "+
+                      "(SELECT 1 FROM stream_users WHERE role='admin')",[uid,email])
+              else:
+                  sql("INSERT OR IGNORE INTO stream_users(user_id,email,role,status) "+
+                      "SELECT ?,?,'admin','active' WHERE NOT EXISTS "+
+                      "(SELECT 1 FROM stream_users WHERE role='admin')",[uid,email])
+          confirmed=sql("SELECT user_id,email,role,status FROM stream_users WHERE user_id=? LIMIT 1",[uid])
+          if len(confirmed)!=1 or confirmed[0].get("role")!="admin" or confirmed[0].get("status")!="active" or confirmed[0].get("email")!=email:
+              sys.exit("FAIL: administrator verification did not pass")
+          print("Cloudflare D1: exact UID promoted to active admin; verified without revealing email")
+          print("No unrelated users or production Workers altered.")
+          PY
