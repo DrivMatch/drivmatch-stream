@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+from collections import deque
 import datetime as dt
 import hashlib
 import ipaddress
@@ -349,6 +350,21 @@ def priority(item: dict) -> tuple:
     g = {"news": 0, "sports": 1, "movies": 2}.get(item["genre"], 3)
     return (p, g)
 
+def geographically_balanced(items: list[dict], limit: int) -> list[dict]:
+    """Avoid a few high-volume countries consuming every media probe slot."""
+    groups = {}
+    for row in items:
+        groups.setdefault(row.get("country") or "OTHER", deque()).append(row)
+    result = []
+    while groups and len(result) < limit:
+        for code in sorted(list(groups)):
+            if len(result) >= limit:
+                break
+            result.append(groups[code].popleft())
+            if not groups[code]:
+                del groups[code]
+    return result
+
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
     """Daily quotas stop repeated failures starving new discoveries forever."""
     day = now.strftime("%Y%m%d")
@@ -375,16 +391,14 @@ def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list
     result = []
     selected = set()
     for name in ("new", "stale", "failed"):
-        pool = buckets[name]
-        pool.sort(key=lambda item: priority(item))
-        for item in pool[:quotas[name]]:
+        pool = geographically_balanced(buckets[name], quotas[name])
+        for item in pool:
             if item["id"] not in selected:
                 selected.add(item["id"])
                 result.append(item)
     # Backfill unused quotas from all remaining, including OTHER countries.
     remaining = [v for v in items if v["id"] not in selected]
-    remaining.sort(key=priority)
-    for item in remaining[:max(0, MAX_CHECKS-len(result))]:
+    for item in geographically_balanced(remaining, max(0, MAX_CHECKS-len(result))):
         result.append(item)
     return result[:MAX_CHECKS]
 
