@@ -12,6 +12,8 @@ var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
 var STORE="drivmatch-tv-guide-favorites-v1";
 var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
+var HIDDEN_STORE="drivmatch-tv-hidden-failed-60s-v1",HIDDEN_TTL=24*60*60*1000;
+var hiddenFailed={},playbackToken=0,playbackTimers=[],playbackConfirmed=false,autoplayBlocked=false;
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
@@ -74,6 +76,119 @@ function channelAlias(name,code){
     return "Record News";
   return name;
 }
+
+/* Only a chosen native stream is tested. An unplayed stream is hidden locally
+ * after sixty seconds, for up to 24h. Favorites and playlists stay intact.
+ * Official-site/paid entries never get treated as failed video streams. */
+function hiddenKey(c){return favorKey(c);}
+function isHidden(c){
+ var key=hiddenKey(c),t=hiddenFailed[key];
+ if(!t)return false;
+ if(new Date().getTime()-t>=HIDDEN_TTL){
+  delete hiddenFailed[key];saveHidden();updateHiddenRestore();return false;
+ }
+ return true;
+}
+function countHidden(){var n=0;for(var k in hiddenFailed)
+ if(Object.prototype.hasOwnProperty.call(hiddenFailed,k))n++;return n;}
+function saveHidden(){try{localStorage.setItem(HIDDEN_STORE,JSON.stringify(hiddenFailed));}catch(e){}}
+function updateHiddenRestore(){
+ var n=countHidden(),btn=D("restore-hidden");
+ if(!btn)return;
+ visibleEl(btn,n>0);
+ T(btn,"↺ Restaurar canais ocultos ("+n+")");
+}
+function loadHidden(){
+ var now=new Date().getTime(),obj;
+ try{obj=JSON.parse(localStorage.getItem(HIDDEN_STORE)||"{}");}catch(e){obj={};}
+ hiddenFailed={};
+ if(obj&&typeof obj==="object"&&
+    Object.prototype.toString.call(obj)!=="[object Array]"){
+   var count=0;
+   for(var k in obj)if(Object.prototype.hasOwnProperty.call(obj,k)){
+     var t=Number(obj[k]);
+     if(k.length<260&&t>0&&t<=now&&now-t<HIDDEN_TTL&&count<500){
+       hiddenFailed[k]=t;count++;
+     }
+   }
+ }
+ saveHidden();updateHiddenRestore();
+}
+function hideFailed(c){
+ if(!c||c.premium||c.officialUrl&&(!c.urls||!c.urls.length))return;
+ hiddenFailed[hiddenKey(c)]=new Date().getTime();
+ saveHidden();updateHiddenRestore();
+ T(D("play-status"),"Ocultado após 60 s");
+ T(D("player-error"),"Este canal não iniciou a reprodução em 60 segundos. "+
+   "Foi ocultado apenas nesta TV por 24 horas. Você pode restaurá-lo pelo botão no guia. "+
+   "A lista original e os favoritos foram preservados.");
+ visibleEl(D("player-error"),true);
+ try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+ visibleEl(video,false);visibleEl(D("player-empty"),true);
+ D("player-fullscreen").disabled=true;
+ renderChannels();drawCountries();drawQuickLists();
+}
+function restoreHidden(){
+ hiddenFailed={};saveHidden();updateHiddenRestore();
+ renderChannels();drawCountries();drawQuickLists();
+ T(D("catalog-status"),"Canais ocultos restaurados. Você pode tentar reproduzi-los novamente.");
+}
+function clearPlaybackWatch(){
+ for(var i=0;i<playbackTimers.length;i++)clearTimeout(playbackTimers[i]);
+ playbackTimers=[];playbackToken++;playbackConfirmed=false;autoplayBlocked=false;
+}
+function completePlayback(){
+ if(!selected||playbackConfirmed||selected.premium)return;
+ playbackConfirmed=true;
+ for(var i=0;i<playbackTimers.length;i++)clearTimeout(playbackTimers[i]);
+ playbackTimers=[];
+ if(isHidden(selected)){
+   delete hiddenFailed[hiddenKey(selected)];
+   saveHidden();updateHiddenRestore();
+   renderChannels();drawCountries();drawQuickLists();
+ }
+}
+function startPlaybackWatch(c){
+ var token=playbackToken,urls=c.urls||[],n=Math.min(3,urls.length);
+ if(!n)return;
+ function tryUrl(idx){
+  if(token!==playbackToken||playbackConfirmed||autoplayBlocked||
+     !selected||selected.id!==c.id)return;
+  T(D("play-status"),idx?"Tentando sinal alternativo…":"Conectando…");
+  try{
+   video.pause();video.src=urls[idx];video.load();
+   var task=video.play();
+   if(task&&typeof task.catch==="function")task.catch(function(err){
+     if(token!==playbackToken||playbackConfirmed)return;
+     var name=String(err&&err.name||""),msg=String(err&&err.message||"");
+     if(name==="NotAllowedError"||/autoplay|user gesture|not allowed/i.test(msg)){
+       autoplayBlocked=true;
+       for(var i=0;i<playbackTimers.length;i++)clearTimeout(playbackTimers[i]);
+       playbackTimers=[];
+       T(D("play-status"),"Pressione Play");
+       T(D("player-error"),"A TV bloqueou o início automático. "+
+         "Pressione Play no vídeo; este canal não será ocultado por esse bloqueio.");
+       visibleEl(D("player-error"),true);
+     }else{
+       T(D("player-error"),"Aguardando o sinal (até 60 segundos)…");
+       visibleEl(D("player-error"),true);
+     }
+   });
+  }catch(e){
+   T(D("player-error"),"Sinal ainda não disponível; verificando alternativas até 60 segundos.");
+   visibleEl(D("player-error"),true);
+  }
+ }
+ // Try up to 3 alternatives within a single 60-second startup budget.
+ tryUrl(0);
+ if(n>=2)playbackTimers.push(setTimeout(function(){tryUrl(1);},20000));
+ if(n>=3)playbackTimers.push(setTimeout(function(){tryUrl(2);},40000));
+ playbackTimers.push(setTimeout(function(){
+  if(token===playbackToken&&!playbackConfirmed&&!autoplayBlocked&&
+     selected&&selected.id===c.id)hideFailed(c);
+ },60000));
+}
+
 function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
 
@@ -151,7 +266,7 @@ function drawQuickGroup(id,items,kind){
   b.setAttribute("data-quick-kind",kind);
   b.appendChild(E("span","quick-entry-name",
     (kind==="favorite"?"★ ":"")+item.name));
-  b.appendChild(E("span","quick-entry-meta",classificationName(item)));
+  b.appendChild(E("span","quick-entry-meta",classificationName(item)+(hiddenFailed[item.key]?" · Oculto":"")));
   on(b,"click",function(){openQuickChannel(item,kind);});
   target.appendChild(b);
  }(items[i]));}
@@ -183,7 +298,7 @@ function focusQuickItem(key,kind){
 function playFromQuick(c,record,kind){
  // Premium service entries are never turned into free HLS links.
  if(c.source!=="paid"&&c.id&&String(c.id).indexOf("paid:")!==0){
-  country=c.code;category="all";openCountries[c.code]=true;
+  country=c.code;category="all";openCountries[c.code]=true;closeAllGenres();
   search="";D("search").value="";limit=60;
   channels=cache["lista-2:"+c.code]||[];
   T(D("catalog-title"),countryName(c.code));T(D("catalog-subtitle"),"Todos os canais");
@@ -387,7 +502,7 @@ function hasCountry(code){
 function treeKey(code,genre){return code+":"+genre;}
 function treeGroups(code,genre){
  var src=cache["lista-2:"+code]||[],items=[];
- for(var i=0;i<src.length;i++)if(genreFits(src[i],genre))items.push(src[i]);
+ for(var i=0;i<src.length;i++)if(genreFits(src[i],genre)&&!isHidden(src[i]))items.push(src[i]);
  items.sort(function(a,b){
   var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);
   return x<y?-1:x>y?1:0;
@@ -405,7 +520,8 @@ function drawCountries(){
   btn.setAttribute("aria-expanded",opened?"true":"false");
   btn.appendChild(E("span","tree-chevron",opened?"▾":"▸"));
   btn.appendChild(E("span","tree-label",entry[1]));
-  if(items)btn.appendChild(E("span","tree-count",String(items.length)));
+  if(items){var count=0;for(var n=0;n<items.length;n++)if(!isHidden(items[n]))count++;
+   btn.appendChild(E("span","tree-count",String(count)));}
   on(btn,"click",function(){chooseCountry(code);});wrap.appendChild(btn);
   if(!opened)return;
   var subtree=E("div","tree-categories");wrap.appendChild(subtree);
@@ -497,7 +613,7 @@ function drawCategories(){
   }
 }
 function refresh(){
-  cache={};treeErrors={};loadChannels();
+  closeAllGenres();category="all";cache={};treeErrors={};loadChannels();
 }
 function selectSource(id){
   if(source===id&&channels.length)return;
@@ -553,6 +669,7 @@ function loadChannels(){
   });
 }
 function fits(c){
+  if(isHidden(c))return false;
   if(country!=="ALL" && c.code!==country)return false;
   if(category!=="all"&&category!=="fav"&&!genreFits(c,category))return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
@@ -620,7 +737,7 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
-  recordVisit(c);
+  clearPlaybackWatch();recordVisit(c);
   visibleEl(D("official-open"),!!c.officialUrl);
   T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
   if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
@@ -658,10 +775,7 @@ function play(c,fromTree){
   T(D("play-status"),"Conectando…");updateFavButton();
   visibleEl(D("player-empty"),false);visibleEl(video,true);visibleEl(D("player-error"),false);
   D("player-retry").disabled=false;D("player-fullscreen").disabled=false;
-  try{video.pause();video.src=c.urls[0];video.load();
-    var task=video.play();
-    if(task&&typeof task.catch==="function")task.catch(function(){T(D("player-error"),"Toque no Play do vídeo. A origem também pode bloquear reprodução nesta TV.");visibleEl(D("player-error"),true);});
-  }catch(e){T(D("player-error"),"Formato ou sinal não suportado neste navegador Samsung.");visibleEl(D("player-error"),true);}
+  startPlaybackWatch(c);
   renderChannels();drawCountries();
   if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
 }
@@ -677,7 +791,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".quick-toggle,.quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".quick-toggle,.quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#restore-hidden,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -768,13 +882,14 @@ function toggleQuickGroup(kind){
 }
 function init(){
   COUNTRY.sort(compareCountries);
-  loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  loadHidden();loadFav();loadQuickHistory();drawQuickLists();initRemote();
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
   on(D("refresh"),"click",refresh);
+  on(D("restore-hidden"),"click",restoreHidden);
   on(D("show-more"),"click",function(){
     var next=visible[limit];
     limit+=60;renderChannels();
@@ -801,15 +916,28 @@ function init(){
     if(fn)try{fn.call(video);}catch(e){}
   });
   on(video,"playing",function(){
+    completePlayback();
     T(D("play-status"),"● Reproduzindo");
     if(selected&&!selected.premium)T(D("now-meta"),countryName(selected.code)+" · Reprodução confirmada nesta sessão");
     visibleEl(D("player-error"),false);
   });
   on(video,"error",function(){
-    if(!selected||selected.premium)return;
-    T(D("play-status"),"Sinal indisponível");
-    T(D("player-error"),"O sinal não reproduziu nesta TV. Pode haver incompatibilidade de formato, bloqueio ou indisponibilidade.");
+    if(!selected||selected.premium||video.hidden||playbackConfirmed)return;
+    T(D("play-status"),"Verificando sinal…");
+    T(D("player-error"),"Sinal ainda sem reprodução. "+
+      "O Stream verificará as alternativas disponíveis por até 60 segundos.");
     visibleEl(D("player-error"),true);
+  });
+  // When Samsung denies automatic play, the sixty-second watch starts only
+  // after the viewer actually presses Play.
+  on(video,"play",function(){
+    if(!autoplayBlocked||playbackConfirmed||!selected||selected.premium)return;
+    autoplayBlocked=false;
+    var token=playbackToken,c=selected;
+    playbackTimers.push(setTimeout(function(){
+      if(token===playbackToken&&!playbackConfirmed&&selected&&selected.id===c.id)
+        hideFailed(c);
+    },60000));
   });
   var btns=D("category-items").getElementsByTagName("button");
   for(var i=0;i<btns.length;i++){(function(b){
