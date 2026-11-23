@@ -105,7 +105,7 @@ async function main(){
       assert.equal(await page.locator("#source-list .source").count(),11);
       await page.locator('#country option[value="MX"]').waitFor({state:"attached"});
       assert.equal(await page.locator("#country option").count(),15);
-      await page.getByRole("button",{name:/Lista 1/}).click();
+      await page.getByRole("button",{name:/^Lista 1 •/}).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
       assert.equal(await page.locator("#channel-list .channel").count(),3);
       assert.match(await page.locator("#channel-list").textContent(),/ESPN Premium/);
