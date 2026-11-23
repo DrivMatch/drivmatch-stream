@@ -31,6 +31,9 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
+HEALTH = ROOT / "site" / "channel-health.json"
+EXPLORATION = ROOT / "site" / "discovery-sources.json"
+SOURCE_CATALOG = ROOT / "site" / "playlist-sources.json"
 FULL_AUDIT = os.getenv("DM_FULL_AUDIT", "0") == "1"
 ROTATING_AUDIT = os.getenv("DM_ROTATING_AUDIT", "0") == "1"
 ROTATING_DAILY_LIMIT = 2000
@@ -104,6 +107,30 @@ SOURCES = (
     ("iptv-org-uy", "https://iptv-org.github.io/iptv/countries/uy.m3u", "UY", "", False),
     ("iptv-org-in", "https://iptv-org.github.io/iptv/countries/in.m3u", "IN", "", False),
 )
+
+def stream_hash(url: str) -> str:
+    """Stable stream identity across list aliases and countries."""
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()
+
+
+def augmented_sources() -> list[tuple]:
+    """Include all original TV catalog feeds during rotation, not just Lista 12."""
+    result = list(SOURCES)
+    if not ROTATING_AUDIT:
+        return result
+    known = {row[1] for row in result}
+    catalog = read_json(SOURCE_CATALOG, {"sources": []})
+    for entry in catalog.get("sources", []):
+        sid = entry.get("id", "")
+        if not re.fullmatch(r"lista-(?:[1-9]|1[01])", sid):
+            continue  # lista-2 is a set of country feeds; lista-12 is output
+        for url in entry.get("urls", []):
+            if url in known or not safe_url(url, False):
+                continue
+            known.add(url)
+            result.append(("catalog-" + sid, url, "", "", False))
+    return result
+
 
 def normalized(value: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", value.lower())
@@ -425,19 +452,21 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     tombstones = prev.get("deleted_ids", {}) if isinstance(prev.get("deleted_ids"), dict) else {}
     discovered: dict[str, dict] = {}
     scans, errors, researched = {}, {}, 0
-    for source in SOURCES:
+    sources = augmented_sources()
+    deleted_urls = prev.get("deleted_urls", {}) if isinstance(prev.get("deleted_urls"), dict) else {}
+    for source in sources:
         sid, url, _, _, allowed = source
         try:
             raw = fetch(url, CATALOG_LIMIT).decode("utf-8", "replace")
             rows = parse_playlist(raw, source)
             scans[sid] = len(rows)
             for row in rows:
-                if allowed:
-                    # Favor metadata from first trusted source; do not overwrite.
-                    if row["id"] not in tombstones:
-                        discovered.setdefault(row["id"], row)
-                else:
+                if not allowed:
                     researched += 1
+                if (allowed or ROTATING_AUDIT) and row["id"] not in tombstones and stream_hash(row["url"]) not in deleted_urls:
+                    existing = discovered.setdefault(row["id"], row)
+                    if allowed:
+                        existing["eligible"] = True
         except (OSError, ValueError, urllib.error.URLError, TimeoutError) as exc:
             errors[sid] = type(exc).__name__
     if not scans:
@@ -463,12 +492,19 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         raise RuntimeError("Full audit incomplete: not every discovered channel was tested")
     state = {}
     deleted_now = 0
+    recovered_now = 0
+    hidden_now = 0
     for key, item in discovered.items():
         old = previous.get(key, {})
         checked = key in checks
         successful = checks.get(key, False)
         record = {k: item[k] for k in ("id", "name", "country", "genre", "language", "url", "source")}
+        record["eligible"] = bool(item.get("eligible", False))
         if checked:
+            if successful and old.get("status") == "failed":
+                recovered_now += 1
+            if not successful and old.get("status") != "failed":
+                hidden_now += 1
             record["status"] = "ok" if successful else "failed"
             record["checked"] = today
             record["last_ok"] = today if successful else old.get("last_ok", "")
@@ -490,13 +526,15 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
                 age = 0
             if age >= DELETE_AFTER_FAILURE_DAYS and checked and not successful:
                 tombstones[key] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
+                deleted_urls[stream_hash(record["url"])] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
                 deleted_now += 1
                 continue
         state[key] = record
     # Only currently discovered, recently segment-tested channels qualify.
     earliest = (now - dt.timedelta(days=VALID_DAYS)).strftime("%Y-%m-%d")
     live = [row for row in state.values()
-            if row.get("status") == "ok" and row.get("last_ok", "") >= earliest]
+            if row.get("status") == "ok" and row.get("eligible", True)
+            and row.get("last_ok", "") >= earliest]
     live.sort(key=lambda x: (priority(x), normalized(x["name"]), x["id"]))
     live = live[:MAX_LIVE]
     playlist = ["#EXTM3U", "#DM_AUTO_SOURCE:CURATED_PUBLIC_FEEDS",
@@ -520,7 +558,9 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
               "scope": "CURATED_DISCOVERY_FEEDS_ONLY_NOT_ALL_STREAM_LISTS",
               "full_audit_of_curated_candidates": bool(FULL_AUDIT and len(checks) == len(discovered) and not errors),
               "total_catalog_coverage_confirmed": False,
-              "sources_responded": len(scans), "sources_total": len(SOURCES),
+              "sources_responded": len(scans), "sources_total": len(sources),
+              "hidden_this_run": hidden_now, "recovered_this_run": recovered_now,
+              "total_active_records": len(state),
               "source_counts": scans, "source_errors": errors,
               "community_candidates_research_only": researched,
               "open_web_research": research,
@@ -533,7 +573,33 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
         raise RuntimeError("No candidates tested; fail safely instead of wiping the list")
     STATE.parent.mkdir(parents=True, exist_ok=True)
     write_json(STATE, {"schema": 1, "last_run": today, "channels": state,
-                       "rotation_cursor": rotation_cursor, "deleted_ids": tombstones})
+                       "rotation_cursor": rotation_cursor, "deleted_ids": tombstones,
+                       "deleted_urls": deleted_urls})
+    if ROTATING_AUDIT:
+        # Serving layer uses URL-level health across original lists and merged catalogs.
+        failed_urls = sorted({stream_hash(row["url"]) for row in state.values()
+                              if row["status"] == "failed"})
+        # SHA-256 keys prevent URLs with query strings from appearing in health artifacts.
+        write_json(HEALTH, {"schema": 1, "as_of": today, "checked": len(checks),
+                            "status": "ROTATING_BATCH_COMPLETED",
+                            "failed_url_hashes": failed_urls,
+                            "deleted_url_hashes": sorted(deleted_urls)})
+        memory = read_json(EXPLORATION, {"schema": 1, "sources": {}})
+        known_sources = memory.get("sources", {})
+        for source in sources:
+            sid, url = source[:2]
+            entry = known_sources.setdefault(url, {"first_seen": today, "source": sid})
+            entry["last_attempt"] = today
+            entry["last_result"] = "ok" if sid in scans else "unavailable"
+            entry["last_channel_count"] = scans.get(sid, 0)
+        for page in research.get("candidate_sources", []):
+            link = page.get("url")
+            if link and safe_url(link, False):
+                entry = known_sources.setdefault(link, {"first_seen": today,
+                    "source": page.get("discovered_from", "research")})
+                entry["last_seen"] = today
+                entry["status"] = "REVIEW_REQUIRED_NOT_PLAYABLE"
+        write_json(EXPLORATION, {"schema": 1, "last_run": today, "sources": known_sources})
     OUTPUT.write_text("\n".join(playlist) + "\n", encoding="utf-8")
     write_json(REPORT, report)
     return report
