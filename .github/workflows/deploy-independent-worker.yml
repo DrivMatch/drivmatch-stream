@@ -1,6 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Verified admin recovery: subsequent staging operations require explicit authorization.
+  # Security recovery verified; future execution requires manual authorization.
   workflow_dispatch:
 permissions:
   contents: read
