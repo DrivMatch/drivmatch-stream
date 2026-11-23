@@ -315,3 +315,57 @@ html,body{font-size:24px;line-height:1.4}
  .top-link{font-size:16px;padding:3px 8px;line-height:23px}
  .connection-status{font-size:17px;line-height:28px;margin-right:9px}
 }
+
+/* Dense two-column channel rows. Match main name type across both columns.
+   Preserve large 24px channel names; only secondary classification is smaller. */
+.quick-section{padding:0 1px 4px;margin-bottom:5px}
+.quick-title{margin:1px 0 4px}
+.quick-toggle{display:block;width:100%;min-height:38px;margin:0;padding:4px 7px;
+ background:#123c5b;border:1px solid #3b6688;border-radius:6px;color:#fff;
+ font-size:23px;font-weight:bold;text-align:left;line-height:1.15}
+.quick-toggle .quick-chevron{display:inline-block;width:18px;color:#a6d4f8}
+.quick-toggle b{float:right;color:#d3ebfd;font-size:17px;margin-top:3px}
+.quick-items{padding:0 1px 5px}
+.quick-entry-btn{min-height:42px;padding:5px 6px;margin:2px 0;
+ font-size:24px;line-height:1.18;overflow:hidden;white-space:nowrap}
+.quick-entry-name{display:block!important;float:left;width:65%;overflow:hidden;
+ white-space:nowrap;text-overflow:ellipsis;font-size:24px}
+.quick-entry-btn .quick-entry-meta{display:block!important;float:right;width:32%;
+ margin:1px 0 0;text-align:right;color:#bed5e9;font-size:16px;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* Left-side country and channel names stay the same size as guide names. */
+.country-items .tree-country-btn{font-size:24px;min-height:42px;padding:5px 6px;margin-bottom:3px}
+.tree-genre-btn{font-size:24px;min-height:41px;padding:5px 5px;margin:2px 0}
+.tree-categories{margin:2px 0 5px 6px;padding-left:7px}
+.tree-channel-list{padding-left:7px;margin:1px 0 4px}
+.tree-channel-btn{font-size:24px;line-height:1.15;min-height:42px;
+ padding:5px 6px;margin:2px 0;overflow:hidden;white-space:nowrap}
+.tree-channel-name{display:block;float:left;width:65%;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-channel-class{display:block;float:right;width:32%;margin-top:2px;
+ text-align:right;color:#b4cde1;font-size:16px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-more-btn{min-height:37px;margin:2px 0;padding:5px 6px}
+/* One-line guide: name (left), country/Outros (right), favorite action.
+   Source and access details remain accessible in the button tooltip/ARIA
+   and in the video information panel once selected. */
+.channel-row{min-height:46px;margin-bottom:3px;border-radius:6px}
+.channel-number{width:30px;padding:11px 2px 0 2px;font-size:16px}
+.channel-row .channel-btn{min-height:44px;width:calc(100% - 76px);
+ padding:6px 3px 5px 4px;overflow:hidden}
+.channel-row .channel-btn .channel-title{display:block;float:left;
+ width:66%;font-size:24px;line-height:1.25;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis}
+.channel-classification{display:block;float:right;width:32%;text-align:right;
+ font-size:16px;color:#b9d6e8;margin-top:5px;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.channel-row .fav-btn{width:46px;min-height:44px;font-size:25px}
+@media(max-width:1000px){
+ .quick-toggle{min-height:37px;font-size:22px}
+ .quick-entry-btn,.quick-entry-name{font-size:23px}
+ .tree-channel-btn,.country-items .tree-country-btn,.tree-genre-btn{font-size:23px}
+ .channel-row .channel-btn .channel-title{font-size:23px}
+ .quick-entry-meta,.tree-channel-class,.channel-classification{font-size:15px}
+ .channel-row{min-height:44px}
+ .channel-row .channel-btn,.channel-row .fav-btn{min-height:42px}
+}
