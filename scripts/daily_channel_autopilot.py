@@ -347,29 +347,43 @@ def priority(item: dict) -> tuple:
     return (p, g)
 
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
-    # Previously verified videos are checked repeatedly; failures get a fast
-    # opportunity to recover. Remaining capacity rotates newly discovered rows.
+    """Daily quotas stop repeated failures starving new discoveries forever."""
     day = now.strftime("%Y%m%d")
     randomizer = random.Random(int(day))
     items = list(candidates.values())
     randomizer.shuffle(items)
-    def key(x):
-        old = previous.get(x["id"], {})
-        checked = old.get("checked", "")
-        expired = checked < (now - dt.timedelta(days=4)).strftime("%Y-%m-%d")
-        failed = old.get("status") == "failed"
-        # Reserve slots for previously verified/stale and recently failed.
-        if failed:
-            level = 0
-        elif old.get("status") == "ok" and expired:
-            level = 1
-        elif x["id"] not in previous:
-            level = 2
+    cutoff = (now - dt.timedelta(days=3)).strftime("%Y-%m-%d")
+    buckets = {"new": [], "stale": [], "failed": [], "recent": []}
+    for item in items:
+        old = previous.get(item["id"])
+        if not old or old.get("status", "unverified") == "unverified":
+            buckets["new"].append(item)
+        elif old.get("status") == "failed":
+            buckets["failed"].append(item)
+        elif old.get("checked", "") < cutoff:
+            buckets["stale"].append(item)
         else:
-            level = 3
-        return (level, priority(x))
-    items.sort(key=key)
-    return items[:MAX_CHECKS]
+            buckets["recent"].append(item)
+    # Never consume every slot rechecking streams known to have failed.
+    # Reserve capacity for new public broadcasters and healthy recertification.
+    quotas = {"new": (MAX_CHECKS * 50) // 100,
+              "stale": (MAX_CHECKS * 30) // 100,
+              "failed": (MAX_CHECKS * 20) // 100}
+    result = []
+    selected = set()
+    for name in ("new", "stale", "failed"):
+        pool = buckets[name]
+        pool.sort(key=lambda item: priority(item))
+        for item in pool[:quotas[name]]:
+            if item["id"] not in selected:
+                selected.add(item["id"])
+                result.append(item)
+    # Backfill unused quotas from all remaining, including OTHER countries.
+    remaining = [v for v in items if v["id"] not in selected]
+    remaining.sort(key=priority)
+    for item in remaining[:max(0, MAX_CHECKS-len(result))]:
+        result.append(item)
+    return result[:MAX_CHECKS]
 
 def as_extinf(item: dict) -> str:
     def clean(s: str) -> str:
