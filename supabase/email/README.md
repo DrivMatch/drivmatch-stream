@@ -6,6 +6,19 @@ Modelo aprovado de convite, independente de DrivMatch News e de outros projetos.
 
 **Template HTML:** `supabase/email/invite.html`
 
+**Stream web (ambiente de teste):** https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/
+
+**APK Android testado no pipeline (GitHub Release público):**
+https://github.com/DrivMatch/drivmatch-stream/releases/download/stream-android-test-v0.1.1/app-debug.apk
+
+O APK é **debug/teste**, não uma versão assinada para distribuição comercial pela
+Google Play. A versão do release foi compilada com o endereço do Worker de teste
+pré-configurado. O link foi verificado pelo endpoint de releases do GitHub;
+os fluxos de login e de instalação física em aparelhos diferentes ainda precisam de
+testes reais. Quando houver uma versão estável, atualizar simultaneamente o
+template, o link e a informação de versão. **Nunca** manter um link APK desatualizado
+em convites recorrentes.
+
 ## Publicação no Supabase hospedado
 
 1. Acesse o projeto **DrivMatch Stream Auth** no Supabase.
