@@ -378,3 +378,122 @@ html,body{font-size:24px;line-height:1.4}
 @media(max-width:1000px){
  .country-items .tree-channel-btn,.country-items .tree-genre-btn{font-size:23px}
 }
+
+/* Stream TV • Contrast Edition (22 Nov 2026).
+   Dark sapphire / slate panels, high-contrast cyan selection and readable
+   24px channel text. ES5/Tizen-safe CSS (no Grid, CSS variables or clamp). */
+html,body{background:#080f1c;color:#f7faff}
+.tv-shell{background:#080f1c}
+.tv-layout{height:calc(100vh - 42px);padding:7px;background:#080f1c}
+.topbar{height:42px;padding:6px 14px;background:#0d192a;
+  border-bottom:1px solid #3c5976}
+.logo{width:28px;height:28px;line-height:28px;font-size:12px;
+  border-radius:7px;margin-right:7px;background:#177caf;color:#fff}
+.brand b{font-size:24px;line-height:28px;letter-spacing:-.35px;color:#f9fcff}
+.brand em{color:#69d7ff}
+.toplinks{font-size:16px;line-height:28px;color:#ecf6ff}
+.top-link{font-size:16px;line-height:22px;padding:2px 10px;color:#f7fcff;
+  border:1px solid #537593;background:#1e3650;border-radius:6px}
+.connection-status{font-size:16px;line-height:27px;margin-right:10px}
+.connection-status .status-dot{width:9px;height:9px;margin-right:5px}
+.connection-status.checking{color:#b9ccde}
+.connection-status.checking .status-dot{background:#7992aa}
+.connection-status.online{color:#78f0a8}
+.connection-status.online .status-dot{background:#2ddc7e}
+.connection-status.offline{color:#ffaaa7}
+.connection-status.offline .status-dot{background:#ff5d66}
+.column{background:#172940;border:1px solid #46637f;
+  border-radius:10px;scrollbar-color:#658cac #172940}
+.sidebar{background:#17283e;border-color:#526b86;padding:9px}
+.catalog{background:#20324b;border-color:#5a7793;padding:10px}
+.player-column{background:#12253c;border-color:#476b87;padding:10px}
+.section-title{font-size:19px;color:#bce8ff;background:#27435f;
+  border-left:3px solid #61dbff;padding:5px 7px;
+  border-radius:4px;letter-spacing:.3px;margin-bottom:7px}
+.section-title b{font-size:15px;color:#f5fbff;background:#345879;
+  padding:2px 7px}
+.overline,.player-caption{color:#96e5ff}
+.catalog-header h1{color:#fff}
+.catalog-header p,.catalog-status{color:#d5e4f0}
+.catalog-status{background:#263d58;border-left:3px solid #5badde;
+  border-radius:4px;padding:5px 7px;margin:5px 0 8px;line-height:1.25}
+.channel-heading span{color:#f3f8ff}
+.channel-heading button,.more-btn{background:#265780;color:#fff;
+  border:1px solid #6aa9db}
+.search-row input{background:#f4faff;border:2px solid #8aadc7;
+  color:#14263b;box-shadow:none}
+.search-row input:focus{background:#fff!important;color:#132b45!important}
+.search-row button{color:#113252;background:#cee4f3}
+.quick-section{border-bottom:1px solid #456781}
+.quick-toggle{background:#294862;color:#f7fbff;border:1px solid #6686a4;
+  border-left:3px solid #69d9f8}
+.quick-toggle .quick-chevron{color:#a8edff}
+.quick-toggle b{color:#e5f5ff}
+.quick-entry-btn{background:#243e58;border-color:#587892;color:#fff}
+.quick-entry-btn:nth-child(even){background:#2a4763}
+.quick-entry-btn.active{background:#205b7e;border-color:#7fe3ff}
+.quick-entry-btn .quick-entry-meta{color:#e0eef8}
+.quick-empty,.loading{color:#ccdfef}
+.country-items .tree-country-btn{
+  background:#274761;color:#fff;border:1px solid #60829d;
+  border-left:3px solid #74d9f7;border-radius:6px
+}
+.country-items .tree-country-btn.active{background:#235c7e;
+  border-color:#83dcff;color:#fff}
+.tree-chevron{color:#9feaff}
+.tree-count{color:#e0f2ff}
+.tree-categories{border-left:2px solid #6b94b4}
+.country-items .tree-genre-btn{
+  background:#2a415c;color:#f8fbff;border:1px solid #6083a1;
+  border-radius:5px
+}
+.country-items .tree-genre-btn.active{background:#205c80;
+  border-color:#8ce2ff;color:#fff}
+.country-items .tree-channel-btn{
+  background:#203954;color:#f9fcff;border:1px solid #4d718e;
+  border-radius:5px
+}
+.country-items .tree-channel-btn:nth-child(even){background:#29445f}
+.country-items .tree-channel-btn.active{
+  background:#1b5b80;border-color:#77dcff;color:#fff}
+.tree-channel-class,.tree-external-label{color:#d6ebf9}
+.tree-more-btn{background:#275170;color:#d7f5ff;border:1px solid #619bb9}
+.channel-row{background:#253d57;border:1px solid #587996;
+  color:#fff;border-radius:5px}
+.channel-row:nth-child(even){background:#2a4762}
+.channel-row.current{background:#205979;border:1px solid #7cdeff;
+  border-left:4px solid #80e8ff}
+.channel-row .channel-btn{color:#f9fcff}
+.channel-row .channel-btn .channel-title{color:#fff;font-weight:bold}
+.channel-classification{color:#dfedf8}
+.channel-number{color:#c0dcec}
+.channel-row .fav-btn{color:#b7d2e5}
+.channel-row .fav-btn.marked{color:#ffdc75}
+.player-caption{color:#9ee6ff}
+.play-status{color:#e1f0fa}
+.player-frame{background:#030913;border:2px solid #6587a5;border-radius:9px}
+.player-empty strong,.now-playing h2{color:#fff}
+.player-empty p,.now-playing p{color:#d6e5f1}
+.player-actions button{background:#284b69;border:1px solid #6d98b8;color:#fff}
+#official-open{background:#25688f;border-color:#83dcff;color:#fff}
+.disclaimer,.remote-hint,.sidebar-note{color:#c4d9eb}
+.remote-hint{border-top-color:#54718b}
+.provider-footer,.technical-footer{border-top-color:#607c97}
+#provider-toggle,#technical-toggle{background:#263f59;color:#f1f8ff;
+  border-color:#688baa}
+.provider-entry{background:#203751;color:#f6faff;border-color:#577c9a}
+.technical-source-name{color:#d1e2ef}
+button:focus,a:focus,input:focus{outline:3px solid #ffe28b!important;
+  outline-offset:1px;background:#205d83!important;color:#fff!important}
+/* Compress the actual header container, not just its icon. */
+@media(max-width:1000px){
+ .topbar{height:40px;padding:5px 10px}
+ .tv-layout{height:calc(100vh - 40px);padding:5px}
+ .logo{width:26px;height:26px;line-height:26px;font-size:12px;margin-right:6px}
+ .brand b{font-size:22px;line-height:26px}
+ .toplinks{line-height:26px}
+ .connection-status{line-height:25px;font-size:15px;margin-right:7px}
+ .top-link{font-size:15px;line-height:20px;padding:2px 7px}
+ .sidebar,.catalog,.player-column{padding:7px}
+ .section-title{font-size:18px}
+}
