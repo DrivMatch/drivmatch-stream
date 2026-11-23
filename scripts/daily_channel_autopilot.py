@@ -281,17 +281,52 @@ RESEARCH_SEARCHES = (
     ("twitch-broadcaster-live", "https://www.twitch.tv/search?term=official%20tv%20live"),
 )
 def research_pages(fetcher=fetch_bytes) -> dict:
+    # Search results are *candidates for verification*, not playable media.
+    # Never auto-promote anonymous Reddit / GitHub / YouTube / Twitch links.
     result = {"pages_attempted": len(RESEARCH_SEARCHES), "pages_responded": 0,
               "pages_unavailable": [], "surfaces_reached": [],
-              "note": "Search-page evidence only; no premium or unlicensed links accepted"}
+              "candidate_sources": [],
+              "note": "Public search results only; approval/provenance pending; not included in playable catalog"}
+    seen = set()
+    def add(url: str, from_label: str) -> None:
+        if len(seen) >= 50 or not safe_url(url, False):
+            return
+        p = urllib.parse.urlsplit(url)
+        if p.hostname not in ("github.com", "raw.githubusercontent.com",
+                              "www.youtube.com", "youtube.com",
+                              "www.twitch.tv", "twitch.tv"):
+            return
+        if PAID.search(url) or "/login" in p.path.lower() or url in seen:
+            return
+        seen.add(url)
+        result["candidate_sources"].append({"url": url, "discovered_from": from_label,
+                                             "state": "REVIEW_REQUIRED_NOT_PLAYABLE"})
     for label, url in RESEARCH_SEARCHES:
         try:
-            # bounded requests, no embedded video following, no access tokens
+            # bounded requests, no embedded video following, no credentials
             data = fetcher(url, 1_200_000)
             if len(data) < 20:
                 raise ValueError("no search results body")
             result["pages_responded"] += 1
             result["surfaces_reached"].append(label)
+            body = data.decode("utf-8", "replace")
+            if label.startswith("github"):
+                try:
+                    for item in json.loads(body).get("items", [])[:25]:
+                        add(str(item.get("html_url", "")), label)
+                except (ValueError, AttributeError, TypeError):
+                    pass
+            elif label.startswith("reddit"):
+                try:
+                    for child in json.loads(body).get("data", {}).get("children", [])[:20]:
+                        for field in ("url", "url_overridden_by_dest"):
+                            add(str(child.get("data", {}).get(field, "")), label)
+                except (ValueError, AttributeError, TypeError):
+                    pass
+            else:
+                # Only link identity, never scrape protected video/media URLs.
+                for path in re.findall(r'https?://(?:www\.)?(?:youtube\.com/(?:@|channel/)[a-zA-Z0-9_.%-]+|twitch\.tv/[a-zA-Z0-9_]{3,25})', body)[:40]:
+                    add(path, label)
         except (OSError, ValueError, urllib.error.URLError, TimeoutError):
             result["pages_unavailable"].append(label)
     return result
