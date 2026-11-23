@@ -5,6 +5,10 @@ on:
     # 09:20 America/Sao_Paulo (UTC-3), away from the top-of-hour load.
     - cron: '20 12 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/daily-channel-autopilot.yml'
 
 permissions:
   contents: write
