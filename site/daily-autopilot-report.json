@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "date_utc": null,
+  "state": "AWAITING_FIRST_RUN",
+  "sources_responded": 0,
+  "tested": 0,
+  "published_healthy": 0,
+  "last_validation_note": "No nightly scan has run yet; no streams certified"
+}
