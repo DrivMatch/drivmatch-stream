@@ -1,6 +1,9 @@
 name: Verify live Stream Console and D1 data retention
 on:
-  # Staging email budget release verified; future execution requires manual authorization.
+  # One controlled read-only check of restored admin authorization on isolated test Worker.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/verify-stream-control-center.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,7 +28,10 @@ jobs:
           grep -q "Acesso individual" /tmp/stream-login.html
           grep -Fq "action='/stream/login?next=admin'" /tmp/stream-login.html
           test "$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' "$origin/stream/session")" = 401
-          echo "PASS: admin deep link, authentication gate and login route"
+          test "$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' -X POST "$origin/stream/admin/status")" = 401
+          test "$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' "$origin/stream/admin/verify")" = 401
+          test "$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' "$origin/stream/stream.js")" = 401
+          echo "PASS: admin deep link, authentication gate, private asset guard and anonymous mutations blocked"
       - name: Verify only dedicated test D1 and additive columns without exposing account data
         shell: bash
         run: |
@@ -55,6 +61,13 @@ jobs:
               assert key in fields,key+" not deployed"
           counts=read("SELECT COUNT(*) AS total FROM stream_users")
           assert counts and counts[0]["total"]>=2,"Accounts unexpectedly missing"
+          admins=read("SELECT COUNT(*) AS total FROM stream_users WHERE role='admin' AND status='active'")
+          viewers=read("SELECT COUNT(*) AS total FROM stream_users WHERE role='viewer'")
+          assert admins and admins[0]["total"]==1,"Exactly one active administrator must remain"
+          assert viewers and viewers[0]["total"]>=1,"Expected ordinary viewer accounts"
+          session_fields={r["name"] for r in read("PRAGMA table_info(stream_sessions)")}
+          assert "admin_verified_until" in session_fields,"Admin password re-verification migration missing"
+          print("PASS: one active administrator preserved; viewers remain separate; privileged session verification installed")
           email_fields={r["name"] for r in read("PRAGMA table_info(stream_email_budget)")}
           for key in ("request_id","local_day","kind","status","created_at"):
               assert key in email_fields,key+" not deployed"
