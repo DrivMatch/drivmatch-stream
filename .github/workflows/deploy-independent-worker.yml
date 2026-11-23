@@ -1,9 +1,7 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Controlled deployment of the new independent administration console.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/deploy-independent-worker.yml']
+  # Console published after 18/18 tests, browser QA, D1 export and migration.
+  # No automatic deployment; future changes must be explicitly dispatched.
   workflow_dispatch:
 permissions:
   contents: read
