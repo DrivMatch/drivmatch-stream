@@ -1,9 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Controlled one-time publication of admin navigation fix to isolated test Worker.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/deploy-independent-worker.yml']
+  # Admin navigation staging release verified; run manually for subsequent changes.
   workflow_dispatch:
 permissions:
   contents: read
