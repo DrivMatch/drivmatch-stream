@@ -1321,7 +1321,7 @@ function init(){
     });},300000);
     try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";T(D("account-identity"),"Conta: "+String(a.email||"não identificada")+(a.role==="admin"?" · ADMIN":" · USUÁRIO"));}}catch(e){T(D("account-identity"),"Conta não identificada");}
     // Management link is visible only for a server-confirmed admin session.
-    if(D("admin-link"))visibleEl(D("admin-link"),false);
+    if(D("admin-link"))visibleEl(D("admin-link"),streamUserRole==="admin");
     if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
     else{loadHidden();loadFav();loadQuickHistory();drawQuickLists();}
     http("/stream/listas/sources.json",function(st,raw){
