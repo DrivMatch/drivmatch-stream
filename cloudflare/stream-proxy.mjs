@@ -140,7 +140,7 @@ export default {async fetch(request,env){
  if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
  if(path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
-    path!=="/stream/logout"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
+    path!=="/stream/logout"&&path!=="/stream/countries"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
