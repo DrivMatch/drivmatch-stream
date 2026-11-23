@@ -1,6 +1,10 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Disabled automatic retries until Cloudflare returns a valid authenticated API response.
+  # One controlled branch commit runs the isolated staging deployment.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths:
+      - '.github/workflows/deploy-independent-worker.yml'
   workflow_dispatch:
 permissions:
   contents: read
