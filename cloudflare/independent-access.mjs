@@ -180,7 +180,12 @@ function page(title, body, status = 200, script = "", nonce = "") {
   const csp = "default-src 'none'; style-src 'unsafe-inline'; " +
     (nonce ? "script-src 'nonce-" + nonce + "'; " : "") +
     "form-action 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'";
-  return new Response(html, {status, headers: {...HEADERS, "Content-Type":"text/html; charset=utf-8",
+  // "no-referrer" makes Chrome send Origin: null on native same-origin
+  // POST forms, breaking the CSRF guard. "same-origin" keeps external referrers
+  // suppressed while providing a trustworthy Origin for our own forms.
+  return new Response(html, {status, headers: {...HEADERS,
+    "Referrer-Policy":"same-origin",
+    "Content-Type":"text/html; charset=utf-8",
     "Content-Security-Policy":csp}});
 }
 async function loginPage(error = false, env) {
