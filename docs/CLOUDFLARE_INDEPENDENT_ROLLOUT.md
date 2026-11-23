@@ -5,7 +5,7 @@
 
 ## Boundaries
 
-- Dedicated Cloudflare account for Stream. Do not reuse Ricardo's account, credentials, database, or deployment routes.
+- Reuse the founder-authorized existing Cloudflare account, but create **exclusive Stream Worker and Stream D1 database**. Do not share routes, databases, sessions or secrets with DrivMatch main or News. Lovable is not used.
 - Dedicated Supabase **project** only for identity and transactional email. Do not use the DrivMatch main project's database/auth.
 - Existing GitHub repository `DrivMatch/drivmatch-stream` is reused. No duplicate repository. No production change until review.
 - Catalog remains static via GitHub Pages; the new Cloudflare Worker controls the independent HTTPS entry point.
@@ -14,7 +14,7 @@
 
 ## One-time owner setup (requires access to accounts; do NOT paste secrets into chat)
 
-1. In **your own Cloudflare account**, enable the workers.dev subdomain.
+1. In the **existing founder-authorized Cloudflare account**, enable or verify the workers.dev subdomain. Do not modify existing Workers or DNS routes.
 2. Create the D1 database `drivmatch-stream-users`; copy its actual UUID into a new local `wrangler.independent.toml` copied from `wrangler.independent.toml.example`. Never commit this private deployment file.
 3. Apply `migrations/0001_stream_identities.sql` using Wrangler D1 migrations against the **correct new database**. Review the target before applying.
 4. In **your own Supabase account**, create a *dedicated* project for Stream. Configure Auth email/password, *disable open public signup*, and configure the invitation/recovery email delivery. Use a verified SMTP provider for a reliable professional deployment; default delivery may have quotas.
@@ -62,7 +62,7 @@ Until the dedicated Cloudflare Worker exists, the APK cannot be end-to-end teste
 
 ## Acceptance gates (must PASS with evidence)
 
-- Worker deployed on **own account**, HTTPS and D1 migrations applied.
+- Stream-only Worker deployed in the authorized existing Cloudflare account, HTTPS and separate D1 migrations applied.
 - Invitation received by brother, password set without founder ever seeing it, login and recovery tested.
 - Founder account's existing favorites backed up and migrated, unchanged after next 02:00 catalog update.
 - Brother favorites not visible to founder and vice versa (API authorization tests).
@@ -74,9 +74,15 @@ Until the dedicated Cloudflare Worker exists, the APK cannot be end-to-end teste
 
 ## Known blockers before production
 
-**Not yet connected:** Cloudflare account, D1 ID, Supabase project/key, reliable invitation email, founder Auth account, brother invitation, private worker hostname, and real Android device.
+**Cloudflare authentication BLOCKED (2026-11-23):** Existing GitHub Actions Cloudflare account ID/token were found, but Cloudflare D1 API request returned HTTP 401 Unauthorized. No D1 or Worker was created. A valid, appropriately scoped Cloudflare API token must be set in GitHub Actions secrets; the workflow stays manual-only until repaired. Also not configured: Supabase project/key, invitation email/SMTP, founder Auth account, brother invitation and real device acceptance.
 **Not yet proven:** build and physical channel playback, user isolation on live accounts, delivery of recovery email, failure mode under source outage.
 **Rollback:** do not merge the branch into `main` before separate worker passes all stages. Current live PIN gate and favorites stay untouched until authorized cutover.
+
+## Verified GitHub deployment evidence (2026-11-23)
+
+- GitHub Actions run `45240140875` (staging): credentials present but Cloudflare API answered `401` at D1 list; no migration or deploy step executed.
+- CI tests for `stream_worker` and `independent_access` have passed in prior PR builds; this does not prove a live deployment.
+- No production update, no loss of legacy favorites.
 
 ## References
 
