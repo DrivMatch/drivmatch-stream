@@ -152,6 +152,18 @@ async function main(){
       await page.goto(origin+'/stream/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
+      assert.equal(await page.locator('html').evaluate(el=>el.classList.contains('dm-desktop-compact')),true,
+        'Desktop must receive the compact typographic class');
+      const fontSizes=await page.evaluate(() => {
+        const px=selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize);
+        return {country:px('.tree-country-btn'),genre:px('.tree-genre-btn'),
+          channel:px('.channel-row .channel-btn .channel-title'),
+          player:px('.now-playing h2')};
+      });
+      assert(fontSizes.country>=15&&fontSizes.country<=18,'Desktop country font: '+fontSizes.country);
+      assert(fontSizes.genre>=14&&fontSizes.genre<=17,'Desktop category font: '+fontSizes.genre);
+      assert(fontSizes.channel>=14&&fontSizes.channel<=17,'Desktop channel font: '+fontSizes.channel);
+      assert(fontSizes.player>=18&&fontSizes.player<=22,'Desktop player heading: '+fontSizes.player);
       const left=await page.locator('.sidebar').boundingBox();
       const middle=await page.locator('.catalog').boundingBox();
       const right=await page.locator('.player-column').boundingBox();
@@ -195,6 +207,11 @@ async function main(){
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
+      assert.equal(await page.locator('html').evaluate(el=>el.classList.contains('dm-desktop-compact')),false,
+        'Samsung user-agent must never receive desktop font overrides');
+      const samsungCountrySize=await page.locator('.tree-country-btn').first()
+        .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+      assert(samsungCountrySize>=22,'Samsung must retain large sofa-distance typography');
       await context.close();
     }
     // Samsung: country > category > channel tree, with hidden source lists.
