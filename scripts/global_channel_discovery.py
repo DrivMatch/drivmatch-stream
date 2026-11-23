@@ -58,11 +58,16 @@ COUNTRY_NAMES_PT = {
 }
 CURATED_IDENTITIES = {
     "россия 24": ("Rossiya 24", "Rossiya 24 — Notícias da Rússia"),
+    "rossiya 24": ("Rossiya 24", "Rossiya 24 — Notícias da Rússia"),
+    "russia 24": ("Rossiya 24", "Rossiya 24 — Notícias da Rússia"),
     "первый канал": ("Pervy Kanal", "Pervy Kanal — Rússia"),
     "日本テレビ": ("Nippon TV", "Nippon TV — Japão"),
     "中央电视台": ("CCTV", "CCTV — China"),
     "الجزيرة": ("Al Jazeera", "Al Jazeera — Catar"),
 }
+CURATED_ALIASES = {"россия 24": ("Russia 24",),
+                   "rossiya 24": ("Россия 24", "Russia 24"),
+                   "russia 24": ("Россия 24", "Rossiya 24")}
 CYRILLIC = dict(zip(
     "абвгдеёжзийклмнопрстуфхцчшщъыьэюя",
     ("a", "b", "v", "g", "d", "e", "yo", "zh", "z", "i", "y",
@@ -106,8 +111,9 @@ def describe_channel(name: str, country: str) -> dict:
     international = known[0] if known else romanize(original)
     # Never pretend a guessed translation is an official broadcaster name.
     display = known[1] if known else international
-    aliases = list(dict.fromkeys(x for x in (original, international, display)
-                                 if x))
+    aliases = list(dict.fromkeys(x for x in (
+        original, international, display, *CURATED_ALIASES.get(original.casefold(), ())
+    ) if x))
     return {
         "original_name": original, "official_name": "",
         "international_name": international, "display_name_pt": display,
@@ -127,6 +133,11 @@ def safe_url(url: str, *, resolve: bool = False) -> bool:
     if port not in (None, 443) or PRIVATE_HOST.search(p.hostname) or SECRET.search(p.query):
         return False
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", p.hostname): return False
+    try:
+        ip = ipaddress.ip_address(p.hostname)
+        if not ip.is_global: return False
+    except ValueError:
+        pass  # Public DNS hostname, validated below when it is fetched.
     if not resolve: return True
     try:
         addrs = [x[4][0] for x in socket.getaddrinfo(p.hostname, 443, type=socket.SOCK_STREAM)]
