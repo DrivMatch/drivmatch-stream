@@ -32,6 +32,10 @@ jobs:
           html=Path("supabase/email/invite.html").read_text()
           assert subject=="Seu convite para o DrivMatch Stream | TV de vários países"
           assert html.count("{{ .ConfirmationURL }}")==1
+          assert html.count("https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/")==1
+          assert html.count("https://github.com/DrivMatch/drivmatch-stream/releases/download/stream-android-test-v0.1.1/app-debug.apk")==1
+          assert "Baixar aplicativo Android (APK)" in html
+          assert "Abrir DrivMatch Stream" in html
           assert "Criar minha senha e ativar o acesso" in html
           assert "crie sua senha pessoal" in html
           assert "DrivMatch Stream" in html
