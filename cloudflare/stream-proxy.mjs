@@ -151,6 +151,17 @@ export default {async fetch(request,env){
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
  const pagesHost=host==="streamnow.pages.dev";
  const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":"https://streamnow.pages.dev/daily-autopilot.m3u8"}:TV_SOURCE_URLS;
+ const loadCatalogue=pagesHost?async (address,id)=>{
+   if(address==="https://streamnow.pages.dev/daily-autopilot.m3u8"){
+     if(!env?.ASSETS)throw Error("Local catalogue unavailable");
+     const res=await env.ASSETS.fetch(new Request(new URL("/daily-autopilot.m3u8",url.origin)));
+     if(!res.ok)throw Error("Local catalogue unavailable");
+     const data=await res.text();
+     if(data.length>6_000_000)throw Error("Local catalogue too large");
+     return data;
+   }
+   return curatedCatalogue(address,id);
+ }:curatedCatalogue;
  if(host!=="drivmatch.com"&&!preview&&!pagesHost)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
  if(path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
@@ -224,7 +235,7 @@ export default {async fetch(request,env){
  if(path==="/stream/countries"){
    if(url.searchParams.get("list")!=="lista-2")return plain(400,"Unsupported list");
    try{
-     const result=await countryIndex(tvUrls,TV_COUNTRIES,curatedCatalogue);
+     const result=await countryIndex(tvUrls,TV_COUNTRIES,loadCatalogue);
      return new Response(request.method==="HEAD"?null:JSON.stringify(result),{
        status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
    }catch{return plain(502,"Country index temporarily unavailable");}
@@ -235,7 +246,7 @@ export default {async fetch(request,env){
    if(q.length<2||q.length>60||!/^[\p{L}\p{N} ._+\-–—()'&]+$/u.test(q))
      return plain(400,"Invalid search query");
    try{
-     const result=await searchCatalog(q,tvUrls,TV_COUNTRIES,curatedCatalogue);
+     const result=await searchCatalog(q,tvUrls,TV_COUNTRIES,loadCatalogue);
      return new Response(request.method==="HEAD"?null:result,{
        status:200,headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
    }catch{return plain(502,"Global search temporarily unavailable");}
@@ -249,9 +260,9 @@ export default {async fetch(request,env){
      if(list==="lista-2"){
        if(!/^[a-z]{2}$/.test(code)&&code!=="all"&&code!=="other")
          return plain(400,"Unsupported country");
-       body=await mergedCatalog(code.toUpperCase(),tvUrls,TV_COUNTRIES,curatedCatalogue);
+       body=await mergedCatalog(code.toUpperCase(),tvUrls,TV_COUNTRIES,loadCatalogue);
      }else if(Object.hasOwn(tvUrls,list||"")){
-       body=await publicCatalogue(tvUrls[list]);
+       body=await loadCatalogue(tvUrls[list],list);
         if(list==="lista-9")body=publicBrazilPlaylist(body);
      }else if(!list){
        // Keep compatibility with the earlier Samsung TV browser catalogue requests.
