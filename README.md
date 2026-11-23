@@ -13,6 +13,13 @@ Visualizador privado pessoal de TV — projeto independente do DrivMatch News e 
 
 Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 
+## Desktop com as mesmas três colunas da Samsung (23/11/2026)
+
+- No computador, a entrada privada `/stream/` encaminha à interface existente `/stream/tv/`, com as três colunas em ordem: **Países/categorias → Guia de canais → Player**. Mouse e teclado continuam utilizáveis.
+- A interface Samsung é compartilhada, sem duplicar o catálogo ou afrouxar a autenticação; a televisão continua usando a mesma rota.
+- Celulares mantêm a interface responsiva anterior. Para suporte e comparação, o desktop pode abrir o layout antigo em `/stream/?layout=classic`.
+- A mudança é de apresentação e navegação, não prova compatibilidade dos sinais em diferentes navegadores ou TVs.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
