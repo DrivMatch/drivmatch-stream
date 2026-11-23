@@ -1,0 +1,773 @@
+{
+  "schema": 1,
+  "verifiedOn": "2026-11-22",
+  "status": "OFFICIAL_PAGES_NOT_SAMSUNG_PLAYBACK_VERIFIED",
+  "notes": "Itens gratuitos são sites/canais oficiais externos, não HLS incorporado. Canais pagos aparecem somente no rodapé de plataformas, sem promessa de acesso gratuito. Uma emissão aberta pode ser restrita por território, conta ou aplicativo.",
+  "free": [
+    {
+      "id": "br-cazetv",
+      "name": "CazéTV (oficial)",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@CazeTV",
+      "access": "Transmissões abertas no YouTube",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-getv",
+      "name": "ge tv (oficial)",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@getvbrasil",
+      "access": "Transmissões abertas selecionadas",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-record-esportes",
+      "name": "RecordPlus — canais de esportes",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://record.r7.com/novidades-no-recordplus/recordplus-lanca-canal-da-n-sports-e-amplia-cobertura-esportiva-na-plataforma-04032026/",
+      "access": "Canais FAST conforme disponibilidade",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-agromais",
+      "name": "AgroMais",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://agromais.uol.com.br/",
+      "access": "Canal oficial",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-recordnews",
+      "name": "Record News — site da emissora",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://record.r7.com/",
+      "access": "Conteúdo oficial; transmissão sob disponibilidade",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-redebrasil",
+      "name": "Rede Brasil — TV ao vivo",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://rbtv.com.br/pagina/2/tv-ao-vivo",
+      "access": "TV aberta no site oficial",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-tvbrasil",
+      "name": "TV Brasil — EBC",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://tvbrasil.ebc.com.br/",
+      "access": "Transmissão pública no portal da emissora",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-canalgov",
+      "name": "Canal Gov",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://www.gov.br/secom/pt-br/assuntos/canal-gov",
+      "access": "Programação pública",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-euronews",
+      "name": "Euronews em português",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://pt.euronews.com/live",
+      "access": "Canal oficial internacional em português",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-pluto",
+      "name": "Pluto TV Brasil — filmes e canais",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://pluto.tv/br/live-tv",
+      "access": "Gratuito com anúncios; grade do provedor",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-runtime",
+      "name": "Runtime — filmes e séries",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.runtime.tv/pt-br/linear/runtime",
+      "access": "Canal FAST gratuito do provedor",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-netmovies",
+      "name": "NetMovies — filmes completos (YouTube)",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@netmovies",
+      "access": "Filmes publicados pelo canal oficial",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-mercadoplay",
+      "name": "Mercado Play — filmes grátis",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://play.mercadolivre.com.br/filtrar/filmes",
+      "access": "Filmes gratuitos conforme título e região",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-plex",
+      "name": "Plex — filmes gratuitos",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://watch.plex.tv/",
+      "access": "Gratuito com anúncios; idioma depende do título",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-samsungplus",
+      "name": "Samsung TV Plus — filmes gratuitos",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.samsung.com/br/tvs/smart-tv/samsung-tv-plus/",
+      "access": "Abrir no aplicativo Samsung TV Plus",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-redebrasil-filmes",
+      "name": "Rede Brasil — programação de filmes",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://rbtv.com.br/",
+      "access": "Filmes na grade aberta, não vídeo sob demanda",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-eitv-hallo",
+      "name": "EiTV Play — HALLO MOVIES",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.eitvplay.com.br/channels/493?preview=true",
+      "access": "Página de canal; regras de acesso da EiTV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-eitv-classic",
+      "name": "EiTV Play — HALLO CLASSIC",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.eitvplay.com.br/channels/208?preview=true",
+      "access": "Página de canal; regras de acesso da EiTV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-spcine",
+      "name": "Spcine Play",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.spcineplay.com.br/",
+      "access": "Catálogo cultural; acesso conforme disponibilidade",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-pluto-action",
+      "name": "Pluto TV — filmes de ação",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://pluto.tv/br/live-tv",
+      "access": "Abra categoria Filmes Ação na grade Pluto TV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-pluto-classic",
+      "name": "Pluto TV — filmes clássicos",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://pluto.tv/br/live-tv",
+      "access": "Abra categoria Cine Clássicos na grade Pluto TV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-pluto-national",
+      "name": "Pluto TV — filmes nacionais",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://pluto.tv/br/live-tv",
+      "access": "Abra categoria Filmes Nacionais na grade Pluto TV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-pluto-horror",
+      "name": "Pluto TV — terror",
+      "code": "BR",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://pluto.tv/br/live-tv",
+      "access": "Abra categoria Cine Terror na grade Pluto TV",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp1",
+      "name": "RTP1 — RTP Play",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto/rtp1",
+      "access": "Emissão oficial; alguns programas geo-restritos",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp2",
+      "name": "RTP2 — RTP Play",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto/rtp2",
+      "access": "Emissão oficial; alguns programas geo-restritos",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp3",
+      "name": "RTP Notícias — RTP Play",
+      "code": "PT",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Notícias em direto no serviço RTP",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp-memoria",
+      "name": "RTP Memória",
+      "code": "PT",
+      "genre": "movies",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Programação clássica, incluindo filmes e séries",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp-acores",
+      "name": "RTP Açores",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Canal regional oficial RTP",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp-madeira",
+      "name": "RTP Madeira",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Canal regional oficial RTP",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtp-internacional",
+      "name": "RTP Internacional",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Canal internacional RTP",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-tvi",
+      "name": "TVI — direto",
+      "code": "PT",
+      "genre": "other",
+      "lang": "pt",
+      "url": "https://tviplayer.iol.pt/",
+      "access": "Site TVI Player; disponibilidade regional",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-cnnportugal",
+      "name": "CNN Portugal — direto",
+      "code": "PT",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://cnnportugal.iol.pt/",
+      "access": "Transmissões abertas variam por região",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-euronews",
+      "name": "Euronews português",
+      "code": "PT",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://pt.euronews.com/live",
+      "access": "Notícias em português",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-dazn-freemium",
+      "name": "DAZN Portugal — eventos freemium",
+      "code": "PT",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.dazn.com/pt-PT/help/articles/16738769256733-freemium",
+      "access": "Cadastro gratuito e eventos selecionados",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "pt-rtpdesporto",
+      "name": "RTP Play — esporte em direto",
+      "code": "PT",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.rtp.pt/play/direto",
+      "access": "Competições abertas selecionadas e direitos territoriais",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-livenowfox",
+      "name": "LiveNOW from FOX",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.youtube.com/@LiveNOWFOX",
+      "access": "Notícias gratuitas pelo canal oficial",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-foxweather",
+      "name": "FOX Weather — live",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.foxweather.com/live/",
+      "access": "FOX Weather confirma transmissão gratuita 24/7",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-cbsnews",
+      "name": "CBS News 24/7",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.cbsnews.com/live/",
+      "access": "Transmissão oficial gratuita",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-abcnews",
+      "name": "ABC News Live",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://abcnews.go.com/Live",
+      "access": "Noticiário ao vivo gratuito",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-nbcnews",
+      "name": "NBC News NOW",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.nbcnews.com/now",
+      "access": "Noticiário gratuito",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-pluto",
+      "name": "Pluto TV EUA — filmes",
+      "code": "US",
+      "genre": "movies",
+      "lang": "en",
+      "url": "https://pluto.tv/",
+      "access": "Canais FAST com anúncios, catálogo regional",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-plex",
+      "name": "Plex — canais e filmes",
+      "code": "US",
+      "genre": "movies",
+      "lang": "en",
+      "url": "https://watch.plex.tv/",
+      "access": "Canais gratuitos conforme região",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "us-netmovies",
+      "name": "FilmRise — catálogo de filmes",
+      "code": "US",
+      "genre": "movies",
+      "lang": "en",
+      "url": "https://filmrise.com/",
+      "access": "Conteúdo gratuito autorizado conforme disponibilidade",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "uk-skynews",
+      "name": "Sky News — live",
+      "code": "UK",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://news.sky.com/watch-live",
+      "access": "Live oficial gratuita conforme região",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "uk-pluto",
+      "name": "Pluto TV Reino Unido",
+      "code": "UK",
+      "genre": "movies",
+      "lang": "en",
+      "url": "https://pluto.tv/",
+      "access": "FAST gratuito com anúncios",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "fr-france24",
+      "name": "France 24 — direto",
+      "code": "FR",
+      "genre": "news",
+      "lang": "fr",
+      "url": "https://www.france24.com/fr/direct",
+      "access": "Notícias gratuitas em francês",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "fr-euronews",
+      "name": "Euronews francês",
+      "code": "FR",
+      "genre": "news",
+      "lang": "fr",
+      "url": "https://fr.euronews.com/live",
+      "access": "Notícias gratuitas",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "de-dw",
+      "name": "DW TV — notícias",
+      "code": "DE",
+      "genre": "news",
+      "lang": "de",
+      "url": "https://www.dw.com/de/media-center/live-tv/s-100825",
+      "access": "Emissão pública alemã",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "de-euronews",
+      "name": "Euronews alemão",
+      "code": "DE",
+      "genre": "news",
+      "lang": "de",
+      "url": "https://de.euronews.com/live",
+      "access": "Notícias gratuitas",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "es-euronews",
+      "name": "Euronews espanhol",
+      "code": "ES",
+      "genre": "news",
+      "lang": "es",
+      "url": "https://es.euronews.com/live",
+      "access": "Notícias gratuitas",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "es-rtve",
+      "name": "RTVE Play — canais e filmes",
+      "code": "ES",
+      "genre": "movies",
+      "lang": "es",
+      "url": "https://www.rtve.es/play/",
+      "access": "Portal público espanhol, geo-restrições",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "it-rai",
+      "name": "RaiPlay — filmes e canais",
+      "code": "IT",
+      "genre": "movies",
+      "lang": "it",
+      "url": "https://www.raiplay.it/",
+      "access": "Portal da emissora pública italiana, região",
+      "notes": "Disponibilidade geográfica e navegador não confirmados"
+    }
+  ],
+  "paid": [
+    {
+      "id": "br-netflix",
+      "name": "Netflix",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.netflix.com/br/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Catálogo de filmes e séries, não TV aberta"
+    },
+    {
+      "id": "br-prime",
+      "name": "Amazon Prime Video",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.primevideo.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Catálogo por assinatura; títulos gratuitos eventuais conforme conta"
+    },
+    {
+      "id": "br-max",
+      "name": "HBO Max",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.hbomax.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Filmes HBO e Warner sob assinatura"
+    },
+    {
+      "id": "br-paramount",
+      "name": "Paramount+",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.paramountplus.com/br/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Filmes e canais originais sob assinatura"
+    },
+    {
+      "id": "br-appletv",
+      "name": "Apple TV",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://tv.apple.com/br",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Catálogo por assinatura ou aluguel"
+    },
+    {
+      "id": "br-universal",
+      "name": "Universal+",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://universalplus.com.br/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Pacote de assinatura NBCUniversal"
+    },
+    {
+      "id": "br-disney",
+      "name": "Disney+",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.disneyplus.com/pt-br",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Filmes e séries sob assinatura"
+    },
+    {
+      "id": "br-telecine",
+      "name": "Telecine",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://globoplay.globo.com/catalogo/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Pacote de filmes conforme plano Globoplay"
+    },
+    {
+      "id": "br-skyplus",
+      "name": "SKY+",
+      "code": "BR",
+      "genre": "movies",
+      "url": "https://www.sky.com.br/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Assinatura de TV e filmes conforme plano"
+    },
+    {
+      "id": "br-sportv",
+      "name": "SporTV 1, 2 e 3",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://globoplay.globo.com/agora-na-tv/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Canais distintos com assinatura"
+    },
+    {
+      "id": "br-premiere",
+      "name": "Premiere e canais adicionais",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://premiere.globo.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Canais de futebol com assinatura"
+    },
+    {
+      "id": "br-espn",
+      "name": "ESPN e canais ESPN 2–6",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://www.disneyplus.com/pt-br",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Canais conforme plano e disponibilidade"
+    },
+    {
+      "id": "br-combate",
+      "name": "Combate",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://globoplay.globo.com/agora-na-tv/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Canal de lutas com assinatura"
+    },
+    {
+      "id": "br-dazn",
+      "name": "DAZN Brasil — planos e eventos",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://www.dazn.com/pt-BR",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Eventos selecionados podem ter oferta gratuita conforme conta"
+    },
+    {
+      "id": "br-foxnews",
+      "name": "FOX News Channel (EUA)",
+      "code": "US",
+      "genre": "news",
+      "url": "https://www.foxnews.com/watch/live",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Não é LiveNOW FOX gratuito; transmissão paga"
+    },
+    {
+      "id": "us-cnn",
+      "name": "CNN EUA — live",
+      "code": "US",
+      "genre": "news",
+      "url": "https://www.cnn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "CNN All Access ou provedor de TV"
+    },
+    {
+      "id": "us-foxnews",
+      "name": "FOX News Channel",
+      "code": "US",
+      "genre": "news",
+      "url": "https://www.foxnews.com/watch/live",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Acesso exige assinatura de TV/stream"
+    },
+    {
+      "id": "pt-sporttv",
+      "name": "Sport TV Portugal — canais",
+      "code": "PT",
+      "genre": "sports",
+      "url": "https://www.sporttv.pt/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Assinatura; não confundir com SporTV Brasil"
+    },
+    {
+      "id": "pt-dazn",
+      "name": "DAZN Portugal — premium",
+      "code": "PT",
+      "genre": "sports",
+      "url": "https://www.dazn.com/pt-PT",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Fora dos eventos freemium exige plano"
+    },
+    {
+      "id": "pt-netflix",
+      "name": "Netflix Portugal",
+      "code": "PT",
+      "genre": "movies",
+      "url": "https://www.netflix.com/pt/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Filmes por assinatura"
+    },
+    {
+      "id": "pt-prime",
+      "name": "Prime Video Portugal",
+      "code": "PT",
+      "genre": "movies",
+      "url": "https://www.primevideo.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Filmes por assinatura"
+    },
+    {
+      "id": "us-dazn",
+      "name": "DAZN EUA",
+      "code": "US",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    },
+    {
+      "id": "uk-dazn",
+      "name": "DAZN Reino Unido",
+      "code": "UK",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    },
+    {
+      "id": "es-dazn",
+      "name": "DAZN Espanha",
+      "code": "ES",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    },
+    {
+      "id": "de-dazn",
+      "name": "DAZN Alemanha",
+      "code": "DE",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    },
+    {
+      "id": "it-dazn",
+      "name": "DAZN Itália",
+      "code": "IT",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    },
+    {
+      "id": "fr-dazn",
+      "name": "DAZN França",
+      "code": "FR",
+      "genre": "sports",
+      "url": "https://www.dazn.com/",
+      "access": "Assinatura / provedor necessário",
+      "notes": "Planos e eventos variam por país"
+    }
+  ]
+}
