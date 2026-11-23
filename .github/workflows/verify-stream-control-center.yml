@@ -56,6 +56,15 @@ jobs:
               assert key in fields,key+" not deployed"
           counts=read("SELECT COUNT(*) AS total FROM stream_users")
           assert counts and counts[0]["total"]>=2,"Accounts unexpectedly missing"
+          email_fields={r["name"] for r in read("PRAGMA table_info(stream_email_budget)")}
+          for key in ("request_id","local_day","kind","status","created_at"):
+              assert key in email_fields,key+" not deployed"
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          today=datetime.now(ZoneInfo("America/Sao_Paulo")).date().isoformat()
+          used=read("SELECT COUNT(*) AS total FROM stream_email_budget WHERE local_day='"+today+"'")
+          assert used and 0<=used[0]["total"]<=20,"Daily 20-email budget exceeded"
+          print("PASS: dedicated D1 daily email cap present, currently used slots:",used[0]["total"],"/20")
           print("PASS: account records preserved and lifecycle fields deployed")
           print("No accounts, emails, access tokens or session hashes printed")
           PY
