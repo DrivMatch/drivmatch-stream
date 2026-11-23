@@ -1,13 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths:
-      - 'cloudflare/**'
-      - 'site/**'
-      - 'migrations/**'
-      - 'wrangler.independent.toml.example'
-      - '.github/workflows/deploy-independent-worker.yml'
+  # Disabled automatic retries until Cloudflare returns a valid authenticated API response.
   workflow_dispatch:
 permissions:
   contents: read
