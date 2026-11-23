@@ -67,3 +67,16 @@ test("user-facing TV page contains identity and logout but no admin navigation",
     assert.doesNotMatch(html,/href="\/stream\/admin"/);
   }
 });
+
+test("opening an invitation invalidates any previous admin browser cookie",async()=>{
+  const {env}=fakeEnv("admin");
+  const result=await worker.fetch(new Request(url+"/stream/activate",{
+    headers:{Cookie:"dm_stream_user="+token}
+  }),env);
+  assert.equal(result.status,200);
+  const clearing=result.headers.get("Set-Cookie")||"";
+  assert.match(clearing,/dm_stream_user=/);
+  assert.match(clearing,/Max-Age=0/);
+  assert.match(clearing,/HttpOnly/);
+  assert.match(clearing,/SameSite=Strict/);
+});
