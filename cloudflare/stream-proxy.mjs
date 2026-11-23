@@ -70,7 +70,8 @@ const baseHeaders={"Cache-Control":"private, no-store",
 const appHeaders={...baseHeaders,
   "Content-Security-Policy":"default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; "+
    "style-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; "+
-   "worker-src blob:; img-src 'self' https: data:; frame-ancestors 'none'; "+
+   "worker-src blob:; img-src 'self' https: data:; "+
+   "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv; frame-ancestors 'none'; "+
    "base-uri 'none'; form-action 'self'"};
 function plain(status,msg){return new Response(msg,{status,
   headers:{...baseHeaders,"Content-Type":"text/plain; charset=utf-8"}});}
@@ -245,6 +246,8 @@ export default {async fetch(request,env){
      file.endsWith(".css")?"text/css; charset=utf-8":
      file.endsWith(".json")?"application/json; charset=utf-8":"text/html; charset=utf-8";
    return new Response(request.method==="HEAD"?null:upstream.body,{
-     status:200,headers:{...appHeaders,"Content-Type":kind}});
+     status:200,headers:{...appHeaders,
+       ...(file==="tv.html"?{"Referrer-Policy":"strict-origin-when-cross-origin"}:{}),
+       "Content-Type":kind}});
  }catch{return plain(502,"Stream temporariamente indisponível");}
 }};
