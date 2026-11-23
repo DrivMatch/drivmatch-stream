@@ -7,6 +7,7 @@ var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],
  ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
 var SOURCES=[],source="lista-2",country="BR",category="all",search="",channels=[],visible=[],selected=null;
 var openCountries={BR:true},openGenres={"BR:sports":true,"BR:news":true},treeLimits={},treeErrors={};
+var officialFree=[],officialPaid=[];
 var favorites=[],limit=60,serial=0,session=false,cache={},MAX_CHANNELS=15000,video=D("video");
 var STORE="drivmatch-tv-guide-favorites-v1";
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
@@ -14,7 +15,9 @@ var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポ�
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
 
 var TREE_GENRES=[
- ["sports","Esportes"],["news","Notícias"],["movies","Filmes e séries"],
+ ["sports","Esportes"],["news","Notícias"],
+ ["movies_pt","Filmes em português"],["movies_otherlanguage","Filmes em outros idiomas"],
+ ["movies_unknown","Filmes — idioma não informado"],
  ["kids","Infantil"],["music","Música e entretenimento"],
  ["religion","Religião"],["education","Educação"],["other","Outros / sem categoria"]
 ];
@@ -33,6 +36,12 @@ function channelGenre(name,group,origin){
  if(EDUCATION.test(text))return "education";
  if(MUSIC.test(text))return "music";
  return "other";
+}
+function genreFits(c,id){
+ if(id==="movies_pt")return c.genre==="movies"&&c.lang==="pt";
+ if(id==="movies_otherlanguage")return c.genre==="movies"&&c.lang&&c.lang!=="pt";
+ if(id==="movies_unknown")return c.genre==="movies"&&!c.lang;
+ return c.genre===id;
 }
 function genreName(id){
  for(var i=0;i<TREE_GENRES.length;i++)if(TREE_GENRES[i][0]===id)return TREE_GENRES[i][1];
@@ -58,6 +67,71 @@ function channelAlias(name,code){
 }
 function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
+
+function detectLanguage(info,group){
+ var raw=lower(dataAttr(info,"tvg-language")||dataAttr(info,"language"));
+ if(/^(pt|portuguese|portugu[eê]s)/i.test(raw))return "pt";
+ if(/^(en|english|ingl[eê]s)/i.test(raw))return "en";
+ if(/^(es|spanish|espa[nñ]ol)/i.test(raw))return "es";
+ if(/^(fr|french)/i.test(raw))return "fr";
+ if(/^(de|german)/i.test(raw))return "de";
+ if(/^(it|italian)/i.test(raw))return "it";
+ if(/\b(?:movies?|films?)\s*\((EN|PT|ES)\)/i.test(group))
+  return /\(PT\)/i.test(group)?"pt":/\(ES\)/i.test(group)?"es":"en";
+ return "";
+}
+function validOfficialUrl(url){return /^https:\/\/[^/@\s]+(?:\/|$)/i.test(String(url||""));}
+function attachOfficial(code,items){
+ var out=items.slice(0);
+ for(var i=0;i<officialFree.length;i++){
+  var x=officialFree[i];if(x.code!==code||!validOfficialUrl(x.url))continue;
+  var match=lower(x.matchName||x.name),existing=null;
+  for(var j=0;j<out.length;j++){
+   var clean=lower(out[j].originalName||out[j].name).replace(/\s*[ⓈⒼⓎ]|\s*\(\d+p\)/g,"");
+   if(clean===match){existing=out[j];break;}
+  }
+  if(existing){
+   if(!existing.officialUrl){existing.officialUrl=x.url;
+     existing.officialAccess=x.access;existing.officialNotes=x.notes;}
+   if(!existing.lang&&x.lang)existing.lang=x.lang;
+  }else{
+   out.push({id:"official:"+x.id,source:"official",name:x.name,code:code,
+    genre:x.genre||"other",group:"Site/app oficial",origins:["Emissora"],
+    premium:false,urls:[],lang:x.lang||"",officialUrl:x.url,
+    officialAccess:x.access,officialNotes:x.notes});
+  }
+ }
+ return out;
+}
+function loadOfficialDirectory(){
+ http("/stream/official-access.json",function(st,body){
+  if(st!==200)return;
+  var data;try{data=JSON.parse(body);}catch(e){return;}
+  if(!data||Object.prototype.toString.call(data.free)!=="[object Array]")return;
+  officialFree=data.free;officialPaid=data.paid||[];
+  for(var key in cache)if(Object.prototype.hasOwnProperty.call(cache,key)&&
+    key.indexOf("lista-2:")===0){
+    cache[key]=attachOfficial(key.substring(8),cache[key].filter(function(c){
+      return c.source!=="official";
+    }));
+  }
+  var id="lista-2:"+country;
+  if(cache[id])channels=cache[id];
+  renderChannels();drawCountries();drawPaidProviders();
+ });
+}
+function drawPaidProviders(){
+ var area=D("provider-items");if(!area)return;clear(area);
+ for(var i=0;i<officialPaid.length;i++){(function(x){
+   if(!validOfficialUrl(x.url))return;
+   var b=E("button","provider-entry",countryName(x.code)+" · "+x.name);
+   b.type="button";
+   on(b,"click",function(){play({id:"paid:"+x.id,name:x.name,code:x.code,
+     premium:true,urls:[],genre:x.genre||"other",group:x.notes,
+     officialUrl:x.url,officialAccess:x.access,officialNotes:x.notes},false);});
+   area.appendChild(b);
+ }(officialPaid[i]));}
+}
 function sourceName(){for(var i=0;i<SOURCES.length;i++)if(SOURCES[i].id===source)return SOURCES[i].title;return "Lista IPTV";}
 function countryName(code){for(var i=0;i<COUNTRY.length;i++)if(COUNTRY[i][0]===code)return COUNTRY[i][1];return code;}
 function dataAttr(s,k){var m=new RegExp("(?:^|\\s)"+k+'="([^"]*)"',"i").exec(s);return m?m[1]:"";}
@@ -103,7 +177,8 @@ function parse(raw,forcedCode){
     var display=channelAlias(name,code);
     var item={id:source+":"+k,source:source,name:display,
       originalName:display!==name?name:"",code:code,genre:genre,group:group,
-      premium:premium,urls:premium?[]:[ln],origins:[origin]};
+      premium:premium,urls:premium?[]:[ln],origins:[origin],
+      lang:detectLanguage(sourceMeta,group)};
     dedupe[k]=item;result.push(item);
   }
   return result;
@@ -151,7 +226,7 @@ function hasCountry(code){
 function treeKey(code,genre){return code+":"+genre;}
 function treeGroups(code,genre){
  var src=cache["lista-2:"+code]||[],items=[];
- for(var i=0;i<src.length;i++)if(src[i].genre===genre)items.push(src[i]);
+ for(var i=0;i<src.length;i++)if(genreFits(src[i],genre))items.push(src[i]);
  items.sort(function(a,b){
   var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);
   return x<y?-1:x>y?1:0;
@@ -195,6 +270,8 @@ function drawCountries(){
       ch.type="button";ch.setAttribute("data-channel-id",channel.id);
       ch.setAttribute("data-country",code);
       ch.appendChild(E("span","tree-channel-name",channel.name));
+      if(channel.officialUrl&&(!channel.urls||!channel.urls.length))
+       ch.appendChild(E("small","tree-external-label","Site/app oficial"));
       on(ch,"click",function(){chooseTreeChannel(code,id,channel);});list.appendChild(ch);
     }(filtered[n]));}
     if(filtered.length>max){
@@ -301,7 +378,7 @@ function loadChannels(){
 }
 function fits(c){
   if(country!=="ALL" && c.code!==country)return false;
-  if(category!=="all"&&category!=="fav"&&c.genre!==category)return false;
+  if(category!=="all"&&category!=="fav"&&!genreFits(c,category))return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
   if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
   return true;
