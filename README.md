@@ -48,6 +48,13 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Duas novas playlists independentes foram adicionadas ao catálogo e à consolidação por país: **Lista 13 — ColdOpen** (`https://iptv.coldopen.dev/channels.m3u`) e **Lista 14 — Broadcast Atlas** (`https://broadcastatlas.com/official.m3u`). São fontes públicas indicadas como oficiais pelos mantenedores, não certificados de licença, compatibilidade ou reprodução. Deduplicação mantém o limite de alternativas por canal; listas existentes e favoritos não são apagados.
 - **Descoberta de lives em tempo real como no /news** exige um serviço dedicado de detecção, status e ordenação por atualização/sinal. A incorporação de um canal do YouTube não confirma atividade; não há algoritmo de prioridade de lives implementado neste pacote.
 
+## Pesquisa global de canais por nome (23/11/2026)
+
+- A caixa de pesquisa no guia Samsung/desktop não depende mais do país aberto. Digitar **CNN** dispara `/stream/search?q=CNN`, endpoint privado e autenticado que pesquisa a união das fontes 1–14, incluindo 12 listas nacionais históricas do IPTV-org. As buscas são normalizadas por acento e case, agrupam duplicatas pelo nome+país e preservam até 3 alternativas de origem por canal.
+- A coluna central mostra resultados de **todos os países encontrados**, com país explicitado em cada linha; a ordem prioriza Brasil, Portugal e Estados Unidos, seguidos pelos demais. Registros de canais oficiais cadastrados são incluídos em busca local, sem transformá-los em URLs de mídia.
+- Uma busca de pelo menos 2 caracteres usa debounce de 450ms e limites no endpoint (até 60 caracteres; 250 canais; 750KB de dados); as respostas atrasadas são descartadas ao mudar o texto/país. Busca vazia restaura o estado normal do país, mantendo a reprodução na coluna 3. Sem fontes disponíveis o sistema informa pesquisa parcial/indisponível, sem inventar canais.
+- Os testes com **CNN Brasil**, **CNN Portugal** e **CNN EUA** utilizam playlists simuladas para comprovar indexação e apresentação. Os nomes são exemplos de teste; eles não certificam canais reais adicionais nem reprodução ao vivo.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
