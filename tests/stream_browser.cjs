@@ -178,38 +178,14 @@ async function main(){
       assert.equal(await top.getByText('TV INTERNACIONAL · ACESSO PESSOAL').count(),0);
       assert.equal(await top.getByText('Países e categorias').count(),0);
       assert.equal(await top.getByText('Privado',{exact:true}).count(),0);
-      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
-      assert.equal(await page.locator('#connection-status').getAttribute('aria-label'),'Conexão com o Stream: ON');
+      assert.equal(await page.locator('#connection-status').count(),0,
+        'No unnecessary ON/OFF indicator should occupy the header');
+      assert.equal(await page.locator('#connection-label').count(),0);
 
       // Four requested countries remain pinned, even with new detected countries.
       await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
       const firstFour=await page.locator('.tree-country-btn .tree-label').allTextContents();
       assert.deepEqual(firstFour.slice(0,4),['Brasil','Portugal','Espanha','Estados Unidos']);
-
-      // Samsung's navigator.onLine may lie: successful origin requests take
-      // precedence and must keep ON even with an 'offline' browser event.
-      await page.evaluate(()=>{
-        Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});
-        window.dispatchEvent(new Event('offline'));
-      });
-      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
-      // A blocked session probe is not a failed internet connection: the
-      // same-origin stylesheet fallback can still prove our site is reachable.
-      await page.route('**/stream/session?connectivity=*',route=>route.abort());
-      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
-      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
-      assert.equal(await page.locator('#connection-status').getAttribute('class'),'connection-status online');
-
-      // Both probe failures while a recent successful app request exists
-      // must not flash a false red OFF. The state may remain ON or be neutral.
-      await page.route('**/stream/tv/tv.css?connectivity=*',route=>route.abort());
-      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
-      await page.waitForTimeout(160);
-      assert.notEqual(await page.locator('#connection-label').textContent(),'OFF');
-      await page.unroute('**/stream/tv/tv.css?connectivity=*');
-      await page.unroute('**/stream/session?connectivity=*');
-      await page.evaluate(()=>window.dispatchEvent(new Event('online')));
-      await page.waitForFunction(()=>document.querySelector('#connection-label').textContent==='ON');
 
       await page.setViewportSize({width:960,height:720});
       assert((await top.boundingBox()).height<=41,'Tizen header must actually be shorter');
@@ -217,6 +193,25 @@ async function main(){
       assert.equal(await page.locator('#source-items').isVisible(),false);
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       assert.equal(await page.locator('#category-items').isVisible(),false);
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
+      const sportsCategory=page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]');
+      const newsCategory=page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]');
+      await sportsCategory.waitFor();
+      await newsCategory.waitFor();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('.tree-channel-btn[data-country="BR"]').count(),0,
+        'No channels should be expanded initially');
+
+      // Opening Notícias automatically closes Esportes and vice versa.
+      await sportsCategory.click();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'true');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
+      await newsCategory.click();
+      assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await newsCategory.getAttribute('aria-expanded'),'true');
+      const news=page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'24 Horas'});
+      await news.first().waitFor();
       // Different, brighter panels and readable channel names (not low-contrast).
       const theme=await page.evaluate(()=>{
         const css=x=>getComputedStyle(document.querySelector(x));
@@ -244,11 +239,7 @@ async function main(){
         return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
       };
       assert(contrast(theme.text,theme.row)>=7,'Channel text needs strong contrast');
-      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
-      await page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]').waitFor();
-      await page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]').waitFor();
-      const news=page.locator('.tree-channel-btn[data-country="BR"]').filter({hasText:'24 Horas'});
-      await news.first().waitFor();
+      assert.equal(await page.locator('.tree-genre-btn[aria-expanded="true"]').count(),1);
       assert((await page.locator('.tree-country-btn[data-country="BR"]').evaluate(
         el=>parseFloat(getComputedStyle(el).fontSize)))>=23,'Country font must read from sofa');
       const small=await page.locator('.tree-genre-btn[data-genre="news"][data-country="BR"]').evaluate(
@@ -290,12 +281,16 @@ async function main(){
       await page.locator('.tree-country-btn[data-country="PT"]').click();
       await page.locator('.tree-genre-btn[data-country="PT"]').first().waitFor();
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
+      assert.equal(await page.locator('.tree-genre-btn[aria-expanded="true"]').count(),0,
+        'Opening another country collapses prior channel categories');
       await page.locator('.tree-country-btn[data-country="MX"]').click();
       await page.locator('.tree-genre-btn[data-country="MX"]').first().waitFor();
       assert.equal(await page.locator('.tree-country-btn[data-country="MX"]').getAttribute('aria-expanded'),'true');
       assert.equal(await page.locator('#channel-items').getByText('24 Horas (720p)',{exact:true}).count(),0);
-      await page.locator('.tree-genre-btn[data-country="MX"][data-genre="other"]').click();
+      const mxCategory=page.locator('.tree-genre-btn[data-country="MX"][data-genre="other"]');
+      await mxCategory.click();
       await page.locator('.tree-channel-btn[data-country="MX"]').getByText('Canal México',{exact:true}).waitFor();
+      assert.equal(await page.locator('.tree-genre-btn[aria-expanded="true"]').count(),1);
       await page.locator('.tree-country-btn[data-country="MX"]').click();
       assert.equal(await page.locator('.tree-genre-btn[data-country="MX"]').count(),0,'Collapsed country should hide category rows');
       await page.locator('.tree-country-btn[data-country="BR"]').click();

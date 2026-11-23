@@ -6,7 +6,7 @@ var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],
  ["ES","Espanha"],["AR","Argentina"],["JP","Japão"],["CN","China"],["UK","Reino Unido"],
  ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
 var SOURCES=[],source="lista-2",country="BR",category="all",search="",channels=[],visible=[],selected=null;
-var openCountries={BR:true},openGenres={"BR:sports":true,"BR:news":true},treeLimits={},treeErrors={};
+var openCountries={BR:true},openGenres={},treeLimits={},treeErrors={};
 var officialFree=[],officialPaid=[];
 var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
@@ -58,7 +58,7 @@ function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
 function visibleEl(el,on){el.style.display=on?"":"none";el.hidden=!on;}
 function on(el,k,fn){if(el&&el.addEventListener)el.addEventListener(k,fn,false);}
 function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
-if(x.status>0)noteSiteReachable();cb(x.status,x.responseText||"");}};
+cb(x.status,x.responseText||"");}};
 x.onerror=function(){if(!done){done=true;cb(0,"");}};
 try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
@@ -299,60 +299,6 @@ function compareCountries(a,b){
  if(x>=0)return -1;if(y>=0)return 1;
  var aa=lower(a[1]),bb=lower(b[1]);return aa<bb?-1:aa>bb?1:0;
 }
-/* Tizen's navigator.onLine can be false even when this page works. Only a
- * real HTTP response proves the Stream reachable. A failed *probe* does not
- * prove the user's fiber internet is down. Keep ambiguous cases neutral. */
-var connectionLastOK=0,connectionFailures=0,connectionProbe=0;
-function setConnectionStatus(state){
- var area=D("connection-status");
- if(!area)return;
- var online=state==="online",offline=state==="offline";
- area.className="connection-status "+(online?"online":offline?"offline":"checking");
- area.setAttribute("aria-label",online?"Conexão com o Stream: ON":
-   offline?"Conexão com o Stream: OFF":"Verificando conexão com o Stream");
- T(D("connection-label"),online?"ON":offline?"OFF":"…");
-}
-function noteSiteReachable(){
- connectionLastOK=new Date().getTime();connectionFailures=0;
- setConnectionStatus("online");
-}
-function checkConnection(){
- var seq=++connectionProbe,done=false;
- function finish(status){
-   if(done||seq!==connectionProbe)return;
-   done=true;
-   if(status>0){noteSiteReachable();return;}
-   // Try a second *same-origin* resource: the session endpoint might fail
-   // independently from an otherwise working site or Samsung browser.
-   probe("/stream/tv/tv.css?connectivity="+new Date().getTime(),function(extra){
-     if(seq!==connectionProbe)return;
-     if(extra>0){noteSiteReachable();return;}
-     connectionFailures++;
-     var now=new Date().getTime();
-     if(connectionFailures>=2&&navigator.onLine===false&&
-        (!connectionLastOK||now-connectionLastOK>45000))
-       setConnectionStatus("offline");
-     else if(!connectionLastOK||connectionFailures>1)
-       setConnectionStatus("checking");
-     // A single failed check never erases a recent proven ON state.
-   });
- }
- function probe(path,callback){
-   var req=new XMLHttpRequest(),finished=false;
-   function resolve(status){
-     if(finished)return;finished=true;callback(status);
-   }
-   req.onreadystatechange=function(){
-     if(req.readyState===4)resolve(req.status);
-   };
-   req.onerror=function(){resolve(0);};
-   req.ontimeout=function(){resolve(0);};
-   try{
-     req.open("GET",path,true);req.timeout=6000;req.send();
-   }catch(e){resolve(0);}
- }
- probe("/stream/session?connectivity="+new Date().getTime(),finish);
-}
 function dataAttr(s,k){var m=new RegExp("(?:^|\\s)"+k+'="([^"]*)"',"i").exec(s);return m?m[1]:"";}
 function inferCountry(meta,group,name,defaultCode){
   var merged=dataAttr(meta,"dm-country");
@@ -515,18 +461,28 @@ function focusTreeGenre(code,genre){
   if(list[i].getAttribute("data-country")===code &&
     list[i].getAttribute("data-genre")===genre){focusTV(list[i]);return;}
 }
+/* At most one category stays expanded across the navigation tree.
+ * Expand another category without scrolling through the previous channel list. */
+function closeAllGenres(){
+ openGenres={};
+}
 function chooseCountry(code){
  if(openCountries[code]){
-  openCountries[code]=false;drawCountries();selectNewCountryFocus(code);return;
+  openCountries[code]=false;closeAllGenres();
+  drawCountries();selectNewCountryFocus(code);return;
  }
+ closeAllGenres();
  openCountries[code]=true;country=code;category="all";search="";
  D("search").value="";limit=60;drawCountries();
  selectNewCountryFocus(code);loadChannels();
 }
 function chooseGenre(code,genre){
- country=code;category=genre;search="";D("search").value="";limit=60;
+ var k=treeKey(code,genre),expanding=!openGenres[k];
+ closeAllGenres();
+ if(expanding)openGenres[k]=true;
+ country=code;category=expanding?genre:"all";
+ search="";D("search").value="";limit=60;
  openCountries[code]=true;
- var k=treeKey(code,genre);openGenres[k]=!openGenres[k];
  drawCountries();focusTreeGenre(code,genre);loadChannels();
 }
 function chooseTreeChannel(code,genre,c){
@@ -815,11 +771,6 @@ function init(){
   loadFav();loadQuickHistory();drawQuickLists();initRemote();
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
-  checkConnection();
-  on(window,"online",checkConnection);
-  // A browser 'offline' event alone is not reliable on older Samsung TVs.
-  on(window,"offline",checkConnection);
-  setInterval(checkConnection,45000);
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
