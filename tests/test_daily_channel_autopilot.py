@@ -98,7 +98,9 @@ class AutopilotTests(unittest.TestCase):
             with mock.patch.multiple(autopilot, STATE=p / "state.json", OUTPUT=p / "auto.m3u8",
                                      REPORT=p / "report.json", SOURCES=(feed, research)), \
                  mock.patch.object(autopilot.socket, "getaddrinfo",
-                     return_value=[(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("8.8.8.8",443))]):
+                     return_value=[(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("8.8.8.8",443))]), \
+                 mock.patch.object(autopilot, "research_pages",
+                     return_value={"pages_attempted":7,"pages_responded":0,"pages_unavailable":["mocked"]}):
                 result = autopilot.run(dt.datetime(2026, 11, 23, tzinfo=dt.timezone.utc),
                     fetch=lambda url, cap: SAMPLE.encode(),
                     probe=lambda item: (item["id"], item["name"] != "Cine Livre"))
