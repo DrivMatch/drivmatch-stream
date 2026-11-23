@@ -116,3 +116,52 @@ export async function mergedCatalog(country,urls,originalCountries,load){
  for(const row of rows){pre.push(row.meta,row.url);}
  return pre.join("\n");
 }
+
+/* Private global search across every configured public playlist and all
+ * original country catalogs. Filter BEFORE serializing, so an ALL catalog
+ * response size ceiling cannot hide CNN variants in other countries. */
+export async function searchCatalog(query,urls,originalCountries,load){
+ const normalize=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const term=normalize(query);
+ if(term.length<2||term.length>60)throw Error("Invalid global search query");
+ const {jobs,settled}=await sourceData("ALL",urls,originalCountries,load);
+ const groups=new Map(),failed=[];
+ let loaded=0;
+ for(let i=0;i<settled.length;i++){
+  const state=settled[i];
+  if(state.status!=="fulfilled"){failed.push(jobs[i].id);continue;}
+  loaded++;
+  const job=state.value;
+  for(const row of parseRows(job.raw,job.id,job.country,"ALL")){
+   if(!normalize(row.name).includes(term))continue;
+   const key=row.code+"|"+normalize(row.name);
+   let item=groups.get(key);
+   if(!item){
+    item={name:row.name,code:row.code,rows:[],urls:new Set()};
+    groups.set(key,item);
+   }
+   if(item.rows.length<3&&!item.urls.has(row.url)){
+    item.urls.add(row.url);item.rows.push(row);
+   }
+  }
+ }
+ if(!loaded)throw Error("No searchable catalog available");
+ const priority={BR:0,PT:1,US:2};
+ const order=c=>Object.prototype.hasOwnProperty.call(priority,c)?priority[c]:3;
+ const entries=[...groups.values()].sort((a,b)=>
+   order(a.code)-order(b.code)||
+   a.code.localeCompare(b.code)||
+   normalize(a.name).localeCompare(normalize(b.name),"pt-BR"));
+ const pre=["#EXTM3U","#DM_SEARCH:"+term,
+  "#DM_SOURCES_LOADED:"+loaded+"/"+jobs.length,
+  "#DM_MATCHED_CHANNELS:"+entries.length];
+ if(failed.length)pre.push("#DM_PARTIAL:"+failed.join(","));
+ let bytes=0,shown=0;let truncated=false;
+ for(const entry of entries){
+  const payload=entry.rows.map(row=>row.meta+"\n"+row.url+"\n").join("");
+  if(shown>=250||bytes+payload.length>750000){truncated=true;continue;}
+  pre.push(payload.trimEnd());bytes+=payload.length;shown++;
+ }
+ if(truncated)pre.push("#DM_TRUNCATED:1");
+ return pre.join("\n");
+}
