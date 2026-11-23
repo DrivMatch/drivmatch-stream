@@ -8,8 +8,10 @@ var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],
 var SOURCES=[],source="lista-2",country="BR",category="all",search="",channels=[],visible=[],selected=null;
 var openCountries={BR:true},openGenres={"BR:sports":true,"BR:news":true},treeLimits={},treeErrors={};
 var officialFree=[],officialPaid=[];
-var favorites=[],limit=60,serial=0,session=false,cache={},MAX_CHANNELS=15000,video=D("video");
+var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
+ cache={},MAX_CHANNELS=15000,video=D("video");
 var STORE="drivmatch-tv-guide-favorites-v1";
+var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
 var NEWS=/news|not[ií]cias|jornal|noticiero|journal|nieuws|nachrichten|actualidad|actualit[eé]s|新闻|ニュース|報道/i;
 var SPORTS=/sports?|esport|deport|futebol|football|soccer|calcio|体育|スポーツ/i;
 var PREMIUM=/\b(espn|premiere|combate|sky\s*sports?|bein\s*sports?|tnt\s*sports?|(?:spor\s*tv|sport\s*tv)|dazn|canal\+|fox\s*sports?|ppv|pay.per.view)\b/i;
@@ -58,7 +60,10 @@ try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
 function has(arr,k){return arr.indexOf(k)>=0;}
-function favorKey(c){return c.source+":"+c.code+":"+lower(c.originalName||c.name);}
+function favorKey(c){
+  return (c.source||(String(c.id||"").indexOf("paid:")===0?"paid":"lista-2"))+
+    ":"+c.code+":"+lower(c.originalName||c.name);
+}
 /* Alias only for Lista 02 Brazil; playback URL and original metadata stay unchanged. */
 function channelAlias(name,code){
   if(source==="lista-2"&&code==="BR"&&/^TV Guar[aá](?:\s*\([^)]*\))?$/i.test(name))
@@ -68,6 +73,151 @@ function channelAlias(name,code){
 function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
 
+
+/* Only minimal channel identity is persisted locally; never keep stream URLs
+ * or authentication tokens. Saved favorites use the preexisting key format. */
+function safeSnapshot(c){
+ return {key:favorKey(c),name:trim(c.name).slice(0,140),
+  code:String(c.code||"OTHER").slice(0,8),genre:String(c.genre||"other").slice(0,32)};
+}
+function oldFavoriteSnapshot(key){
+ var parts=String(key||"").split(":");
+ return {key:key,name:parts.slice(2).join(":")||key,code:parts[1]||"OTHER",genre:"other"};
+}
+function loadQuickHistory(){
+ try{
+  var arr=JSON.parse(localStorage.getItem(HISTORY_STORE)||"[]");
+  if(Object.prototype.toString.call(arr)==="[object Array]"){
+   recent=[];
+   for(var i=0;i<arr.length&&recent.length<25;i++)
+    if(arr[i]&&typeof arr[i].key==="string"&&typeof arr[i].name==="string"&&
+      !hasRecent(arr[i].key))recent.push({
+       key:arr[i].key,name:arr[i].name.slice(0,140),
+       code:String(arr[i].code||"OTHER").slice(0,8),
+       genre:String(arr[i].genre||"other").slice(0,32)
+      });
+  }
+ }catch(e){}
+ try{
+  var data=JSON.parse(localStorage.getItem(FAV_META_STORE)||"{}");
+  if(data&&typeof data==="object"&&
+     Object.prototype.toString.call(data)!=="[object Array]")
+    favoriteMeta=data;
+ }catch(e){}
+}
+function hasRecent(key){
+ for(var i=0;i<recent.length;i++)if(recent[i].key===key)return true;
+ return false;
+}
+function recordVisit(c){
+ if(!c||!c.name||!c.code)return;
+ var data=safeSnapshot(c),next=[data];
+ for(var i=0;i<recent.length&&next.length<25;i++)
+  if(recent[i].key!==data.key)next.push(recent[i]);
+ recent=next;
+ try{localStorage.setItem(HISTORY_STORE,JSON.stringify(recent));}catch(e){}
+ drawQuickLists();
+}
+function findKnown(key,code,name){
+ if(selected&&favorKey(selected)===key)return selected;
+ for(var x in cache)if(Object.prototype.hasOwnProperty.call(cache,x)){
+  var items=cache[x];
+  if(!items||!items.length)continue;
+  for(var j=0;j<items.length;j++)if(favorKey(items[j])===key)
+   return items[j];
+ }
+ // Previously saved favorites might have used a different source name.
+ var list=cache["lista-2:"+code]||[],norm=lower(name);
+ for(var k=0;k<list.length;k++)
+  if(lower(list[k].originalName||list[k].name)===norm)return list[k];
+ return null;
+}
+function drawQuickGroup(id,items,kind){
+ var target=D(id);if(!target)return;clear(target);
+ if(!items.length){
+  target.appendChild(E("p","quick-empty",kind==="recent"?
+   "Nenhum canal visitado ainda.":"Marque ☆ nos canais que quiser guardar."));
+  return;
+ }
+ for(var i=0;i<items.length;i++){(function(item){
+  if(!item||!item.key)return;
+  var b=E("button","quick-entry-btn"+
+    (selected&&favorKey(selected)===item.key?" active":""));
+  b.type="button";b.setAttribute("data-quick-key",item.key);
+  b.setAttribute("data-quick-kind",kind);
+  b.appendChild(E("span","quick-entry-name",
+    (kind==="favorite"?"★ ":"")+item.name));
+  b.appendChild(E("small","quick-entry-meta",countryName(item.code)));
+  on(b,"click",function(){openQuickChannel(item,kind);});
+  target.appendChild(b);
+ }(items[i]));}
+}
+function drawQuickLists(){
+ T(D("recent-count"),recent.length+"/25");
+ drawQuickGroup("recent-items",recent,"recent");
+ var list=[];
+ for(var i=0;i<favorites.length;i++){
+  var key=favorites[i],item=favoriteMeta[key];
+  if(!item){
+    var legacy=oldFavoriteSnapshot(key);
+    var resolved=findKnown(key,legacy.code,legacy.name);
+    item=resolved?safeSnapshot(resolved):legacy;
+    // Keep the original stored key when falling back to a legacy source id.
+    item.key=key;
+  }
+  list.push(item);
+ }
+ T(D("favorite-count"),String(list.length));
+ drawQuickGroup("favorite-items",list,"favorite");
+}
+function focusQuickItem(key,kind){
+ var buttons=D(kind==="favorite"?"favorite-items":"recent-items").getElementsByTagName("button");
+ for(var i=0;i<buttons.length;i++)if(buttons[i].getAttribute("data-quick-key")===key){
+  focusTV(buttons[i]);return;
+ }
+}
+function playFromQuick(c,record,kind){
+ // Premium service entries are never turned into free HLS links.
+ if(c.source!=="paid"&&c.id&&String(c.id).indexOf("paid:")!==0){
+  country=c.code;category="all";openCountries[c.code]=true;
+  search="";D("search").value="";limit=60;
+  channels=cache["lista-2:"+c.code]||[];
+  T(D("catalog-title"),countryName(c.code));T(D("catalog-subtitle"),"Todos os canais");
+  renderChannels();drawCountries();
+ }
+ play(c);
+ focusQuickItem(record.key,kind);
+}
+function openQuickChannel(record,kind){
+ var c=findKnown(record.key,record.code,record.name);
+ if(c){playFromQuick(c,record,kind);return;}
+ // A saved platform remains a link to the official subscription, never a stream.
+ for(var i=0;i<officialPaid.length;i++){
+  var x=officialPaid[i];
+  if(x.code===record.code&&lower(x.name)===lower(record.name)){
+   playFromQuick({id:"paid:"+x.id,source:"paid",name:x.name,code:x.code,
+      genre:x.genre||"other",group:x.notes||"",premium:true,urls:[],
+      officialUrl:x.url,officialAccess:x.access},record,kind);
+   return;
+  }
+ }
+ var code=record.code;
+ if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER"){
+  T(D("catalog-status"),"Este favorito não tem país válido no catálogo atual.");return;
+ }
+ // Do not fabricate or persist a playback URL. Resolve through current catalog.
+ T(D("catalog-status"),"Localizando "+record.name+" em "+countryName(code)+"…");
+ http("/stream/catalog?list=lista-2&country="+encodeURIComponent(code),function(st,body){
+  if(st!==200){
+   T(D("catalog-status"),"Catálogo temporariamente indisponível para "+countryName(code));
+   return;
+  }
+  cache["lista-2:"+code]=attachOfficial(code,parse(body,code));
+  var found=findKnown(record.key,code,record.name);
+  if(found)playFromQuick(found,record,kind);
+  else T(D("catalog-status"),"Canal não encontrado nas fontes atuais. O favorito foi preservado.");
+ });
+}
 function detectLanguage(info,group){
  var raw=lower(dataAttr(info,"tvg-language")||dataAttr(info,"language"));
  if(/^(pt|portuguese|portugu[eê]s)/i.test(raw))return "pt";
@@ -118,7 +268,7 @@ function loadOfficialDirectory(){
   }
   var id="lista-2:"+country;
   if(cache[id])channels=cache[id];
-  renderChannels();drawCountries();drawPaidProviders();
+  renderChannels();drawCountries();drawPaidProviders();drawQuickLists();
  });
 }
 function drawPaidProviders(){
@@ -389,8 +539,14 @@ function fits(c){
 }
 function toggleFavorite(c){
   var k=favorKey(c),idx=favorites.indexOf(k);
-  if(idx>=0)favorites.splice(idx,1);else favorites.push(k);
-  saveFav();updateFavButton();renderChannels();
+  if(idx>=0){
+    favorites.splice(idx,1);delete favoriteMeta[k];
+  }else{
+    favorites.push(k);favoriteMeta[k]=safeSnapshot(c);
+  }
+  saveFav();
+  try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){}
+  updateFavButton();renderChannels();drawQuickLists();
 }
 function updateFavButton(){
   var b=D("player-favorite");b.disabled=!selected;
@@ -436,6 +592,7 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
+  recordVisit(c);
   visibleEl(D("official-open"),!!c.officialUrl);
   T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
   if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
@@ -492,7 +649,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".quick-entry-btn,.country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -574,7 +731,7 @@ function initRemote(){
   });
 }
 function init(){
-  loadFav();initRemote();
+  loadFav();loadQuickHistory();drawQuickLists();initRemote();
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
