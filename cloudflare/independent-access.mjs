@@ -564,6 +564,11 @@ async function handle(request, env) {
     }
     return json(200,{ok:true});
   }
+  // SECURITY INCIDENT LOCKDOWN (2026-11-23): disable administration globally.
+  // No admin UI or mutation may execute until viewer isolation has been
+  // independently confirmed in the deployed Worker and real D1.
+  if (path === "/stream/admin" || path.startsWith("/stream/admin/"))
+    return plain(403,"Painel administrativo temporariamente bloqueado por segurança.");
   if (path === "/stream/admin" && method === "GET")
     return requireAdmin(user) ? adminPage(user,env,url) :
       page("Conta sem permissão de administrador",
