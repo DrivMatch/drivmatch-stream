@@ -301,3 +301,56 @@ test("recover form uses signed token when mobile sends no Origin",async()=>{
     assert.match(await result.text(),/Solicitação recebida/);
   });
 });
+
+test("admin destination survives login redirect and opens real management panel",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const first=await worker.fetch(req("/stream/admin"),env);
+    assert.equal(first.status,303);
+    assert.equal(first.headers.get("Location"),base+"/stream/login?next=admin");
+    const frm=await getForm("/stream/login?next=admin",env);
+    assert.match(frm.html,/action='\/stream\/login\?next=admin'/);
+    const result=await worker.fetch(req("/stream/login?next=admin",{
+      method:"POST",
+      headers:{Cookie:frm.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:frm.token,email:users[0].email,password:users[0].password})
+    }),env);
+    assert.equal(result.status,303);
+    assert.equal(result.headers.get("Location"),base+"/stream/admin");
+    const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:cookie(result)}}),env);
+    assert.equal(admin.status,200);
+    assert.match(await admin.text(),/Gerenciamento de acessos/);
+  });
+});
+test("viewer cannot use admin redirect; arbitrary next values cannot redirect elsewhere",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const frm=await getForm("/stream/login?next=admin",env);
+    const viewer=await worker.fetch(req("/stream/login?next=admin",{
+      method:"POST",
+      headers:{Cookie:frm.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:frm.token,email:users[1].email,password:users[1].password})
+    }),env);
+    assert.equal(viewer.status,303);
+    assert.equal(viewer.headers.get("Location"),base+"/stream/");
+    const evil=await getForm("/stream/login?next=https%3A%2F%2Fevil.example",env);
+    assert.doesNotMatch(evil.html,/evil\.example/);
+    const other=await worker.fetch(req("/stream/login?next=https%3A%2F%2Fevil.example",{
+      method:"POST",
+      headers:{Cookie:evil.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:evil.token,email:users[0].email,password:users[0].password})
+    }),env);
+    assert.equal(other.headers.get("Location"),base+"/stream/");
+  });
+});
+test("already logged-in admin requesting management login goes straight to admin",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const auth=await login(users[0].email,users[0].password,env);
+    const nav=await worker.fetch(req("/stream/login?next=admin",{
+      headers:{Cookie:cookie(auth)}
+    }),env);
+    assert.equal(nav.status,303);
+    assert.equal(nav.headers.get("Location"),base+"/stream/admin");
+  });
+});
