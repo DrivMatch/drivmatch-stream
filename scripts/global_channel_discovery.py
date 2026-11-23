@@ -21,8 +21,8 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / "site" / "global-discovery-state.json"
-REPORT = ROOT / "site" / "global-discovery-report.json"
+STATE = ROOT / "data" / "global-discovery-state.json"
+REPORT = ROOT / "data" / "global-discovery-report.json"
 KNOWN_SOURCES = ROOT / "site" / "playlist-sources.json"
 COUNTRY_API = "https://iptv-org.github.io/api/countries.json"
 USER_AGENT = "DrivMatch-Global-Channel-Discovery/1.0 (+https://drivmatch.com/stream/)"
