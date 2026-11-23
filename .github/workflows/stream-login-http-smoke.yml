@@ -1,0 +1,40 @@
+name: Stream Staging login HTTP smoke test
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/stream-login-http-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Verify public entry and mobile form behavior without real credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://drivmatch-stream-v2-test.drivmatch.workers.dev"
+          login="$origin/stream/login"
+          st_get=$(curl -fsS -o /tmp/stream-login.html -w '%{http_code}' "$login")
+          echo "GET login HTTP: $st_get"
+          test "$st_get" = 200
+          grep -q "Acesso individual" /tmp/stream-login.html
+          st_admin=$(curl -sS -o /dev/null -w '%{http_code}' "$origin/stream/admin")
+          echo "GET admin without cookie HTTP: $st_admin"
+          test "$st_admin" = 303
+          st_foreign=$(curl -sS -o /dev/null -w '%{http_code}' "$login" \
+            -X POST -H "Origin: https://attacker.example" -H "Sec-Fetch-Site: same-origin" \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-forbidden-test')
+          echo "POST forged foreign Origin HTTP: $st_foreign"
+          test "$st_foreign" = 403
+          st_mobile=$(curl -sS -o /tmp/stream-invalid.html -w '%{http_code}' "$login" \
+            -X POST -H "Sec-Fetch-Site: same-origin" \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-forbidden-test')
+          echo "POST same-origin mobile form with invalid credentials HTTP: $st_mobile"
+          test "$st_mobile" = 401
+          grep -q 'Não foi possível entrar' /tmp/stream-invalid.html
+          echo "PASS: legitimate mobile browser form reached auth validation instead of 403."
