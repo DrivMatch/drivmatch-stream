@@ -218,6 +218,15 @@ async function main(){
       assert.equal(await page.locator('#restore-hidden').isVisible(),false,
         'Unsupported desktop playback must not hide channels as offline');
       assert.equal(await page.locator('#channel-items .channel-btn').first().count(),1);
+      await brazil.click();
+      assert.equal(await brazil.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0,
+        'Closing Brazil must hide its guide rather than leave the channel grid visible');
+      assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)',
+        'Collapsing the country must not clear the currently selected channel');
+      await brazil.click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      assert.equal(await brazil.getAttribute('aria-expanded'),'true');
       await context.close();
     }
     // Mobile phones retain the original responsive player and channel list.
