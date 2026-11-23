@@ -1,6 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Login policy fix deployed successfully; subsequent staging deploys are manual-only.
+  # Controlled one-time publication of admin navigation fix to isolated test Worker.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validate code and identity permissions before any Cloudflare deployment
+        run: |
+          node --check cloudflare/independent-access.mjs
+          node --check site/tv.js
+          node --check site/stream.js
+          node --test tests/independent_access.test.mjs
       - name: Verify account and token in GitHub secrets
         run: |
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
