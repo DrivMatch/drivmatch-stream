@@ -263,7 +263,7 @@ function loadChannels(){
   var cacheKey=source+":"+code;
   T(D("catalog-title"),countryName(country));
   T(D("catalog-subtitle"),category==="all"?"Todos os canais":genreName(category));
-  T(D("catalog-status"),source==="lista-2"?"Consolidando canais das Listas 1 a 8…":"Carregando canais…");
+  T(D("catalog-status"),"Organizando canais de "+countryName(country)+"…");
   T(D("result-count"),"Carregando");
   clear(D("channel-items"));visibleEl(D("show-more"),false);
   if(cache[cacheKey]){
@@ -285,7 +285,7 @@ function loadChannels(){
       var count=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
         missing=/#DM_PARTIAL:([^\r\n]+)/.exec(body),
         cut=/#DM_TRUNCATED:1/.test(body);
-      T(D("catalog-status"),"Listas 1–8 consolidadas"+
+      T(D("catalog-status"),"Canais do país"+
         (count?" · Fontes: "+count[1]:"")+
         (missing?" · Fontes indisponíveis: "+missing[1]:"")+
         (cut?" · Catálogo geral parcial; selecione um país":"")+
