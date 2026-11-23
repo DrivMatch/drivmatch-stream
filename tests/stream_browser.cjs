@@ -257,6 +257,74 @@ async function main(){
       assert.equal(await page.locator('#technical-items .technical-source-name').count(),11);
       await context.close();
     }
+    // Samsung private TV: priority recent history, persistent uncategorized favorites.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.goto(origin+'/stream/tv/');
+      await page.locator('#channel-items .channel-btn').filter({hasText:'Canal Teste 26'}).waitFor();
+      assert.equal(await page.locator('.sidebar > :first-child').getAttribute('class'),'quick-section');
+      assert.equal(await page.locator('.sidebar > :nth-child(2)').getAttribute('class'),'quick-section');
+      assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
+      assert.equal(await page.locator('#favorite-count').textContent(),'0');
+      assert.equal(await page.locator('#recent-count').textContent(),'0/25');
+
+      // Click one favorite and twenty-six distinct channels in sequence.
+      await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').click();
+      await page.locator('#player-favorite').click();
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      assert.match(await page.locator('#favorite-items').textContent(),/★ Canal Teste 2/);
+      const testNames=await page.evaluate(()=>
+        [...document.querySelectorAll('#channel-items .channel-btn strong')]
+          .map(el=>el.textContent).filter(x=>x.startsWith('Canal Teste ')).slice(0,26));
+      assert.equal(testNames.length,26);
+      await page.evaluate(names=>{
+        for(const name of names){
+          const b=[...document.querySelectorAll('#channel-items .channel-btn')]
+            .find(el=>el.querySelector('strong')?.textContent===name);
+          if(!b)throw new Error('test channel not found: '+name);
+          b.click();
+        }
+      },testNames);
+      assert.equal(await page.locator('#recent-count').textContent(),'25/25');
+      assert.equal(await page.locator('#recent-items .quick-entry-btn').count(),25);
+      assert((await page.locator('#recent-items .quick-entry-btn').first().textContent()).includes(testNames[25]));
+      assert.equal(await page.locator('#recent-items').getByText(testNames[0],{exact:true}).count(),0);
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      assert.equal(await page.locator('#favorite-items .quick-entry-btn').count(),1);
+      const persisted=await page.evaluate(()=>({
+        recent:JSON.parse(localStorage.getItem('drivmatch-tv-recent-25-v1')),
+        oldFavorites:JSON.parse(localStorage.getItem('drivmatch-tv-guide-favorites-v1'))
+      }));
+      assert.equal(persisted.recent.length,25);
+      assert(persisted.oldFavorites.some(x=>x.endsWith(':canal teste 2')));
+
+      // Country-crossing favorites are flat, not grouped by country or genre.
+      await page.locator('.tree-country-btn[data-country="MX"]').click();
+      await page.locator('.tree-genre-btn[data-country="MX"]').first().waitFor();
+      await page.locator('#channel-items .channel-btn').filter({hasText:'Canal México'}).click();
+      await page.locator('#player-favorite').click();
+      assert.equal(await page.locator('#favorite-count').textContent(),'2');
+      assert.match(await page.locator('#favorite-items').textContent(),/Canal México/);
+      assert.match(await page.locator('#favorite-items').textContent(),/Canal Teste 2/);
+      const before=await page.locator('#favorite-items .quick-entry-btn').count();
+
+      // Tizen browser reload keeps all starred channels and recent order.
+      await page.reload();
+      await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+      assert.equal(await page.locator('#recent-count').textContent(),'25/25');
+      assert.equal(await page.locator('#favorite-items .quick-entry-btn').count(),before);
+      await page.locator('#favorite-items .quick-entry-btn').filter({hasText:'Canal México'}).click();
+      await page.locator('video[src="https://mock.example/mexico.m3u8"]').waitFor();
+      assert.equal(await page.locator('#now-name').textContent(),'Canal México');
+      assert.equal(await page.locator('#favorite-count').textContent(),'2');
+
+      // Removing a favorite does not clear the twenty-five-channel history.
+      await page.locator('#player-favorite').click();
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      assert.equal(await page.locator('#recent-count').textContent(),'25/25');
+      await context.close();
+    }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
   }finally{
     if(browser)await browser.close();
