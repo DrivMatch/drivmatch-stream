@@ -27,11 +27,30 @@ async function main(){
   const server=http.createServer((req,res)=>{
     if(req.url==="/stream/listas/sources.json"){
       if(!authorized){res.writeHead(403);res.end();return;}
-      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • IPTV-org 12 países"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"}]}));return;
+      res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"}]}));return;
+    }
+    if(req.url==="/stream/countries?list=lista-2"){
+      if(!authorized){res.writeHead(403);res.end();return;}
+      res.writeHead(200,{"Content-Type":"application/json"});
+      res.end(JSON.stringify({countries:[{code:"MX",name:"México"}],loaded:7,total:7}));return;
     }
     if(req.url && req.url.startsWith("/stream/catalog?list=")){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"text/plain"});
+      if(req.url.includes("list=lista-2")){
+        const code=new URL(req.url,origin).searchParams.get("country");
+        const mx=['#EXTM3U','#DM_MERGED:LISTAS-1-8',
+          '#EXTINF:-1 dm-country="MX" dm-source="lista-7",Canal México',
+          'https://mock.example/mexico.m3u8'].join("\n");
+        const other=['#EXTM3U','#DM_MERGED:LISTAS-1-8',
+          '#EXTINF:-1 dm-country="OTHER" dm-source="lista-6",Sem País',
+          'https://mock.example/unknown.m3u8'].join("\n");
+        const br=m3uES.replace(
+          '#EXTINF:-1 group-title="News",24 Horas (720p)',
+          '#EXTINF:-1 dm-country="BR" dm-source="lista-1" group-title="News",24 Horas (720p)');
+        res.end(code==="MX"?mx:code==="OTHER"?other:
+          code==="ALL"?br+"\n"+mx:br);return;
+      }
       res.end(req.url.includes("lista-8")?
     ['#EXTM3U','#EXTINF:-1 tvg-country="BR" group-title="News",Record News',
       'https://mock.example/record-news.m3u8'].join("\n"):
@@ -133,13 +152,14 @@ async function main(){
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
       assert.equal(await page.locator('#source-items .source-btn').count(),9);
-      assert.equal(await page.locator('#country-items .country-btn').count(),14);
+      await page.locator('#country-items [data-country="MX"]').waitFor();
+      assert.equal(await page.locator('#country-items .country-btn').count(),15);
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
       await context.close();
     }
-    // IBO-style Samsung TV guide: seven public sources, country and category filters and fixed player.
+    // Samsung TV: source 02 country-indexed union of Lists 1–8, original lists retained.
     {
       const context=await setup(true);
       const page=await context.newPage();
@@ -166,13 +186,21 @@ async function main(){
       assert.equal(await page.locator('#player-open-official').count(),0);
       await page.locator('#source-items .source-btn').nth(8).click();
       await page.getByText('TV Brasil',{exact:true}).first().waitFor();
+      await page.locator('#source-items .source-btn').nth(1).click();
+      await page.getByText('24 Horas (720p)').first().waitFor();
+      assert.match(await page.locator('#channel-items').textContent(),/Origem: Lista 1/);
+      await page.locator('#country-items [data-country="MX"]').click();
+      await page.getByText('Canal México',{exact:true}).first().waitFor();
+      assert.equal(await page.getByText('24 Horas (720p)',{exact:true}).count(),0);
+      await page.locator('#country-items [data-country="BR"]').click();
+      await page.getByText('24 Horas (720p)',{exact:true}).first().waitFor();
       await page.locator('#source-items .source-btn').nth(2).click();
       await page.getByText('24 Horas (720p)').first().waitFor();
 
       // Samsung remote DOWN must traverse the same sidebar through its last country.
       const sidebar=page.locator('.sidebar');
       await page.locator('#source-items .source-btn').first().focus();
-      for(let i=0;i<22;i++)await page.keyboard.press('ArrowDown');
+      for(let i=0;i<23;i++)await page.keyboard.press('ArrowDown');
       assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('data-country')),'OTHER');
       assert((await sidebar.evaluate(el=>el.scrollTop))>0,'Sidebar must scroll to the last country');
 
