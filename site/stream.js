@@ -1,4 +1,4 @@
-/* DrivMatch Stream • private in-page viewer • source playback only (no restreaming) */
+/* Stream Now • private in-page viewer • source playback only (no restreaming) */
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
