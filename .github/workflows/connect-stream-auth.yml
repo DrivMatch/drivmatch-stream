@@ -37,10 +37,24 @@ jobs:
             fi
           done
           [ "$missing" -eq 0 ] || exit 1
-          case "$STREAM_SUPABASE_URL" in
-            https://*.supabase.co) ;;
-            *) echo "::error::STREAM_SUPABASE_URL must be a dedicated HTTPS Supabase project URL"; exit 1 ;;
-          esac
+          python3 - <<'PY'
+          import os, sys, urllib.parse
+          raw = os.environ["STREAM_SUPABASE_URL"].strip()
+          try:
+              parts=urllib.parse.urlsplit(raw)
+              host=parts.hostname or ""
+              valid=(parts.scheme=="https" and host.endswith(".supabase.co")
+                     and host!=".supabase.co" and parts.port is None
+                     and parts.username is None and parts.password is None
+                     and parts.query=="" and parts.fragment==""
+                     and parts.path in ("","/","/rest/v1","/rest/v1/"))
+          except ValueError:
+              valid=False
+          if not valid:
+              print("::error::STREAM_SUPABASE_URL must be the HTTPS project address, optionally with /rest/v1/. Please correct that secret in GitHub.")
+              sys.exit(1)
+          print("Supabase project URL format: PASS (value hidden)")
+          PY
           if [ "${#STREAM_SUPABASE_PUBLIC_KEY}" -lt 12 ] || [ "${#STREAM_SUPABASE_SECRET_KEY}" -lt 12 ]; then
             echo "::error::Incomplete Supabase keys"; exit 1
           fi
@@ -63,6 +77,9 @@ jobs:
           names = ["STREAM_SUPABASE_URL", "STREAM_SUPABASE_PUBLIC_KEY",
                    "STREAM_SUPABASE_SECRET_KEY", "STREAM_ACCESS_PASSWORD"]
           data = {("SUPABASE_" + k.removeprefix("STREAM_SUPABASE_") if k.startswith("STREAM_SUPABASE_") else k): os.environ[k] for k in names}
+          from urllib.parse import urlsplit
+          project=urlsplit(data["SUPABASE_URL"].strip())
+          data["SUPABASE_URL"]=project.scheme+"://"+project.netloc
           with open("/tmp/drivmatch-stream-secrets.json","w",encoding="utf-8") as handle:
               json.dump(data,handle)
           PY
