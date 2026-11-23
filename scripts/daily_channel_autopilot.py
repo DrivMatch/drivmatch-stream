@@ -31,10 +31,18 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
-MAX_CHECKS = min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
-MAX_WORKERS = min(16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
+HEALTH = ROOT / "site" / "channel-health.json"
+EXPLORATION = ROOT / "site" / "discovery-sources.json"
+SOURCE_CATALOG = ROOT / "site" / "playlist-sources.json"
+FULL_AUDIT = os.getenv("DM_FULL_AUDIT", "0") == "1"
+ROTATING_AUDIT = os.getenv("DM_ROTATING_AUDIT", "0") == "1"
+ROTATING_DAILY_LIMIT = 2000
+ROTATING_PRIORITY_LIMIT = 300
+DELETE_AFTER_FAILURE_DAYS = 50
+MAX_CHECKS = max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))) if FULL_AUDIT else min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
+MAX_WORKERS = min(32 if FULL_AUDIT else 16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
 VALID_DAYS = 8
-MAX_LIVE = 360
+MAX_LIVE = 100000 if FULL_AUDIT else 360
 PROBE_SECONDS = 60
 CATALOG_LIMIT = 5_000_000
 UA = "DrivMatch-Public-TV-Health/1.0 (+https://drivmatch.com/stream/tv/)"
@@ -99,6 +107,40 @@ SOURCES = (
     ("iptv-org-uy", "https://iptv-org.github.io/iptv/countries/uy.m3u", "UY", "", False),
     ("iptv-org-in", "https://iptv-org.github.io/iptv/countries/in.m3u", "IN", "", False),
 )
+
+def stream_filter_key(url: str) -> str:
+    """Two independently seeded 32-bit FNV-1a hashes, matching Cloudflare JS."""
+    def fnv(seed: int) -> str:
+        h = seed
+        for byte in url.encode("utf-8"):
+            h = ((h ^ byte) * 16777619) & 0xffffffff
+        return f"{h:08x}"
+    return fnv(2166136261) + fnv(2166136261 ^ 0x9e3779b9)
+
+
+def stream_hash(url: str) -> str:
+    """Stable stream identity across list aliases and countries."""
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()
+
+
+def augmented_sources() -> list[tuple]:
+    """Include all original TV catalog feeds during rotation, not just Lista 12."""
+    result = list(SOURCES)
+    if not ROTATING_AUDIT:
+        return result
+    known = {row[1] for row in result}
+    catalog = read_json(SOURCE_CATALOG, {"sources": []})
+    for entry in catalog.get("sources", []):
+        sid = entry.get("id", "")
+        if not re.fullmatch(r"lista-(?:[1-9]|1[01])", sid):
+            continue  # lista-2 is a set of country feeds; lista-12 is output
+        for url in entry.get("urls", []):
+            if url in known or not safe_url(url, False):
+                continue
+            known.add(url)
+            result.append(("catalog-" + sid, url, "", "", False))
+    return result
+
 
 def normalized(value: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", value.lower())
@@ -346,11 +388,29 @@ def priority(item: dict) -> tuple:
     g = {"news": 0, "sports": 1, "movies": 2}.get(item["genre"], 3)
     return (p, g)
 
+def select_rotating(candidates: dict, previous: dict, cursor: str = "") -> tuple[list[dict], str, int]:
+    """Reserve 300 for new candidates, then cycle through existing candidates."""
+    ordered = sorted(candidates)
+    urgent = [k for k in ordered if k not in previous or previous[k].get("status") == "unverified"]
+    urgent_ids = urgent[:ROTATING_PRIORITY_LIMIT]
+    rotation = [k for k in ordered if k not in set(urgent_ids)]
+    if rotation:
+        start = next((i for i, key in enumerate(rotation) if key > cursor), 0)
+        take = min(ROTATING_DAILY_LIMIT - len(urgent_ids), len(rotation))
+        rotated = [rotation[(start + i) % len(rotation)] for i in range(take)]
+        next_cursor = rotated[-1] if rotated else cursor
+    else:
+        rotated, next_cursor = [], cursor
+    return [candidates[k] for k in urgent_ids + rotated], next_cursor, len(urgent_ids)
+
+
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
     """Daily quotas stop repeated failures starving new discoveries forever."""
     day = now.strftime("%Y%m%d")
     randomizer = random.Random(int(day))
     items = list(candidates.values())
+    if FULL_AUDIT:
+        return sorted(items, key=lambda item: (priority(item), item["id"]))
     randomizer.shuffle(items)
     cutoff = (now - dt.timedelta(days=3)).strftime("%Y-%m-%d")
     buckets = {"new": [], "stale": [], "failed": [], "recent": []}
@@ -399,52 +459,100 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     today = now.strftime("%Y-%m-%d")
     prev = read_json(STATE, {"schema": 1, "channels": {}})
     previous = prev.get("channels", {}) if isinstance(prev.get("channels"), dict) else {}
+    tombstones = prev.get("deleted_ids", {}) if isinstance(prev.get("deleted_ids"), dict) else {}
     discovered: dict[str, dict] = {}
     scans, errors, researched = {}, {}, 0
-    for source in SOURCES:
+    sources = augmented_sources()
+    deleted_urls = prev.get("deleted_urls", {}) if isinstance(prev.get("deleted_urls"), dict) else {}
+    deleted_filter_keys = prev.get("deleted_filter_keys", {}) if isinstance(prev.get("deleted_filter_keys"), dict) else {}
+    for source in sources:
         sid, url, _, _, allowed = source
         try:
             raw = fetch(url, CATALOG_LIMIT).decode("utf-8", "replace")
             rows = parse_playlist(raw, source)
             scans[sid] = len(rows)
             for row in rows:
-                if allowed:
-                    # Favor metadata from first trusted source; do not overwrite.
-                    discovered.setdefault(row["id"], row)
-                else:
+                if not allowed:
                     researched += 1
+                if (allowed or ROTATING_AUDIT) and row["id"] not in tombstones and stream_hash(row["url"]) not in deleted_urls:
+                    existing = discovered.setdefault(row["id"], row)
+                    if allowed:
+                        existing["eligible"] = True
         except (OSError, ValueError, urllib.error.URLError, TimeoutError) as exc:
             errors[sid] = type(exc).__name__
-    if not scans:
-        raise RuntimeError("All source feeds failed; do not update the published channel list")
-    chosen = select_for_check(discovered, previous, now)
+    if ROTATING_AUDIT:
+        # Preserve prior channels when an upstream index temporarily disappears.
+        for key, row in previous.items():
+            if key not in discovered and key not in tombstones and stream_hash(row.get("url", "")) not in deleted_urls:
+                if all(k in row for k in ("id", "name", "country", "genre", "language", "url", "source")):
+                    discovered[key] = {**row, "eligible": bool(row.get("eligible", False))}
+    if not scans and not discovered:
+        raise RuntimeError("All source feeds failed and no persisted candidates remain")
+    if FULL_AUDIT and errors:
+        raise RuntimeError("Full audit blocked by unavailable feeds; refusing to publish partial coverage: " + ", ".join(sorted(errors)))
+    if ROTATING_AUDIT:
+        chosen, rotation_cursor, priority_count = select_rotating(
+            discovered, previous, str(prev.get("rotation_cursor", "")))
+    else:
+        chosen = select_for_check(discovered, previous, now)
+        rotation_cursor = str(prev.get("rotation_cursor", ""))
+        priority_count = 0
     checks = {}
     with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = [pool.submit(probe, item) for item in chosen]
         for future in cf.as_completed(futures):
             key, ok = future.result()
             checks[key] = ok
+    if ROTATING_AUDIT and len(checks) != len(chosen):
+        raise RuntimeError("Rotating batch incomplete; refusing to publish")
+    if FULL_AUDIT and len(checks) != len(discovered):
+        raise RuntimeError("Full audit incomplete: not every discovered channel was tested")
     state = {}
+    deleted_now = 0
+    recovered_now = 0
+    hidden_now = 0
     for key, item in discovered.items():
         old = previous.get(key, {})
         checked = key in checks
         successful = checks.get(key, False)
         record = {k: item[k] for k in ("id", "name", "country", "genre", "language", "url", "source")}
+        record["eligible"] = bool(item.get("eligible", False))
         if checked:
+            if successful and old.get("status") == "failed":
+                recovered_now += 1
+            if not successful and old.get("status") != "failed":
+                hidden_now += 1
             record["status"] = "ok" if successful else "failed"
             record["checked"] = today
             record["last_ok"] = today if successful else old.get("last_ok", "")
             record["failures"] = 0 if successful else int(old.get("failures", 0)) + 1
+            record["first_failed_at"] = "" if successful else (old.get("first_failed_at") or today)
+            record["last_failed_at"] = "" if successful else today
         else:
             record["status"] = old.get("status", "unverified")
             record["checked"] = old.get("checked", "")
             record["last_ok"] = old.get("last_ok", "")
             record["failures"] = old.get("failures", 0)
+            record["first_failed_at"] = old.get("first_failed_at", "")
+            record["last_failed_at"] = old.get("last_failed_at", "")
+        # Require a fresh failure confirmation on/after day 50, not just aging.
+        if ROTATING_AUDIT and record["status"] == "failed" and record.get("first_failed_at"):
+            try:
+                age = (now.date() - dt.date.fromisoformat(record["first_failed_at"])).days
+            except ValueError:
+                age = 0
+            if age >= DELETE_AFTER_FAILURE_DAYS and checked and not successful:
+                tombstones[key] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
+                deleted_urls[stream_hash(record["url"])] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
+                deleted_filter_keys[stream_filter_key(record["url"])] = today
+                deleted_now += 1
+                continue
         state[key] = record
     # Only currently discovered, recently segment-tested channels qualify.
     earliest = (now - dt.timedelta(days=VALID_DAYS)).strftime("%Y-%m-%d")
     live = [row for row in state.values()
-            if row.get("status") == "ok" and row.get("last_ok", "") >= earliest]
+            if row.get("status") == "ok" and row.get("eligible", True)
+            and row.get("last_ok", "") >= earliest]
     live.sort(key=lambda x: (priority(x), normalized(x["name"]), x["id"]))
     live = live[:MAX_LIVE]
     playlist = ["#EXTM3U", "#DM_AUTO_SOURCE:CURATED_PUBLIC_FEEDS",
@@ -456,9 +564,23 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     # no video could be tested (e.g. a GitHub network outage).
     failures = sum(1 for good in checks.values() if not good)
     research=research_pages()
-    report = {"schema": 1, "date_utc": today, "state": "COMPLETED",
-              "sources_responded": len(scans), "sources_total": len(SOURCES),
+    report = {"schema": 1, "date_utc": today,
+              "state": "ROTATING_BATCH_COMPLETED" if ROTATING_AUDIT else ("COMPLETED" if FULL_AUDIT else "SAMPLED"),
+              "daily_limit": ROTATING_DAILY_LIMIT if ROTATING_AUDIT else MAX_CHECKS,
+              "priority_capacity": ROTATING_PRIORITY_LIMIT if ROTATING_AUDIT else None,
+              "priority_checked": priority_count,
+              "rotation_checked": len(chosen) - priority_count,
+              "rotation_cursor": rotation_cursor if ROTATING_AUDIT else None,
+              "deleted_after_50_days": deleted_now,
+              "deleted_total": len(tombstones),
+              "scope": "CURATED_DISCOVERY_FEEDS_ONLY_NOT_ALL_STREAM_LISTS",
+              "full_audit_of_curated_candidates": bool(FULL_AUDIT and len(checks) == len(discovered) and not errors),
+              "total_catalog_coverage_confirmed": False,
+              "sources_responded": len(scans), "sources_total": len(sources),
+              "hidden_this_run": hidden_now, "recovered_this_run": recovered_now,
+              "total_active_records": len(state),
               "source_counts": scans, "source_errors": errors,
+              "sources_unavailable": len(errors),
               "community_candidates_research_only": researched,
               "open_web_research": research,
               "curated_candidates": len(discovered), "tested": len(checks),
@@ -466,10 +588,38 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
               "not_tested_this_run": max(0, len(discovered) - len(checks)),
               "published_healthy": len(live),
               "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification"}
-    if len(checks) == 0 and previous:
+    if len(checks) == 0 and previous and discovered:
         raise RuntimeError("No candidates tested; fail safely instead of wiping the list")
     STATE.parent.mkdir(parents=True, exist_ok=True)
-    write_json(STATE, {"schema": 1, "last_run": today, "channels": state})
+    write_json(STATE, {"schema": 1, "last_run": today, "channels": state,
+                       "rotation_cursor": rotation_cursor, "deleted_ids": tombstones,
+                       "deleted_urls": deleted_urls,
+                       "deleted_filter_keys": deleted_filter_keys})
+    if ROTATING_AUDIT:
+        # Serving layer uses URL-level health across original lists and merged catalogs.
+        failed_urls = sorted({stream_filter_key(row["url"]) for row in state.values()
+                              if row["status"] == "failed"})
+        # SHA-256 keys prevent URLs with query strings from appearing in health artifacts.
+        write_json(HEALTH, {"schema": 1, "as_of": today, "checked": len(checks),
+                            "status": "ROTATING_BATCH_COMPLETED",
+                            "failed_url_keys": failed_urls,
+                            "deleted_url_keys": sorted(deleted_filter_keys)})
+        memory = read_json(EXPLORATION, {"schema": 1, "sources": {}})
+        known_sources = memory.get("sources", {})
+        for source in sources:
+            sid, url = source[:2]
+            entry = known_sources.setdefault(url, {"first_seen": today, "source": sid})
+            entry["last_attempt"] = today
+            entry["last_result"] = "ok" if sid in scans else "unavailable"
+            entry["last_channel_count"] = scans.get(sid, 0)
+        for page in research.get("candidate_sources", []):
+            link = page.get("url")
+            if link and safe_url(link, False):
+                entry = known_sources.setdefault(link, {"first_seen": today,
+                    "source": page.get("discovered_from", "research")})
+                entry["last_seen"] = today
+                entry["status"] = "REVIEW_REQUIRED_NOT_PLAYABLE"
+        write_json(EXPLORATION, {"schema": 1, "last_run": today, "sources": known_sources})
     OUTPUT.write_text("\n".join(playlist) + "\n", encoding="utf-8")
     write_json(REPORT, report)
     return report

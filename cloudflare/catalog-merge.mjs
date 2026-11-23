@@ -116,3 +116,35 @@ export async function mergedCatalog(country,urls,originalCountries,load){
  for(const row of rows){pre.push(row.meta,row.url);}
  return pre.join("\n");
 }
+
+
+/* Deterministic URL health filtering shared by every official Stream catalog.
+ * Never treat missing/unverified results as failures.
+ * The same exact URL is hidden across all lists when confirmed failed. */
+export function streamHealthKey(url){
+  const bytes=new TextEncoder().encode(String(url||""));
+  const fnv=seed=>{
+    let h=seed>>>0;
+    for(const b of bytes)h=Math.imul(h^b,16777619)>>>0;
+    return ("00000000"+h.toString(16)).slice(-8);
+  };
+  return fnv(2166136261)+fnv((2166136261^0x9e3779b9)>>>0);
+}
+export function filterM3uByHealth(playlist,health){
+  if(!health||health.schema!==1)return playlist; // fail open on unavailable health data
+  const blocked=new Set([...(health.failed_url_keys||[]),...(health.deleted_url_keys||[])]);
+  if(!blocked.size)return playlist;
+  const output=[];let ext="";
+  for(const line of String(playlist).split(/\r?\n/)){
+    const trimmed=line.trim();
+    if(trimmed.startsWith("#EXTINF:")){ext=line;continue;}
+    if(ext&&trimmed&&!trimmed.startsWith("#")){
+      if(!blocked.has(streamHealthKey(trimmed))){output.push(ext,line);}
+      ext="";
+      continue;
+    }
+    if(ext){output.push(ext);ext="";}
+    output.push(line);
+  }
+  return output.join("\n");
+}

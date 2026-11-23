@@ -1,0 +1,77 @@
+name: DrivMatch - Descoberta e auditoria rotativa 02h
+
+on:
+  schedule:
+    # 02:00 America/Sao_Paulo (UTC-3, no daylight saving in Brazil).
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: drivmatch-daily-channel-autopilot
+  cancel-in-progress: false
+
+jobs:
+  discover-and-rotate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify syntax and unit tests
+        run: |
+          python3 -m py_compile scripts/daily_channel_autopilot.py
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Discover and verify max 2000 candidates per night
+        env:
+          DM_ROTATING_AUDIT: '1'
+          DM_DAILY_WORKERS: '24'
+        run: python3 scripts/daily_channel_autopilot.py
+      - name: Reject partial coverage or unusable output
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('site/daily-autopilot-report.json').read_text())
+          assert r['state']=='ROTATING_BATCH_COMPLETED'
+          assert 0 < r['tested'] <= 2000
+          assert r['priority_checked'] <= 300
+          assert r['priority_checked'] + r['rotation_checked'] == r['tested']
+          assert r['sources_responded']==r['sources_total']
+          assert not r['total_catalog_coverage_confirmed'], 'This scope is not the full UI catalog'
+          assert Path('site/daily-autopilot.m3u8').read_text().startswith('#EXTM3U')
+          print('Nightly rotating batch audited:', r['tested'], '/ candidates:', r['curated_candidates'])
+          PY
+          git diff --check
+      - name: Persist audit state and verified playlist
+        id: changes
+        run: |
+          if git diff --quiet -- site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "drivmatch-channel-autopilot[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json
+          git commit -m "chore(channels): nightly curated-feed health audit"
+          git push origin HEAD:main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+      - name: Request Pages deployment
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
+      - name: Include audit report
+        if: always()
+        run: |
+          if [ -f site/daily-autopilot-report.json ]; then
+            cat site/daily-autopilot-report.json >> "$GITHUB_STEP_SUMMARY"
+          fi
