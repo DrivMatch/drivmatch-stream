@@ -32,3 +32,10 @@ Data: 2026-11-23. Endereço pretendido: https://streamnow.pages.dev/
 - Não colocar segredos, informações privadas nem credenciais de playlists nos arquivos estáticos; em erro não tratado no Advanced Mode o Cloudflare pode realizar fallback estático.
 - Favoritos e histórico em localStorage pertencem ao domínio antigo e não migram automaticamente para outro domínio.
 - O catálogo reúne fontes públicas de terceiros; HLS acessível não comprova direito de retransmissão.
+
+## Pendência comprovada no deploy
+
+- Execução GitHub Actions 45289833660: testes de código/autenticação e empacotamento PASS; criação/configuração de Cloudflare Pages BLOCKED por erro da API 10000 (permissões insuficientes no token existente). Nenhum deploy do endereço novo foi confirmado.
+- Correção no workflow (commit 4959964dc9043f814636bde29d6c66d6a633f0cd): suporta um token separado em GitHub Actions Repository Secrets chamado `CLOUDFLARE_PAGES_API_TOKEN`, com prioridade sobre `CLOUDFLARE_API_TOKEN` legado. O workflow agora não trata a recusa de criar projeto como sucesso.
+- Ação manual necessária: criar no Cloudflare um token restrito à conta correta com permissão `Account → Cloudflare Pages → Edit`, armazenar somente no GitHub como `CLOUDFLARE_PAGES_API_TOKEN` e executar novamente `.github/workflows/streamnow-pages.yml` pelo GitHub Actions. Não colar token no chat e não mudar o token do Worker antigo.
+- Depois: exigir deploy PASS e verificar HTTP com e sem cookie; sem isso `https://streamnow.pages.dev/` permanece apenas endereço pretendido.
