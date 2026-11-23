@@ -102,7 +102,7 @@ async function main(){
       const context=await newContext(),page=await context.newPage();
       await page.goto(origin+"/stream/listas/");
       await page.locator("#source-list .source").first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),11);
+      assert.equal(await page.locator("#source-list .source").count(),12);
       await page.locator('#country option[value="MX"]').waitFor({state:"attached"});
       assert.equal(await page.locator("#country option").count(),15);
       await page.getByRole("button",{name:/^Lista 1 •/}).click();
@@ -134,14 +134,14 @@ async function main(){
       await page.getByText("Record News",{exact:true}).first().waitFor();
       await page.locator("#search").fill("Record News");
       await page.getByText("Record News",{exact:true}).first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),11);
+      assert.equal(await page.locator("#source-list .source").count(),12);
       await page.locator(".add-source summary").click();
       await page.locator("#custom-file").setInputFiles({
         name:"meus-canais.m3u",
         mimeType:"audio/x-mpegURL",
         buffer:Buffer.from(playlist)
       });
-      await page.getByText(/Lista 12 • meus-canais.m3u/).first().waitFor();
+      await page.getByText(/Lista 13 • meus-canais.m3u/).first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),12);
       await page.locator("#source-list .source").nth(7).click();
       assert.equal(await page.getByText("DAZN",{exact:true}).count(),0);
