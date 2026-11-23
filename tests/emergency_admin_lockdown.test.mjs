@@ -1,0 +1,49 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import worker from "../cloudflare/independent-access.mjs";
+
+const url="https://drivmatch-stream-v2-test.drivmatch.workers.dev";
+const token="a".repeat(43);
+function fakeEnv(role){
+  let actionTouched=false;
+  const env={
+    STREAM_USERS_DB:{
+      prepare(sql){
+        if(sql.includes("FROM stream_sessions s")){
+          return {bind(){return {async first(){return {user_id:role+"-user",email:role+"@example.test",role,status:"active"};}};}};
+        }
+        actionTouched=true;
+        throw new Error("Administrative D1 action must never execute");
+      }
+    },
+    STREAM_LOGIN_LIMITER:{limit:async()=>({success:true})},
+    SUPABASE_URL:"https://example.supabase.co",
+    SUPABASE_PUBLIC_KEY:"sb_publishable_test123456789",
+    SUPABASE_SECRET_KEY:"sb_secret_test123456789",
+    STREAM_ACCESS_PASSWORD:"test-only-internal-signing-password-123456"
+  };
+  return {env,wasActionTouched:()=>actionTouched};
+}
+test("emergency: all admin endpoints locked for all authenticated roles",async()=>{
+  for(const role of ["admin","viewer"]){
+    const {env,wasActionTouched}=fakeEnv(role);
+    for(const [method,path] of [
+      ["GET","/stream/admin"],
+      ["GET","/stream/admin/?x=1"],
+      ["POST","/stream/admin/invite"],
+      ["POST","/stream/admin/status"],
+      ["POST","/stream/admin/recover"],
+      ["POST","/stream/admin/revoke"],
+      ["POST","/stream/admin/resend"],
+      ["POST","/stream/admin/link-invite"]
+    ]){
+      const response=await worker.fetch(new Request(url+path,{
+        method,headers:{Cookie:"dm_stream_user="+token},
+        ...(method==="POST"?{body:"_csrf=invalid"}:{})
+      }),env);
+      assert.equal(response.status,403,role+" "+method+" "+path);
+      assert.match(await response.text(),/bloqueado por segurança/);
+      assert.equal(wasActionTouched(),false);
+    }
+  }
+});
