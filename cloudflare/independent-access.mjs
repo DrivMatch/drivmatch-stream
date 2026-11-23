@@ -5,6 +5,7 @@
  * Production is NOT changed by adding this module.
  */
 import legacy from "./stream-proxy.mjs";
+import {renderAccessConsole} from "./admin-console.mjs";
 
 /*
  * The independent Stream MUST serve its own deployed asset bundle, not the
@@ -271,80 +272,37 @@ async function revokeCurrent(request, env) {
 function requireAdmin(user) {
   return user && user.role === "admin" && user.status === "active";
 }
-function dateBr(epoch) {
-  const time=Number(epoch);
-  if (!Number.isFinite(time) || time<=0) return "Não registrado";
-  try {
-    return new Intl.DateTimeFormat("pt-BR",{
-      timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit",
-      hour:"2-digit",minute:"2-digit",hour12:false
-    }).format(new Date(time*1000));
-  } catch {return "Data indisponível";}
-}
-function statusLabel(item) {
-  if (item.status==="active") return "Ativo";
-  if (item.status==="invited") return "Convite pendente";
-  if (item.status==="suspended" && item.canceled_invite_at)
-    return "Convite cancelado";
-  return "Acesso suspenso";
-}
-async function adminPage(user, env) {
+async function adminPage(user,env,url) {
   const token=await issueFormToken(env);
-  const result=await env.STREAM_USERS_DB.prepare(
-    "SELECT user_id,email,role,status,created_at,activated_at,first_login_at," +
-    "last_login_at,canceled_invite_at FROM stream_users ORDER BY created_at DESC LIMIT 150"
-  ).all();
-  let cards="";
-  for(const item of result.results || []){
-    const isSelf=item.user_id===user.user_id;
-    let buttons="";
-    if (!isSelf && item.role==="viewer") {
-      let next="",action="";
-      if(item.status==="invited"){
-        next="suspended";action="Cancelar convite";
-      } else if(item.status==="active"){
-        next="suspended";action="Suspender acesso";
-      } else if(item.status==="suspended"){
-        next=item.canceled_invite_at ? "invited" : "active";
-        action=item.canceled_invite_at ? "Reativar convite" : "Reativar acesso";
-      }
-      if(next){
-        buttons+="<form class='inline' method='post' action='/stream/admin/status'>" +
-          formTokenInput(token) +
-          "<input type='hidden' name='user_id' value='"+escape(item.user_id)+"'>" +
-          "<input type='hidden' name='status' value='"+next+"'>" +
-          "<button type='submit'>"+escape(action)+"</button></form> ";
-      }
-      if(item.status==="invited"){
-        buttons+="<form class='inline' method='post' action='/stream/admin/resend'>" +
-          formTokenInput(token) +
-          "<input type='hidden' name='user_id' value='"+escape(item.user_id)+"'>" +
-          "<button type='submit'>Reenviar convite</button></form>";
-      }
-    }
-    cards+="<section class='user-card'><h3>"+escape(item.email)+"</h3>" +
-      "<p><strong>Perfil:</strong> "+(item.role==="admin"?"Administrador":"Usuário") +
-      (isSelf?" (você)":"")+"</p>" +
-      "<p><strong>Situação:</strong> "+escape(statusLabel(item))+"</p>" +
-      "<dl><dt>Convite/cadastro</dt><dd>"+escape(dateBr(item.created_at))+"</dd>" +
-      "<dt>Senha ativada</dt><dd>"+escape(dateBr(item.activated_at))+"</dd>" +
-      "<dt>Primeiro login</dt><dd>"+escape(dateBr(item.first_login_at))+"</dd>" +
-      "<dt>Último login</dt><dd>"+escape(dateBr(item.last_login_at))+"</dd></dl>" +
-      (buttons?"<div class='user-actions'>"+buttons+"</div>":"")+
-      "</section>";
-  }
-  return stampForm(page("Gerenciamento de acessos",
-    "<p>Convide, suspenda ou reative contas. Nenhuma senha, favoritos ou canais assistidos são exibidos.</p>" +
-    "<form action='/stream/admin/invite' method='post'>" + formTokenInput(token) +
-    "<label>Convidar por e-mail<input type='email' name='email' maxlength='254' required></label>" +
-    "<button type='submit'>Enviar convite</button></form>" +
-    "<h2>Usuários</h2><p><small>Datas e horas no horário de São Paulo. " +
-    "Último login indica autenticação concluída, não visualização de canais. " +
-    "Registros anteriores à implantação podem estar indisponíveis.</small></p>" +
-    cards +
-    "<p><small>Suspender encerra sessões existentes, mas preserva favoritos. " +
-    "Cancelar impede o uso do convite no Stream. Reativar convite permite reenviá-lo.</small></p>" +
-    "<p><a href='/stream/'>Voltar ao Stream</a></p>",200),token);
+  const [members,activity,sessionCounts]=await Promise.all([
+    env.STREAM_USERS_DB.prepare(
+      "SELECT user_id,email,role,status,created_at,activated_at,first_login_at," +
+      "last_login_at,canceled_invite_at FROM stream_users ORDER BY created_at DESC LIMIT 150"
+    ).all(),
+    env.STREAM_USERS_DB.prepare(
+      "SELECT e.action,e.created_at,t.email AS subject_email " +
+      "FROM stream_admin_events e LEFT JOIN stream_users t ON t.user_id=e.subject_id " +
+      "ORDER BY e.created_at DESC LIMIT 15"
+    ).all(),
+    env.STREAM_USERS_DB.prepare(
+      "SELECT user_id,COUNT(*) AS total FROM stream_sessions WHERE expires_at>? GROUP BY user_id"
+    ).bind(now()).all()
+  ]);
+  const counts=new Map((sessionCounts.results||[]).map(x=>[x.user_id,Number(x.total)||0]));
+  const users=(members.results||[]).map(u=>({
+    ...u,session_count:counts.get(u.user_id)||0
+  }));
+  const {html,nonce}=renderAccessConsole({
+    users,actorId:user.user_id,token,events:activity.results||[],
+    notice:url.searchParams.get("result")||""
+  });
+  return stampForm(new Response(html,{status:200,headers:{
+    ...HEADERS,"Content-Type":"text/html; charset=utf-8",
+    "Referrer-Policy":"same-origin",
+    "Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; " +
+      "script-src 'nonce-"+nonce+"'; form-action 'self'; connect-src 'self'; " +
+      "base-uri 'none'; frame-ancestors 'none'"
+  }}),token);
 }
 async function bundledAsset(request, env, url, path) {
   if (!Object.hasOwn(STATIC_FILES, path)) return null;
@@ -516,7 +474,7 @@ async function handle(request, env) {
     return json(200,{ok:true});
   }
   if (path === "/stream/admin" && method === "GET")
-    return requireAdmin(user) ? adminPage(user,env) :
+    return requireAdmin(user) ? adminPage(user,env,url) :
       page("Conta sem permissão de administrador",
         "<p>Você entrou com uma conta que não tem acesso a este painel.</p>" +
         "<p>Confirme que utilizou o e-mail da sua conta administradora.</p>" +
