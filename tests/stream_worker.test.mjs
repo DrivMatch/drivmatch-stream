@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import stream from "../cloudflare/stream-proxy.mjs";
+import {searchCatalog} from "../cloudflare/catalog-merge.mjs";
 const origin="https://drivmatch.com/stream/", preview="https://drivmatch-stream-proxy.drivmatch.workers.dev/stream/";
 const password="test-passphrase-only-dont-use-in-production-123";
 const env={STREAM_ACCESS_PASSWORD:password};
@@ -11,6 +12,20 @@ async function login(where=origin,passwordInput=password,headers={}){
    body:new URLSearchParams({password:passwordInput}).toString()}),env);
 }
 async function cookie(){const r=await login();assert.equal(r.status,303);return r.headers.get("set-cookie").split(";")[0];}
+test("global search matches Cyrillic original names and Latin aliases, not only the Portuguese label",async()=>{
+ const playlist=[
+  "#EXTM3U",
+  '#EXTINF:-1 tvg-country="RU" group-title="News" dm-original-name="Россия 24" dm-aliases="Россия 24 | Rossiya 24",Rossiya 24 — Notícias da Rússia',
+  "https://media.example.org/russia.m3u8"].join("\n");
+ const urls={"lista-12":"https://catalog.example.org/verified.m3u"};
+ const load=async url=>url==="https://catalog.example.org/verified.m3u"?playlist:"#EXTM3U\n";
+ for(const q of ["Россия 24","Rossiya 24","Notícias da Rússia"]){
+  const result=await searchCatalog(q,urls,[],load);
+  assert.match(result,/#DM_MATCHED_CHANNELS:1/);
+  assert.match(result,/Rossiya 24 — Notícias da Rússia/);
+  assert.match(result,/dm-original-name="Россия 24"/);
+ }
+});
 test("missing and short secrets deny all viewers",async()=>{
  for(const e of [{},{STREAM_ACCESS_PASSWORD:"1234"}]){
   const r=await stream.fetch(new Request(origin),e);
