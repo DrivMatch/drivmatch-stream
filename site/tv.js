@@ -57,7 +57,8 @@ function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(t
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
 function visibleEl(el,on){el.style.display=on?"":"none";el.hidden=!on;}
 function on(el,k,fn){if(el&&el.addEventListener)el.addEventListener(k,fn,false);}
-function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;cb(x.status,x.responseText||"");}};
+function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
+if(x.status>0)noteSiteReachable();cb(x.status,x.responseText||"");}};
 x.onerror=function(){if(!done){done=true;cb(0,"");}};
 try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
@@ -298,30 +299,59 @@ function compareCountries(a,b){
  if(x>=0)return -1;if(y>=0)return 1;
  var aa=lower(a[1]),bb=lower(b[1]);return aa<bb?-1:aa>bb?1:0;
 }
-function setConnectionStatus(online){
+/* Tizen's navigator.onLine can be false even when this page works. Only a
+ * real HTTP response proves the Stream reachable. A failed *probe* does not
+ * prove the user's fiber internet is down. Keep ambiguous cases neutral. */
+var connectionLastOK=0,connectionFailures=0,connectionProbe=0;
+function setConnectionStatus(state){
  var area=D("connection-status");
  if(!area)return;
- area.className="connection-status "+(online?"online":"offline");
- area.setAttribute("aria-label","Conexão com o site: "+(online?"ON":"OFF"));
- T(D("connection-label"),online?"ON":"OFF");
+ var online=state==="online",offline=state==="offline";
+ area.className="connection-status "+(online?"online":offline?"offline":"checking");
+ area.setAttribute("aria-label",online?"Conexão com o Stream: ON":
+   offline?"Conexão com o Stream: OFF":"Verificando conexão com o Stream");
+ T(D("connection-label"),online?"ON":offline?"OFF":"…");
 }
-/* An HTTP response from our own origin verifies site connectivity, not a live
- * stream. Network failures or a browser offline event show OFF. */
+function noteSiteReachable(){
+ connectionLastOK=new Date().getTime();connectionFailures=0;
+ setConnectionStatus("online");
+}
 function checkConnection(){
- if(navigator.onLine===false){setConnectionStatus(false);return;}
- var req=new XMLHttpRequest(),done=false;
- function finish(ok){if(done)return;done=true;setConnectionStatus(ok);}
- req.onreadystatechange=function(){
-   if(req.readyState===4)finish(req.status>0);
- };
- req.onerror=function(){finish(false);};
- req.ontimeout=function(){finish(false);};
- try{
-   req.open("GET","/stream/session?connectivity="+new Date().getTime(),true);
-   req.timeout=7000;
-   req.setRequestHeader("Cache-Control","no-store");
-   req.send();
- }catch(e){finish(false);}
+ var seq=++connectionProbe,done=false;
+ function finish(status){
+   if(done||seq!==connectionProbe)return;
+   done=true;
+   if(status>0){noteSiteReachable();return;}
+   // Try a second *same-origin* resource: the session endpoint might fail
+   // independently from an otherwise working site or Samsung browser.
+   probe("/stream/tv/tv.css?connectivity="+new Date().getTime(),function(extra){
+     if(seq!==connectionProbe)return;
+     if(extra>0){noteSiteReachable();return;}
+     connectionFailures++;
+     var now=new Date().getTime();
+     if(connectionFailures>=2&&navigator.onLine===false&&
+        (!connectionLastOK||now-connectionLastOK>45000))
+       setConnectionStatus("offline");
+     else if(!connectionLastOK||connectionFailures>1)
+       setConnectionStatus("checking");
+     // A single failed check never erases a recent proven ON state.
+   });
+ }
+ function probe(path,callback){
+   var req=new XMLHttpRequest(),finished=false;
+   function resolve(status){
+     if(finished)return;finished=true;callback(status);
+   }
+   req.onreadystatechange=function(){
+     if(req.readyState===4)resolve(req.status);
+   };
+   req.onerror=function(){resolve(0);};
+   req.ontimeout=function(){resolve(0);};
+   try{
+     req.open("GET",path,true);req.timeout=6000;req.send();
+   }catch(e){resolve(0);}
+ }
+ probe("/stream/session?connectivity="+new Date().getTime(),finish);
 }
 function dataAttr(s,k){var m=new RegExp("(?:^|\\s)"+k+'="([^"]*)"',"i").exec(s);return m?m[1]:"";}
 function inferCountry(meta,group,name,defaultCode){
@@ -787,8 +817,9 @@ function init(){
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   checkConnection();
   on(window,"online",checkConnection);
-  on(window,"offline",function(){setConnectionStatus(false);});
-  setInterval(checkConnection,30000);
+  // A browser 'offline' event alone is not reliable on older Samsung TVs.
+  on(window,"offline",checkConnection);
+  setInterval(checkConnection,45000);
   on(D("search"),"keyup",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("search"),"input",function(){search=lower(D("search").value);limit=60;renderChannels();});
   on(D("clear-search"),"click",function(){D("search").value="";search="";renderChannels();});
