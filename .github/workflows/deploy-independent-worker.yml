@@ -1,6 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Security recovery verified; future execution requires manual authorization.
+  # One-time isolated staging update: requested 😺 stream header and first-login day counter.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,7 +31,7 @@ jobs:
           node --check cloudflare/independent-access.mjs
           node --check site/tv.js
           node --check site/stream.js
-          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs
+          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs tests/admin_console_days.test.mjs
       - name: Verify account and token in GitHub secrets
         run: |
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
