@@ -1,6 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # SECOND EMERGENCY SECURITY RELEASE: identify logged-in account and logout; admin remains blocked.
+  # Controlled security recovery: sole admin restored with password step-up; viewer remains denied.
   push:
     branches: [feature/independent-cloudflare-access]
     paths: ['.github/workflows/deploy-independent-worker.yml']
@@ -31,7 +31,7 @@ jobs:
           node --check cloudflare/independent-access.mjs
           node --check site/tv.js
           node --check site/stream.js
-          node --test tests/emergency_admin_lockdown.test.mjs
+          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs
       - name: Verify account and token in GitHub secrets
         run: |
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
