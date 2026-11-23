@@ -154,6 +154,8 @@ test("unauthenticated private data denied and login has no signup",async()=>{
   assert.equal((await worker.fetch(req("/stream/favorites"),env)).status,401);
   const loginPage=await worker.fetch(req("/stream/login"),env);
   assert.equal(loginPage.status,200);
+  assert.equal(loginPage.headers.get("Referrer-Policy"),"same-origin",
+    "HTML forms require same-origin policy to avoid Chrome Origin:null");
   const html=await loginPage.text();
   assert.match(html,/Esqueci minha senha/);
   assert.doesNotMatch(html,/Cadastre-se/);
