@@ -90,6 +90,23 @@ class AutopilotTests(unittest.TestCase):
         self.assertFalse(good)
         self.assertGreaterEqual(clock[0] - 100, 60.0)
 
+    def test_failed_channels_cannot_starve_new_discovery(self):
+        now = dt.datetime(2026, 11, 23, tzinfo=dt.timezone.utc)
+        candidates = {}
+        previous = {}
+        for i in range(250):
+            key = f"failed-{i}"
+            candidates[key] = {"id": key, "name": f"Failed {i}", "country": "BR", "genre": "news"}
+            previous[key] = {"status": "failed", "checked": "2026-11-22"}
+        for i in range(250):
+            key = f"new-{i}"
+            candidates[key] = {"id": key, "name": f"New {i}", "country": "PT", "genre": "sports"}
+        selected = autopilot.select_for_check(candidates, previous, now)
+        self.assertEqual(len(selected), autopilot.MAX_CHECKS)
+        self.assertGreaterEqual(sum(x["id"].startswith("new-") for x in selected),
+                                autopilot.MAX_CHECKS // 2)
+        self.assertGreaterEqual(sum(x["id"].startswith("failed-") for x in selected), 1)
+
     def test_daily_run_only_publishes_eligible_and_verified(self):
         feed = ("source", "https://source.example.org/free.m3u8", "", "", True)
         research = ("research", "https://source.example.org/unknown.m3u8", "", "", False)
