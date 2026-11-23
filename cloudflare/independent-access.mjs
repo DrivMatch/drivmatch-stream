@@ -597,7 +597,8 @@ async function handle(request, env) {
   // Privileged operations require a real, active D1 administrator AND
   // a recent password re-verification tied to the same user session.
   if (path === "/stream/admin/" && method === "GET")
-    return redirect(url.origin,"/stream/admin");
+    return requireAdmin(user) ? redirect(url.origin,"/stream/admin") :
+      plain(403,"Conta sem permissão de administrador.");
   if (path === "/stream/admin/verify" && method === "POST") {
     if(!requireAdmin(user))return plain(403,"Acesso administrativo negado.");
     const data=await form(request);
