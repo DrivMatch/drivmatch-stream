@@ -511,16 +511,24 @@ function loadOfficialDirectory(){
   renderChannels();drawCountries();drawPaidProviders();drawQuickLists();
  });
 }
+/* Providers are official external destinations, not playable channels.
+ * Show the actual verified catalog URL as an accessible, visible link. */
 function drawPaidProviders(){
  var area=D("provider-items");if(!area)return;clear(area);
+ area.appendChild(E("p","provider-note",
+   "Sites oficiais externos. Clique em Abrir site oficial. "+
+   "Pode exigir assinatura; o vídeo não abre neste player."));
  for(var i=0;i<officialPaid.length;i++){(function(x){
    if(!validOfficialUrl(x.url))return;
-   var b=E("button","provider-entry",countryName(x.code)+" · "+x.name);
-   b.type="button";
-   on(b,"click",function(){play({id:"paid:"+x.id,name:x.name,code:x.code,
-     premium:true,urls:[],genre:x.genre||"other",group:x.notes,
-     officialUrl:x.url,officialAccess:x.access,officialNotes:x.notes},false);});
-   area.appendChild(b);
+   var link=E("a","provider-entry");
+   link.href=x.url;
+   link.rel="noopener noreferrer";
+   if(desktopMode)link.target="_blank";
+   link.setAttribute("aria-label",countryName(x.code)+" · "+x.name+
+     " · Abrir site oficial (acesso pode exigir assinatura)");
+   link.appendChild(E("span","provider-name",countryName(x.code)+" · "+x.name));
+   link.appendChild(E("span","provider-open","↗ Abrir site oficial"));
+   area.appendChild(link);
  }(officialPaid[i]));}
 }
 function sourceName(){for(var i=0;i<SOURCES.length;i++)if(SOURCES[i].id===source)return SOURCES[i].title;return "Lista IPTV";}

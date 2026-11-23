@@ -636,3 +636,19 @@ html.dm-desktop-compact .disclaimer,
 html.dm-desktop-compact .remote-hint{font-size:12px}
 html.dm-desktop-compact .player-error{font-size:14px}
 html.dm-desktop-compact .restore-hidden{font-size:14px;min-height:34px}
+
+
+/* Subscription catalog: each entry has its real destination link, not a faux
+   player button. Keep TV-readable labels and a separate desktop density. */
+.provider-entry{text-decoration:none;cursor:pointer;overflow:hidden}
+.provider-entry .provider-name{display:block;font-weight:bold;line-height:1.25}
+.provider-entry .provider-open{display:block;margin-top:4px;font-size:16px;
+  color:#a9fff0;text-decoration:underline;font-weight:bold}
+.provider-note{font-size:15px;line-height:1.4;color:#e4f5f4;
+  margin:4px 3px 12px}
+.provider-entry:hover{background:#17636a;color:#fff}
+html.dm-desktop-compact .provider-entry{font-size:14px;min-height:48px;
+  padding:7px 8px}
+html.dm-desktop-compact .provider-entry .provider-name{font-size:14px}
+html.dm-desktop-compact .provider-entry .provider-open{font-size:12px}
+html.dm-desktop-compact .provider-note{font-size:12px}

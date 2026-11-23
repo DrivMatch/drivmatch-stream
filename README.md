@@ -33,6 +33,12 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Selecionar Brasil ou outro país expande as categorias e carrega seus canais sob demanda. Recolher o país ativo fecha também a grade central, sem parar o canal que já estiver reproduzindo.
 - Favoritos, recentes, restauração de canais ocultos e acesso ao site oficial continuam disponíveis. Não há exclusão de listas ou canais; dispositivos móveis com o visualizador clássico não são alterados.
 
+## Links das plataformas por assinatura (23/11/2026)
+
+- Os 100 itens do diretório de plataformas pagas já possuíam URLs HTTPS no `site/official-access.json`, mas a UI os apresentava como botões que somente selecionavam texto no player. Agora cada entrada expõe o link real **↗ Abrir site oficial**, com aviso de que assinatura/conta pode ser necessária.
+- Desktop usa link em nova aba; navegador Samsung/Tizen usa navegação na mesma aba para manter acessibilidade ao controle remoto. Os endereços vêm do catálogo, sem geração de links ou fluxo de reprodução pirata.
+- Essa lista **não** representa transmissões gratuitas incorporadas. Para ver canais dentro do player, o usuário escolhe Países e canais → País → Categoria → Canal, sujeito à compatibilidade e disponibilidade do sinal.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
