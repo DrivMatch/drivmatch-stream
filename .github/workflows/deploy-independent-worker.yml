@@ -1,10 +1,7 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # One controlled branch commit runs the isolated staging deployment.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths:
-      - '.github/workflows/deploy-independent-worker.yml'
+  # Isolated staging was successfully deployed on 2026-11-23.
+  # Future deployments require explicit workflow dispatch, not every code edit.
   workflow_dispatch:
 permissions:
   contents: read
