@@ -560,8 +560,9 @@ async function main(){
       assert.equal(await netflix.getAttribute('target'),null,
         'Samsung should use same-tab navigation when user chooses a provider');
       assert.match(await page.locator('.provider-note').textContent(),/assinatura/);
-      assert.equal(await page.locator('#video').getAttribute('src'),null,
-        'External subscription links must not be inserted as video sources');
+      assert.equal(await page.locator('#video').getAttribute('src'),
+        'https://mock.example/24horas.m3u8',
+        'Showing subscription links must preserve the chosen native HLS source');
       await page.locator('#technical-toggle').click();
       assert.equal(await page.locator('#technical-items .technical-source-name').count(),14);
       await context.close();
