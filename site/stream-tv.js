@@ -295,6 +295,13 @@
         return;
       }
       show(byId("gate"),false);show(byId("tv"),true);
+      setInterval(function(){req("./session",function(st,raw){
+        if(st!==200||raw.indexOf('"allowed":true')<0){
+          try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+          show(byId("tv"),false);show(byId("gate"),true);
+          text(byId("gate-message"),"Sessão encerrada. Faça login novamente.");
+        }
+      });},300000);
       try{var current=JSON.parse(body);if(typeof current.user_id==="string"){
         streamUserId=current.user_id;streamUserRole=current.role||"viewer";
       }}catch(e){}
