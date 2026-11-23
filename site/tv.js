@@ -86,14 +86,14 @@ function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
 function has(arr,k){return arr.indexOf(k)>=0;}
 function favoriteNameCanonical(name){
-  var n=lower(name).replace(/\\s*\\(\\d{3,4}p\\)\\s*$/i,"");
-  if(typeof n.normalize==="function")n=n.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
-  return n.replace(/\\s+/g," ");
+  var n=lower(name).replace(/\s*\(\d{3,4}p\)\s*$/i,"");
+  if(typeof n.normalize==="function")n=n.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  return n.replace(/\s+/g," ");
 }
 function canonicalFavoriteKeyFromLegacy(k){
   var parts=String(k||"").split(":");
   var code="",name="";
-  if(parts.length>=3 && /^(lista-\\d+|paid)$/i.test(parts[0])){
+  if(parts.length>=3 && /^(lista-\d+|paid)$/i.test(parts[0])){
     code=parts[1];name=parts.slice(2).join(":");
   }else if(parts.length>=2){
     code=parts[0];name=parts.slice(1).join(":");
