@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {daysSinceFirstLogin,renderAccessConsole} from "../cloudflare/admin-console.mjs";
 
 const unix=iso=>Math.floor(new Date(iso).getTime()/1000);
@@ -50,4 +51,19 @@ test("pending invitation displays no elapsed login time instead of fabricated da
   });
   assert.match(html,/Dias desde o primeiro acesso/);
   assert.match(html,/Aguardando primeiro acesso/);
+});
+
+test("TV web and Android-compatible guide headers display exact requested 😺 stream",()=>{
+  const guide=readFileSync(new URL("../site/tv.html",import.meta.url),"utf8");
+  const home=readFileSync(new URL("../site/index.html",import.meta.url),"utf8");
+  assert.match(guide,/<span class="logo" aria-hidden="true">😺<\/span><span><b>stream<\/b><\/span>/);
+  assert.match(home,/<div class="brand-icon" aria-hidden="true"><span>😺<\/span><\/div>/);
+  assert.match(home,/<h1>stream<\/h1>/);
+  assert.doesNotMatch(guide,/<b>DrivMatch /);
+});
+test("admin header displays 😺 stream while retaining role and security controls",()=>{
+  const {html}=renderAccessConsole({users:[],actorId:"root",token:"fake",
+    asOfEpoch:unix("2026-11-23T23:03:00Z")});
+  assert.match(html,/<div class='logo'>😺 <span>stream<\/span> · Administração<\/div>/);
+  assert.match(html,/Área restrita · Administrador/);
 });
