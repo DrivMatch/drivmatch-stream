@@ -92,10 +92,21 @@ function req(path,options={}){
     Origin:base,...options.headers
   }});
 }
-function login(email,password,env){
+async function getForm(path,env,session="") {
+  const response=await worker.fetch(req(path,{headers:session?{Cookie:session}:{}}),env);
+  assert.equal(response.status,200,"form GET must succeed");
+  const html=await response.text();
+  const token=html.match(/name='_csrf' value='([^']+)'/)?.[1];
+  const csrfCookie=response.headers.get("Set-Cookie")?.split(";")[0];
+  assert.match(token||"",/^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/);
+  assert.match(csrfCookie||"",/^__Host-dm_stream_form_csrf=/);
+  return {token,cookie:csrfCookie,html};
+}
+async function login(email,password,env) {
+  const form=await getForm("/stream/login",env);
   return worker.fetch(req("/stream/login",{
-    method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({email,password}).toString()
+    method:"POST",headers:{Cookie:form.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({email,password,_csrf:form.token}).toString()
   }),env);
 }
 function cookie(res) {
@@ -172,9 +183,10 @@ test("suspending account immediately blocks an active session",async()=>{
     const {env}=testEnvironment();
     const a=cookie(await login(users[0].email,users[0].password,env));
     const b=cookie(await login(users[1].email,users[1].password,env));
+    const form=await getForm("/stream/admin",env,a);
     const suspended=await worker.fetch(req("/stream/admin/status",{
-      method:"POST",headers:{Cookie:a,"Content-Type":"application/x-www-form-urlencoded"},
-      body:new URLSearchParams({user_id:users[1].id,status:"suspended"}).toString()
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({user_id:users[1].id,status:"suspended",_csrf:form.token}).toString()
     }),env);
     assert.equal(suspended.status,303);
     assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:b}}),env)).status,401);
@@ -225,10 +237,11 @@ test("private site uses bundled matching assets only after authentication",async
 test("Android browser form POST with Sec-Fetch-Site same-origin works when Origin absent",async()=>{
   await withFakeSupabase(async()=>{
     const {env}=testEnvironment();
+    const form=await getForm("/stream/login",env);
     const response=await worker.fetch(new Request(base+"/stream/login",{
       method:"POST",
-      headers:{"Sec-Fetch-Site":"same-origin","Content-Type":"application/x-www-form-urlencoded"},
-      body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
+      headers:{Cookie:form.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:users[0].email,password:users[0].password,_csrf:form.token}).toString()
     }),env);
     assert.equal(response.status,303);
     const c=cookie(response);
@@ -240,16 +253,17 @@ test("Android browser form POST with Sec-Fetch-Site same-origin works when Origi
 test("foreign Origin remains blocked even with forged same-origin fetch metadata",async()=>{
   await withFakeSupabase(async()=>{
     const {env}=testEnvironment();
+    const form=await getForm("/stream/login",env);
     const response=await worker.fetch(new Request(base+"/stream/login",{
       method:"POST",
-      headers:{"Origin":"https://attacker.example","Sec-Fetch-Site":"same-origin",
+      headers:{Cookie:form.cookie,"Origin":"https://attacker.example","Sec-Fetch-Site":"same-origin",
         "Content-Type":"application/x-www-form-urlencoded"},
-      body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
+      body:new URLSearchParams({email:users[0].email,password:users[0].password,_csrf:form.token}).toString()
     }),env);
     assert.equal(response.status,403);
   });
 });
-test("POST without Origin or trustworthy browser metadata fails closed",async()=>{
+test("POST without signed form cookie/token fails closed",async()=>{
   await withFakeSupabase(async()=>{
     const {env}=testEnvironment();
     const response=await worker.fetch(new Request(base+"/stream/login",{
@@ -257,5 +271,31 @@ test("POST without Origin or trustworthy browser metadata fails closed",async()=
       body:new URLSearchParams({email:users[0].email,password:users[0].password}).toString()
     }),env);
     assert.equal(response.status,403);
+  });
+});
+
+test("wrong or forged signed form cookie is rejected in private browser",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const form=await getForm("/stream/login",env);
+    const forged=await worker.fetch(new Request(base+"/stream/login",{
+      method:"POST",
+      headers:{Cookie:form.cookie.slice(0,-1)+"x","Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:users[0].email,password:users[0].password,_csrf:form.token})
+    }),env);
+    assert.equal(forged.status,403);
+  });
+});
+test("recover form uses signed token when mobile sends no Origin",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const form=await getForm("/stream/recover",env);
+    const result=await worker.fetch(new Request(base+"/stream/recover",{
+      method:"POST",
+      headers:{Cookie:form.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:"unknown@example.test",_csrf:form.token})
+    }),env);
+    assert.equal(result.status,200);
+    assert.match(await result.text(),/Solicitação recebida/);
   });
 });
