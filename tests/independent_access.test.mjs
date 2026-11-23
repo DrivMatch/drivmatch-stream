@@ -159,7 +159,22 @@ async function withFakeSupabase(fn) {
       assert.equal(options.headers.apikey,"testing-secret-key");
       assert.equal(options.headers.Authorization,undefined,
         "Opaque Supabase secret key must not be used as Bearer JWT");
+      if(body.email==="outside@example.test")
+        return Response.json({error_code:"email_address_not_authorized",
+          msg:"Email not authorized by the default sender"},{status:422});
+      if(body.email==="limited@example.test")
+        return Response.json({error_code:"over_email_send_rate_limit",
+          msg:"Rate limit reached"},{status:429});
       return Response.json({id:"new-invite",email:body.email});
+    }
+    if(u.pathname==="/auth/v1/admin/generate_link"){
+      assert.equal(options.headers.apikey,"testing-secret-key");
+      assert.equal(options.headers.Authorization,undefined);
+      const id=body.email==="invited@example.test"?"new-invite":"manual-user";
+      const redirect=body.redirect_to;
+      const link="https://example.supabase.co/auth/v1/verify?type="+body.type+
+        "&token=opaque-invitation-token&redirect_to="+encodeURIComponent(redirect);
+      return Response.json({id,email:body.email,action_link:link});
     }
     if(u.pathname==="/auth/v1/user"&&options?.method==="GET")
       return Response.json({id:"new-invite",email:"invited@example.test"});
@@ -471,5 +486,95 @@ test("viewer cannot access control center or send recovery email",async()=>{
     }),env);
     assert.equal(post.status,403);
     assert.equal(events.length,0);
+  });
+});
+
+test("Supabase SMTP invite failure keeps administrator inside console with diagnostic",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const form=await getForm("/stream/admin",env,a);
+    const result=await worker.fetch(req("/stream/admin/invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"outside@example.test"})
+    }),env);
+    assert.equal(result.status,200);
+    const html=await result.text();
+    assert.match(html,/Falha no convite/);
+    assert.match(html,/SMTP próprio/);
+    assert.match(html,/Central de Controle/);
+    assert.doesNotMatch(html,/Email not authorized by the default sender/);
+    assert.equal([...accounts.values()].filter(x=>x.email==="outside@example.test").length,0);
+  });
+});
+test("rate-limit errors show a helpful message without losing the admin console",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const form=await getForm("/stream/admin",env,a);
+    const result=await worker.fetch(req("/stream/admin/invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"limited@example.test"})
+    }),env);
+    assert.equal(result.status,200);
+    assert.match(await result.text(),/limite de e-mails/);
+  });
+});
+test("admin can generate one-time private invite link without sending any email",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,events}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const form=await getForm("/stream/admin",env,a);
+    const result=await worker.fetch(req("/stream/admin/link-invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"manual@example.test"})
+    }),env);
+    assert.equal(result.status,200);
+    const html=await result.text();
+    assert.match(html,/Link privado gerado/);
+    assert.match(html,/Copiar link/);
+    assert.match(html,/opaque-invitation-token/);
+    assert.match(html,/Criar senha|senha/i);
+    assert.equal(accounts.get("manual-user")?.email,"manual@example.test");
+    assert.equal(accounts.get("manual-user")?.status,"invited");
+    assert.ok(events.some(x=>x.action==="invite-link"));
+    const fresh=await worker.fetch(req("/stream/admin",{headers:{Cookie:a}}),env);
+    assert.doesNotMatch(await fresh.text(),/opaque-invitation-token/,
+      "Generated links must not be persisted inside ordinary admin page.");
+  });
+});
+test("manual reissue for pending user uses recovery link and does not change assigned user",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    accounts.set("new-invite",{user_id:"new-invite",email:"invited@example.test",
+      role:"viewer",status:"invited",created_at:Math.floor(Date.now()/1000),
+      first_login_at:null,last_login_at:null,canceled_invite_at:null});
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const form=await getForm("/stream/admin",env,a);
+    const result=await worker.fetch(req("/stream/admin/link-invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"invited@example.test"})
+    }),env);
+    assert.equal(result.status,200);
+    const html=await result.text();
+    assert.match(html,/type=recovery/);
+    assert.equal(accounts.get("new-invite").status,"invited");
+  });
+});
+test("viewer is blocked from generating private invite links",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const b=cookie(await login(users[1].email,users[1].password,env));
+    const form=await getForm("/stream/admin",env,cookie(await login(users[0].email,users[0].password,env)));
+    const result=await worker.fetch(req("/stream/admin/link-invite",{
+      method:"POST",headers:{Cookie:b+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"another@example.test"})
+    }),env);
+    assert.equal(result.status,403);
   });
 });
