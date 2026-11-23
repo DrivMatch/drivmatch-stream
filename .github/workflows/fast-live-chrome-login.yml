@@ -1,8 +1,6 @@
 name: Fast live Chrome Stream login check
 on:
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/fast-live-chrome-login.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
