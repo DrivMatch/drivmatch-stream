@@ -169,7 +169,13 @@ function page(title, body, status = 200, script = "", nonce = "") {
     "input{display:block;width:100%;box-sizing:border-box;padding:12px;margin-top:6px;border-radius:8px;border:1px solid #aab6c3;font-size:16px}" +
     "button{background:#15345b;color:white;border:0;border-radius:9px;padding:12px 18px;margin-top:18px;font-weight:700;cursor:pointer}" +
     "small{color:#64748b}table{border-collapse:collapse;width:100%}td,th{padding:10px;text-align:left;border-bottom:1px solid #ddd}" +
-    "form.inline{display:inline}form.inline button{margin:0;padding:7px}";
+    "form.inline{display:inline-block;margin:3px 5px 3px 0}form.inline button{margin:0;padding:10px 12px}" +
+    ".user-card{border:1px solid #c7d3e0;border-radius:13px;padding:16px;margin:15px 0;overflow-wrap:anywhere}" +
+    ".user-card h3{font-size:18px;margin:0 0 12px;overflow-wrap:anywhere}" +
+    ".user-card p{margin:8px 0}.user-card dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin:12px 0}" +
+    ".user-card dt{font-weight:bold;color:#4b6175}.user-card dd{margin:0;text-align:right}" +
+    ".user-actions{border-top:1px solid #d9e2e9;padding-top:9px;margin-top:12px}" +
+    "@media(max-width:500px){body{padding:12px}main{padding:18px;margin:3vh auto}.user-card dl{grid-template-columns:1fr}.user-card dd{text-align:left;margin-bottom:9px}}";
   const html = "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'>" +
     "<meta name='viewport' content='width=device-width,initial-scale=1'>" +
     "<meta name='robots' content='noindex,nofollow,noarchive'><title>" + escape(title) +
@@ -541,7 +547,7 @@ async function handle(request, env) {
     }
     const target = String(data.get("user_id") || "");
     const targetRow = await env.STREAM_USERS_DB.prepare(
-      "SELECT user_id,email,role,status FROM stream_users WHERE user_id=?"
+      "SELECT user_id,email,role,status,canceled_invite_at FROM stream_users WHERE user_id=?"
     ).bind(target).first();
     if (!targetRow || targetRow.role !== "viewer" || target === user.user_id)
       return plain(403,"Forbidden");
@@ -556,17 +562,26 @@ async function handle(request, env) {
     }
     if (path === "/stream/admin/status") {
       const newStatus = data.get("status");
-      if (!((targetRow.status === "active" && newStatus === "suspended") ||
-            (targetRow.status === "suspended" && newStatus === "active")))
-        return plain(409,"Transição inválida.");
+      const validTransition =
+        (targetRow.status === "invited" && newStatus === "suspended") ||
+        (targetRow.status === "active" && newStatus === "suspended") ||
+        (targetRow.status === "suspended" &&
+          newStatus === (targetRow.canceled_invite_at ? "invited" : "active"));
+      if (!validTransition) return plain(409,"Transição inválida.");
+      const timestamp=now();
+      const cancelAt=(targetRow.status==="invited" && newStatus==="suspended") ?
+        timestamp : null;
+      const action=cancelAt ? "cancel-invite" :
+        newStatus==="invited" ? "restore-invite" : newStatus;
       await env.STREAM_USERS_DB.batch([
         env.STREAM_USERS_DB.prepare(
-          "UPDATE stream_users SET status=?,updated_at=? WHERE user_id=? AND status=?"
-        ).bind(newStatus,now(),target,targetRow.status),
+          "UPDATE stream_users SET status=?,updated_at=?,canceled_invite_at=? " +
+          "WHERE user_id=? AND status=?"
+        ).bind(newStatus,timestamp,cancelAt,target,targetRow.status),
         env.STREAM_USERS_DB.prepare("DELETE FROM stream_sessions WHERE user_id=?").bind(target),
         env.STREAM_USERS_DB.prepare(
           "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
-        ).bind(crypto.randomUUID(),user.user_id,newStatus,target)
+        ).bind(crypto.randomUUID(),user.user_id,action,target)
       ]);
       return redirect(url.origin,"/stream/admin");
     }
