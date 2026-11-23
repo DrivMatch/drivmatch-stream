@@ -247,7 +247,7 @@ function drawCategories(){
   }
 }
 function refresh(){
-  cache={};loadChannels();
+  cache={};treeErrors={};loadChannels();
 }
 function selectSource(id){
   if(source===id&&channels.length)return;
@@ -261,19 +261,21 @@ function selectSource(id){
 function loadChannels(){
   serial++;var seq=serial,code=(source==="lista-2"||source==="lista-8"||source==="lista-9")?country:"ALL";
   var cacheKey=source+":"+code;
-  T(D("catalog-title"),sourceName().replace(/^Lista\s*\d+\s*•\s*/,""));
-  T(D("catalog-subtitle"),country==="ALL"?"Todos os países":countryName(country));
+  T(D("catalog-title"),countryName(country));
+  T(D("catalog-subtitle"),category==="all"?"Todos os canais":genreName(category));
   T(D("catalog-status"),source==="lista-2"?"Consolidando canais das Listas 1 a 8…":"Carregando canais…");
   T(D("result-count"),"Carregando");
   clear(D("channel-items"));visibleEl(D("show-more"),false);
   if(cache[cacheKey]){
-    channels=cache[cacheKey];T(D("catalog-status"),"Catálogo público · sinais não verificados");renderChannels();return;
+    channels=cache[cacheKey];T(D("catalog-status"),"Listas 1–8 organizadas por país · Sinais não verificados");
+    renderChannels();drawCountries();return;
   }
+  treeErrors[code]=false;drawCountries();
   http("/stream/catalog?list="+encodeURIComponent(source)+"&country="+encodeURIComponent(code),function(st,body){
     if(seq!==serial)return;
     if(st!==200){
-      channels=[];renderChannels();
-      T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou escolha outra lista.");
+      channels=[];treeErrors[code]=true;renderChannels();drawCountries();
+      T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou selecione o país novamente.");
       return;
     }
     var parsed=parse(body,(source==="lista-2"||source==="lista-8"||source==="lista-9")&&code!=="ALL"?code:"ALL");
@@ -289,12 +291,11 @@ function loadChannels(){
         (cut?" · Catálogo geral parcial; selecione um país":"")+
         " · Reprodução não garantida.");
     }else T(D("catalog-status"),"Lista pública · reprodução ainda não verificada nesta TV.");
-    renderChannels();
+    renderChannels();drawCountries();
   });
 }
 function fits(c){
-  if(country!=="ALL" && source!=="lista-2" && c.code!==country)return false;
-  if(country==="OTHER" && source==="lista-2" && c.code!=="OTHER")return false;
+  if(country!=="ALL" && c.code!==country)return false;
   if(category!=="all"&&category!=="fav"&&c.genre!==category)return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
   if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
@@ -316,9 +317,7 @@ function renderChannels(){
   visible=all;
   T(D("result-count"),visible.length+" canais");
   if(!all.length){
-    var emptyText=channels.length?"Nenhum canal neste filtro.":"Nenhum canal disponível nesta fonte.";
-    if(search&&source==="lista-2"&&country==="BR")
-      emptyText="Nenhum resultado para "+D("search").value+" nesta lista. Experimente escolher outra lista à esquerda.";
+    var emptyText=channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
     area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
@@ -344,7 +343,7 @@ function renderChannels(){
   visibleEl(D("show-more"),all.length>limit);
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
-function play(c){
+function play(c,fromTree){
   if(c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
@@ -354,7 +353,9 @@ function play(c){
     T(D("player-error"),"Este canal aparece numa lista pública, mas o link não comprova autorização. Use o serviço oficial ou a assinatura aplicável.");
     visibleEl(D("player-error"),true);
     D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
-    updateFavButton();renderChannels();focusChannelAfterRender(c.id,false);return;
+    updateFavButton();renderChannels();drawCountries();
+    if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
+    return;
   }
   selected=c;T(D("now-name"),c.name);
   T(D("now-meta"),countryName(c.code)+" · "+
@@ -367,8 +368,8 @@ function play(c){
     var task=video.play();
     if(task&&typeof task.catch==="function")task.catch(function(){T(D("player-error"),"Toque no Play do vídeo. A origem também pode bloquear reprodução nesta TV.");visibleEl(D("player-error"),true);});
   }catch(e){T(D("player-error"),"Formato ou sinal não suportado neste navegador Samsung.");visibleEl(D("player-error"),true);}
-  renderChannels();
-  focusChannelAfterRender(c.id,false);
+  renderChannels();drawCountries();
+  if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
 }
 /* Directional navigation stays inside the focused column on UP/DOWN.
  * LEFT/RIGHT changes columns; only that column scrolls, never the video.
@@ -382,7 +383,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".source-btn,.country-btn,.filter-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -507,7 +508,7 @@ function init(){
       SOURCES=verified;drawSources();drawCountries();drawCategories();
       addCountryOptions();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
-      selectSource("lista-2");
+      source="lista-2";T(D("head-source"),"Países e categorias");loadChannels();
     });
   });
 }
