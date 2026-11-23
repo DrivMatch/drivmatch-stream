@@ -63,6 +63,22 @@ async function main(){
     ['#EXTM3U','#EXTINF:-1 tvg-country="BR" group-title="Público",TV Brasil',
       'https://mock.example/tvbrasil.m3u8'].join("\n"):m3uES);return;
     }
+    if(req.url && req.url.startsWith("/stream/search?q=")){
+      if(!authorized){res.writeHead(403);res.end();return;}
+      const term=new URL(req.url,origin).searchParams.get("q").toLowerCase();
+      const rows=[
+        ['CNN Brasil','BR','cnn-br','News'],
+        ['CNN Portugal','PT','cnn-pt','News'],
+        ['CNN EUA','US','cnn-us','News'],
+        ['Canal Teste 10','BR','test10','General']
+      ].filter(([name])=>name.toLowerCase().includes(term));
+      res.writeHead(200,{"Content-Type":"text/plain","Cache-Control":"no-store"});
+      res.end(["#EXTM3U","#DM_SEARCH:"+term,"#DM_SOURCES_LOADED:26/26",
+        "#DM_MATCHED_CHANNELS:"+rows.length,
+        ...rows.flatMap(([name,country,slug,group])=>[
+          '#EXTINF:-1 dm-country="'+country+'" dm-source="lista-2" group-title="'+group+'",'+name,
+          "https://mock.example/"+slug+".m3u8"])].join("\n"));return;
+    }
     if(req.url && req.url.startsWith("/stream/catalog?country=")){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"text/plain","Cache-Control":"no-store"});
@@ -238,6 +254,49 @@ async function main(){
       await brazil.click();
       await page.locator('#channel-items .channel-btn').first().waitFor();
       assert.equal(await brazil.getAttribute('aria-expanded'),'true');
+      await context.close();
+    }
+
+    // Search must cover all countries even with the country tree fully folded.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.setViewportSize({width:1366,height:768});
+      await page.goto(origin+'/stream/tv/');
+      const brazil=page.locator('.tree-country-btn[data-country="BR"]');
+      await brazil.waitFor();
+      assert.equal(await brazil.getAttribute('aria-expanded'),'false');
+      await page.locator('#search').fill('CNN');
+      await page.waitForFunction(()=>
+        document.getElementById('catalog-status').textContent.includes('Fontes consultadas'));
+      for(const [name,countryName] of [
+        ['CNN Brasil','Brasil'],['CNN Portugal','Portugal'],['CNN EUA','Estados Unidos']
+      ]){
+        const btn=page.locator('#channel-items .channel-btn').filter({hasText:name});
+        await btn.waitFor();
+        assert.match(await btn.textContent(),new RegExp(countryName));
+      }
+      assert.match(await page.locator('#result-count').textContent(),/3 países/);
+      assert.equal(await brazil.getAttribute('aria-expanded'),'false',
+        'Searching should not require opening Brazil first');
+      await page.locator('#channel-items .channel-btn').filter({hasText:'CNN EUA'}).click();
+      assert.equal(await page.locator('#now-name').textContent(),'CNN EUA');
+      await page.locator('#clear-search').click();
+      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
+      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      assert.equal(await page.locator('#now-name').textContent(),'CNN EUA',
+        'Clearing search must not stop or reset the selected channel');
+
+      // Search globally also when a single country is currently expanded.
+      await brazil.click();
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      await page.locator('#search').fill('CNN');
+      await page.waitForFunction(()=>
+        document.getElementById('catalog-status').textContent.includes('Fontes consultadas'));
+      assert.match(await page.locator('#result-count').textContent(),/3 países/);
+      await page.locator('#search').fill('');
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      assert.equal(await page.locator('#catalog-title').textContent(),'Brasil');
       await context.close();
     }
     // Mobile phones retain the original responsive player and channel list.
