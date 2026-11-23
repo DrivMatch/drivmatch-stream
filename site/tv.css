@@ -570,3 +570,69 @@ html,body,.tv-shell{background:#0d1218;color:#ffffff}
 @media(max-width:1000px){
  .restore-hidden{font-size:17px;min-height:36px}
 }
+
+
+/* Desktop-only typography and density. Never applies to Samsung/Tizen/TV UAs.
+   Preserve the same three columns, catalog, colors, and playback behavior. */
+html.dm-desktop-compact,
+html.dm-desktop-compact body{font-size:16px;line-height:1.35}
+html.dm-desktop-compact button,
+html.dm-desktop-compact input,
+html.dm-desktop-compact a{font-size:15px}
+html.dm-desktop-compact .brand b{font-size:22px}
+html.dm-desktop-compact .top-link{font-size:14px;padding:3px 9px}
+html.dm-desktop-compact .section-title{font-size:14px;padding:5px 6px;margin-bottom:8px}
+html.dm-desktop-compact .section-title b{font-size:12px;padding:3px 6px}
+html.dm-desktop-compact .quick-title{font-size:16px}
+html.dm-desktop-compact .quick-toggle{font-size:16px;min-height:32px;padding:4px 6px}
+html.dm-desktop-compact .quick-toggle .quick-chevron{width:15px}
+html.dm-desktop-compact .quick-toggle b{font-size:12px;margin-top:2px}
+html.dm-desktop-compact .quick-entry-btn{font-size:15px;min-height:32px;padding:5px 6px}
+html.dm-desktop-compact .quick-entry-name{font-size:15px}
+html.dm-desktop-compact .quick-entry-btn .quick-entry-meta{font-size:12px}
+html.dm-desktop-compact .quick-empty{font-size:13px}
+html.dm-desktop-compact .country-items .tree-country-btn{font-size:17px;min-height:35px;padding:5px 6px}
+html.dm-desktop-compact .tree-chevron{width:16px;font-size:16px}
+html.dm-desktop-compact .tree-count{font-size:12px;margin-top:3px}
+html.dm-desktop-compact .country-items .tree-genre-btn{font-size:16px;min-height:33px;padding:5px 6px}
+html.dm-desktop-compact .country-items .tree-channel-btn{font-size:15px;min-height:32px;padding:5px 6px}
+html.dm-desktop-compact .tree-channel-name{font-size:15px}
+html.dm-desktop-compact .tree-channel-class{font-size:12px}
+html.dm-desktop-compact .tree-more-btn{font-size:14px;min-height:32px}
+html.dm-desktop-compact .tree-loading,
+html.dm-desktop-compact .tree-error{font-size:13px}
+html.dm-desktop-compact .sidebar-note{font-size:12px}
+html.dm-desktop-compact #provider-toggle,
+html.dm-desktop-compact #technical-toggle{font-size:14px;min-height:32px}
+html.dm-desktop-compact .provider-entry,
+html.dm-desktop-compact .technical-source-name{font-size:13px}
+html.dm-desktop-compact .overline{font-size:12px}
+html.dm-desktop-compact .catalog-header h1{font-size:21px}
+html.dm-desktop-compact .catalog-header p{font-size:15px;margin-bottom:10px}
+html.dm-desktop-compact .search-row{height:43px;margin-bottom:6px}
+html.dm-desktop-compact .search-row input{height:41px;font-size:16px}
+html.dm-desktop-compact .search-row button{height:37px;width:38px;font-size:19px}
+html.dm-desktop-compact .channel-heading{min-height:34px}
+html.dm-desktop-compact .channel-heading span{font-size:15px;line-height:30px}
+html.dm-desktop-compact .channel-heading button{font-size:14px;padding:5px 8px}
+html.dm-desktop-compact .catalog-status{font-size:13px;padding:6px 8px}
+html.dm-desktop-compact .channel-row{min-height:38px;margin-bottom:3px}
+html.dm-desktop-compact .channel-number{font-size:13px;padding-top:10px;width:26px}
+html.dm-desktop-compact .channel-row .channel-btn{min-height:36px;width:calc(100% - 65px);padding:6px 3px}
+html.dm-desktop-compact .channel-row .channel-btn .channel-title{font-size:16px;line-height:1.2}
+html.dm-desktop-compact .channel-classification{font-size:12px;margin-top:3px}
+html.dm-desktop-compact .channel-row .fav-btn{min-height:36px;width:39px;font-size:20px}
+html.dm-desktop-compact .more-btn{font-size:14px;padding:9px}
+html.dm-desktop-compact .player-caption{font-size:15px;height:31px}
+html.dm-desktop-compact .play-symbol{width:58px;height:58px;line-height:58px;font-size:25px;margin-bottom:12px}
+html.dm-desktop-compact .player-empty strong{font-size:21px}
+html.dm-desktop-compact .player-empty p{font-size:15px}
+html.dm-desktop-compact .now-playing{padding:12px 3px 7px}
+html.dm-desktop-compact .now-playing h2{font-size:21px}
+html.dm-desktop-compact .now-playing p{font-size:15px}
+html.dm-desktop-compact .player-actions button{font-size:14px;min-height:35px;padding:6px 9px}
+html.dm-desktop-compact #official-open{font-size:14px;min-height:35px}
+html.dm-desktop-compact .disclaimer,
+html.dm-desktop-compact .remote-hint{font-size:12px}
+html.dm-desktop-compact .player-error{font-size:14px}
+html.dm-desktop-compact .restore-hidden{font-size:14px;min-height:34px}

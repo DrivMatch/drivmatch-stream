@@ -20,6 +20,13 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Celulares mantêm a interface responsiva anterior. Para suporte e comparação, o desktop pode abrir o layout antigo em `/stream/?layout=classic`.
 - A mudança é de apresentação e navegação, não prova compatibilidade dos sinais em diferentes navegadores ou TVs.
 
+## Desktop: tipografia compacta e HLS (23/11/2026)
+
+- Desktop e Samsung compartilham **três colunas** e o mesmo catálogo, mas têm renderização de fontes separada por user agent. Os estilos de fonte compactos do desktop ficam em `html.dm-desktop-compact`; a tipografia grande da Samsung/Tizen é preservada.
+- O player Samsung/Tizen continua nativo/ES5. No **desktop**, streams `.m3u8` usam HLS.js (mesma dependência pinada já usada no visualizador clássico), e links MP4 usam o player HTML5. O CDN depende de conexão e das políticas do navegador. A funcionalidade não ignora CORS, DRM, restrições de região ou licenças.
+- Falhas de MIME/codecs/rede no desktop são diferenciadas no player e **não ocultam canais automaticamente**. Na Samsung, a política anterior de 60 segundos/24 horas não foi alterada.
+- Testes com mídia simulada comprovam a seleção do motor HLS por dispositivo, não a reprodução efetiva de cada canal remoto.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs

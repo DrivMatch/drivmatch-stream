@@ -2,6 +2,15 @@
 (function(){
 "use strict";
 var D=function(id){return document.getElementById(id);};
+/* Desktop uses the Samsung three-column guide but its own streaming engine.
+ * Detect with ES5 syntax so Samsung's older Tizen runtime stays compatible. */
+var agent=navigator.userAgent||"";
+var samsungTV=/SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(agent);
+var portable=/Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(agent);
+var desktopMode=!samsungTV&&!portable;
+if(desktopMode)document.documentElement.className+=" dm-desktop-compact";
+var desktopHls=null,desktopHlsLoading=false,desktopHlsWaiters=[];
+var desktopSourceGeneration=0,desktopFailureReason="";
 var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],["PT","Portugal"],
  ["ES","Espanha"],["AR","Argentina"],["JP","Japão"],["CN","China"],["UK","Reino Unido"],
  ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
@@ -133,7 +142,84 @@ function restoreHidden(){
  renderChannels();drawCountries();drawQuickLists();
  T(D("catalog-status"),"Canais ocultos restaurados. Você pode tentar reproduzi-los novamente.");
 }
+function destroyDesktopHls(){
+ if(desktopHls){try{desktopHls.destroy();}catch(e){}desktopHls=null;}
+}
+function loadDesktopHls(callback){
+ if(window.Hls){callback(null,window.Hls);return;}
+ desktopHlsWaiters.push(callback);
+ if(desktopHlsLoading)return;
+ desktopHlsLoading=true;
+ var script=document.createElement("script");
+ script.src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js";
+ script.async=true;script.crossOrigin="anonymous";
+ function finish(err){
+  desktopHlsLoading=false;
+  var waiting=desktopHlsWaiters.slice(0);desktopHlsWaiters=[];
+  if(err&&script.parentNode)script.parentNode.removeChild(script);
+  for(var i=0;i<waiting.length;i++)waiting[i](err,window.Hls);
+ }
+ script.onload=function(){finish(window.Hls?null:Error("HLS_NOT_READY"));};
+ script.onerror=function(){finish(Error("HLS_LIBRARY_UNAVAILABLE"));};
+ document.getElementsByTagName("head")[0].appendChild(script);
+}
+function isCurrentDesktop(c,token,generation){
+ return desktopMode&&selected&&selected.id===c.id&&
+  token===playbackToken&&generation===desktopSourceGeneration&&
+  !playbackConfirmed&&!autoplayBlocked;
+}
+function desktopError(message){
+ desktopFailureReason=message;
+ T(D("play-status"),"Não foi possível reproduzir");
+ T(D("player-error"),message);visibleEl(D("player-error"),true);
+}
+function startDesktopHls(c,url,token,generation,playNative){
+ loadDesktopHls(function(err,Hls){
+  if(!isCurrentDesktop(c,token,generation))return;
+  if(err||!Hls){
+   desktopError("O componente HLS do desktop não carregou. Confira a conexão "+
+    "ou o bloqueio de scripts externos e tente Recarregar. O sinal não foi testado.");
+   return;
+  }
+  if(!Hls.isSupported()){
+   if(video.canPlayType("application/vnd.apple.mpegurl")||
+      video.canPlayType("application/x-mpegURL")){
+     video.src=url;video.load();playNative();return;
+   }
+   desktopError("Este navegador não oferece suporte HLS/Media Source necessário "+
+    "para este sinal. Experimente Chrome, Edge ou Safari atualizado.");
+   return;
+  }
+  try{
+   var player=new Hls();desktopHls=player;
+   player.on(Hls.Events.MEDIA_ATTACHED,function(){
+    if(isCurrentDesktop(c,token,generation))player.loadSource(url);
+   });
+   player.on(Hls.Events.MANIFEST_PARSED,function(){
+    if(isCurrentDesktop(c,token,generation))playNative();
+   });
+   player.on(Hls.Events.ERROR,function(event,data){
+    if(!isCurrentDesktop(c,token,generation)||!data||!data.fatal)return;
+    var detail=String(data.details||"");
+    var kind=String(data.type||"");
+    var msg=/manifestParsing|manifestIncompatible/i.test(detail)?
+      "A fonte retornou um manifesto HLS inválido ou incompatível.":
+      /network/i.test(kind)||/loadError|timeout/i.test(detail)?
+      "O navegador não conseguiu acessar o sinal. A origem pode estar indisponível, "+
+      "bloqueada por CORS ou região, ou exigir autorização.":
+      "O navegador não conseguiu decodificar o sinal. Formato ou codec pode ser incompatível.";
+    desktopError(msg+" O Stream verificará alternativas, quando disponíveis.");
+   });
+   player.attachMedia(video);
+   T(D("play-status"),"Carregando HLS…");
+  }catch(e){
+   destroyDesktopHls();
+   desktopError("Não foi possível iniciar o player HLS neste navegador.");
+  }
+ });
+}
 function clearPlaybackWatch(){
+ if(desktopMode){desktopSourceGeneration++;destroyDesktopHls();desktopFailureReason="";}
  for(var i=0;i<playbackTimers.length;i++)clearTimeout(playbackTimers[i]);
  playbackTimers=[];playbackToken++;playbackConfirmed=false;autoplayBlocked=false;
 }
@@ -155,37 +241,72 @@ function startPlaybackWatch(c){
   if(token!==playbackToken||playbackConfirmed||autoplayBlocked||
      !selected||selected.id!==c.id)return;
   T(D("play-status"),idx?"Tentando sinal alternativo…":"Conectando…");
-  try{
-   video.pause();video.src=urls[idx];video.load();
-   var task=video.play();
-   if(task&&typeof task.catch==="function")task.catch(function(err){
-     if(token!==playbackToken||playbackConfirmed)return;
+  var generation=++desktopSourceGeneration;
+  function playVideo(){
+   if(desktopMode&&!isCurrentDesktop(c,token,generation))return;
+   try{
+    var task=video.play();
+    if(task&&typeof task.catch==="function")task.catch(function(err){
+     if(token!==playbackToken||playbackConfirmed||
+        (desktopMode&&generation!==desktopSourceGeneration))return;
      var name=String(err&&err.name||""),msg=String(err&&err.message||"");
      if(name==="NotAllowedError"||/autoplay|user gesture|not allowed/i.test(msg)){
        autoplayBlocked=true;
        for(var i=0;i<playbackTimers.length;i++)clearTimeout(playbackTimers[i]);
        playbackTimers=[];
        T(D("play-status"),"Pressione Play");
-       T(D("player-error"),"A TV bloqueou o início automático. "+
+       T(D("player-error"),"O navegador bloqueou a reprodução automática. "+
          "Pressione Play no vídeo; este canal não será ocultado por esse bloqueio.");
        visibleEl(D("player-error"),true);
+     }else if(desktopMode){
+       desktopError("A reprodução não iniciou neste navegador. "+
+        "Pode haver bloqueio de fonte, formato ou codec incompatível.");
      }else{
        T(D("player-error"),"Aguardando o sinal (até 60 segundos)…");
        visibleEl(D("player-error"),true);
      }
-   });
+    });
+   }catch(e){
+    if(desktopMode)desktopError("Erro ao iniciar a reprodução neste navegador.");
+    else{
+     T(D("player-error"),"Sinal ainda não disponível; verificando alternativas até 60 segundos.");
+     visibleEl(D("player-error"),true);
+    }
+   }
+  }
+  try{
+   video.pause();
+   if(desktopMode)destroyDesktopHls();
+   video.removeAttribute("src");video.load();
+   if(desktopMode&&/\.m3u8(?:[?#]|$)/i.test(urls[idx])){
+     startDesktopHls(c,urls[idx],token,generation,playVideo);
+   }else{
+     video.src=urls[idx];video.load();playVideo();
+   }
   }catch(e){
-   T(D("player-error"),"Sinal ainda não disponível; verificando alternativas até 60 segundos.");
-   visibleEl(D("player-error"),true);
+   if(desktopMode)desktopError("Não foi possível preparar o sinal neste navegador.");
+   else{
+    T(D("player-error"),"Sinal ainda não disponível; verificando alternativas até 60 segundos.");
+    visibleEl(D("player-error"),true);
+   }
   }
  }
- // Try up to 3 alternatives within a single 60-second startup budget.
+ // Try up to 3 alternatives within one 60-second startup budget.
  tryUrl(0);
  if(n>=2)playbackTimers.push(setTimeout(function(){tryUrl(1);},20000));
  if(n>=3)playbackTimers.push(setTimeout(function(){tryUrl(2);},40000));
  playbackTimers.push(setTimeout(function(){
-  if(token===playbackToken&&!playbackConfirmed&&!autoplayBlocked&&
-     selected&&selected.id===c.id)hideFailed(c);
+  if(token!==playbackToken||playbackConfirmed||autoplayBlocked||
+     !selected||selected.id!==c.id)return;
+  if(desktopMode){
+   T(D("play-status"),"Sem reprodução neste desktop");
+   T(D("player-error"),desktopFailureReason||
+     "Não houve reprodução após 60 segundos. Pode haver bloqueio CORS, região, "+
+     "codec incompatível ou indisponibilidade na origem. Nenhum canal foi ocultado.");
+   visibleEl(D("player-error"),true);
+   return;
+  }
+  hideFailed(c);
  },60000));
 }
 
@@ -923,6 +1044,7 @@ function init(){
   });
   on(video,"error",function(){
     if(!selected||selected.premium||video.hidden||playbackConfirmed)return;
+    if(desktopMode&&desktopFailureReason)return;
     T(D("play-status"),"Verificando sinal…");
     T(D("player-error"),"Sinal ainda sem reprodução. "+
       "O Stream verificará as alternativas disponíveis por até 60 segundos.");
@@ -934,7 +1056,7 @@ function init(){
     if(!autoplayBlocked||playbackConfirmed||!selected||selected.premium)return;
     autoplayBlocked=false;
     var token=playbackToken,c=selected;
-    playbackTimers.push(setTimeout(function(){
+    if(!desktopMode)playbackTimers.push(setTimeout(function(){
       if(token===playbackToken&&!playbackConfirmed&&selected&&selected.id===c.id)
         hideFailed(c);
     },60000));
