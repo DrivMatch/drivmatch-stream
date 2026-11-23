@@ -1,6 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # One controlled staging rollout: show invitation errors and manual-link fallback.
+  # Controlled staging rollout: 20/day email quota schema, budget-aware authorization and UI.
   push:
     branches: [feature/independent-cloudflare-access]
     paths: ['.github/workflows/deploy-independent-worker.yml']
