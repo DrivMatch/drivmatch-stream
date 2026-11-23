@@ -377,3 +377,99 @@ test("already logged-in admin requesting management login goes straight to admin
     assert.equal(nav.headers.get("Location"),base+"/stream/admin");
   });
 });
+
+async function adminAction(env,session,path,targetId,fields={}) {
+  const f=await getForm("/stream/admin",env,session);
+  return worker.fetch(req("/stream/admin/"+path,{
+    method:"POST",
+    headers:{Cookie:session+"; "+f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({_csrf:f.token,user_id:targetId,...fields})
+  }),env);
+}
+test("control center has searchable table, summary, detailed account actions, and no password exposure",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const res=await worker.fetch(req("/stream/admin",{headers:{Cookie:a}}),env);
+    assert.equal(res.status,200);
+    const html=await res.text();
+    assert.match(html,/Central de Controle/);
+    assert.match(html,/id='member-search'/);
+    assert.match(html,/Filtrar situação/);
+    assert.match(html,/Gerenciar/);
+    assert.match(html,/Enviar recuperação de senha/);
+    assert.match(html,/Desconectar dispositivos/);
+    assert.match(html,/Último login/);
+    assert.match(html,/São Paulo/);
+    assert.match(html,/name='_csrf'/);
+    assert.match(res.headers.get("Content-Security-Policy"),/script-src 'nonce-/);
+    assert.equal(res.headers.get("Cache-Control"),"private, no-store");
+    assert.doesNotMatch(html,/Admin-test-password-123/);
+    assert.ok(accounts.get(users[0].id).last_login_at>0);
+    assert.ok(accounts.get(users[0].id).first_login_at>0);
+  });
+});
+test("pending invitations can be canceled, cannot activate, and can be restored without deletion",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,events}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const form=await getForm("/stream/admin",env,a);
+    const invite=await worker.fetch(req("/stream/admin/invite",{
+      method:"POST",headers:{Cookie:a+"; "+form.cookie,
+        "Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:form.token,email:"invited@example.test"})
+    }),env);
+    assert.equal(invite.status,303);
+    assert.equal(invite.headers.get("Location"),base+"/stream/admin?result=invited");
+    const u=accounts.get("new-invite");
+    assert.equal(u.status,"invited");
+    const cancel=await adminAction(env,a,"status",u.user_id,{status:"suspended"});
+    assert.equal(cancel.status,303);
+    assert.equal(cancel.headers.get("Location"),base+"/stream/admin?result=canceled");
+    assert.equal(u.status,"suspended");
+    assert.ok(u.canceled_invite_at>0);
+    const blocked=await worker.fetch(req("/stream/activate",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({access_token:"fake-invited-token",password:"SafePassword12345"})
+    }),env);
+    assert.equal(blocked.status,403);
+    const restored=await adminAction(env,a,"status",u.user_id,{status:"invited"});
+    assert.equal(restored.status,303);
+    assert.equal(u.status,"invited");
+    assert.equal(u.canceled_invite_at,null);
+    assert.ok(events.some(x=>x.action==="cancel-invite"));
+    assert.ok(events.some(x=>x.action==="restore-invite"));
+    assert.equal(accounts.has("new-invite"),true);
+  });
+});
+test("administrator can request recovery and revoke sessions for active viewer without suspending account",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,events}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const b=cookie(await login(users[1].email,users[1].password,env));
+    const recovered=await adminAction(env,a,"recover",users[1].id);
+    assert.equal(recovered.status,303);
+    assert.equal(recovered.headers.get("Location"),base+"/stream/admin?result=recovered");
+    assert.ok(events.some(x=>x.action==="recover"&&x.subject===users[1].id));
+    const revoke=await adminAction(env,a,"revoke",users[1].id);
+    assert.equal(revoke.status,303);
+    assert.equal(accounts.get(users[1].id).status,"active");
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:b}}),env)).status,401);
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:a}}),env)).status,200);
+    assert.ok(events.some(x=>x.action==="revoke"));
+  });
+});
+test("viewer cannot access control center or send recovery email",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,events}=testEnvironment();
+    const b=cookie(await login(users[1].email,users[1].password,env));
+    const page=await worker.fetch(req("/stream/admin",{headers:{Cookie:b}}),env);
+    assert.equal(page.status,403);
+    const post=await worker.fetch(req("/stream/admin/recover",{
+      method:"POST",headers:{Cookie:b,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({user_id:users[0].id})
+    }),env);
+    assert.equal(post.status,403);
+    assert.equal(events.length,0);
+  });
+});
