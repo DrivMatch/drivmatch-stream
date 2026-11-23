@@ -1,5 +1,8 @@
 name: Stream Staging login HTTP smoke test
 on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/stream-login-http-smoke.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -64,4 +67,9 @@ jobs:
           st_admin=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$origin/stream/admin")
           echo "GET admin without user cookie HTTP: $st_admin"
           test "$st_admin" = 303
-          echo "PASS: private-mobile form works and cross-site/missing-CSRF posts are denied."
+          admin_destination=$(curl -sS -D - -o /dev/null "$origin/stream/admin" | tr -d '\r' | grep -i '^Location:' | head -1)
+          test "$admin_destination" = "location: $origin/stream/login?next=admin" || test "$admin_destination" = "Location: $origin/stream/login?next=admin"
+          curl -fsS --max-time 30 "$origin/stream/login?next=admin" > /tmp/admin-login.html
+          grep -Fq "action='/stream/login?next=admin'" /tmp/admin-login.html
+          echo "Admin deep link survives login: PASS"
+          echo "PASS: mobile form, CSRF protection and administrator destination."
