@@ -17,12 +17,16 @@ function testEnvironment() {
   const sessions = new Map();
   const favorites = new Map();
   const events = [];
+  const emailBudget = [];
   const db = {
     prepare(statement){
       let args=[];
       return {
         bind(...values){args=values;return this;},
         async first(){
+          if(statement.startsWith("SELECT COUNT(*) AS used FROM stream_email_budget")) {
+            return {used:emailBudget.filter(x=>x.day===args[0]).length};
+          }
           if(statement.includes("FROM stream_sessions s")) {
             const session=sessions.get(args[0]);
             if(!session || session.expires_at <= args[1])return null;
@@ -60,7 +64,24 @@ function testEnvironment() {
           throw Error("Unhandled all: "+statement);
         },
         async run(){
-          if(statement.startsWith("INSERT INTO stream_sessions")) {
+          if(statement.startsWith("INSERT INTO stream_email_budget")) {
+            const [request_id,day,kind,dayCheck,limit,category,publicDay,publicLimit]=args;
+            assert.equal(day,dayCheck);
+            assert.equal(kind,category);
+            assert.equal(day,publicDay);
+            const total=emailBudget.filter(x=>x.day===day).length;
+            const publicTotal=emailBudget.filter(x=>x.day===day && x.kind==="public-recover").length;
+            if(total>=limit || (kind==="public-recover" && publicTotal>=publicLimit))
+              return {success:true,meta:{changes:0}};
+            emailBudget.push({request_id,day,kind,status:"reserved"});
+            return {success:true,meta:{changes:1}};
+          } else if(statement.startsWith("UPDATE stream_email_budget SET status=")) {
+            const ticket=emailBudget.find(x=>x.request_id===args[0]);
+            if(ticket)ticket.status="accepted";
+          } else if(statement.startsWith("DELETE FROM stream_email_budget")) {
+            const idx=emailBudget.findIndex(x=>x.request_id===args[0] && x.status==="reserved");
+            if(idx>=0)emailBudget.splice(idx,1);
+          } else if(statement.startsWith("INSERT INTO stream_sessions")) {
             sessions.set(args[0],{user_id:args[1],expires_at:args[2]});
           } else if(statement.startsWith("DELETE FROM stream_sessions WHERE token_hash")) {
             sessions.delete(args[0]);
@@ -108,7 +129,7 @@ function testEnvironment() {
     SUPABASE_SECRET_KEY:"testing-secret-key",
     STREAM_ACCESS_PASSWORD:"very-long-private-legacy-secret"
   };
-  return {env,accounts,sessions,favorites,events};
+  return {env,accounts,sessions,favorites,events,emailBudget};
 }
 function req(path,options={}){
   return new Request(base+path,{...options,headers:{
