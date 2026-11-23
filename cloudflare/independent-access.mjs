@@ -529,7 +529,7 @@ async function handle(request, env) {
   }
   if (path === "/stream/session" && (method === "GET" || method === "HEAD"))
     return new Response(method === "HEAD" ? null :
-      JSON.stringify({allowed:true,user_id:user.user_id,role:user.role}), {
+      JSON.stringify({allowed:true,user_id:user.user_id,role:user.role,email:user.email}), {
       status:200,headers:{...HEADERS,"Content-Type":"application/json"}});
   if (path === "/stream/favorites" && method === "GET") {
     const result = await env.STREAM_USERS_DB.prepare(
