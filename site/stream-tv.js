@@ -17,6 +17,7 @@
   var country = "BR", category = "live", search = "", favoritesOnly = false;
   var channels = [], favorites = [], selected = null, limit = 60, playing = false;
   var favStore = "drivmatch-stream-favorites-v1";
+  var streamUserId=null,streamUserRole=null;
   var cache = {};
   var video = byId("video");
   var serial = 0;
@@ -40,6 +41,11 @@
     try{x.open("GET",url,true);x.setRequestHeader("Accept","text/plain,application/json");x.send(null);}
     catch(e){done(0,"");}
   }
+  function postJson(path,data,done){
+    var x=new XMLHttpRequest();x.onreadystatechange=function(){if(x.readyState===4)done(x.status);};
+    x.onerror=function(){done(0);};
+    try{x.open("POST",path,true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(data));}catch(e){done(0);}
+  }
   function state(value,label) {
     var el=byId("player-state");
     if(el)el.setAttribute("data-state",value);
@@ -57,9 +63,16 @@
   function toggleFav(c) {
     if(!c)return;
     var k=key(c),i=favorites.indexOf(k);
-    if(i>=0)favorites.splice(i,1);else favorites.push(k);
-    try{localStorage.setItem(favStore,JSON.stringify(favorites));}catch(e){}
-    updateNowFav();render();
+    function commit(){
+      if(i>=0)favorites.splice(i,1);else favorites.push(k);
+      if(!streamUserId)try{localStorage.setItem(favStore,JSON.stringify(favorites));}catch(e){}
+      updateNowFav();render();
+    }
+    if(streamUserId){
+      postJson("/stream/favorites",{operation:i>=0?"remove":"add",key:k},function(st){
+        if(st===200)commit();else status("Não foi possível salvar o Favorito no servidor.");
+      });
+    }else commit();
   }
   function updateNowFav() {
     var el=byId("player-favorite"),chosen=selected&&contains(favorites,key(selected));
@@ -282,7 +295,20 @@
         return;
       }
       show(byId("gate"),false);show(byId("tv"),true);
-      favorites=readFavorites();
+      try{var current=JSON.parse(body);if(typeof current.user_id==="string"){
+        streamUserId=current.user_id;streamUserRole=current.role||"viewer";
+      }}catch(e){}
+      if(streamUserId){
+        favorites=[];
+        req("/stream/favorites",function(st,raw){
+          if(st===200)try{var result=JSON.parse(raw);
+            if(Object.prototype.toString.call(result.favorites)==="[object Array]"){
+              favorites=result.favorites;updateNowFav();render();
+            }
+          }catch(e){status("Erro ao carregar Favoritos.");}
+          else status("Favoritos indisponíveis. Nenhum dado foi apagado.");
+        });
+      }else favorites=readFavorites();
       appendCountrySelector();
       bindFilters();
       updateNowFav();
