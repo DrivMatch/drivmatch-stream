@@ -103,7 +103,7 @@ def run():
                 "No custom SMTP configured. Setup requires a verified sender "
                 "and an email provider SMTP credential"
             )
-        if not re.fullmatch(r"[a-z0-9._%+-]+@drivmatch\\.com",sender,re.IGNORECASE):
+        if not re.fullmatch(r"[a-z0-9._%+-]+@drivmatch\.com",sender,re.IGNORECASE):
             raise ConfigurationBlocked("Sender must use a verified DrivMatch domain")
         validate_resend_domain(resend)
         payload.update({
@@ -124,7 +124,7 @@ def run():
     # SMTP only when the project had no existing configured provider.
     api(target,manager,"PATCH",payload)
     after=api(target,manager)
-    if after.get("mailer_subjects_invite")!=subject or \\
+    if after.get("mailer_subjects_invite")!=subject or \
        after.get("mailer_templates_invite_content")!=body:
         raise ConfigurationBlocked("Supabase did not confirm the branded invite template")
     if not already_smtp and after.get("smtp_host")!="smtp.resend.com":
