@@ -79,7 +79,6 @@ test("viewer-facing TV page has identity/logout; admin link is hidden until serv
 
 test("opening an invitation invalidates any previous admin browser cookie",async()=>{
   const {env,sessionRevoked}=fakeEnv("admin");
-  env.SECURITY_TEST_DIAGNOSTICS=true;
   const result=await worker.fetch(new Request(url+"/stream/activate",{
     headers:{Cookie:"dm_stream_user="+token}
   }),env);
