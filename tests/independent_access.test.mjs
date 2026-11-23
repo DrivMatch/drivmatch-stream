@@ -109,12 +109,24 @@ async function withFakeSupabase(fn) {
     const u=new URL(request);
     const body=options?.body?JSON.parse(options.body):{};
     if(u.pathname==="/auth/v1/token") {
+      assert.equal(options.headers.apikey,"testing-public-key");
+      assert.equal(options.headers.Authorization,undefined,
+        "Opaque Supabase publishable key must not be used as Bearer JWT");
       const match=users.find(x=>x.email===body.email&&x.password===body.password);
       return Response.json(match?{user:{id:match.id,email:match.email}}:{error:"invalid"},{
         status:match?200:400});
     }
-    if(u.pathname==="/auth/v1/recover")return Response.json({});
-    if(u.pathname==="/auth/v1/invite")return Response.json({id:"new-invite",email:body.email});
+    if(u.pathname==="/auth/v1/recover"){
+      assert.equal(options.headers.Authorization,undefined);
+      assert.equal(options.headers.apikey,"testing-public-key");
+      return Response.json({});
+    }
+    if(u.pathname==="/auth/v1/invite"){
+      assert.equal(options.headers.apikey,"testing-secret-key");
+      assert.equal(options.headers.Authorization,undefined,
+        "Opaque Supabase secret key must not be used as Bearer JWT");
+      return Response.json({id:"new-invite",email:body.email});
+    }
     if(u.pathname==="/auth/v1/user"&&options?.method==="GET")
       return Response.json({id:"new-invite",email:"invited@example.test"});
     if(u.pathname==="/auth/v1/user"&&options?.method==="PUT")return Response.json({id:"new-invite"});
