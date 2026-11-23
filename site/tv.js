@@ -515,6 +515,9 @@ function loadOfficialDirectory(){
  * Show the actual verified catalog URL as an accessible, visible link. */
 function drawPaidProviders(){
  var area=D("provider-items");if(!area)return;clear(area);
+ area.appendChild(E("p","provider-note",
+   "Sites oficiais externos. Clique em Abrir site oficial. "+
+   "Pode exigir assinatura; o vídeo não abre neste player."));
  for(var i=0;i<officialPaid.length;i++){(function(x){
    if(!validOfficialUrl(x.url))return;
    var link=E("a","provider-entry");
