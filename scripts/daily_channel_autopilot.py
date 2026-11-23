@@ -108,6 +108,16 @@ SOURCES = (
     ("iptv-org-in", "https://iptv-org.github.io/iptv/countries/in.m3u", "IN", "", False),
 )
 
+def stream_filter_key(url: str) -> str:
+    """Two independently seeded 32-bit FNV-1a hashes, matching Cloudflare JS."""
+    def fnv(seed: int) -> str:
+        h = seed
+        for byte in url.encode("utf-8"):
+            h = ((h ^ byte) * 16777619) & 0xffffffff
+        return f"{h:08x}"
+    return fnv(2166136261) + fnv(2166136261 ^ 0x9e3779b9)
+
+
 def stream_hash(url: str) -> str:
     """Stable stream identity across list aliases and countries."""
     return hashlib.sha256(url.encode("utf-8")).hexdigest()
@@ -454,6 +464,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     scans, errors, researched = {}, {}, 0
     sources = augmented_sources()
     deleted_urls = prev.get("deleted_urls", {}) if isinstance(prev.get("deleted_urls"), dict) else {}
+    deleted_filter_keys = prev.get("deleted_filter_keys", {}) if isinstance(prev.get("deleted_filter_keys"), dict) else {}
     for source in sources:
         sid, url, _, _, allowed = source
         try:
@@ -469,10 +480,16 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
                         existing["eligible"] = True
         except (OSError, ValueError, urllib.error.URLError, TimeoutError) as exc:
             errors[sid] = type(exc).__name__
-    if not scans:
-        raise RuntimeError("All source feeds failed; do not update the published channel list")
-    if (FULL_AUDIT or ROTATING_AUDIT) and errors:
-        raise RuntimeError("Audit blocked by unavailable feeds; refusing to publish incomplete catalog: " + ", ".join(sorted(errors)))
+    if ROTATING_AUDIT:
+        # Preserve prior channels when an upstream index temporarily disappears.
+        for key, row in previous.items():
+            if key not in discovered and key not in tombstones and stream_hash(row.get("url", "")) not in deleted_urls:
+                if all(k in row for k in ("id", "name", "country", "genre", "language", "url", "source")):
+                    discovered[key] = {**row, "eligible": bool(row.get("eligible", False))}
+    if not scans and not discovered:
+        raise RuntimeError("All source feeds failed and no persisted candidates remain")
+    if FULL_AUDIT and errors:
+        raise RuntimeError("Full audit blocked by unavailable feeds; refusing to publish partial coverage: " + ", ".join(sorted(errors)))
     if ROTATING_AUDIT:
         chosen, rotation_cursor, priority_count = select_rotating(
             discovered, previous, str(prev.get("rotation_cursor", "")))
@@ -527,6 +544,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
             if age >= DELETE_AFTER_FAILURE_DAYS and checked and not successful:
                 tombstones[key] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
                 deleted_urls[stream_hash(record["url"])] = {"deleted_at": today, "reason": "50_days_continuous_failure"}
+                deleted_filter_keys[stream_filter_key(record["url"])] = today
                 deleted_now += 1
                 continue
         state[key] = record
@@ -562,6 +580,7 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
               "hidden_this_run": hidden_now, "recovered_this_run": recovered_now,
               "total_active_records": len(state),
               "source_counts": scans, "source_errors": errors,
+              "sources_unavailable": len(errors),
               "community_candidates_research_only": researched,
               "open_web_research": research,
               "curated_candidates": len(discovered), "tested": len(checks),
@@ -574,16 +593,17 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     STATE.parent.mkdir(parents=True, exist_ok=True)
     write_json(STATE, {"schema": 1, "last_run": today, "channels": state,
                        "rotation_cursor": rotation_cursor, "deleted_ids": tombstones,
-                       "deleted_urls": deleted_urls})
+                       "deleted_urls": deleted_urls,
+                       "deleted_filter_keys": deleted_filter_keys})
     if ROTATING_AUDIT:
         # Serving layer uses URL-level health across original lists and merged catalogs.
-        failed_urls = sorted({stream_hash(row["url"]) for row in state.values()
+        failed_urls = sorted({stream_filter_key(row["url"]) for row in state.values()
                               if row["status"] == "failed"})
         # SHA-256 keys prevent URLs with query strings from appearing in health artifacts.
         write_json(HEALTH, {"schema": 1, "as_of": today, "checked": len(checks),
                             "status": "ROTATING_BATCH_COMPLETED",
-                            "failed_url_hashes": failed_urls,
-                            "deleted_url_hashes": sorted(deleted_urls)})
+                            "failed_url_keys": failed_urls,
+                            "deleted_url_keys": sorted(deleted_filter_keys)})
         memory = read_json(EXPLORATION, {"schema": 1, "sources": {}})
         known_sources = memory.get("sources", {})
         for source in sources:
