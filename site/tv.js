@@ -85,7 +85,24 @@ function postJson(path,data,cb){
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
 function has(arr,k){return arr.indexOf(k)>=0;}
+function favoriteNameCanonical(name){
+  var n=lower(name).replace(/\\s*\\(\\d{3,4}p\\)\\s*$/i,"");
+  if(typeof n.normalize==="function")n=n.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+  return n.replace(/\\s+/g," ");
+}
+function canonicalFavoriteKeyFromLegacy(k){
+  var parts=String(k||"").split(":");
+  var code="",name="";
+  if(parts.length>=3 && /^(lista-\\d+|paid)$/i.test(parts[0])){
+    code=parts[1];name=parts.slice(2).join(":");
+  }else if(parts.length>=2){
+    code=parts[0];name=parts.slice(1).join(":");
+  }else return "";
+  if(!/^[A-Za-z]{2,8}$/.test(code) || !name)return "";
+  return code.toUpperCase()+":"+favoriteNameCanonical(name);
+}
 function favorKey(c){
+  if(streamUserId) return String(c.code||"OTHER")+":"+favoriteNameCanonical(c.originalName||c.name);
   return (c.source||(String(c.id||"").indexOf("paid:")===0?"paid":"lista-2"))+
     ":"+c.code+":"+lower(c.originalName||c.name);
 }
@@ -336,7 +353,13 @@ function migrateAdminFavorites(){
  var old=[];
  try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")old=a;}catch(e){}
  if(streamUserRole==="admin"&&old.length){
-  postJson("/stream/favorites",{operation:"import",keys:old},function(st){
+  var canonical=[];
+  for(var i=0;i<old.length;i++){
+    var key=canonicalFavoriteKeyFromLegacy(old[i]);
+    if(key && canonical.indexOf(key)<0)canonical.push(key);
+  }
+  if(!canonical.length){fetchUserFavorites();return;}
+  postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
    if(st===200)fetchUserFavorites();
    else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
   });
@@ -352,6 +375,8 @@ function safeSnapshot(c){
 }
 function oldFavoriteSnapshot(key){
  var parts=String(key||"").split(":");
+ if(streamUserId)return {key:key,name:parts.slice(1).join(":")||key,
+   code:parts[0]||"OTHER",genre:"other"};
  return {key:key,name:parts.slice(2).join(":")||key,code:parts[1]||"OTHER",genre:"other"};
 }
 function loadQuickHistory(){
