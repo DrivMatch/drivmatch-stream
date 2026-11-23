@@ -177,9 +177,10 @@ const ERRORS={
   existing:"Este e-mail já existe no Supabase. Verifique o cadastro e o vínculo com o Stream antes de convidar novamente.",
   permissions:"Não foi possível autorizar o envio pelo Supabase. Confira a chave secreta do projeto no Worker de teste.",
   provider:"O provedor de autenticação não conseguiu atender agora. Nenhum novo acesso foi confirmado.",
-  failure:"O convite não foi enviado. A causa não foi confirmada. Você pode gerar um link privado enquanto verificamos o e-mail."
+  failure:"O convite não foi enviado. A causa não foi confirmada. Você pode gerar um link privado enquanto verificamos o e-mail.",
+  "daily-quota":"Limite diário atingido: 20 solicitações de e-mail no DrivMatch Stream. Novos envios ficam disponíveis na próxima data de São Paulo. Os acessos existentes continuam funcionando."
 };
-export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail=""}){
+export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail="",emailQuotaUsed=0,emailQuotaLimit=20}){
   const totals={active:0,invited:0,suspended:0};
   const rows=[],dialogs=[];
   for(let i=0;i<users.length;i++){
@@ -252,7 +253,11 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "<main><div class='eyebrow'>Área restrita · Administrador</div><h1>Central de Controle</h1>"+
     "<p class='sub'>Gerencie convites, contas, segurança e acesso individual ao Stream.</p>"+
     alert+failure+"<section class='metrics' aria-label='Resumo de acessos'>"+summary+"</section>"+
-    "<section class='panel'><h2>Convidar usuário</h2><p class='hint'>A pessoa define a própria senha. Você nunca precisa conhecê-la.</p>"+
+    "<section class='panel'><h2>Convidar usuário</h2>" +
+    "<p class='hint'><strong>E-mails solicitados hoje: "+esc(emailQuotaUsed)+" de "+esc(emailQuotaLimit)+"</strong> " +
+    "· Cota compartilhada por convites, reenvios e recuperação de senha. " +
+    "Reinicia à meia-noite em São Paulo. A aceitação pelo provedor não garante entrega na caixa de entrada.</p>" +
+    "<p class='hint'>A pessoa define a própria senha. Você nunca precisa conhecê-la.</p>"+
     "<form class='invite-form' method='post' action='/stream/admin/invite'>"+
     "<input type='hidden' name='_csrf' value='"+esc(token)+"'>"+
     "<label>E-mail do convidado<input name='email' type='email' maxlength='254' placeholder='usuario@exemplo.com' autocomplete='off' required></label>"+
