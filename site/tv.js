@@ -344,24 +344,27 @@ function loadChannels(){
   T(D("result-count"),"Carregando");
   clear(D("channel-items"));visibleEl(D("show-more"),false);
   if(cache[cacheKey]){
-    channels=cache[cacheKey];T(D("catalog-status"),"Listas 1–8 organizadas por país · Sinais não verificados");
+    channels=attachOfficial(code,cache[cacheKey]);cache[cacheKey]=channels;
+    T(D("catalog-status"),"Canais por país · sinais não verificados e sites oficiais identificados");
     renderChannels();drawCountries();return;
   }
   treeErrors[code]=false;drawCountries();
   http("/stream/catalog?list="+encodeURIComponent(source)+"&country="+encodeURIComponent(code),function(st,body){
     if(seq!==serial){
       // Keep independently expanded countries usable even after switching focus.
-      if(st===200)cache[cacheKey]=parse(body,code);
-      else treeErrors[code]=true;
+      if(st===200)cache[cacheKey]=attachOfficial(code,parse(body,code));
+      else {cache[cacheKey]=attachOfficial(code,[]);treeErrors[code]=!cache[cacheKey].length;}
       drawCountries();return;
     }
     if(st!==200){
-      channels=[];treeErrors[code]=true;renderChannels();drawCountries();
-      T(D("catalog-status"),"A fonte não carregou nesta TV (erro "+st+"). Tente Atualizar ou selecione o país novamente.");
+      channels=attachOfficial(code,[]);cache[cacheKey]=channels;
+      treeErrors[code]=!channels.length;renderChannels();drawCountries();
+      T(D("catalog-status"),"Fontes M3U não carregaram (erro "+st+"). "+
+        channels.length+" acessos oficiais externos estão disponíveis.");
       return;
     }
     var parsed=parse(body,(source==="lista-2"||source==="lista-8"||source==="lista-9")&&code!=="ALL"?code:"ALL");
-    channels=parsed;
+    channels=attachOfficial(code,parsed);
     cache[cacheKey]=channels;
     if(source==="lista-2"){
       var count=/#DM_SOURCES_LOADED:([^\r\n]+)/.exec(body),
@@ -397,7 +400,12 @@ function renderChannels(){
   for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
   all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
   visible=all;
-  T(D("result-count"),visible.length+" canais");
+  var videos=0,external=0;
+  for(i=0;i<visible.length;i++){
+    if(visible[i].urls&&visible[i].urls.length)videos++;
+    else if(visible[i].officialUrl)external++;
+  }
+  T(D("result-count"),videos+" sinais · "+external+" sites oficiais");
   if(!all.length){
     var emptyText=channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
     area.appendChild(E("p","loading",emptyText));
@@ -412,7 +420,8 @@ function renderChannels(){
       from=" · Origem: "+c.origins.map(function(x){return x.replace(/^lista-/,"Lista ");}).join(", ");
     }
     btn.appendChild(E("small","",countryName(c.code)+" · "+(c.genre==="news"?"Notícias":c.genre==="sports"?"Esportes":"Outros")+(c.premium?" · Acesso oficial necessário":"")+
-      (c.originalName?" · Nome da fonte: "+c.originalName:"")+from));
+      (c.originalName?" · Nome da fonte: "+c.originalName:"")+
+      (c.officialUrl?" · "+(c.urls&&c.urls.length?"Site oficial alternativo":"Site/app oficial, externo"):"")+from));
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
     var starred=has(favorites,favorKey(c));
@@ -426,13 +435,30 @@ function renderChannels(){
   T(D("show-more"),"Mostrar mais "+Math.min(60,Math.max(0,all.length-limit))+" canais");
 }
 function play(c,fromTree){
+  visibleEl(D("official-open"),!!c.officialUrl);
+  T(D("official-open"),c.premium?"Abrir plataforma oficial":"Abrir no site/app oficial");
+  if(c.officialUrl&&(!c.urls||!c.urls.length)&&!c.premium){
+    try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+    selected=c;T(D("now-name"),c.name);
+    T(D("now-meta"),countryName(c.code)+" · "+(c.officialAccess||"Site oficial"));
+    T(D("play-status"),"Acesso oficial externo");
+    T(D("player-error"),"Este item abre um site ou aplicativo oficial. "+
+      "Não é um sinal de vídeo incorporado ao Stream. "+
+      "O acesso depende do fornecedor, região e navegador.");
+    visibleEl(D("player-empty"),true);visibleEl(video,false);visibleEl(D("player-error"),true);
+    D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
+    updateFavButton();renderChannels();drawCountries();
+    if(fromTree)focusTreeChannel(c.code,c.id);else focusChannelAfterRender(c.id,false);
+    return;
+  }
   if(c.premium){
     try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
     selected=c;T(D("now-name"),c.name);
     T(D("now-meta"),countryName(c.code)+" · Listado, sem autorização de transmissão verificada");
     T(D("play-status"),"Acesso oficial necessário");
     visibleEl(D("player-empty"),true);visibleEl(video,false);
-    T(D("player-error"),"Este canal aparece numa lista pública, mas o link não comprova autorização. Use o serviço oficial ou a assinatura aplicável.");
+    T(D("player-error"),"Canal ou serviço por assinatura. Não existe acesso gratuito "+
+      "ao sinal integral dentro deste player. Consulte o provedor oficial.");
     visibleEl(D("player-error"),true);
     D("player-retry").disabled=true;D("player-fullscreen").disabled=true;
     updateFavButton();renderChannels();drawCountries();
@@ -465,7 +491,7 @@ function columnOf(el){
   return null;
 }
 function focusableItems(col){
-  var nodes=col.querySelectorAll(".country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#player-favorite,#player-retry,#player-fullscreen,#video");
+  var nodes=col.querySelectorAll(".country-btn,.tree-genre-btn,.tree-channel-btn,.tree-more-btn,.channel-btn,.fav-btn,#search,#clear-search,#refresh,#show-more,#official-open,#provider-toggle,#technical-toggle,.provider-entry,#player-favorite,#player-retry,#player-fullscreen,#video");
   var out=[];
   for(var i=0;i<nodes.length;i++){
     var x=nodes[i];
@@ -559,6 +585,20 @@ function init(){
   });
   on(D("player-favorite"),"click",function(){if(selected)toggleFavorite(selected);});
   on(D("player-retry"),"click",function(){if(selected)play(selected);});
+  on(D("official-open"),"click",function(){
+    if(selected&&validOfficialUrl(selected.officialUrl))
+      window.location.href=selected.officialUrl;
+  });
+  on(D("provider-toggle"),"click",function(){
+    var open=D("provider-items").hidden;D("provider-items").hidden=!open;
+    D("provider-toggle").setAttribute("aria-expanded",open?"true":"false");
+    T(D("provider-toggle"),(open?"▾":"▸")+" Plataformas por assinatura");
+  });
+  on(D("technical-toggle"),"click",function(){
+    var open=D("technical-items").hidden;D("technical-items").hidden=!open;
+    D("technical-toggle").setAttribute("aria-expanded",open?"true":"false");
+    T(D("technical-toggle"),(open?"▾":"▸")+" Fontes técnicas (listas)");
+  });
   on(D("player-fullscreen"),"click",function(){
     var fn=video.requestFullscreen||video.webkitRequestFullscreen||video.webkitEnterFullscreen;
     if(fn)try{fn.call(video);}catch(e){}
@@ -588,7 +628,10 @@ function init(){
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
       var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-[1-9]$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
       SOURCES=verified;drawSources();drawCountries();drawCategories();
-      addCountryOptions();
+      var tech=D("technical-items");clear(tech);
+      for(var n=0;n<SOURCES.length;n++)
+        tech.appendChild(E("p","technical-source-name",SOURCES[n].title||SOURCES[n].id));
+      addCountryOptions();loadOfficialDirectory();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
       source="lista-2";T(D("head-source"),"Países e categorias");loadChannels();
     });
