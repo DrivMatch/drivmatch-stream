@@ -36,6 +36,11 @@ jobs:
           node --check tests/listas_browser.cjs
           test -s site/listas.html
           test -s site/playlist-sources.json
+          test -s site/daily-autopilot.m3u8
+          test -s site/daily-autopilot-state.json
+          test -s site/daily-autopilot-report.json
+          python3 -m py_compile scripts/daily_channel_autopilot.py
+          python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
           node --check tests/stream_browser.cjs
           node --input-type=module --check < cloudflare/stream-proxy.mjs
           test -s site/index.html

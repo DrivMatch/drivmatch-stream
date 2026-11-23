@@ -27,7 +27,8 @@ const TV_SOURCE_URLS={
   "lista-8":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_brazil.m3u8",
   "lista-9":"https://raw.githubusercontent.com/SamuelSantos-R/cattv-playlist/main/playlist/br.m3u",
   "lista-10":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_movies.m3u8",
-  "lista-11":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8"
+  "lista-11":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8",
+  "lista-12":"https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8"
 };
 /* Lista 9: no known subscription-network links; HLS health is not a rights audit. */
 const BR9_PUBLIC=new Set(["agrocanal","agrobrasil tv","bem mais tv","canal educacao","canal futura","canal gov","canal saude","canal do boi","canal uol","cultura fast","futura","istv","rede brasil","rede minas","rede ngt","rede vida","rede familia","sbt nacional","sesc tv","tv brasil","tv camara","tv cultura","tv justica","tv senado","tve rs","tve bahia","tv vicosa","tv gazeta","tv a critica","tv brasil oeste","tv cidade verde cuiaba","tv show fortaleza","tv comunitaria","tv sao raimundo","tv vila real","record news","tv guara","amazon sat","cindie tv","classique tv","mytime movie network"]);

@@ -29,7 +29,8 @@ async function main(){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"},
         {id:"lista-10",title:"Lista 10 • Filmes livres internacionais"},
-        {id:"lista-11",title:"Lista 11 • Notícias livres internacionais"}]}));return;
+        {id:"lista-11",title:"Lista 11 • Notícias livres internacionais"},
+        {id:"lista-12",title:"Lista 12 • Autopiloto diário"}]}));return;
     }
     if(req.url==="/stream/countries?list=lista-2"){
       if(!authorized){res.writeHead(403);res.end();return;}
@@ -349,7 +350,7 @@ async function main(){
       assert.equal(await page.locator('#video').getAttribute('src'),null);
       assert.equal(await page.locator('#official-open').isVisible(),true);
       await page.locator('#technical-toggle').click();
-      assert.equal(await page.locator('#technical-items .technical-source-name').count(),11);
+      assert.equal(await page.locator('#technical-items .technical-source-name').count(),12);
       await context.close();
     }
     // Samsung private TV: priority recent history, persistent uncategorized favorites.
