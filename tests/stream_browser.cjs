@@ -514,7 +514,7 @@ async function main(){
       const playerAfter=await page.locator('.player-column').boundingBox();
       assert(Math.abs(playerBefore.y-playerAfter.y)<2);
       await page.locator('#search').fill('Canal Teste 10');
-      await page.locator('#channel-items').getByText('Canal Teste 10',{exact:true}).waitFor();
+      await page.locator('#channel-items').getByText('Canal Teste 10',{exact:true}).first().waitFor();
 
       // Free sites must never be confused with a playable HLS stream.
       await page.locator('.tree-genre-btn[data-country="BR"][data-genre="movies_pt"]').waitFor();
