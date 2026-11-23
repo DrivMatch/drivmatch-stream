@@ -321,7 +321,7 @@ test("Android browser form POST with Sec-Fetch-Site same-origin works when Origi
     const c=cookie(response);
     const admin=await worker.fetch(req("/stream/admin",{headers:{Cookie:c}}),env);
     assert.equal(admin.status,200);
-    assert.match(await admin.text(),/Central de Controle/);
+    assert.match(await admin.text(),/Confirmar acesso administrativo/);
   });
 });
 test("foreign Origin remains blocked even with forged same-origin fetch metadata",async()=>{
