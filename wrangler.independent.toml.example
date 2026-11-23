@@ -1,0 +1,19 @@
+name = "drivmatch-stream-independent"
+main = "cloudflare/independent-access.mjs"
+compatibility_date = "2026-11-23"
+workers_dev = true
+
+# Fill the real UUID only after creating a D1 database in YOUR Cloudflare account.
+[[d1_databases]]
+binding = "STREAM_USERS_DB"
+database_name = "drivmatch-stream-users"
+database_id = "REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID"
+migrations_dir = "migrations"
+
+# Applies to login, recovery, activation and admin actions; not video playback.
+[[ratelimits]]
+name = "STREAM_LOGIN_LIMITER"
+namespace_id = "13001"
+  [ratelimits.simple]
+  limit = 8
+  period = 60
