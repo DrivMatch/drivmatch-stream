@@ -1,6 +1,8 @@
 name: Stream Staging login HTTP smoke test
 on:
-  # Signed CSRF fix deployed and verified. No automatic staging changes.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/stream-login-http-smoke.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,6 +46,10 @@ jobs:
             --data-urlencode 'password=invalid-test-only')
           echo "POST no CSRF field HTTP: $st_missing"
           test "$st_missing" = 403
+          missing_body=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar "$login" -X POST \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-test-only')
+          echo "$missing_body" | grep -q 'Código de diagnóstico: F1'
           st_foreign=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar \
             -o /dev/null -w '%{http_code}' "$login" -X POST \
             -H 'Origin: https://attacker.example' \
@@ -52,6 +58,12 @@ jobs:
             --data-urlencode "_csrf=$csrf")
           echo "POST foreign Origin with valid signed CSRF HTTP: $st_foreign"
           test "$st_foreign" = 403
+          foreign_body=$(curl -sS --max-time 30 -b /tmp/stream-cookie-jar "$login" -X POST \
+            -H 'Origin: https://attacker.example' \
+            --data-urlencode 'email=invalid-qa@example.invalid' \
+            --data-urlencode 'password=invalid-test-only' \
+            --data-urlencode "_csrf=$csrf")
+          echo "$foreign_body" | grep -q 'Código de diagnóstico: L1'
           st_admin=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$origin/stream/admin")
           echo "GET admin without user cookie HTTP: $st_admin"
           test "$st_admin" = 303
