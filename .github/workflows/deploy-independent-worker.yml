@@ -1,9 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # One controlled deployment of signed-CSRF mobile login fix to isolated Worker only.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/deploy-independent-worker.yml']
+  # Signed CSRF fix deployed and verified. No automatic staging changes.
   workflow_dispatch:
 permissions:
   contents: read
