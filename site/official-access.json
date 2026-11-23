@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "verifiedOn": "2026-11-22",
+  "verifiedOn": "2026-11-23",
   "status": "OFFICIAL_CHANNEL_REFERENCE_NOT_PLAYBACK_VERIFIED",
-  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung.",
+  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung. Incluídas referências adicionais de canais oficiais YouTube e FAST: links para descobertas/embeds experimentais não comprovam live ativa ou direito a reprodução fora dos players oficiais.",
   "free": [
     {
       "id": "br-cazetv",
@@ -523,6 +523,132 @@
       "url": "https://www.raiplay.it/",
       "access": "Portal da emissora pública italiana, região",
       "notes": "Disponibilidade geográfica e navegador não confirmados"
+    },
+    {
+      "id": "br-goat",
+      "name": "Canal GOAT — lives oficiais",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@canalgoatbr",
+      "access": "YouTube: transmissões esportivas gratuitas quando programadas",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UC_oToDrJ6uca7d1dFVBmLtg"
+      }
+    },
+    {
+      "id": "br-maisgoat",
+      "name": "+Canal GOAT",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@maiscanalgoatbr",
+      "access": "YouTube: eventos gratuitos selecionados",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-sportynet",
+      "name": "SportyNet Brasil — lives oficiais",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@sportynetbrasil",
+      "access": "YouTube: partidas gratuitas quando disponíveis",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-xsports",
+      "name": "Xsports Brasil — lives oficiais",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@xsports.brasil",
+      "access": "YouTube: eventos gratuitos selecionados",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCH-BU-Os3JSo2L8lBQxE8KA"
+      }
+    },
+    {
+      "id": "br-tnt-youtube",
+      "name": "TNT Sports Brasil — transmissões abertas",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@TNTSportsBR",
+      "access": "YouTube: somente partidas e eventos abertos, não programação premium",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-cbf-youtube",
+      "name": "CBF TV — transmissões oficiais",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@brasil",
+      "access": "YouTube: futebol feminino, base e eventos selecionados",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCdQuDaRww5NkKpQQ1BJBWww"
+      }
+    },
+    {
+      "id": "br-jovempan-esportes",
+      "name": "Jovem Pan Esportes — vídeos e lives",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://jovempan.com.br/esportes/",
+      "access": "Conteúdo esportivo e transmissões abertas quando disponíveis",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-fifaplus",
+      "name": "FIFA+ — jogos gratuitos selecionados",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.fifa.com/en",
+      "access": "Site oficial: partidas gratuitas sujeitas a calendário e região",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-redbulltv",
+      "name": "Red Bull TV — eventos e vídeos",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.redbull.tv/pt_BR",
+      "access": "Plataforma oficial gratuita, eventos e reprises conforme programação",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-nsports",
+      "name": "N Sports — eventos e acesso oficial",
+      "code": "BR",
+      "genre": "sports",
+      "lang": "pt",
+      "url": "https://www.nsports.com.br/",
+      "access": "Transmissões e acesso conforme programação e disponibilidade",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real."
+    },
+    {
+      "id": "br-sbtnews-youtube",
+      "name": "SBT News — ao vivo oficial",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://www.youtube.com/@sbtnews",
+      "access": "YouTube: sinal de notícias gratuito",
+      "notes": "Canal ou página oficial; disponibilidade ao vivo, região e incorporação não verificadas em dispositivo real.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UC376n347Ob5Lwzq2WGzF1AA"
+      }
     }
   ],
   "paid": [
