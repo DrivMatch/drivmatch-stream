@@ -184,3 +184,28 @@ test("CSRF check denies forged favorite writes and logout revokes session",async
     assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:a}}),env)).status,401);
   });
 });
+
+test("private site uses bundled matching assets only after authentication",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env}=testEnvironment();
+    const seen=[];
+    env.ASSETS={async fetch(req){
+      seen.push(new URL(req.url).pathname);
+      return new Response("/* private branch stream.js */",{
+        headers:{"Content-Type":"text/javascript; charset=utf-8"}});
+    }};
+    const denied=await worker.fetch(req("/stream/stream.js"),env);
+    assert.equal(denied.status,401);
+    assert.deepEqual(seen,[]);
+    const authCookie=cookie(await login(users[0].email,users[0].password,env));
+    const allowed=await worker.fetch(req("/stream/stream.js",{headers:{Cookie:authCookie}}),env);
+    assert.equal(allowed.status,200);
+    assert.equal(await allowed.text(),"/* private branch stream.js */");
+    assert.deepEqual(seen,["/stream/stream.js"]);
+    assert.match(allowed.headers.get("Content-Security-Policy"),/default-src/);
+    assert.equal(allowed.headers.get("Cache-Control"),"private, no-store");
+    const missing=await worker.fetch(req("/stream/stream.css",{headers:{Cookie:authCookie}}),
+      {...env,ASSETS:null});
+    assert.equal(missing.status,503);
+  });
+});
