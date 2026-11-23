@@ -1,4 +1,4 @@
-/* DrivMatch Stream: ES5-safe browser selector. No PIN/password in client code. */
+/* Stream Now: ES5-safe browser selector. No PIN/password in client code. */
 (function () {
   "use strict";
   var ua = navigator.userAgent || "";

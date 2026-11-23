@@ -1,12 +1,12 @@
 import {countryIndex,mergedCatalog,searchCatalog} from "./catalog-merge.mjs";
 /**
- * DrivMatch Stream personal TV — independent password gate, no Zero Trust plan.
+ * Stream Now personal TV — independent password gate, no Zero Trust plan.
  * Password is held in Worker secret STREAM_ACCESS_PASSWORD, never shipped to
  * public GitHub Pages. Uses signed HttpOnly session cookies, expires in 7 days.
  * This worker does not handle /news or /TV.
  */
 const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
-const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
+const FILES={"/":"tv.html","/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
   "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html","/stream/tv/index.html":"tv.html",
@@ -82,7 +82,7 @@ function loginPage(error=false,method="GET",pinMode=false){
  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<meta name="robots" content="noindex,nofollow,noarchive">',
- '<title>DrivMatch Stream · Acesso pessoal</title><style>',
+ '<title>Stream Now · Acesso pessoal</title><style>',
  '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f6f8fa;color:#091a2b;display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;padding:20px}',
  'main{width:min(440px,100%);padding:38px 30px;background:white;border:1px solid #dfe6ed;border-radius:24px}',
  '.eyebrow{font-size:.8rem;color:#167ade;letter-spacing:1.6px;font-weight:750}',
@@ -91,7 +91,7 @@ function loginPage(error=false,method="GET",pinMode=false){
  'input{width:100%;font-size:1.1rem;border:1px solid #aabacb;border-radius:12px;padding:14px;background:#fff}',
  'button{width:100%;padding:15px;border:0;border-radius:12px;background:#091a2b;color:white;font-size:1rem;font-weight:700;margin-top:18px}',
  '.alert{color:#a81f25;font-weight:600}small{display:block;margin-top:20px;color:#667788}',
- '</style></head><body><main><div class="eyebrow">DRIVMATCH · ACESSO PESSOAL</div>',
+ '</style></head><body><main><div class="eyebrow">STREAM NOW · ACESSO PESSOAL</div>',
  '<h1>Minha TV Internacional</h1>',
  pinMode?'<p>Digite seu PIN pessoal de 8 números para assistir aos canais.</p>':
  '<p>Digite sua senha particular para assistir aos canais.</p>',
@@ -101,7 +101,7 @@ function loginPage(error=false,method="GET",pinMode=false){
  pinMode?'<input id="password" type="password" inputmode="numeric" pattern="[0-9]{8}" name="password" autocomplete="off" required autofocus maxlength="8">':
  '<input id="password" type="password" name="password" autocomplete="current-password" required autofocus maxlength="256">',
  '<button type="submit">Entrar no Stream</button></form>',
- '<small>Área pessoal · DrivMatch Stream</small></main></body></html>'
+ '<small>Área pessoal · Stream Now</small></main></body></html>'
  ].join("");
  return new Response(method==="HEAD"?null:html,{status:error?401:200,
  headers:{...baseHeaders,"Content-Type":"text/html; charset=utf-8",
@@ -114,12 +114,12 @@ function decode64(s){try{
 }catch{return null;}}
 const signingKey=p=>crypto.subtle.importKey("raw",encoder.encode("dm-stream-cookie-v1:"+p),
  {name:"HMAC",hash:"SHA-256"},false,["sign","verify"]);
-async function issueCookie(p){
+async function issueCookie(p,cookiePath="/stream"){
  const exp=Math.floor(Date.now()/1000)+MAXAGE;
  const raw="v1."+exp+"."+b64(crypto.getRandomValues(new Uint8Array(16)));
  const mac=await crypto.subtle.sign("HMAC",await signingKey(p),encoder.encode(raw));
  return COOKIE+"="+raw+"."+b64(new Uint8Array(mac))+
-   "; Path=/stream; Max-Age="+MAXAGE+"; HttpOnly; Secure; SameSite=Strict";
+   "; Path="+cookiePath+"; Max-Age="+MAXAGE+"; HttpOnly; Secure; SameSite=Strict";
 }
 async function authenticated(request,p){
  const cookie=(request.headers.get("Cookie")||"").split(";").map(s=>s.trim())
@@ -142,21 +142,45 @@ async function samePassword(candidate,p){
 }
 function goHome(url,cookie){
  return new Response(null,{status:303,headers:{...baseHeaders,
- "Location":new URL("/stream/",url.origin).toString(),
+ "Location":new URL(url.hostname==="streamnow.pages.dev"?"/":"/stream/",url.origin).toString(),
  ...(cookie?{"Set-Cookie":cookie}:{})}});
 }
 export default {async fetch(request,env){
+ try{
  const url=new URL(request.url),host=url.hostname.toLowerCase();
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
- if(host!=="drivmatch.com"&&!preview)return plain(404,"Not Found");
+ const pagesHost=host==="streamnow.pages.dev";
+ const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":"https://streamnow.pages.dev/daily-autopilot.m3u8"}:TV_SOURCE_URLS;
+ const loadCatalogue=pagesHost?async (address,id)=>{
+   if(address==="https://streamnow.pages.dev/daily-autopilot.m3u8"){
+     if(!env?.ASSETS)throw Error("Local catalogue unavailable");
+     const res=await env.ASSETS.fetch(new Request(new URL("/daily-autopilot.m3u8",url.origin)));
+     if(!res.ok)throw Error("Local catalogue unavailable");
+     const data=await res.text();
+     if(data.length>6_000_000)throw Error("Local catalogue too large");
+     return data;
+   }
+   return curatedCatalogue(address,id);
+ }:curatedCatalogue;
+ if(host!=="drivmatch.com"&&!preview&&!pagesHost)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
- if(path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
+ if(path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
     path!=="/stream/logout"&&path!=="/stream/countries"&&path!=="/stream/search"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
+ if(path==="/daily-autopilot.m3u8"){
+   if(!pagesHost||!env?.ASSETS||(request.method!=="GET"&&request.method!=="HEAD"))return plain(404,"Not Found");
+   try{
+     const asset=await env.ASSETS.fetch(new Request(new URL("/daily-autopilot.m3u8",url.origin),{method:request.method}));
+     if(!asset.ok)return plain(502,"Playlist temporarily unavailable");
+     return new Response(request.method==="HEAD"?null:asset.body,{status:200,
+       headers:{"Content-Type":"application/vnd.apple.mpegurl; charset=utf-8",
+         "Cache-Control":"public,max-age=300","X-Content-Type-Options":"nosniff"}});
+   }catch{return plain(502,"Playlist temporarily unavailable");}
+ }
  const password=env?.STREAM_ACCESS_PASSWORD;
  if(typeof password!=="string"||password.length<16||password.length>256)
    return plain(503,"Acesso pessoal ainda não configurado.");
@@ -188,17 +212,17 @@ export default {async fetch(request,env){
      if(!allowed?.success)return plain(429,"Muitas tentativas. Aguarde um minuto e tente novamente.");
    }
    if(!await samePassword(submitted,pinMode?pin:password))return loginPage(true,"GET",pinMode);
-   return goHome(url,await issueCookie(sessionSecret));
+   return goHome(url,await issueCookie(sessionSecret,pagesHost?"/":"/stream"));
  }
  if(path==="/stream/logout"&&request.method==="POST"){
    const origin=request.headers.get("Origin");
    if(origin&&origin!==url.origin)return plain(403,"Forbidden");
-   return goHome(url,COOKIE+"=; Path=/stream; Max-Age=0; HttpOnly; Secure; SameSite=Strict");
+   return goHome(url,COOKIE+"=; Path="+(pagesHost?"/":"/stream")+"; Max-Age=0; HttpOnly; Secure; SameSite=Strict");
  }
  if(request.method!=="GET"&&request.method!=="HEAD")
    return new Response("Method Not Allowed",{status:405,headers:{...baseHeaders,Allow:"GET, HEAD"}});
  if(!await authenticated(request,sessionSecret)){
-   if(path==="/stream/"||path==="/stream/index.html"||path==="/stream/tv/"||
+   if(path==="/"||path==="/stream/"||path==="/stream/index.html"||path==="/stream/tv/"||
       path==="/stream/tv/index.html"||path==="/stream/listas/"||
       path==="/stream/listas/index.html"||path==="/stream/login")
      return loginPage(false,request.method,pinMode);
@@ -211,7 +235,7 @@ export default {async fetch(request,env){
  if(path==="/stream/countries"){
    if(url.searchParams.get("list")!=="lista-2")return plain(400,"Unsupported list");
    try{
-     const result=await countryIndex(TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
+     const result=await countryIndex(tvUrls,TV_COUNTRIES,loadCatalogue);
      return new Response(request.method==="HEAD"?null:JSON.stringify(result),{
        status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
    }catch{return plain(502,"Country index temporarily unavailable");}
@@ -222,7 +246,7 @@ export default {async fetch(request,env){
    if(q.length<2||q.length>60||!/^[\p{L}\p{N} ._+\-–—()'&]+$/u.test(q))
      return plain(400,"Invalid search query");
    try{
-     const result=await searchCatalog(q,TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
+     const result=await searchCatalog(q,tvUrls,TV_COUNTRIES,loadCatalogue);
      return new Response(request.method==="HEAD"?null:result,{
        status:200,headers:{...appHeaders,"Content-Type":"text/plain; charset=utf-8"}});
    }catch{return plain(502,"Global search temporarily unavailable");}
@@ -236,9 +260,9 @@ export default {async fetch(request,env){
      if(list==="lista-2"){
        if(!/^[a-z]{2}$/.test(code)&&code!=="all"&&code!=="other")
          return plain(400,"Unsupported country");
-       body=await mergedCatalog(code.toUpperCase(),TV_SOURCE_URLS,TV_COUNTRIES,curatedCatalogue);
-     }else if(Object.hasOwn(TV_SOURCE_URLS,list||"")){
-       body=await publicCatalogue(TV_SOURCE_URLS[list]);
+       body=await mergedCatalog(code.toUpperCase(),tvUrls,TV_COUNTRIES,loadCatalogue);
+     }else if(Object.hasOwn(tvUrls,list||"")){
+       body=await loadCatalogue(tvUrls[list],list);
         if(list==="lista-9")body=publicBrazilPlaylist(body);
      }else if(!list){
        // Keep compatibility with the earlier Samsung TV browser catalogue requests.
@@ -253,7 +277,9 @@ export default {async fetch(request,env){
 
  try{
    const file=FILES[path];
-   const upstream=await fetch(ORIGIN+file,{method:request.method,redirect:"manual"});
+   const upstream=pagesHost
+     ?(env?.ASSETS?await env.ASSETS.fetch(new Request(new URL("/"+file,url.origin),{method:request.method})):plain(503,"Pages assets missing"))
+     :await fetch(ORIGIN+file,{method:request.method,redirect:"manual"});
    if(!upstream.ok)return plain(upstream.status===404?404:502,"Stream indisponível");
    const kind=file.endsWith(".js")?"text/javascript; charset=utf-8":
      file.endsWith(".css")?"text/css; charset=utf-8":
@@ -263,4 +289,5 @@ export default {async fetch(request,env){
        ...(file==="tv.html"?{"Referrer-Policy":"strict-origin-when-cross-origin"}:{}),
        "Content-Type":kind}});
  }catch{return plain(502,"Stream temporariamente indisponível");}
+ }catch{return plain(503,"Stream Now temporariamente indisponível");}
 }};

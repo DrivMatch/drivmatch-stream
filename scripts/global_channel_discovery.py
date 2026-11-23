@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Global research extension for the existing DrivMatch 02:00 channel autopilot.
+"""Global research extension for the existing Stream Now 02:00 channel autopilot.
 
 Research candidates are NEVER published to the player. The legacy vetted HLS
 sampler remains the sole automatic publisher. Uses public HTTPS-only sources,
@@ -25,7 +25,7 @@ STATE = ROOT / "data" / "global-discovery-state.json"
 REPORT = ROOT / "data" / "global-discovery-report.json"
 KNOWN_SOURCES = ROOT / "site" / "playlist-sources.json"
 COUNTRY_API = "https://iptv-org.github.io/api/countries.json"
-USER_AGENT = "DrivMatch-Global-Channel-Discovery/1.0 (+https://drivmatch.com/stream/)"
+USER_AGENT = "StreamNow-Global-Channel-Discovery/1.0 (+https://streamnow.pages.dev/)"
 COUNTRIES_BY_REGION = {
     "north_central_america_caribbean": ("US", "CA", "MX", "CR", "PA", "DO", "GT", "CU", "JM"),
     "south_america": ("BR", "AR", "CL", "CO", "PE", "UY", "EC", "BO", "VE", "PY"),

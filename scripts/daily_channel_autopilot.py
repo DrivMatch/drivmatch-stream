@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DrivMatch daily public-channel discovery and HLS availability sampler.
+"""Stream Now daily public-channel discovery and HLS availability sampler.
 
 This runner does NOT claim Samsung compatibility, legal licensing certification
 or free access to subscription services. It never proxies media and never
@@ -41,7 +41,7 @@ VALID_DAYS = 8
 MAX_LIVE = 360
 PROBE_SECONDS = 60
 CATALOG_LIMIT = 5_000_000
-UA = "DrivMatch-Public-TV-Health/1.0 (+https://drivmatch.com/stream/tv/)"
+UA = "StreamNow-Public-TV-Health/1.0 (+https://streamnow.pages.dev/)"
 SENSITIVE = re.compile(r"(?:^|[&?])(?:token|sig|signature|key|auth|secret|session|jwt|hdnts|expires|expiry|policy|apikey|access_token)=", re.I)
 PAID = re.compile(
     r"\b(?:espn(?:\s*\d+)?|dazn|premiere|sportv|spor\s*tv|"

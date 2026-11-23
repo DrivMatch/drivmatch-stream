@@ -1,4 +1,4 @@
-/* DrivMatch Stream private IPTV library. No retransmission or licensed-content bypass. */
+/* Stream Now private IPTV library. No retransmission or licensed-content bypass. */
 (() => {
 "use strict";
 const $=id=>document.getElementById(id);

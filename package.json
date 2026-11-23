@@ -1,1 +1,1 @@
-{"name":"drivmatch-stream","private":true,"version":"0.1.0","description":"Independent private in-page TV viewer","scripts":{"test":"node tests/stream_browser.cjs"}}
+{"name":"streamnow","private":true,"version":"0.1.0","description":"Independent private in-page TV viewer","scripts":{"test":"node tests/stream_browser.cjs"}}
