@@ -401,6 +401,7 @@ async function bundledAsset(request, env, url, path) {
   const response = await env.ASSETS.fetch(new Request(assetUrl, {method:request.method}));
   if (!response.ok) return plain(502, "Arquivo protegido indisponível.");
   const headers = {...HEADERS, "Content-Security-Policy":APP_CSP,
+    "Referrer-Policy":name.endsWith(".html")?"same-origin":"no-referrer",
     "Content-Type":response.headers.get("Content-Type") ||
       (name.endsWith(".html") ? "text/html; charset=utf-8" :
       name.endsWith(".js") ? "text/javascript; charset=utf-8" :
