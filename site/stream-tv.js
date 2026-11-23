@@ -1,4 +1,4 @@
-/* DrivMatch Stream • Samsung and older TV browser compatibility (ES5).
+/* Stream Now • Samsung and older TV browser compatibility (ES5).
  * Private login stays server-side. Playback is attempted natively;
  * cataloguing is not proof that a stream will play or is licensed.
  */
