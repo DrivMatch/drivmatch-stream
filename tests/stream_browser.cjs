@@ -469,6 +469,7 @@ async function main(){
 
       // The published GOAT channel ID allows an official YouTube live widget.
       // A frame loading does not prove the channel is broadcasting now.
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="sports"]').click();
       await page.locator('#search').fill('Canal GOAT — lives oficiais');
       const goat=page.locator('#channel-items .channel-btn').filter({hasText:'Canal GOAT — lives oficiais'});
       await goat.click();
@@ -481,6 +482,7 @@ async function main(){
       assert.equal(await page.locator('#official-open').isVisible(),true);
       assert.equal(await page.locator('#now-name').textContent(),'Canal GOAT — lives oficiais');
       // Switching back to HLS must tear down the YouTube iframe.
+      await page.locator('.tree-genre-btn[data-country="BR"][data-genre="news"]').click();
       await page.locator('#search').fill('24 Horas');
       await page.locator('#channel-items .channel-btn').filter({hasText:'24 Horas'}).first().click();
       assert.equal(await frame.isVisible(),false);
