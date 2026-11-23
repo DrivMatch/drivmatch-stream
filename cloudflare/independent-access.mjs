@@ -265,38 +265,80 @@ async function revokeCurrent(request, env) {
 function requireAdmin(user) {
   return user && user.role === "admin" && user.status === "active";
 }
+function dateBr(epoch) {
+  const time=Number(epoch);
+  if (!Number.isFinite(time) || time<=0) return "Não registrado";
+  try {
+    return new Intl.DateTimeFormat("pt-BR",{
+      timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit",
+      hour:"2-digit",minute:"2-digit",hour12:false
+    }).format(new Date(time*1000));
+  } catch {return "Data indisponível";}
+}
+function statusLabel(item) {
+  if (item.status==="active") return "Ativo";
+  if (item.status==="invited") return "Convite pendente";
+  if (item.status==="suspended" && item.canceled_invite_at)
+    return "Convite cancelado";
+  return "Acesso suspenso";
+}
 async function adminPage(user, env) {
   const token=await issueFormToken(env);
-  const result = await env.STREAM_USERS_DB.prepare(
-    "SELECT user_id,email,role,status FROM stream_users ORDER BY created_at DESC LIMIT 150"
+  const result=await env.STREAM_USERS_DB.prepare(
+    "SELECT user_id,email,role,status,created_at,activated_at,first_login_at," +
+    "last_login_at,canceled_invite_at FROM stream_users ORDER BY created_at DESC LIMIT 150"
   ).all();
-  let rows = "";
-  for (const item of result.results || []) {
-    const isSelf = item.user_id === user.user_id;
-    rows += "<tr><td>" + escape(item.email) + "</td><td>" + escape(item.role) +
-      "</td><td>" + escape(item.status) + "</td><td>";
-    if (!isSelf && item.role === "viewer") {
-      const next = item.status === "active" ? "suspended" :
-        (item.status === "suspended" ? "active" : "");
-      if (next) rows += "<form class='inline' method='post' action='/stream/admin/status'>" + formTokenInput(token) +
-        "<input type='hidden' name='user_id' value='" + escape(item.user_id) + "'>" +
-        "<input type='hidden' name='status' value='" + next + "'>" +
-        "<button type='submit'>" + (next === "active" ? "Reativar" : "Suspender") +
-        "</button></form> ";
-      if (item.status === "invited") rows +=
-        "<form class='inline' method='post' action='/stream/admin/resend'>" + formTokenInput(token) +
-        "<input type='hidden' name='user_id' value='" + escape(item.user_id) + "'>" +
-        "<button type='submit'>Reenviar acesso</button></form>";
+  let cards="";
+  for(const item of result.results || []){
+    const isSelf=item.user_id===user.user_id;
+    let buttons="";
+    if (!isSelf && item.role==="viewer") {
+      let next="",action="";
+      if(item.status==="invited"){
+        next="suspended";action="Cancelar convite";
+      } else if(item.status==="active"){
+        next="suspended";action="Suspender acesso";
+      } else if(item.status==="suspended"){
+        next=item.canceled_invite_at ? "invited" : "active";
+        action=item.canceled_invite_at ? "Reativar convite" : "Reativar acesso";
+      }
+      if(next){
+        buttons+="<form class='inline' method='post' action='/stream/admin/status'>" +
+          formTokenInput(token) +
+          "<input type='hidden' name='user_id' value='"+escape(item.user_id)+"'>" +
+          "<input type='hidden' name='status' value='"+next+"'>" +
+          "<button type='submit'>"+escape(action)+"</button></form> ";
+      }
+      if(item.status==="invited"){
+        buttons+="<form class='inline' method='post' action='/stream/admin/resend'>" +
+          formTokenInput(token) +
+          "<input type='hidden' name='user_id' value='"+escape(item.user_id)+"'>" +
+          "<button type='submit'>Reenviar convite</button></form>";
+      }
     }
-    rows += "</td></tr>";
+    cards+="<section class='user-card'><h3>"+escape(item.email)+"</h3>" +
+      "<p><strong>Perfil:</strong> "+(item.role==="admin"?"Administrador":"Usuário") +
+      (isSelf?" (você)":"")+"</p>" +
+      "<p><strong>Situação:</strong> "+escape(statusLabel(item))+"</p>" +
+      "<dl><dt>Convite/cadastro</dt><dd>"+escape(dateBr(item.created_at))+"</dd>" +
+      "<dt>Senha ativada</dt><dd>"+escape(dateBr(item.activated_at))+"</dd>" +
+      "<dt>Primeiro login</dt><dd>"+escape(dateBr(item.first_login_at))+"</dd>" +
+      "<dt>Último login</dt><dd>"+escape(dateBr(item.last_login_at))+"</dd></dl>" +
+      (buttons?"<div class='user-actions'>"+buttons+"</div>":"")+
+      "</section>";
   }
   return stampForm(page("Gerenciamento de acessos",
-    "<p>Administração de convites. Nenhuma senha, Favorito ou histórico é exposto aqui.</p>" +
+    "<p>Convide, suspenda ou reative contas. Nenhuma senha, favoritos ou canais assistidos são exibidos.</p>" +
     "<form action='/stream/admin/invite' method='post'>" + formTokenInput(token) +
     "<label>Convidar por e-mail<input type='email' name='email' maxlength='254' required></label>" +
     "<button type='submit'>Enviar convite</button></form>" +
-    "<h2>Usuários</h2><table><thead><tr><th>E-mail</th><th>Tipo</th><th>Situação</th><th>Ações</th></tr></thead><tbody>" +
-    rows + "</tbody></table><p><a href='/stream/'>Voltar ao Stream</a></p>"),token);
+    "<h2>Usuários</h2><p><small>Datas e horas no horário de São Paulo. " +
+    "Último login indica autenticação concluída, não visualização de canais. " +
+    "Registros anteriores à implantação podem estar indisponíveis.</small></p>" +
+    cards +
+    "<p><small>Suspender encerra sessões existentes, mas preserva favoritos. " +
+    "Cancelar impede o uso do convite no Stream. Reativar convite permite reenviá-lo.</small></p>" +
+    "<p><a href='/stream/'>Voltar ao Stream</a></p>",200),token);
 }
 async function bundledAsset(request, env, url, path) {
   if (!Object.hasOwn(STATIC_FILES, path)) return null;
