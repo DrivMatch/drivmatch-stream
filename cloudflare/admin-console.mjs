@@ -97,6 +97,22 @@ function fmt(ts) {
   }).format(new Date(Number(ts)*1000));}
   catch{return "Data indisponível";}
 }
+// Count calendar days in the Stream's canonical São Paulo timezone, not
+// 24-hour blocks. The first login date is day 0; the next local date is day 1.
+// Does not depend on the browser/device timezone or session history.
+function saoPauloCalendarDay(epochSeconds) {
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date(epochSeconds*1000));
+  const date=Object.fromEntries(parts.filter(p=>p.type!=="literal")
+    .map(p=>[p.type,Number(p.value)]));
+  return Date.UTC(date.year,date.month-1,date.day)/86400000;
+}
+export function daysSinceFirstLogin(firstLoginEpoch,asOfEpoch=Math.floor(Date.now()/1000)) {
+  const first=Number(firstLoginEpoch),at=Number(asOfEpoch);
+  if(!Number.isFinite(first)||first<=0||!Number.isFinite(at)||at<=0)return null;
+  return Math.max(0,saoPauloCalendarDay(at)-saoPauloCalendarDay(first));
+}
 function state(u) {
   if(u.status==="invited") return ["Convite pendente","invited"];
   if(u.status==="active") return ["Ativo","active"];
@@ -111,7 +127,7 @@ function formFor(path,uid,token,title,variant,confirm,status) {
   return "<form method='post' action='/stream/admin/"+path+"'"+confirmation+">"+
     hidden+"<button type='submit' class='btn "+esc(variant)+"'>"+esc(title)+"</button></form>";
 }
-function detailsFor(u,actorId,token,index) {
+function detailsFor(u,actorId,token,index,asOfEpoch) {
   const own=u.user_id===actorId;
   const [label,cls]=state(u);
   let actions="";
@@ -148,6 +164,11 @@ function detailsFor(u,actorId,token,index) {
     row("Criado/convidado em",fmt(u.created_at))+
     row("Senha ativada em",fmt(u.activated_at))+
     row("Primeiro login",fmt(u.first_login_at))+
+    row("Dias desde o primeiro acesso",(()=>{
+      const days=daysSinceFirstLogin(u.first_login_at,asOfEpoch);
+      return days===null?"Aguardando primeiro acesso":
+        days+" "+(days===1?"dia corrido":"dias corridos");
+    })())+
     row("Último login",fmt(u.last_login_at))+
     row("Sessões abertas",String(u.session_count||0))+
     (u.canceled_invite_at?row("Convite cancelado em",fmt(u.canceled_invite_at)):"")+
@@ -180,7 +201,7 @@ const ERRORS={
   failure:"O convite não foi enviado. A causa não foi confirmada. Você pode gerar um link privado enquanto verificamos o e-mail.",
   "daily-quota":"Limite diário atingido: 20 solicitações de e-mail no DrivMatch Stream. Novos envios ficam disponíveis na próxima data de São Paulo. Os acessos existentes continuam funcionando."
 };
-export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail="",emailQuotaUsed=0,emailQuotaLimit=20}){
+export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail="",emailQuotaUsed=0,emailQuotaLimit=20,asOfEpoch=Math.floor(Date.now()/1000)}){
   const totals={active:0,invited:0,suspended:0};
   const rows=[],dialogs=[];
   for(let i=0;i<users.length;i++){
@@ -200,7 +221,7 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
       "<td class='cell-date'>"+esc(fmt(u.last_login_at))+"</td>"+
       "<td class='cell-actions'><button class='btn' type='button' data-open='account-"+index+"'>Gerenciar</button></td>"+
       "</tr>");
-    dialogs.push(detailsFor(u,actorId,token,index));
+    dialogs.push(detailsFor(u,actorId,token,index,asOfEpoch));
   }
   const summary=[
     ["Contas",users.length],["Ativos",totals.active],["Convites pendentes",totals.invited],
@@ -283,7 +304,8 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "<section class='panel'><h2>Registro administrativo</h2>"+
     "<p class='hint'>Histórico das operações administrativas recentes, não da atividade de visualização.</p>"+
     "<ul class='activity-list'>"+history+"</ul></section>"+
-    "<footer>Último login significa autenticação concluída no Stream. Eventos anteriores à instalação desta função podem não existir.</footer></main>"+
+    "<footer>Os dias desde o primeiro acesso são contados pelo calendário de São Paulo, a partir do primeiro login registrado. "+
+    "A contagem é atualizada ao abrir ou atualizar a Central de Controle. Eventos anteriores à instalação desta função podem não existir.</footer></main>"+
     dialogs.join("")+"<script nonce='"+nonce+"'>"+script+"</script></body></html>";
   return {html,nonce};
 }
