@@ -39,11 +39,12 @@
 ## Preserving existing favorites (critical)
 
 - The classic mobile and Samsung/desktop apps currently save favorites in browser `localStorage`. This is not user-private storage.
-- For the **admin** only, updated clients import the old favorites **additively** into D1, and then load the authoritative D1 list. The old localStorage key is **never deleted** during migration.
+- For the **admin** only, updated clients can import old favorites **additively** into D1 **only when the old and new app share the exact same browser origin**. The old localStorage key is **never deleted** during migration.
+- **Critical: the independent Cloudflare workers.dev hostname is a different origin from drivmatch.com. The new app CANNOT read localStorage on drivmatch.com.** The current favorites must be exported from the old origin and imported via a separate, user-authorized migration process, or the old origin must be temporarily maintained during a verified cutover. Until this procedure is implemented and tested on the founder's Samsung, classify favorite migration as BLOCKED, never PASS.
 - For a **viewer** account, no old global localStorage favorites are imported or shown. Each account's D1 favorites are separate.
 - A failed import leaves the original browser records intact and must be reported, never claimed as successful.
 - Samsung/desktop saves favorites in D1 in multiuser mode and keeps recent channel history in memory only (no server viewing history). On legacy entry it retains the prior behavior.
-- Verify the founder's actual Samsung browser: favorites in that browser do not exist on the server automatically until the updated client runs **on that same device** while the founder is logged in.
+- Verify the founder's actual Samsung browser and original web origin. Running updated code on a DIFFERENT hostname will NOT migrate existing browser favorites. Do not delete or switch off the original domain until the founder has explicitly verified a complete backup and migration.
 - Before switching production, export or screenshot the original favorites, confirm import counts, and verify recovery from backup.
 - Do not clear browser storage, force a reset, or delete the legacy Worker during migration.
 
