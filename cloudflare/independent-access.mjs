@@ -402,7 +402,7 @@ async function handle(request, env) {
     if (method === "GET" && path === "/stream/admin")
       return redirect(url.origin, "/stream/login");
     if (method === "GET" && ["/stream/","/stream/index.html","/stream/tv/",
-      "/stream/listas/"].includes(path)) return loginPage();
+      "/stream/listas/"].includes(path)) return await loginPage(false,env);
     return plain(401,"Autenticação necessária.");
   }
   if (path === "/stream/session" && (method === "GET" || method === "HEAD"))
