@@ -817,3 +817,28 @@ html.dm-mobile-guide .technical-source-name{font-size:12px!important}
 html.dm-mobile-guide .toplinks{line-height:29px}
 html.dm-mobile-guide .toplinks .admin-link{font-size:13px!important;min-height:29px;padding:5px 9px}
 html.dm-mobile-guide .toplinks #home-link{display:none}
+
+/* SECURITY: account identity and sign-out stay visible in Stream viewer mode.
+   Viewer role never receives an admin navigation entry. */
+.account-identity{display:inline-block;max-width:250px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;
+  color:#b6f5ec;font-size:13px;line-height:26px}
+.account-logout{display:inline-block;margin:0 0 0 8px;vertical-align:middle}
+.account-logout button{font-size:14px;font-weight:bold;border-radius:8px;
+  padding:8px 12px;background:#173957;border:1px solid #6994ad;color:white}
+html.dm-mobile-guide .topbar{height:71px!important;display:block!important;
+  padding:5px 8px!important;overflow:hidden!important}
+html.dm-mobile-guide .topbar .brand{float:none!important;display:block;height:28px;
+  line-height:27px;margin:0;width:100%}
+html.dm-mobile-guide .topbar .brand b{font-size:18px!important}
+html.dm-mobile-guide .toplinks{display:flex;float:none!important;
+  align-items:center;justify-content:space-between;width:100%;
+  line-height:29px!important;gap:8px;white-space:nowrap}
+html.dm-mobile-guide .account-identity{font-size:12px!important;
+  line-height:29px!important;max-width:calc(100% - 75px);
+  flex:1;min-width:0}
+html.dm-mobile-guide .account-logout{display:inline-block;flex:none;margin:0}
+html.dm-mobile-guide .account-logout button{padding:3px 11px;font-size:13px;
+  min-height:28px;line-height:20px}
+html.dm-mobile-guide .tv-layout{height:calc(100vh - 71px)!important;
+  height:calc(100dvh - 71px)!important}
