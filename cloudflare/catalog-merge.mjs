@@ -4,7 +4,7 @@
  */
 const MAX_BYTES=8300000;
 const MAX_ITEMS=14000;
-const MERGE_IDS=["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8"];
+const MERGE_IDS=["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9","lista-10","lista-11"];
 const GROUP_HINTS={
  BR:/\b(?:brasil|brazil)\b/i,US:/\b(?:united states|estados unidos|usa)\b/i,
  PT:/\bportugal\b/i,ES:/\b(?:españa|espanha|spain)\b/i,
@@ -66,11 +66,11 @@ function workloads(country,urls,originalCountries){
 }
 async function sourceData(country,urls,originalCountries,load){
  const jobs=workloads(country,urls,originalCountries);
- const settled=await Promise.allSettled(jobs.map(async job=>({...job,raw:await load(job.url)})));
+ const settled=await Promise.allSettled(jobs.map(async job=>({...job,raw:await load(job.url,job.id)})));
  return {jobs,settled};
 }
 export async function countryIndex(urls,originalCountries,load){
- // The seven non-List-02 source lists + the original 12 country catalogs.
+ // The ten independent sources + the original 12 country catalogs.
  const {settled}=await sourceData("OTHER",urls,originalCountries,load);
  const codes=new Set(originalCountries.map(c=>c.toUpperCase()));let ok=0;
  for(const result of settled){
@@ -109,7 +109,7 @@ export async function mergedCatalog(country,urls,originalCountries,load){
  }
  if(!completed)throw Error("All source catalogs unavailable");
  rows.sort((a,b)=>a.code.localeCompare(b.code)||a.name.localeCompare(b.name,"pt-BR"));
- const pre=["#EXTM3U","#DM_MERGED:LISTAS-1-8","#DM_COUNTRY_VIEW:"+country,
+ const pre=["#EXTM3U","#DM_MERGED:LISTAS-1-11","#DM_COUNTRY_VIEW:"+country,
   "#DM_SOURCES_LOADED:"+completed+"/"+jobs.length];
  if(failed.length)pre.push("#DM_PARTIAL:"+failed.join(","));
  if(truncated)pre.push("#DM_TRUNCATED:1");
