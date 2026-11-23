@@ -24,7 +24,7 @@
   const store = "drivmatch-stream-favorites-v1";
   const state = {
     country:"ALL", category:"live", favoritesOnly:false, search:"",
-    channels:[], selected:null, favorites:[], hls:null, authorised:false,
+    channels:[], selected:null, favorites:[], hls:null, authorised:false, userId:null, userRole:null,
     health:new Map(), limit:80, attempt:0, sourceIndex:0, timer:null,
     playRequested:false, awaitingTap:false, failedAttempt:false, sourcesFailed:0
   };
@@ -49,11 +49,18 @@
     button.title=marked?"Remover dos favoritos":"Adicionar aos favoritos";
     button.setAttribute("aria-label",button.title);
   }
-  function toggleFavorite(c){
+  async function toggleFavorite(c){
     if(!c)return;
-    const key=favoriteKey(c);
-    state.favorites=state.favorites.includes(key)
-      ?state.favorites.filter(x=>x!==key):[...state.favorites,key];
+    const key=favoriteKey(c),present=state.favorites.includes(key);
+    if(state.userId){
+      try{
+        const response=await fetch("/stream/favorites",{method:"POST",credentials:"same-origin",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({operation:present?"remove":"add",key})});
+        if(!response.ok)throw Error("save-failed");
+      }catch{showError("Não foi possível salvar o Favorito no servidor. Tente novamente.");return;}
+    }
+    state.favorites=present?state.favorites.filter(x=>x!==key):[...state.favorites,key];
     saveFavorites();
     syncPlayerFavorite();
     render();
@@ -91,7 +98,10 @@
       const res=await fetch("./session",{
         credentials:"same-origin",cache:"no-store",headers:{Accept:"application/json"}
       });
-      if(!res.ok || (await res.json()).allowed!==true)throw Error("unauthorized");
+      const session=await res.json();
+      if(!res.ok || session.allowed!==true)throw Error("unauthorized");
+      state.userId=typeof session.user_id==="string"?session.user_id:null;
+      state.userRole=session.role||null;
       state.authorised=true;
       $("gate").hidden=true;
       $("tv").hidden=false;
@@ -177,7 +187,7 @@
     }catch{return [];}
   }
   function saveFavorites(){
-    try{localStorage.setItem(store,JSON.stringify(state.favorites));}catch{}
+    try{localStorage.setItem(state.userId?store+":"+state.userId:store,JSON.stringify(state.favorites));}catch{}
   }
   function channelStatus(c){
     const s=state.health.get(c.id);
@@ -440,7 +450,30 @@
   async function init(){
     setupFilters();
     if(!await verifyOwner())return;
-    state.favorites=readFavorites();
+    if(state.userId){
+      try{
+        // Import old per-browser favorites only into the administrator account.
+        // Never show preexisting shared-browser data to a different user.
+        if(state.userRole==="admin"){
+          const legacy=readFavorites();
+          if(legacy.length){
+            const migration=await fetch("/stream/favorites",{method:"POST",credentials:"same-origin",
+              headers:{"Content-Type":"application/json"},
+              body:JSON.stringify({operation:"import",keys:legacy})});
+            if(!migration.ok)throw Error("migration-failed");
+          }
+        }
+        const saved=await fetch("/stream/favorites",{credentials:"same-origin",cache:"no-store"});
+        if(!saved.ok)throw Error("favorites-unavailable");
+        const payload=await saved.json();
+        if(!Array.isArray(payload.favorites))throw Error("favorites-invalid");
+        state.favorites=payload.favorites;
+        saveFavorites();
+      }catch{
+        setGate("Não foi possível recuperar os Favoritos com segurança. Tente novamente.");
+        return;
+      }
+    }else state.favorites=readFavorites();
     syncPlayerFavorite();
     await loadChannels();
     setInterval(async()=>{if(state.authorised)await verifyOwner();},300000);

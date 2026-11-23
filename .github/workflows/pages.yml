@@ -51,7 +51,10 @@ jobs:
           ! grep -i 'supabase' cloudflare/stream-proxy.mjs
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
       - name: Cloudflare Access Worker security unit tests
-        run: node --test tests/stream_worker.test.mjs
+        run: |
+          node --test tests/stream_worker.test.mjs
+          node --check cloudflare/independent-access.mjs
+          node --test tests/independent_access.test.mjs
       - name: Install Chromium browser
         run: |
           npm install --no-audit --no-fund playwright@1.58.2

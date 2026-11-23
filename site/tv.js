@@ -22,6 +22,7 @@ var officialFree=[],officialPaid=[];
 var globalSearchMode=false,globalResults=[],globalStatus="",globalSearchTimer=null,globalSearchSeq=0;
 var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
+var streamUserId=null,streamUserRole=null;
 var STORE="drivmatch-tv-guide-favorites-v1";
 var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
 var HIDDEN_STORE="drivmatch-tv-hidden-failed-60s-v1",HIDDEN_TTL=24*60*60*1000;
@@ -76,10 +77,32 @@ function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechang
 cb(x.status,x.responseText||"");}};
 x.onerror=function(){if(!done){done=true;cb(0,"");}};
 try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
+function postJson(path,data,cb){
+ var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;cb(x.status);}};
+ x.onerror=function(){if(!done){done=true;cb(0);}};
+ try{x.open("POST",path,true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(data));}catch(e){cb(0);}
+}
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
 function has(arr,k){return arr.indexOf(k)>=0;}
+function favoriteNameCanonical(name){
+  var n=lower(name).replace(/\s*\(\d{3,4}p\)\s*$/i,"");
+  if(typeof n.normalize==="function")n=n.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  return n.replace(/\s+/g," ");
+}
+function canonicalFavoriteKeyFromLegacy(k){
+  var parts=String(k||"").split(":");
+  var code="",name="";
+  if(parts.length>=3 && /^(lista-\d+|paid)$/i.test(parts[0])){
+    code=parts[1];name=parts.slice(2).join(":");
+  }else if(parts.length>=2){
+    code=parts[0];name=parts.slice(1).join(":");
+  }else return "";
+  if(!/^[A-Za-z]{2,8}$/.test(code) || !name)return "";
+  return code.toUpperCase()+":"+favoriteNameCanonical(name);
+}
 function favorKey(c){
+  if(streamUserId) return String(c.code||"OTHER")+":"+favoriteNameCanonical(c.originalName||c.name);
   return (c.source||(String(c.id||"").indexOf("paid:")===0?"paid":"lista-2"))+
     ":"+c.code+":"+lower(c.originalName||c.name);
 }
@@ -104,7 +127,7 @@ function isHidden(c){
 }
 function countHidden(){var n=0;for(var k in hiddenFailed)
  if(Object.prototype.hasOwnProperty.call(hiddenFailed,k))n++;return n;}
-function saveHidden(){try{localStorage.setItem(HIDDEN_STORE,JSON.stringify(hiddenFailed));}catch(e){}}
+function saveHidden(){if(streamUserId)return;try{localStorage.setItem(HIDDEN_STORE,JSON.stringify(hiddenFailed));}catch(e){}}
 function updateHiddenRestore(){
  var n=countHidden(),btn=D("restore-hidden");
  if(!btn)return;
@@ -316,8 +339,32 @@ function startPlaybackWatch(c){
  },60000));
 }
 
-function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
-function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
+function saveFav(){if(streamUserId)return;try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
+function loadFav(){if(streamUserId)return;try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
+function fetchUserFavorites(){
+ http("/stream/favorites",function(st,raw){
+  if(st!==200){T(D("catalog-status"),"Favoritos indisponíveis. Não serão substituídos.");return;}
+  try{var data=JSON.parse(raw);if(Object.prototype.toString.call(data.favorites)!=="[object Array]")throw Error("format");
+    favorites=data.favorites;drawQuickLists();renderChannels();updateFavButton();
+  }catch(e){T(D("catalog-status"),"Erro ao carregar Favoritos.");}
+ });
+}
+function migrateAdminFavorites(){
+ var old=[];
+ try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")old=a;}catch(e){}
+ if(streamUserRole==="admin"&&old.length){
+  var canonical=[];
+  for(var i=0;i<old.length;i++){
+    var key=canonicalFavoriteKeyFromLegacy(old[i]);
+    if(key && canonical.indexOf(key)<0)canonical.push(key);
+  }
+  if(!canonical.length){fetchUserFavorites();return;}
+  postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
+   if(st===200)fetchUserFavorites();
+   else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
+  });
+ }else fetchUserFavorites();
+}
 
 
 /* Only minimal channel identity is persisted locally; never keep stream URLs
@@ -328,11 +375,13 @@ function safeSnapshot(c){
 }
 function oldFavoriteSnapshot(key){
  var parts=String(key||"").split(":");
+ if(streamUserId)return {key:key,name:parts.slice(1).join(":")||key,
+   code:parts[0]||"OTHER",genre:"other"};
  return {key:key,name:parts.slice(2).join(":")||key,code:parts[1]||"OTHER",genre:"other"};
 }
 function loadQuickHistory(){
  try{
-  var arr=JSON.parse(localStorage.getItem(HISTORY_STORE)||"[]");
+  var arr=streamUserId?[]:JSON.parse(localStorage.getItem(HISTORY_STORE)||"[]");
   if(Object.prototype.toString.call(arr)==="[object Array]"){
    recent=[];
    for(var i=0;i<arr.length&&recent.length<25;i++)
@@ -345,7 +394,7 @@ function loadQuickHistory(){
   }
  }catch(e){}
  try{
-  var data=JSON.parse(localStorage.getItem(FAV_META_STORE)||"{}");
+  var data=streamUserId?{}:JSON.parse(localStorage.getItem(FAV_META_STORE)||"{}");
   if(data&&typeof data==="object"&&
      Object.prototype.toString.call(data)!=="[object Array]")
     favoriteMeta=data;
@@ -361,7 +410,7 @@ function recordVisit(c){
  for(var i=0;i<recent.length&&next.length<25;i++)
   if(recent[i].key!==data.key)next.push(recent[i]);
  recent=next;
- try{localStorage.setItem(HISTORY_STORE,JSON.stringify(recent));}catch(e){}
+ if(!streamUserId)try{localStorage.setItem(HISTORY_STORE,JSON.stringify(recent));}catch(e){}
  drawQuickLists();
 }
 function findKnown(key,code,name){
@@ -947,14 +996,19 @@ function runGlobalSearch(){
 
 function toggleFavorite(c){
   var k=favorKey(c),idx=favorites.indexOf(k);
-  if(idx>=0){
-    favorites.splice(idx,1);delete favoriteMeta[k];
-  }else{
-    favorites.push(k);favoriteMeta[k]=safeSnapshot(c);
+  function commit(){
+   if(idx>=0){favorites.splice(idx,1);delete favoriteMeta[k];}
+   else{favorites.push(k);favoriteMeta[k]=safeSnapshot(c);}
+   saveFav();
+   if(!streamUserId)try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){}
+   updateFavButton();renderChannels();drawQuickLists();
   }
-  saveFav();
-  try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){}
-  updateFavButton();renderChannels();drawQuickLists();
+  if(streamUserId){
+   postJson("/stream/favorites",{operation:idx>=0?"remove":"add",key:k},function(st){
+    if(st===200)commit();
+    else T(D("catalog-status"),"Não foi possível salvar Favorito. Tente novamente.");
+   });
+  }else commit();
 }
 function updateFavButton(){
   var b=D("player-favorite");b.disabled=!selected;
@@ -1184,7 +1238,7 @@ function toggleQuickGroup(kind){
 }
 function init(){
   COUNTRY.sort(compareCountries);
-  loadHidden();loadFav();loadQuickHistory();drawQuickLists();initRemote();
+  drawQuickLists();initRemote();
   if(mobileMode){
    switchMobilePane("countries");
    on(D("mobile-countries"),"click",function(){switchMobilePane("countries");});
@@ -1257,6 +1311,17 @@ function init(){
       visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);return;
     }
     session=true;
+    // Stop a player when this account is suspended or its session expires.
+    setInterval(function(){http("/stream/session",function(st,raw){
+      if(st!==200||raw.indexOf('"allowed":true')<0){
+        session=false;clearPlaybackWatch();
+        try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+        visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);
+      }
+    });},300000);
+    try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";}}catch(e){}
+    if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
+    else{loadHidden();loadFav();loadQuickHistory();drawQuickLists();}
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}

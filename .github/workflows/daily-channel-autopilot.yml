@@ -2,8 +2,8 @@ name: DrivMatch - Autopiloto diario de canais
 
 on:
   schedule:
-    # 12:48 America/Sao_Paulo (UTC-3), away from the top-of-hour load.
-    - cron: '48 15 * * *'
+    # 02:00 America/Sao_Paulo (UTC-3), daily. GitHub Actions may be delayed.
+    - cron: '0 5 * * *'
   workflow_dispatch:
   push:
     branches: [main]

@@ -1,0 +1,47 @@
+name: DrivMatch Stream - Android debug APK
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-debug.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-debug.yml'
+  workflow_dispatch:
+    inputs:
+      stream_url:
+        description: 'HTTPS URL of the separate Cloudflare Stream Worker (optional, can be set in app)'
+        required: false
+        default: ''
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      # GitHub Ubuntu runners already provide Android SDK; Gradle resolves the required platform.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Build installable Android debug APK
+        working-directory: android
+        env:
+          STREAM_URL: ${{ inputs.stream_url || '' }}
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+      - name: APK SHA-256
+        run: sha256sum android/app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DrivMatch-Stream-Android-Test-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
