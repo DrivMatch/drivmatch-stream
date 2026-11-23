@@ -247,6 +247,7 @@ function requireAdmin(user) {
   return user && user.role === "admin" && user.status === "active";
 }
 async function adminPage(user, env) {
+  const token=await issueFormToken(env);
   const result = await env.STREAM_USERS_DB.prepare(
     "SELECT user_id,email,role,status FROM stream_users ORDER BY created_at DESC LIMIT 150"
   ).all();
@@ -258,25 +259,25 @@ async function adminPage(user, env) {
     if (!isSelf && item.role === "viewer") {
       const next = item.status === "active" ? "suspended" :
         (item.status === "suspended" ? "active" : "");
-      if (next) rows += "<form class='inline' method='post' action='/stream/admin/status'>" +
+      if (next) rows += "<form class='inline' method='post' action='/stream/admin/status'>" + formTokenInput(token) +
         "<input type='hidden' name='user_id' value='" + escape(item.user_id) + "'>" +
         "<input type='hidden' name='status' value='" + next + "'>" +
         "<button type='submit'>" + (next === "active" ? "Reativar" : "Suspender") +
         "</button></form> ";
       if (item.status === "invited") rows +=
-        "<form class='inline' method='post' action='/stream/admin/resend'>" +
+        "<form class='inline' method='post' action='/stream/admin/resend'>" + formTokenInput(token) +
         "<input type='hidden' name='user_id' value='" + escape(item.user_id) + "'>" +
         "<button type='submit'>Reenviar acesso</button></form>";
     }
     rows += "</td></tr>";
   }
-  return page("Gerenciamento de acessos",
+  return stampForm(page("Gerenciamento de acessos",
     "<p>Administração de convites. Nenhuma senha, Favorito ou histórico é exposto aqui.</p>" +
-    "<form action='/stream/admin/invite' method='post'>" +
+    "<form action='/stream/admin/invite' method='post'>" + formTokenInput(token) +
     "<label>Convidar por e-mail<input type='email' name='email' maxlength='254' required></label>" +
     "<button type='submit'>Enviar convite</button></form>" +
     "<h2>Usuários</h2><table><thead><tr><th>E-mail</th><th>Tipo</th><th>Situação</th><th>Ações</th></tr></thead><tbody>" +
-    rows + "</tbody></table><p><a href='/stream/'>Voltar ao Stream</a></p>");
+    rows + "</tbody></table><p><a href='/stream/'>Voltar ao Stream</a></p>"),token);
 }
 async function bundledAsset(request, env, url, path) {
   if (!Object.hasOwn(STATIC_FILES, path)) return null;
@@ -346,16 +347,18 @@ async function handle(request, env) {
     if (!account) return await loginPage(true,env);
     return redirect(url.origin,"/stream/",await createSession(account,env));
   }
-  if (method === "GET" && path === "/stream/recover")
-    return page("Recuperar acesso",
+  if (method === "GET" && path === "/stream/recover") {
+    const token=await issueFormToken(env);
+    return stampForm(page("Recuperar acesso",
       "<p>Enviaremos um link para o e-mail cadastrado, se a conta existir.</p>" +
-      "<form method='post' action='/stream/recover'>" +
+      "<form method='post' action='/stream/recover'>" + formTokenInput(token) +
       "<label>E-mail<input type='email' name='email' maxlength='254' required></label>" +
-      "<button type='submit'>Enviar link</button></form>");
+      "<button type='submit'>Enviar link</button></form>"),token);
+  }
   if (method === "POST" && path === "/stream/recover") {
-    if (!csrf(request,url)) return plain(403,"Forbidden");
-    if (!await limit(request,env,"recover")) return plain(429,"Aguarde antes de tentar novamente.");
     const data = await form(request);
+    if (!await verifyFormToken(request,url,data,env)) return plain(403,"Formulário expirado. Reabra a recuperação.");
+    if (!await limit(request,env,"recover")) return plain(429,"Aguarde antes de tentar novamente.");
     const email = String(data.get("email") || "").trim().toLowerCase();
     if (email.length <= 254 && email.includes("@")) {
       await supabase(env,"POST","recover?redirect_to=" +
@@ -446,9 +449,10 @@ async function handle(request, env) {
         "<p>Confirme que utilizou o e-mail da sua conta administradora.</p>" +
         "<form action='/stream/logout' method='post'><button type='submit'>Sair desta conta</button></form>",403);
   if (path.startsWith("/stream/admin/") && method === "POST") {
-    if (!csrf(request,url) || !requireAdmin(user)) return plain(403,"Forbidden");
-    if (!await limit(request,env,"admin")) return plain(429,"Muitas operações.");
+    if (!requireAdmin(user)) return plain(403,"Forbidden");
     const data = await form(request);
+    if (!await verifyFormToken(request,url,data,env)) return plain(403,"Formulário expirado. Reabra o painel.");
+    if (!await limit(request,env,"admin")) return plain(429,"Muitas operações.");
     if (path === "/stream/admin/invite") {
       const email = String(data.get("email") || "").trim().toLowerCase();
       if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
