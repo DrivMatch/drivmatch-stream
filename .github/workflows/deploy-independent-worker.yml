@@ -1,9 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Controlled staging rollout: 20/day email quota schema, budget-aware authorization and UI.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/deploy-independent-worker.yml']
+  # Staging email budget release verified; future execution requires manual authorization.
   workflow_dispatch:
 permissions:
   contents: read
