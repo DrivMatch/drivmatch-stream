@@ -14,8 +14,8 @@ var desktopSourceGeneration=0,desktopFailureReason="";
 var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],["PT","Portugal"],
  ["ES","Espanha"],["AR","Argentina"],["JP","Japão"],["CN","China"],["UK","Reino Unido"],
  ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
-var SOURCES=[],source="lista-2",country="BR",category="all",search="",channels=[],visible=[],selected=null;
-var openCountries={BR:true},openGenres={},treeLimits={},treeErrors={};
+var SOURCES=[],source="lista-2",country="ALL",category="all",search="",channels=[],visible=[],selected=null;
+var openCountries={},openGenres={},treeLimits={},treeErrors={};
 var officialFree=[],officialPaid=[];
 var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
@@ -703,9 +703,22 @@ function focusTreeGenre(code,genre){
 function closeAllGenres(){
  openGenres={};
 }
+/* Countries start closed, including Brazil; the guide only shows channels
+ * after a country is intentionally opened. The video remains untouched. */
+function showCountryPrompt(){
+ country="ALL";category="all";search="";limit=60;
+ D("search").value="";
+ channels=[];visible=[];
+ T(D("catalog-title"),"Escolha um país");
+ T(D("catalog-subtitle"),"Clique em um país à esquerda para abrir os canais.");
+ T(D("result-count"),"Aguardando seleção");
+ T(D("catalog-status"),"Abra um país para visualizar o guia de canais.");
+ clear(D("channel-items"));visibleEl(D("show-more"),false);
+}
 function chooseCountry(code){
  if(openCountries[code]){
   openCountries[code]=false;closeAllGenres();
+  if(country===code){serial++;showCountryPrompt();}
   drawCountries();selectNewCountryFocus(code);return;
  }
  closeAllGenres();
@@ -734,7 +747,11 @@ function drawCategories(){
   }
 }
 function refresh(){
-  closeAllGenres();category="all";cache={};treeErrors={};loadChannels();
+  closeAllGenres();category="all";cache={};treeErrors={};
+  if(source==="lista-2"&&country==="ALL"){
+    showCountryPrompt();drawCountries();return;
+  }
+  loadChannels();
 }
 function selectSource(id){
   if(source===id&&channels.length)return;
@@ -813,6 +830,7 @@ function updateFavButton(){
   T(b,selected&&has(favorites,favorKey(selected))?"★ Favoritado":"☆ Favoritar");
 }
 function renderChannels(){
+  if(source==="lista-2"&&country==="ALL"){showCountryPrompt();return;}
   var all=[],i,area=D("channel-items");clear(area);
   for(i=0;i<channels.length;i++)if(fits(channels[i]))all.push(channels[i]);
   all.sort(function(a,b){var x=lower(a.originalName||a.name),y=lower(b.originalName||b.name);return x<y?-1:x>y?1:0;});
@@ -1080,7 +1098,7 @@ function init(){
         tech.appendChild(E("p","technical-source-name",SOURCES[n].title||SOURCES[n].id));
       addCountryOptions();loadOfficialDirectory();
       if(!SOURCES.length){T(D("catalog-status"),"Biblioteca sem fontes cadastradas.");return;}
-      source="lista-2";loadChannels();
+      source="lista-2";showCountryPrompt();
     });
   });
 }
