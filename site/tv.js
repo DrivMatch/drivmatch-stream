@@ -1133,7 +1133,7 @@ function init(){
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
-      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-(?:[1-9]|1[0-2])$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
+      var verified=[];for(var j=0;j<SOURCES.length;j++)if(/^lista-(?:[1-9]|1[0-4])$/.test(SOURCES[j].id))verified.push(SOURCES[j]);
       SOURCES=verified;drawSources();drawCountries();drawCategories();
       var tech=D("technical-items");clear(tech);
       for(var n=0;n<SOURCES.length;n++)
