@@ -29,6 +29,14 @@ jobs:
             exit 1
           fi
           test "$(printf %s "$CLOUDFLARE_ACCOUNT_ID" | wc -c)" -eq 32
+          if [[ "$CLOUDFLARE_API_TOKEN" == curl* || "$CLOUDFLARE_API_TOKEN" == "Bearer "* ]]; then
+            echo "::error::STREAM_INDEPENDENT_CF_API_TOKEN contains a curl command or Bearer header; paste ONLY the raw Cloudflare API token."
+            exit 1
+          fi
+          if [[ "$CLOUDFLARE_API_TOKEN" == *[[:space:]]* ]]; then
+            echo "::error::STREAM_INDEPENDENT_CF_API_TOKEN includes spaces/newlines; paste ONLY the raw token."
+            exit 1
+          fi
       - name: Install Wrangler
         run: npm install --no-save --no-audit --no-fund wrangler@4
       - name: Find or create isolated D1 test database
