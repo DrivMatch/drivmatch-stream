@@ -142,7 +142,7 @@ async function main(){
         buffer:Buffer.from(playlist)
       });
       await page.getByText(/Lista 13 • meus-canais.m3u/).first().waitFor();
-      assert.equal(await page.locator("#source-list .source").count(),12);
+      assert.equal(await page.locator("#source-list .source").count(),13);
       await page.locator("#source-list .source").nth(7).click();
       assert.equal(await page.getByText("DAZN",{exact:true}).count(),0);
       assert.equal(await page.locator("#official-access").count(),0);
