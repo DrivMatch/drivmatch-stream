@@ -208,27 +208,27 @@ test("Samsung TV lounge page is private and served from fixed worker route",asyn
   assert.deepEqual(seen,["tv.html","tv.css","tv.js"].map(f=>"https://drivmatch.github.io/drivmatch-stream/"+f));
  }finally{globalThis.fetch=before;}
 });
-test("all 9 public IPTV catalogs are whitelisted and authenticated",async()=>{
+test("all 11 IPTV sources (including thematic free feeds) are whitelisted and authenticated",async()=>{
  const c=await cookie(),before=globalThis.fetch,seen=[];
  try{
   globalThis.fetch=async u=>{seen.push(String(u));return new Response("#EXTM3U\n#EXTINF:-1,News TV\nhttps://example.org/news.m3u8",{status:200});};
   const blocked=await stream.fetch(new Request(origin+"catalog?list=lista-1&country=ALL"),env);
   assert.equal(blocked.status,403);
-  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9"]){
+  for(const id of ["lista-1","lista-3","lista-4","lista-5","lista-6","lista-7","lista-8","lista-9","lista-10","lista-11"]){
    const res=await stream.fetch(new Request(origin+"catalog?list="+id+"&country=ALL",{headers:{Cookie:c}}),env);
    assert.equal(res.status,200,id);
   }
   const list2=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=BR",{headers:{Cookie:c}}),env);
   assert.equal(list2.status,200);
-  assert.match(await list2.text(),/#DM_MERGED:LISTAS-1-8/);
+  assert.match(await list2.text(),/#DM_MERGED:LISTAS-1-11/);
   const all=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=ALL",{headers:{Cookie:c}}),env);
   assert.equal(all.status,200);
   assert.match(await all.text(),/#DM_COUNTRY_VIEW:ALL/);
-  for(const list of ["lista-10","../../admin","https://example.org/playlist.m3u"]){
+  for(const list of ["lista-12","../../admin","https://example.org/playlist.m3u"]){
     const res=await stream.fetch(new Request(origin+"catalog?list="+encodeURIComponent(list),{headers:{Cookie:c}}),env);
     assert.equal(res.status,400);
   }
-  assert.equal(seen.length,35);
+  assert.equal(seen.length,43);
  }finally{globalThis.fetch=before;}
 });
 
@@ -302,12 +302,26 @@ test("List 02 merges sources 1–8 by real country, retains origin and excludes 
   const discovered=await countries.json();
   assert(discovered.countries.some(x=>x.code==="MX"&&x.name));
   assert(discovered.countries.some(x=>x.code==="BR"));
-  assert.equal(seen.some(u=>u.includes("cattv-playlist")),false,
-   "source Lista 9 must not leak into consolidation of Lists 1–8");
+  assert.equal(seen.some(u=>u.includes("cattv-playlist")),true,
+   "curated public Lista 9 is included in the expanded country catalog");
   const unauthorized=await stream.fetch(new Request(origin+"countries?list=lista-2"),env);
   assert.equal(unauthorized.status,403);
   const bad=await stream.fetch(new Request(origin+"catalog?list=lista-2&country=../../",
     {headers:{Cookie:c}}),env);
   assert.equal(bad.status,400);
  }finally{globalThis.fetch=before;}
+});
+
+test("official channel metadata is owner-authenticated and static, not a free video proxy",async()=>{
+ const c=await cookie(),old=globalThis.fetch;
+ try{
+  const deny=await stream.fetch(new Request(origin+"official-access.json"),env);
+  assert.equal(deny.status,403);
+  const seen=[];
+  globalThis.fetch=async url=>{seen.push(String(url));return new Response('{"schema":1}',{status:200});};
+  const res=await stream.fetch(new Request(origin+"official-access.json",{headers:{Cookie:c}}),env);
+  assert.equal(res.status,200);
+  assert.match(res.headers.get("Content-Type"),/application\/json/);
+  assert.deepEqual(seen,["https://drivmatch.github.io/drivmatch-stream/official-access.json"]);
+ }finally{globalThis.fetch=old;}
 });

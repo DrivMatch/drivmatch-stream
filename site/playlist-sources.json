@@ -15,9 +15,9 @@
     },
     {
       "id": "lista-2",
-      "title": "Lista 2 • Canais por país (Listas 1–8)",
-      "kind": "consolidada · oito listas",
-      "description": "Visualização por país que reúne canais das Listas 1 a 8, elimina duplicatas por nome/ID e preserva a indicação da fonte. País sem identificação vai para Outros. Sinais não verificados na TV.",
+      "title": "Lista 2 • Canais por país (fontes reunidas)",
+      "kind": "consolidada · fontes públicas",
+      "description": "Consolidação das listas públicas 1 a 11 com deduplicação parcial por nome/país. As fontes originais ficam recolhidas no rodapé da Samsung. Canais sem país confiável vão para Outros. Listagem não garante licença nem reprodução.",
       "urls": [
         "https://iptv-org.github.io/iptv/countries/br.m3u",
         "https://iptv-org.github.io/iptv/countries/pt.m3u",
@@ -105,6 +105,26 @@
       ],
       "source": "https://github.com/SamuelSantos-R/cattv-playlist",
       "filtered_catalog": "/stream/catalog?list=lista-9&country=BR"
+    },
+    {
+      "id": "lista-10",
+      "title": "Lista 10 • Filmes FAST internacionais (Free-TV)",
+      "kind": "canais públicos · filmes",
+      "description": "Recorte temático do Free-TV, não uma assinatura nem filmes específicos. Alguns links são HTTP e não entram no player HTTPS; o nome do canal não prova que o sinal funciona na Samsung.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_movies.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV"
+    },
+    {
+      "id": "lista-11",
+      "title": "Lista 11 • Notícias internacionais (Free-TV)",
+      "kind": "canais públicos · notícias",
+      "description": "Recorte de canais gratuitos em inglês, incluindo NBC News NOW, CBS News, ABC News Live, FOX LiveNOW e FOX Weather quando seus sinais são HTTPS HLS. Algumas entradas usam YouTube e não são URLs M3U8.",
+      "urls": [
+        "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_zz_news_en.m3u8"
+      ],
+      "source": "https://github.com/Free-TV/IPTV"
     }
   ]
 }

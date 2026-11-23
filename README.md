@@ -34,3 +34,16 @@ Os testes de navegador simulam playlists e mídia; não confirmam quais canais r
 - A grade identifica a origem (Lista 1, Lista 2 etc.) e mantém até 3 URLs alternativas por canal/país. Resultados organizados por país e nome; links repetidos são deduplicados.
 - Endpoint `/stream/countries?list=lista-2` retorna países efetivamente observados nas fontes, além dos 12 países históricos. Endpoint `/stream/catalog?list=lista-2&country=XX` retorna a união segmentada; `ALL` pode ser limitado por segurança de memória e informa truncamento.
 - A Lista 9 está **fora** da consolidação, conforme escopo pedido. Fontes podem falhar e o catálogo mostra carregamento parcial. Testes de catálogo não comprovam autorização nem reprodução na Samsung.
+
+## Ampliação internacional de canais e filmes — pesquisa de 22/11/2026
+
+A navegação **País → Categoria → Canal** na Samsung mantém as fontes técnicas recolhidas no **último elemento** do rodapé da coluna. O novo diretório `site/official-access.json` diferencia:
+- **HLS incorporado**: playlist HTTPS da fonte original, ainda sem comprovação de reprodução na Samsung, licença de distribuição ou disponibilidade geográfica
+- **Site oficial gratuito**: o canal/filme está no site ou aplicativo da emissora, mas o Stream **não reproduz** automaticamente o vídeo da plataforma; há botão para abrir o destino oficial
+- **Assinatura**: Netflix, Prime Video, HBO Max, Paramount+, Apple TV, Universal+, Disney+, Telecine, SKY+, SporTV, Premiere, ESPN, Combate, Sport TV PT, FOX News e CNN EUA aparecem **somente no painel recolhido de serviços**, sem promessa de acesso gratuito
+
+Para Filmes, o guia separa **português**, **outros idiomas** e **idioma não informado**. A classificação de idioma é baseada somente em indicação de metadados da playlist ou diretório oficial, não no país da emissora. Entre as fontes gratuitas de filmes estão NetMovies (YouTube oficial), Pluto TV, Runtime, Mercado Play, Plex, Samsung TV Plus e EiTV (páginas HALLO); a disponibilidade é verificada no fornecedor. O diretório contém acesso ao emissor e não cópias não autorizadas de obras ou canais.
+
+Novas fontes temáticas internas (não exibidas na navegação principal): **Lista 10 Filmes FAST (Free-TV)** e **Lista 11 Notícias internacionais (Free-TV)**; os links M3U são filtrados pelas regras existentes (HTTPS, HLS/MP4, bloqueio de nomes de redes pagas). A consolidação por país inclui a Lista 9 brasileira já filtrada, junto das Listas 1–8 e 10–11, com deduplicação parcial e indicação de fontes indisponíveis. Duas limitações: listas de terceiros não comprovam direitos de distribuição, e testes de navegador com vídeo simulado **não equivalem** a confirmação de reprodução real.
+
+Fontes públicas utilizadas: Free-TV/IPTV, canal oficial NetMovies, RTP Play, CBS News 24/7, FOX Weather, DAZN PT Freemium, canais oficiais da Samsung, Pluto TV (Paramount), EiTV Play e páginas oficiais das emissoras. Filmes de catálogo de Netflix, Prime Video, HBO/Max, Paramount+ e Apple TV não foram convertidos em links HLS gratuitos.
