@@ -97,6 +97,18 @@ class GlobalDiscoveryTests(unittest.TestCase):
                 self.assertEqual(again["new_research_channel_records"], 0)
                 self.assertEqual(again["new_research_sources"], 0)
 
+    def test_localized_youtube_twitch_discover_channel_pages_only(self):
+        targets = gd.research_queries(123)
+        self.assertIn("youtube", [name for name, _ in targets])
+        self.assertIn("twitch", [name for name, _ in targets])
+        youtube = b'<a href="https://www.youtube.com/@canalgoatbr">Live</a>'
+        twitch = b'<a href="https://www.twitch.tv/broadcaster_123">Live</a>'
+        self.assertEqual(gd.extract_repository_links(youtube, "youtube"),
+                         ["https://www.youtube.com/@canalgoatbr"])
+        self.assertEqual(gd.extract_repository_links(twitch, "twitch"),
+                         ["https://www.twitch.tv/broadcaster_123"])
+        self.assertEqual(gd.extract_repository_links(b'<a href="https://www.twitch.tv/login">', "twitch"), [])
+
     def test_network_failure_preserves_previous_discovery_state(self):
         with tempfile.TemporaryDirectory() as td:
             statefile = pathlib.Path(td)/"state.json"
