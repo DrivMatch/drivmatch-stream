@@ -12,23 +12,25 @@
 <div class="tv-shell" id="tv-shell">
   <header class="topbar">
     <div class="brand"><span class="logo">▶</span><span><b>DrivMatch <em>Stream</em></b><small>TV INTERNACIONAL · ACESSO PESSOAL</small></span></div>
-    <div class="toplinks"><span id="head-source">Biblioteca IPTV</span><span class="status-dot"></span><span>Privado</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
+    <div class="toplinks"><span id="head-source">Países e categorias</span><span class="status-dot"></span><span>Privado</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
   </header>
   <main class="tv-layout" id="tv-layout">
-    <nav class="column sidebar" aria-label="Listas e países">
-      <div class="section-title"><span>01 · MINHAS LISTAS</span><b id="source-count">9 listas</b></div>
-      <div id="source-items" class="source-items"><p class="loading">Carregando suas listas…</p></div>
-      <div class="section-title countries-title"><span>02 · PAÍSES</span><b id="country-caption">12 países</b></div>
-      <div id="country-items" class="country-items"></div>
-      <p class="sidebar-note">Lista 2: canais das Listas 1–8 organizados por país. Fontes sem país ficam em Outros. Reprodução não garantida.</p>
+    <nav class="column sidebar" aria-label="Países, categorias e canais">
+      <div class="section-title"><span>01 · PAÍSES E CANAIS</span><b id="country-caption">12 países</b></div>
+      <div id="source-items" class="source-items" hidden></div>
+      <span id="source-count" hidden></span>
+      <div id="country-items" class="country-items" role="tree" aria-label="País, categoria e canal">
+        <p class="loading">Carregando países…</p>
+      </div>
+      <p class="sidebar-note">Abra um país, depois uma categoria e escolha o canal com OK. As listas originais continuam reunidas no catálogo.</p>
     </nav>
     <section class="column catalog" aria-label="Canais IPTV">
       <div class="catalog-header">
-        <span class="overline">03 · GUIA DE CANAIS</span>
+        <span class="overline">02 · GUIA DE CANAIS</span>
         <h1 id="catalog-title">Escolha um canal</h1>
-        <p id="catalog-subtitle">Selecione uma lista à esquerda.</p>
+        <p id="catalog-subtitle">Selecione o país e a categoria à esquerda.</p>
       </div>
-      <div class="filter-items" id="category-items" role="group" aria-label="Categorias">
+      <div class="filter-items" id="category-items" role="group" aria-label="Categorias" hidden>
         <button type="button" class="filter-btn active" data-category="all">Todos</button>
         <button type="button" class="filter-btn" data-category="news">Notícias</button>
         <button type="button" class="filter-btn" data-category="sports">Esportes</button>
@@ -54,7 +56,7 @@
       <div class="now-playing">
         <span class="overline">AGORA NA TELA</span>
         <h2 id="now-name">Nenhum canal selecionado</h2>
-        <p id="now-meta">Selecione um canal na coluna central.</p>
+        <p id="now-meta">Escolha um canal na coluna da esquerda ou no guia.</p>
       </div>
       <p class="player-error" id="player-error" role="alert" hidden></p>
       <div class="player-actions">
