@@ -1319,7 +1319,7 @@ function init(){
         visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);
       }
     });},300000);
-    try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";}}catch(e){}
+    try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";T(D("account-identity"),"Conta: "+String(a.email||"não identificada"));}}catch(e){T(D("account-identity"),"Conta não identificada");}
     // Management link is visible only for a server-confirmed admin session.
     if(D("admin-link"))visibleEl(D("admin-link"),false);
     if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
