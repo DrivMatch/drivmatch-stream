@@ -200,6 +200,13 @@ async function main(){
       await newsCategory.waitFor();
       assert.equal(await sportsCategory.getAttribute('aria-expanded'),'false');
       assert.equal(await newsCategory.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.locator('.tree-genre-btn[data-country="BR"][aria-expanded="true"]').count(),0,
+        "Every Brazil category must start closed");
+      await page.locator('#refresh').click();
+      await newsCategory.waitFor();
+      assert.equal(await page.locator('.tree-genre-btn[data-country="BR"][aria-expanded="true"]').count(),0,
+        "Refreshing must close all Brazil category rows");
+
       assert.equal(await page.locator('.tree-channel-btn[data-country="BR"]').count(),0,
         'No channels should be expanded initially');
 
@@ -426,6 +433,60 @@ async function main(){
       await page.locator('#player-favorite').click();
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
+      await context.close();
+    }
+    // Only channels actually selected for native playback can be hidden after
+    // 60 seconds. Never delete a playlist or silently remove favorites.
+    {
+      const context=await setup(true);
+      const page=await context.newPage();
+      await page.clock.install();
+      await page.goto(origin+'/stream/tv/');
+      const second=page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]');
+      const third=page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 3"]');
+      await second.waitFor();
+      assert.equal(await page.locator('.tree-genre-btn[data-country="BR"][aria-expanded="true"]').count(),0);
+      assert.equal(await page.locator('#restore-hidden').isVisible(),false);
+      // A channel that doesn't play is still present at 59 seconds.
+      await second.click();
+      await page.locator('#player-favorite').click();
+      await page.clock.fastForward(59000);
+      assert.equal(await second.count(),1);
+      assert.equal(await page.locator('#restore-hidden').isVisible(),false);
+      await page.clock.fastForward(1200);
+      await page.locator('#restore-hidden').waitFor();
+      assert.equal(await second.count(),0);
+      assert.equal(await page.locator('#restore-hidden').textContent(),'↺ Restaurar canais ocultos (1)');
+      assert.match(await page.locator('#player-error').textContent(),/ocultado apenas nesta TV por 24 horas/);
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      const stored=await page.evaluate(()=>JSON.parse(
+        localStorage.getItem('drivmatch-tv-hidden-failed-60s-v1')));
+      assert.equal(Object.keys(stored).length,1);
+
+      // A reload keeps the channel hidden until user explicitly restores it.
+      await page.reload();
+      await page.locator('#restore-hidden').waitFor();
+      assert.equal(await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').count(),0);
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      await page.locator('#restore-hidden').click();
+      await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').waitFor();
+      assert.equal(await page.locator('#restore-hidden').isVisible(),false);
+      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+
+      // A real 'playing' event cancels the failure countdown.
+      await third.click();
+      await page.evaluate(()=>document.querySelector('#video').dispatchEvent(new Event('playing')));
+      await page.clock.fastForward(61000);
+      assert.equal(await page.locator('#restore-hidden').isVisible(),false);
+      assert.equal(await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 3"]').count(),1);
+
+      // Switching channels cancels any older 60s countdown.
+      await second.click();
+      await page.clock.fastForward(30000);
+      await third.click();
+      await page.clock.fastForward(31000);
+      assert.equal(await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').count(),1);
+      await page.locator('#restore-hidden').count();
       await context.close();
     }
     process.stdout.write('Stream browser smoke: Cloudflare Access fail-closed, denied session, in-page selection PASS.\n');
