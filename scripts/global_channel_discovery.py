@@ -206,9 +206,24 @@ def research_queries(day: int) -> list[tuple[str, str]]:
     targets.append(("gitlab", "https://gitlab.com/api/v4/projects?search=iptv&per_page=12"))
     targets.append(("codeberg", "https://codeberg.org/api/v1/repos/search?q=iptv&limit=10"))
     targets.append(("gitee", "https://gitee.com/api/v5/search/repositories?q=iptv&per_page=10"))
+    local_query = languages[0][1]
+    targets.append(("youtube", "https://www.youtube.com/results?search_query=" +
+                    urllib.parse.quote(local_query + " televisão ao vivo")))
+    targets.append(("twitch", "https://www.twitch.tv/search?term=" +
+                    urllib.parse.quote(local_query + " live television")))
     return targets
 
 def extract_repository_links(raw: bytes, provider: str) -> list[str]:
+    if provider in ("youtube", "twitch"):
+        # Public page identities only. No stream extraction, no false live status.
+        html = raw.decode("utf-8", "replace").replace("\\/", "/")
+        if provider == "youtube":
+            pattern = r'https://(?:www\.)?youtube\.com/(?:@[A-Za-z0-9_.%-]+|channel/UC[A-Za-z0-9_-]{22})'
+        else:
+            pattern = r'https://(?:www\.)?twitch\.tv/[A-Za-z0-9_]{3,25}'
+        urls = re.findall(pattern, html, flags=re.I)[:40]
+        return list(dict.fromkeys(url for url in urls if safe_url(url) and
+                                  not re.search(r"/(?:login|signup|directory|search|videos)$", url, re.I)))
     try: payload = json.loads(raw)
     except ValueError: return []
     if provider.startswith("github"): collection = payload.get("items", [])
