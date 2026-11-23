@@ -6,12 +6,17 @@ import {readFileSync} from "node:fs";
 const url="https://drivmatch-stream-v2-test.drivmatch.workers.dev";
 const token="a".repeat(43);
 function fakeEnv(role){
-  let actionTouched=false;
+  let actionTouched=false,sessionRevoked=false;
   const env={
     STREAM_USERS_DB:{
       prepare(sql){
         if(sql.includes("FROM stream_sessions s")){
-          return {bind(){return {async first(){return {user_id:role+"-user",email:role+"@example.test",role,status:"active"};}};}};
+          return {bind(){return {async first(){
+            return sessionRevoked?null:{user_id:role+"-user",email:role+"@example.test",role,status:"active"};
+          }};}};
+        }
+        if(sql.startsWith("DELETE FROM stream_sessions WHERE token_hash=")){
+          return {bind(){return {async run(){sessionRevoked=true;return {success:true,meta:{changes:1}};}};}};
         }
         actionTouched=true;
         throw new Error("Administrative D1 action must never execute");
@@ -23,7 +28,7 @@ function fakeEnv(role){
     SUPABASE_SECRET_KEY:"sb_secret_test123456789",
     STREAM_ACCESS_PASSWORD:"test-only-internal-signing-password-123456"
   };
-  return {env,wasActionTouched:()=>actionTouched};
+  return {env,wasActionTouched:()=>actionTouched,sessionRevoked:()=>sessionRevoked};
 }
 test("security: viewer cannot manage, while admin requires fresh password step-up",async()=>{
   for(const role of ["admin","viewer"]){
@@ -73,7 +78,7 @@ test("viewer-facing TV page has identity/logout; admin link is hidden until serv
 });
 
 test("opening an invitation invalidates any previous admin browser cookie",async()=>{
-  const {env}=fakeEnv("admin");
+  const {env,sessionRevoked}=fakeEnv("admin");
   const result=await worker.fetch(new Request(url+"/stream/activate",{
     headers:{Cookie:"dm_stream_user="+token}
   }),env);
@@ -83,4 +88,9 @@ test("opening an invitation invalidates any previous admin browser cookie",async
   assert.match(clearing,/Max-Age=0/);
   assert.match(clearing,/HttpOnly/);
   assert.match(clearing,/SameSite=Strict/);
+  assert.equal(sessionRevoked(),true,"old D1 administrator session must be revoked");
+  const old=await worker.fetch(new Request(url+"/stream/session",{
+    headers:{Cookie:"dm_stream_user="+token}
+  }),env);
+  assert.equal(old.status,401,"same old cookie must no longer authorize requests");
 });
