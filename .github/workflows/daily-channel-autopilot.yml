@@ -49,19 +49,19 @@ jobs:
           python3 -c 'import json,pathlib; p=pathlib.Path("site/daily-autopilot-report.json"); d=json.loads(p.read_text()); assert d["schema"]==1 and d["tested"]>0 and d["sources_responded"]>0, "No valid scan; refuse publishing"; print("Autopilot:",d["tested"],"checked,",d["published_healthy"],"healthy channels")'
           test -s site/daily-autopilot.m3u8
           head -n 1 site/daily-autopilot.m3u8 | grep -q '#EXTM3U'
-          python3 -c 'import json,pathlib; s=json.loads(pathlib.Path("site/global-discovery-state.json").read_text()); assert s.get("schema")==1 and isinstance(s.get("channels"),dict) and isinstance(s.get("sources"),dict)'
+          python3 -c 'import json,pathlib; s=json.loads(pathlib.Path("data/global-discovery-state.json").read_text()); assert s.get("schema")==1 and isinstance(s.get("channels"),dict) and isinstance(s.get("sources"),dict)'
           git diff --check
       - name: Save vetted catalog automatically
         id: changes
         run: |
-          if git diff --quiet -- site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json site/global-discovery-state.json site/global-discovery-report.json; then
+          if git diff --quiet -- site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "::notice::No catalog change"
             exit 0
           fi
           git config user.name "drivmatch-channel-autopilot[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json site/global-discovery-state.json site/global-discovery-report.json
+          git add site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json
           git commit -m "chore(channels): daily verified public TV update"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -79,7 +79,7 @@ jobs:
             echo 'Verified public HLS autopilot report:' >> "$GITHUB_STEP_SUMMARY"
             cat site/daily-autopilot-report.json >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ -f site/global-discovery-report.json ]; then
+          if [ -f data/global-discovery-report.json ]; then
             echo 'Worldwide research report (candidates not published):' >> "$GITHUB_STEP_SUMMARY"
-            cat site/global-discovery-report.json >> "$GITHUB_STEP_SUMMARY"
+            cat data/global-discovery-report.json >> "$GITHUB_STEP_SUMMARY"
           fi
