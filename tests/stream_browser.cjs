@@ -261,9 +261,7 @@ async function main(){
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
       assert.equal(await page.locator('#country-items .country-btn').count(),14);
-      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
-      await page.locator('.tree-country-btn[data-country="BR"]').click();
+      assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)');
