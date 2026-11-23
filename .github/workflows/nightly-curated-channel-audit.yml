@@ -1,4 +1,4 @@
-name: DrivMatch - Auditoria noturna de feeds curados
+name: DrivMatch - Descoberta e auditoria rotativa 02h
 
 on:
   schedule:
@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  audit-curated-candidates:
+  discover-and-rotate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,9 +30,9 @@ jobs:
         run: |
           python3 -m py_compile scripts/daily_channel_autopilot.py
           python3 -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Exhaustive curated-feed audit
+      - name: Discover and verify max 2000 candidates per night
         env:
-          DM_FULL_AUDIT: '1'
+          DM_ROTATING_AUDIT: '1'
           DM_DAILY_WORKERS: '24'
         run: python3 scripts/daily_channel_autopilot.py
       - name: Reject partial coverage or unusable output
@@ -41,13 +41,14 @@ jobs:
           import json
           from pathlib import Path
           r=json.loads(Path('site/daily-autopilot-report.json').read_text())
-          assert r['state']=='COMPLETED'
-          assert r['full_audit_of_curated_candidates'] is True
-          assert r['tested']==r['curated_candidates']
+          assert r['state']=='ROTATING_BATCH_COMPLETED'
+          assert 0 < r['tested'] <= 2000
+          assert r['priority_checked'] <= 300
+          assert r['priority_checked'] + r['rotation_checked'] == r['tested']
           assert r['sources_responded']==r['sources_total']
           assert not r['total_catalog_coverage_confirmed'], 'This scope is not the full UI catalog'
           assert Path('site/daily-autopilot.m3u8').read_text().startswith('#EXTM3U')
-          print('All discovered curated candidates audited:', r['tested'])
+          print('Nightly rotating batch audited:', r['tested'], '/ candidates:', r['curated_candidates'])
           PY
           git diff --check
       - name: Persist audit state and verified playlist
