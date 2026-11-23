@@ -1,0 +1,15 @@
+# Cloudflare account-specific binding IDs and local deployment configuration
+/wrangler.independent.toml
+/.dev.vars
+/.env
+/.env.*
+!.env.example
+.wrangler/
+# Android local build output and signing keys
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+*.jks
+*.keystore
+local.properties
