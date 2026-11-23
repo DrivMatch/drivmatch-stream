@@ -188,12 +188,13 @@ function page(title, body, status = 200, script = "", nonce = "") {
     "Content-Type":"text/html; charset=utf-8",
     "Content-Security-Policy":csp}});
 }
-async function loginPage(error = false, env) {
+async function loginPage(error = false, env, nextAdmin = false) {
   const token=await issueFormToken(env);
+  const action=nextAdmin ? "/stream/login?next=admin" : "/stream/login";
   return stampForm(page("Acesso individual",
     "<p>Entre com seu e-mail e sua senha pessoal.</p>" +
     (error ? "<p role='alert'>Não foi possível entrar. Confira os dados e o acesso à conta.</p>" : "") +
-    "<form method='post' action='/stream/login'>" + formTokenInput(token) +
+    "<form method='post' action='"+action+"'>" + formTokenInput(token) +
     "<label>E-mail<input type='email' name='email' autocomplete='username' maxlength='254' required></label>" +
     "<label>Senha<input type='password' name='password' autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Entrar</button></form>" +
@@ -334,8 +335,10 @@ async function handle(request, env) {
   if (path === "/stream" && (method === "GET" || method === "HEAD"))
     return redirect(url.origin, "/stream/");
   const user = await currentUser(request, env);
-  if (method === "GET" && (path === "/stream/login"))
-    return user ? redirect(url.origin, "/stream/") : await loginPage(false,env);
+  const requestedAdmin = url.searchParams.get("next") === "admin";
+  if (method === "GET" && path === "/stream/login")
+    return user ? redirect(url.origin, requestedAdmin && requireAdmin(user) ? "/stream/admin" : "/stream/") :
+      await loginPage(false,env,requestedAdmin);
   if (method === "POST" && path === "/stream/login") {
     const data = await form(request);
     const status=await formTokenStatus(request,url,data,env);
@@ -349,14 +352,15 @@ async function handle(request, env) {
     const email = String(data.get("email") || "").trim().toLowerCase();
     const password = String(data.get("password") || "");
     if (email.length > 254 || !email.includes("@") || !password || password.length > 256)
-      return await loginPage(true,env);
+      return await loginPage(true,env,requestedAdmin);
     const result = await supabase(env,"POST","token?grant_type=password",{email,password});
-    if (!result.ok || !result.data?.user?.id) return await loginPage(true,env);
+    if (!result.ok || !result.data?.user?.id) return await loginPage(true,env,requestedAdmin);
     const account = await env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active'"
     ).bind(result.data.user.id,email).first();
-    if (!account) return await loginPage(true,env);
-    return redirect(url.origin,"/stream/",await createSession(account,env));
+    if (!account) return await loginPage(true,env,requestedAdmin);
+    const destination = requestedAdmin && requireAdmin(account) ? "/stream/admin" : "/stream/";
+    return redirect(url.origin,destination,await createSession(account,env));
   }
   if (method === "GET" && path === "/stream/recover") {
     const token=await issueFormToken(env);
@@ -411,7 +415,7 @@ async function handle(request, env) {
   }
   if (!user) {
     if (method === "GET" && path === "/stream/admin")
-      return redirect(url.origin, "/stream/login");
+      return redirect(url.origin, "/stream/login?next=admin");
     if (method === "GET" && ["/stream/","/stream/index.html","/stream/tv/",
       "/stream/listas/"].includes(path)) return await loginPage(false,env);
     return plain(401,"Autenticação necessária.");
