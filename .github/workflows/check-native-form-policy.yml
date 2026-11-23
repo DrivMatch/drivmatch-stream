@@ -16,14 +16,15 @@ jobs:
           set -euo pipefail
           root="https://drivmatch-stream-v2-test.drivmatch.workers.dev"
           curl -fsS --max-time 20 -D /tmp/login-headers -o /tmp/login-html "$root/stream/login"
-          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/login-headers
+          grep -qiE '^referrer-policy: same-origin' /tmp/login-headers
+          echo "Login Referrer-Policy HTTP response:"; grep -i '^referrer-policy:' /tmp/login-headers || true
           grep -q "name='_csrf'" /tmp/login-html
           echo "Live page Referrer-Policy: same-origin — PASS"
           curl -fsS --max-time 20 -D /tmp/recover-headers -o /tmp/recover-html "$root/stream/recover"
-          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/recover-headers
+          grep -qiE '^referrer-policy: same-origin' /tmp/recover-headers
           grep -q "name='_csrf'" /tmp/recover-html
           echo "Live recovery Referrer-Policy: same-origin — PASS"
           # Public surfaces should never use no-referrer for POST HTML forms.
           curl -fsS --max-time 20 -D /tmp/activate-headers -o /tmp/activate-html "$root/stream/activate"
-          grep -qiE '^referrer-policy: same-origin\r?$' /tmp/activate-headers
+          grep -qiE '^referrer-policy: same-origin' /tmp/activate-headers
           echo "Live activation Referrer-Policy: same-origin — PASS"
