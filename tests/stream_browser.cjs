@@ -30,7 +30,9 @@ async function main(){
       res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"},
         {id:"lista-10",title:"Lista 10 • Filmes livres internacionais"},
         {id:"lista-11",title:"Lista 11 • Notícias livres internacionais"},
-        {id:"lista-12",title:"Lista 12 • Autopiloto diário"}]}));return;
+        {id:"lista-12",title:"Lista 12 • Autopiloto diário"},
+        {id:"lista-13",title:"Lista 13 • ColdOpen"},
+        {id:"lista-14",title:"Lista 14 • Broadcast Atlas"}]}));return;
     }
     if(req.url==="/stream/countries?list=lista-2"){
       if(!authorized){res.writeHead(403);res.end();return;}
@@ -462,6 +464,27 @@ async function main(){
       assert.equal(await page.locator('#video').getAttribute('src'),null);
       assert.equal(await page.locator('#official-open').isVisible(),true);
       assert.match(await page.locator('#play-status').textContent(),/Acesso oficial externo/);
+      assert.equal(await page.locator('#official-embed').isVisible(),false,
+        'Generic official websites must remain external rather than being framed');
+
+      // The published GOAT channel ID allows an official YouTube live widget.
+      // A frame loading does not prove the channel is broadcasting now.
+      await page.locator('#search').fill('Canal GOAT — lives oficiais');
+      const goat=page.locator('#channel-items .channel-btn').filter({hasText:'Canal GOAT — lives oficiais'});
+      await goat.click();
+      const frame=page.locator('#official-embed');
+      await frame.waitFor({state:'visible'});
+      assert.equal(await frame.getAttribute('src'),
+        'https://www.youtube.com/embed/live_stream?channel=UC_oToDrJ6uca7d1dFVBmLtg');
+      assert.match(await page.locator('#play-status').textContent(),/live não verificada/);
+      assert.equal(await page.locator('#video').isVisible(),false);
+      assert.equal(await page.locator('#official-open').isVisible(),true);
+      assert.equal(await page.locator('#now-name').textContent(),'Canal GOAT — lives oficiais');
+      // Switching back to HLS must tear down the YouTube iframe.
+      await page.locator('#search').fill('24 Horas');
+      await page.locator('#channel-items .channel-btn').filter({hasText:'24 Horas'}).first().click();
+      assert.equal(await frame.isVisible(),false);
+      assert.equal(await frame.getAttribute('src'),null);
       assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
 
       // Subscription providers must have a visible real official URL.
@@ -479,7 +502,7 @@ async function main(){
       assert.equal(await page.locator('#video').getAttribute('src'),null,
         'External subscription links must not be inserted as video sources');
       await page.locator('#technical-toggle').click();
-      assert.equal(await page.locator('#technical-items .technical-source-name').count(),12);
+      assert.equal(await page.locator('#technical-items .technical-source-name').count(),14);
       await context.close();
     }
     // Samsung private TV: priority recent history, persistent uncategorized favorites.
