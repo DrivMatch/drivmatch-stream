@@ -47,7 +47,7 @@ test("security: viewer cannot manage, while admin requires fresh password step-u
         method,headers:{Cookie:"dm_stream_user="+token},
         ...(method==="POST"?{body:"_csrf=invalid"}:{})
       }),env);
-      const expected=method==="GET" && path==="/stream/admin/?x=1" ? 303 :
+      const expected=role==="admin" && method==="GET" && path==="/stream/admin/?x=1" ? 303 :
         role==="admin" && method==="GET" && path==="/stream/admin" ? 200 : 403;
       assert.equal(response.status,expected,role+" "+method+" "+path);
       const body=await response.text();
