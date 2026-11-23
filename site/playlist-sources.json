@@ -15,9 +15,9 @@
     },
     {
       "id": "lista-2",
-      "title": "Lista 2 • Canais por país (Listas 1–8)",
-      "kind": "consolidada · oito listas",
-      "description": "Visualização por país que reúne canais das Listas 1 a 8, elimina duplicatas por nome/ID e preserva a indicação da fonte. País sem identificação vai para Outros. Sinais não verificados na TV.",
+      "title": "Lista 2 • Canais por país (fontes reunidas)",
+      "kind": "consolidada · fontes públicas",
+      "description": "Consolidação das listas públicas 1 a 11 com deduplicação parcial por nome/país. As fontes originais ficam recolhidas no rodapé da Samsung. Canais sem país confiável vão para Outros. Listagem não garante licença nem reprodução.",
       "urls": [
         "https://iptv-org.github.io/iptv/countries/br.m3u",
         "https://iptv-org.github.io/iptv/countries/pt.m3u",
