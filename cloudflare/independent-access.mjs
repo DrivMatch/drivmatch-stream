@@ -259,7 +259,7 @@ function invitationError(result){
 function authUserFromResponse(result){
   return result?.data?.user?.id || result?.data?.id || null;
 }
-function validInviteActionLink(urlText,env){
+function validInviteActionLink(urlText,env,redirectURL){
   try{
     const link=new URL(urlText);
     const project=new URL(authBase(env));
@@ -267,7 +267,7 @@ function validInviteActionLink(urlText,env){
       link.pathname==="/auth/v1/verify" &&
       ["invite","recovery"].includes(link.searchParams.get("type")) &&
       !!link.searchParams.get("token") &&
-      link.searchParams.get("redirect_to")==="https://drivmatch-stream-v2-test.drivmatch.workers.dev/stream/activate";
+      link.searchParams.get("redirect_to")===redirectURL;
   }catch{return false;}
 }
 async function limit(request, env, prefix) {
@@ -556,7 +556,7 @@ async function handle(request, env) {
       if(!generated.ok||!uid||
          (exists && uid!==exists.user_id)||
          typeof actionLink!=="string"||
-         !validInviteActionLink(actionLink,env))
+         !validInviteActionLink(actionLink,env,url.origin+"/stream/activate"))
         return adminPage(user,env,url,{error:invitationError(generated)});
       if(!exists){
         await env.STREAM_USERS_DB.batch([
