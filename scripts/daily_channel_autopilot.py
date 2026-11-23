@@ -94,7 +94,11 @@ def safe_url(url: str, check_dns: bool = True) -> bool:
     p = urllib.parse.urlsplit(url)
     if p.scheme != "https" or not p.hostname or p.username or p.password:
         return False
-    if p.port not in (None, 443) or not re.fullmatch(r"[a-zA-Z0-9._-]+", p.hostname):
+    try:
+        port = p.port
+    except ValueError:
+        return False
+    if port not in (None, 443) or not re.fullmatch(r"[a-zA-Z0-9._-]+", p.hostname):
         return False
     if p.hostname in ("localhost", "localhost.localdomain") or p.hostname.endswith((".local", ".internal")):
         return False
@@ -230,7 +234,9 @@ def check_channel(item: dict, budget: float = PROBE_SECONDS) -> tuple[str, bool]
     deadline = time.monotonic() + budget
     # A fast HTTP failure is not enough to remove a channel. Retry for the
     # whole minute, unless proof of a video segment is obtained.
-    for attempt in range(4):
+    for attempt in range(5):
+        if time.monotonic() >= deadline:
+            break
         try:
             if probe_once(item["url"], deadline):
                 return item["id"], True
@@ -239,8 +245,11 @@ def check_channel(item: dict, budget: float = PROBE_SECONDS) -> tuple[str, bool]
         left = deadline - time.monotonic()
         if left <= 0:
             break
-        if attempt < 3:
-            time.sleep(min(15.0, left))
+        time.sleep(min(15.0, left))
+    # Give an unsuccessful candidate the full 60-second opportunity to start.
+    remaining = deadline - time.monotonic()
+    if remaining > 0:
+        time.sleep(remaining)
     return item["id"], False
 
 def read_json(path: Path, default: dict) -> dict:
