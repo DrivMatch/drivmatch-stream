@@ -6,7 +6,16 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#101820">
 <title>DrivMatch Stream | TV Samsung</title>
-<link rel="stylesheet" href="/stream/tv/tv.css?v=20261122-ux2">
+<!-- Keep sofa-distance Samsung typography; scale only desktop browser text. -->
+<script>
+(function () {
+  var ua = navigator.userAgent || "";
+  var isTV = /SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(ua);
+  var isMobile = /Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(ua);
+  if (!isTV && !isMobile) document.documentElement.className += " dm-desktop-compact";
+}());
+</script>
+<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-desktopcompact1">
 </head>
 <body>
 <div class="tv-shell" id="tv-shell">
