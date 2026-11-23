@@ -977,7 +977,7 @@ function renderChannels(){
       videos+" sinais · "+external+" sites oficiais");
   }else T(D("result-count"),videos+" sinais · "+external+" sites oficiais");
   if(!all.length){
-    var emptyText=globalSearchMode?(search.length<2?"Digite 2 ou mais caracteres.":"Nenhum resultado nesta busca."):channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
+    var emptyText=globalSearchMode?(search.length<2?"Digite 2 ou mais caracteres.":globalStatus.indexOf("Pesquisando")===0?"Buscando canais em todos os países…":globalStatus.indexOf("indisponível")>=0?"Não foi possível consultar todas as listas. Tente novamente.":"Nenhum canal encontrado para esta busca."):channels.length?"Nenhum canal nesta categoria ou busca.":"Nenhum canal catalogado neste país.";
     area.appendChild(E("p","loading",emptyText));
   }
   for(i=0;i<all.length&&i<limit;i++){(function(c,j){
