@@ -1,3 +1,220 @@
 #EXTM3U
 #DM_AUTO_SOURCE:CURATED_PUBLIC_FEEDS
 #DM_AUTO_PLAYBACK:REMOTE_HLS_SEGMENT_ONLY_NOT_SAMSUNG
+#DM_AUTO_DATE:2026-11-23
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-23",Canal Metropolitano de Noticias
+https://stmv5.samcast.com.br/claudio8701/claudio8701/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-23",J3NEWS TV
+https://video01.brascast.com/d92ebb4f/d92ebb4f/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-23",Record News
+https://rnw-rn.otteravision.com/rnw/rn/rnw_rn.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-23",SBT News
+https://dai.google.com/linear/hls/event/1XSOdtQ0SH2G8OEmEfGgjQ/master.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-23",TVideoNews
+https://video01.logicahost.com.br/tvideonews/tvideonews/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-23",Gospel Movie TV
+https://stmv1.srvif.com/gospelf/gospelf/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-23",MyTime Movie Network
+https://appletree-mytime-samsungbrazil.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Series
+https://stmv1.srvif.com/tvserie/tvserie/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Amazon Sat
+https://amazonsat.brasilstream.com.br/hls/amazonsat/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Araruna TV
+https://video05.logicahost.com.br/ararunatv/ararunatv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="education" dm-source="lista-12" dm-auto-checked="2026-11-23",Canal Educacao
+https://canaleducacao-stream.ebc.com.br/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Canal Gov
+https://canalgov-stream.ebc.com.br/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Canal UOL
+https://video24.mais.uol.com.br/live/6146.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Chroma TV
+https://5c483b9d1019c.streamlock.net/8054/8054/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Classique TV
+https://stmv1.srvif.com/classique/classique/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",CNN Brasil
+https://d25usgadhphvwi.cloudfront.net/hls/main.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",COM Brasil
+https://br5093.streamingdevideo.com.br/abc/abc/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Comedy Central Brasil
+https://stmv2.srvif.com/gafeab/gafeab/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Conecta Mais TV
+https://adylnet.streampool.net/10324/live/hls/Conecta/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ConecTV Brasil
+https://stream01.msolutionbrasil.com.br/hls/conectv/live.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Conexao TV
+https://5a57bda70564a.streamlock.net/conexaotv/conexaotv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Demais TV
+https://stmv1.samcast.com.br/demaistv6503/demaistv6503/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Despertar TV
+https://br.conectmy.com.br/DespertarTV/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Elemental Channel
+https://stmv1.samcast.com.br/ricardo2194/ricardo2194/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ElyTV
+https://stmv1.srvsite.com/ely/ely/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Fala Litoral
+https://5c483b9d1019c.streamlock.net/falalitoraltv/falalitoraltv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Fonte TV
+https://59fb88a1b1108.streamlock.net/fonte/_definst_/fontetv/chunklist_w1224511652.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="kids" dm-source="lista-12" dm-auto-checked="2026-11-23",Gospel Cartoon
+https://stmv1.srvif.com/gospelcartoon/gospelcartoon/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ISTV
+https://stmv1.srvstm.com/sistema7933/sistema7933/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Lamore Rock Show WebTV
+https://a.cdni.live/rodrigo2364/rodrigo2364/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",O Dia TV
+https://6836041ea1117.streamlock.net/tvodia/tvodia/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Petlovers TV
+https://video04.logicahost.com.br/petloverstv/petloverstv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Play TV
+https://isaocorp.cloudecast.com/playtv/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Plenitude TV
+https://strv.painelvox.top/plenitude/plenitude/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Brasil
+https://video09.logicahost.com.br/redebrasiloficial/redebrasiloficial/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Brasil
+https://redebrasil.nuvemplay.live/hls/stream.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Gospel
+https://redegospel-aovivo.nuvemplay.live/hls/stream.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Impacto Gospel TV
+https://radiosnet.site/hls/redeimpactogospeltv/redeimpactogospeltv.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Meio Norte
+https://maystreaming.cloudecast.com/redemeio/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede Minas
+https://8hzcavccys.zoeweb.tv/redeminas/ngrp:redeminas_all/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede NGT
+https://isaocorp.cloudecast.com/ngt/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Rede SPTV
+https://video01.logicahost.com.br/websptv/websptv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="kids" dm-source="lista-12" dm-auto-checked="2026-11-23",Retro Cartoon
+https://stmv1.video.brstream.com.br/retrotv/retrotv/chunklist_w1069200121.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",SIC TV
+https://parecisfmlive.brasilstream.com.br/hls/parecisfmlive/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",SOU TV
+https://video10.logicahost.com.br/soutv/soutv/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TCM 10 HD
+https://live.tcm10.com.br/tcm10hd/stream.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Times Brasil
+https://ssai2-ads.api.leiniao.com/global-adinsertion-api/hls/live/v2/21fdb6dd7491406bba86497a24390a25/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Aldeia
+https://stmv1.samcast.com.br/giovane7843/giovane7843/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Alianca Catarinense
+https://video01.logicahost.com.br/tvalianca/tvalianca/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Alternativa
+https://stmv5.samcast.com.br/wagner7919/wagner7919/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Brasil
+https://tvbrasil-stream.ebc.com.br/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Brasil Internacional
+https://tvbrasilinternacional-stream.ebc.com.br/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Brasil Oeste
+https://5ad482a77183d.streamlock.net/operacaotbomt.com/operacaotbomt.com/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Brusque
+https://5ad482a77183d.streamlock.net/rodrigotvbrusque.com.br/5d880199c902eb4a1e8df00d/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Câmara
+https://stream3.camara.gov.br/tv1/manifest.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Clube
+https://5c483b9d1019c.streamlock.net/8186/8186/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Comunitaria
+https://5b7f3c45ab7c2.streamlock.net/8008/smil:8008.smil/playlist.m3u8?DVR=
+#EXTINF:-1 tvg-country="BR" tvg-language="" group-title="education" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Cultura
+https://player-tvcultura.stream.uol.com.br/live/tvcultura.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Curuca
+https://stmv1.srvif.com/tvcurucasp/tvcurucasp/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Difusao
+https://tvdsoultv.acessaradios.com.br/tvdsoultv/tvdsoultv.stream/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Guara
+https://video02.logicahost.com.br/tvguara23/tvguara23/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Life America
+https://streaming.cloudecast.com/hls/tvlifeamerica/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Litoral RN
+https://5ad482a77183d.streamlock.net/tvnordesteegmail.com/tvnordesteegmail.com/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Mais Marica
+https://5cf4a2c2512a2.streamlock.net/tvmaismarica/tvmaismarica/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Padre Cicero
+https://video01.logicahost.com.br/tvpadrecicero/tvpadrecicero/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Pai Eterno
+https://video09.logicahost.com.br/paieterno/paieterno/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Pantanal MS
+https://5a2b083e9f360.streamlock.net/tvpantanal/tvpantanal.sdp/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Passo Fundo
+https://5a57bda70564a.streamlock.net/tvpasso/tvpasso.sdp/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Petropolis
+https://video02.logicahost.com.br/tvpetropolis/tvpetropolis/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Sao Raimundo
+https://stmv1.voxtvhd.com.br/9030/9030/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Show Fortaleza
+https://stmv8.samcast.com.br/raimundoanselmolimamororo1908/raimundoanselmolimamororo1908/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Sim Cachoeiro
+https://5cf4a2c2512a2.streamlock.net/8104/8104/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Terceiro Anjo
+https://streamer1.streamhost.org/salive/GMI3anjoh/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV UFOP
+https://app.tvufop.com.br/hls/tvufop.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Universal
+https://644398c.ha.azioncdn.net/primary/tvuniversal_480p.sdp/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV+Pet
+https://stmv5.samcast.com.br/tvmaispet6354/tvmaispet6354/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TVCOM Maceio
+https://srv5.zcast.com.br/tvcommaceio/tvcommaceio/playlist.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TVitape
+https://stream01.msolutionbrasil.com.br/hls/tvitape/live.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TVLatinaSat
+https://www.latinasat.com.br/hls/live/stream/index.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",UMA TV
+https://umatv.nuvemplay.live/hls/stream.m3u8
+#EXTINF:-1 tvg-country="BR" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",VEJA+ TV
+https://gpa-vja.otteravision.com/gpa/vja/vja.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ADtv Ⓢ
+https://playout172.livextend.cloud/liveiframe/_definst_/ngrp:liveartvabr_abr/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ARTV
+https://playout175.livextend.cloud/livenlin4/_definst_/2liveartvpub2/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Canal 11
+https://dy4isoelz3s0x.cloudfront.net/0_hd.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",CNN Portugal
+https://github.com/LITUATUI/M3UPT/raw/main/M3U/CNN_Portugal.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",FUEL TV (AU)
+https://amg01074-fueltv-fueltvnz-samsungnz-i8ani.amagi.tv/playlist/amg01074-fueltv-fueltvnz-samsungnz/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos Cine
+https://w2.manasat.com/kcine/smil:kcine.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos Cine
+https://w2.manasat.com/kcine/kcine.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="kids" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos Kids
+https://w2.manasat.com/kkids/kkids.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="kids" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos Kids
+https://w2.manasat.com/kkids/smil:kkids.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos Music
+https://w2.manasat.com/kmusic/kmusic.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Kuriakos TV
+https://w1.manasat.com/ktv/ktv.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="en" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-23",Mana Church Online
+https://w2.manasat.com/church-online/smil:church-online.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="fr" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Mana Eglise Online
+https://w2.manasat.com/eglise-online/smil:eglise-online.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Mana Iglesia Online
+https://w2.manasat.com/iglesia-online/smil:iglesia-online.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-23",Mana Igreja Online
+https://w1.manasat.com/igrejaonline/smil:igrejaonline.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",ON FM
+https://5ce9406b73c33.streamlock.net/ONFM/livestream/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Porto Canal
+https://pull-live-156-1.global.ssl.fastly.net/pc5865dc25400thmb-ea6bf03b14fa318f7133/pc1-jhrgyuoqe5865db-68tkgb14fa318f7133f03.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Porto Canal Ⓢ
+https://pull-live-156-1.global.ssl.fastly.net/pc5865dc25400thmb-ea6bf03b14fa318f7133/smil:pc1-jhrgyuoqe5865db-68tkgb14fa318f7133f03.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",Radio Sines
+https://load-balancer.azotosolutions.com/cdnedge19/smil:live19.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",RTP 3 Portugal
+https://streaming-live.rtp.pt/livetvhlsDVR/rtpnHDdvr.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",RTP Madeira Ⓢ
+https://streaming-live.rtp.pt/liverepeater/smil:rtpmadeira.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Cancao Nova
+https://5c65286fc6ace.streamlock.net/cancaonova/CancaoNova.stream_720p/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Mana Brasil
+https://w1.manasat.com/tvmana-brasil/smil:tvmana-brasil.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Mana English
+https://w1.manasat.com/tvmana-english/smil:tvmana-english.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Mana Espanhol
+https://w1.manasat.com/tvmana-espanol/smil:tvmana-espanol.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TV Mana Russkiy
+https://w1.manasat.com/tvmana-leste/smil:tvmana-leste.smil/playlist.m3u8
+#EXTINF:-1 tvg-country="PT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-23",TVI
+https://raw.githubusercontent.com/thomraider12/canaistvpt/main/m3u8s/tvi.m3u8
