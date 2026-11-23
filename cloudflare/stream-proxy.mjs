@@ -14,7 +14,8 @@ const FILES={"/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
   "/stream/listas/listas.js":"listas.js", "/stream/listas/listas.css":"listas.css",
   "/stream/listas/sources.json":"playlist-sources.json",
-  "/stream/listas/brasil-servicos.json":"brasil-servicos.json"};
+  "/stream/listas/brasil-servicos.json":"brasil-servicos.json",
+  "/stream/official-access.json":"official-access.json"};
 
 const TV_SOURCE_URLS={
   "lista-1":"https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8",
