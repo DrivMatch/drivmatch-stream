@@ -39,6 +39,15 @@ Pesquisa e decisões: docs/IPTV_PLAYLIST_LIBRARY_RESEARCH.md.
 - Desktop usa link em nova aba; navegador Samsung/Tizen usa navegação na mesma aba para manter acessibilidade ao controle remoto. Os endereços vêm do catálogo, sem geração de links ou fluxo de reprodução pirata.
 - Essa lista **não** representa transmissões gratuitas incorporadas. Para ver canais dentro do player, o usuário escolhe Países e canais → País → Categoria → Canal, sujeito à compatibilidade e disponibilidade do sinal.
 
+## Lives oficiais na terceira coluna e fontes 13–14 (23/11/2026)
+
+- O catálogo de acessos oficiais passou de **52 para 63** entradas gratuitas/de acesso aberto. Foram adicionadas referências oficiais para Canal GOAT, +Canal GOAT, SportyNet, Xsports, TNT Sports, CBF TV, Jovem Pan Esportes, FIFA+, Red Bull TV, N Sports e SBT News. **Não significa que as 11 estejam transmitindo ao vivo agora.**
+- Canais oficiais do YouTube com ID conferido (GOAT, Xsports, CBF e SBT News) podem abrir um **player oficial incorporado na terceira coluna**. Usa a URL de integração do próprio YouTube, sem extrair M3U ou contornar direitos. O vídeo pode não estar ativo, estar restrito ou não autorizar incorporação; por isso, o botão **Abrir no site/app oficial** continua disponível. A entrada no player é rotulada como *live não verificada*, nunca como reprodução confirmada automaticamente.
+- O player aceita metadados de Twitch via provedor oficial e parâmetro obrigatório `parent`, caso um canal confiável seja cadastrado. Não houve confirmação de novo canal Twitch ao vivo nesta etapa. Outras páginas não são colocadas arbitrariamente em iframe.
+- Cloudflare autoriza somente iframes de YouTube/Twitch com CSP específico. A política de referer para `tv.html` foi ajustada para compatibilidade dos embeds; a política anterior de sessão, PIN e origem dos catálogos permanece. Samsung/Tizen pode não suportar certos iframes; desktop e Samsung continuam com os canais HLS originais.
+- Duas novas playlists independentes foram adicionadas ao catálogo e à consolidação por país: **Lista 13 — ColdOpen** (`https://iptv.coldopen.dev/channels.m3u`) e **Lista 14 — Broadcast Atlas** (`https://broadcastatlas.com/official.m3u`). São fontes públicas indicadas como oficiais pelos mantenedores, não certificados de licença, compatibilidade ou reprodução. Deduplicação mantém o limite de alternativas por canal; listas existentes e favoritos não são apagados.
+- **Descoberta de lives em tempo real como no /news** exige um serviço dedicado de detecção, status e ordenação por atualização/sinal. A incorporação de um canal do YouTube não confirma atividade; não há algoritmo de prioridade de lives implementado neste pacote.
+
 ## Testes
 
 - node --test tests/stream_worker.test.mjs
