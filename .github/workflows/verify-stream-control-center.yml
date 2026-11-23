@@ -1,9 +1,6 @@
 name: Verify live Stream Console and D1 data retention
 on:
-  # One controlled read-only check of restored admin authorization on isolated test Worker.
-  push:
-    branches: [feature/independent-cloudflare-access]
-    paths: ['.github/workflows/verify-stream-control-center.yml']
+  # Verified admin recovery: subsequent staging operations require explicit authorization.
   workflow_dispatch:
 permissions:
   contents: read
