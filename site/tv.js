@@ -896,6 +896,9 @@ function runGlobalSearch(){
   globalSearchMode=false;globalResults=[];globalStatus="";
   if(country==="ALL"){showCountryPrompt();return;}
   channels=cache[source+":"+country]||channels;
+  T(D("catalog-title"),countryName(country));
+  T(D("catalog-subtitle"),category==="all"?"Todos os canais":genreName(category));
+  T(D("catalog-status"),"Exibindo novamente os canais de "+countryName(country)+".");
   renderChannels();return;
  }
  globalSearchMode=true;
