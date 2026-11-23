@@ -82,6 +82,22 @@ SOURCES = (
     ("iptv-org-fr", "https://iptv-org.github.io/iptv/countries/fr.m3u", "FR", "", False),
     ("iptv-org-de", "https://iptv-org.github.io/iptv/countries/de.m3u", "DE", "", False),
     ("iptv-org-it", "https://iptv-org.github.io/iptv/countries/it.m3u", "IT", "", False),
+    # New sources not previously integrated into the Stream; official/public
+    # provenance is claimed by their maintainers, not independently certified.
+    ("broadcastatlas-official", "https://broadcastatlas.com/official.m3u", "", "", True),
+    ("teleonline-official", "https://teleonline.github.io/listas/tv.m3u8", "", "", True),
+    ("coldopen-publisher", "https://iptv.coldopen.dev/channels.m3u", "", "", True),
+    ("nexonic-all", "https://nexonic-technologies.github.io/nexonic-iptv/playlists/all.m3u", "", "", True),
+    ("biskyt-open-all", "https://biskyt.github.io/legalFreeIPTVplaylist/playlist.m3u", "", "", True),
+    # Repackaged FAST and unreviewed community feeds are research candidates,
+    # not sources for automatic promotion to the live TV player.
+    ("rw1986-fast-research", "https://raw.githubusercontent.com/RW1986/IPTV/main/lineup.m3u8", "", "", False),
+    ("iptv-org-mx", "https://iptv-org.github.io/iptv/countries/mx.m3u", "MX", "", False),
+    ("iptv-org-ca", "https://iptv-org.github.io/iptv/countries/ca.m3u", "CA", "", False),
+    ("iptv-org-co", "https://iptv-org.github.io/iptv/countries/co.m3u", "CO", "", False),
+    ("iptv-org-cl", "https://iptv-org.github.io/iptv/countries/cl.m3u", "CL", "", False),
+    ("iptv-org-uy", "https://iptv-org.github.io/iptv/countries/uy.m3u", "UY", "", False),
+    ("iptv-org-in", "https://iptv-org.github.io/iptv/countries/in.m3u", "IN", "", False),
 )
 
 def normalized(value: str) -> str:
@@ -252,6 +268,34 @@ def check_channel(item: dict, budget: float = PROBE_SECONDS) -> tuple[str, bool]
         time.sleep(remaining)
     return item["id"], False
 
+# Additional search surfaces are research-only: publisher channels on
+# YouTube/Twitch, Github public projects and Reddit public discussion.
+# HTML/search pages are NOT playable streams and never auto-added to M3U.
+RESEARCH_SEARCHES = (
+    ("github-new-free-tv", "https://api.github.com/search/repositories?q=official+free+iptv+m3u&sort=updated&per_page=10"),
+    ("github-official-hls", "https://api.github.com/search/repositories?q=free+official+live+tv+m3u8&sort=updated&per_page=10"),
+    ("reddit-legal-iptv", "https://www.reddit.com/search.json?q=legal%20free%20iptv%20m3u8&sort=new&limit=12"),
+    ("reddit-public-tv", "https://www.reddit.com/search.json?q=official%20free%20tv%20channels&sort=new&limit=12"),
+    ("youtube-official-live", "https://www.youtube.com/results?search_query=official+free+news+live+TV"),
+    ("youtube-free-movies", "https://www.youtube.com/results?search_query=official+free+movies+live+channel"),
+    ("twitch-broadcaster-live", "https://www.twitch.tv/search?term=official%20tv%20live"),
+)
+def research_pages(fetcher=fetch_bytes) -> dict:
+    result = {"pages_attempted": len(RESEARCH_SEARCHES), "pages_responded": 0,
+              "pages_unavailable": [], "surfaces_reached": [],
+              "note": "Search-page evidence only; no premium or unlicensed links accepted"}
+    for label, url in RESEARCH_SEARCHES:
+        try:
+            # bounded requests, no embedded video following, no access tokens
+            data = fetcher(url, 1_200_000)
+            if len(data) < 20:
+                raise ValueError("no search results body")
+            result["pages_responded"] += 1
+            result["surfaces_reached"].append(label)
+        except (OSError, ValueError, urllib.error.URLError, TimeoutError):
+            result["pages_unavailable"].append(label)
+    return result
+
 def read_json(path: Path, default: dict) -> dict:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -362,10 +406,12 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     # Do not overwrite an earlier nonempty file if every feed succeeded but
     # no video could be tested (e.g. a GitHub network outage).
     failures = sum(1 for good in checks.values() if not good)
+    research=research_pages()
     report = {"schema": 1, "date_utc": today, "state": "COMPLETED",
               "sources_responded": len(scans), "sources_total": len(SOURCES),
               "source_counts": scans, "source_errors": errors,
               "community_candidates_research_only": researched,
+              "open_web_research": research,
               "curated_candidates": len(discovered), "tested": len(checks),
               "tested_ok": len(checks) - failures, "tested_failed": failures,
               "not_tested_this_run": max(0, len(discovered) - len(checks)),
