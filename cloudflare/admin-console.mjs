@@ -57,6 +57,13 @@ const css=[
 ".cell-date{font-size:13px;white-space:nowrap;color:#465d73}",
 ".search-empty{padding:18px;color:#5e6e7c;text-align:center}",
 ".notice{padding:13px 15px;border:1px solid #b6dace;border-radius:11px;background:#ecf8f4;color:#225c49;font-weight:650;margin:12px 0}",
+".notice-error{background:#fff4ed;color:#873b1b;border-color:#eecab1}",
+".notice a{color:inherit;text-decoration:underline}",
+".setup-hint{background:#eff5fa;border-left:3px solid #417fa5;padding:12px;margin:13px 0;border-radius:6px;font-size:14px;color:#33536a}",
+".copy-row{display:flex;align-items:end;gap:10px;flex-wrap:wrap}",
+".copy-row input{width:100%;margin-top:4px}.copy-row label{flex:1;min-width:180px;font-size:13px}",
+".inline-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px}.inline-form label{flex:1;min-width:210px;font-weight:650}",
+".inline-form input{width:100%;margin-top:5px}",
 ".privacy{border-left:3px solid #9fbcce;padding-left:12px;font-size:13px;color:#557086}",
 ".activity-list{margin:0;padding:0;list-style:none}",
 ".activity-list li{border-top:1px solid #e8edf1;padding:10px 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px}",
@@ -112,6 +119,8 @@ function detailsFor(u,actorId,token,index) {
     if(u.status==="invited"){
       actions+=formFor("resend",u.user_id,token,"Reenviar link de ativação","btn-subtle",
         "Solicitar novo e-mail de ativação para esta conta?");
+      actions+=formFor("manual-link",u.user_id,token,"Gerar link privado para copiar","",
+        "Gerar link temporário para envio manual? Trate-o como uma chave de acesso pessoal.");
       actions+=formFor("status",u.user_id,token,"Cancelar convite","btn-danger",
         "Cancelar o convite? O usuário não conseguirá ativar o Stream.", "suspended");
     }else if(u.status==="active"){
@@ -154,7 +163,7 @@ function activityName(action){
     "restore-invite":"Convite reativado","revoke":"Sessões encerradas"})[action]||"Ação administrativa";
 }
 const RESULTS={
-  invited:"Convite solicitado. Confira se o e-mail chegou ao destinatário.",
+  invited:"Convite solicitado ao provedor. Confirme o recebimento com o destinatário.",
   resent:"Reenvio solicitado ao provedor. Confira a caixa de entrada e o spam.",
   recovered:"E-mail de recuperação solicitado ao provedor. A entrega não é garantida.",
   suspended:"Acesso suspenso e sessões encerradas.",
@@ -162,7 +171,15 @@ const RESULTS={
   restored:"Permissão reativada.",
   revoked:"Sessões existentes encerradas."
 };
-export function renderAccessConsole({users=[],actorId="",token="",events=[],notice=""}){
+const ERRORS={
+  smtp:"E-mail externo bloqueado pelo serviço padrão do Supabase. Configure SMTP próprio para enviar convites ou use 'Gerar link privado' abaixo.",
+  limit:"O Supabase atingiu o limite de e-mails. Configure SMTP próprio ou use um link privado para este teste.",
+  existing:"Este e-mail já existe no Supabase. Verifique o cadastro e o vínculo com o Stream antes de convidar novamente.",
+  permissions:"Não foi possível autorizar o envio pelo Supabase. Confira a chave secreta do projeto no Worker de teste.",
+  provider:"O provedor de autenticação não conseguiu atender agora. Nenhum novo acesso foi confirmado.",
+  failure:"O convite não foi enviado. A causa não foi confirmada. Você pode gerar um link privado enquanto verificamos o e-mail."
+};
+export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail=""}){
   const totals={active:0,invited:0,suspended:0};
   const rows=[],dialogs=[];
   for(let i=0;i<users.length;i++){
@@ -209,9 +226,22 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>btn.closest('dialog').close()));",
     "document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));",
     "document.querySelectorAll('form[data-confirm]').forEach(form=>form.addEventListener('submit',e=>{",
-    "if(!window.confirm(form.dataset.confirm))e.preventDefault();}));"
+    "if(!window.confirm(form.dataset.confirm))e.preventDefault();}));",
+    "const copy=document.getElementById('copy-private-link');",
+    "if(copy)copy.addEventListener('click',async()=>{const t=document.getElementById('generated-link');",
+    "try{await navigator.clipboard.writeText(t.value);copy.textContent='Link copiado';}",
+    "catch{t.focus();t.select();copy.textContent='Selecione e copie o link';}});"
   ].join("");
   const alert=RESULTS[notice]?"<div class='notice' role='status'>"+esc(RESULTS[notice])+"</div>":"";
+  const failure=ERRORS[error]?"<div class='notice notice-error' role='alert'><strong>Falha no convite:</strong> "+esc(ERRORS[error])+"</div>":"";
+  const generated=manualLink?
+    "<div class='notice' role='status'><strong>Link privado gerado para "+esc(manualEmail)+".</strong>"+
+    "<p>Este link permite definir a senha. Envie apenas ao destinatário por mensagem privada. "+
+    "Quem tiver o link poderá usá-lo até expirar; não o compartilhe publicamente.</p>"+
+    "<div class='copy-row'><label>Link temporário<input id='generated-link' readonly value='"+esc(manualLink)+"'></label>"+
+    "<button id='copy-private-link' type='button' class='btn btn-primary'>Copiar link</button></div>"+
+    "<p>O link não foi enviado por e-mail e não ficará salvo neste painel. "+
+    "O destinatário cria a própria senha ao abri-lo.</p></div>":"";
   const html="<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'>"+
     "<meta name='viewport' content='width=device-width,initial-scale=1'>"+
     "<meta name='robots' content='noindex,nofollow,noarchive'>"+
@@ -221,12 +251,18 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "<a class='toplink' href='/stream/'>Voltar à TV</a></div></header>"+
     "<main><div class='eyebrow'>Área restrita · Administrador</div><h1>Central de Controle</h1>"+
     "<p class='sub'>Gerencie convites, contas, segurança e acesso individual ao Stream.</p>"+
-    alert+"<section class='metrics' aria-label='Resumo de acessos'>"+summary+"</section>"+
+    alert+failure+"<section class='metrics' aria-label='Resumo de acessos'>"+summary+"</section>"+
     "<section class='panel'><h2>Convidar usuário</h2><p class='hint'>A pessoa define a própria senha. Você nunca precisa conhecê-la.</p>"+
     "<form class='invite-form' method='post' action='/stream/admin/invite'>"+
     "<input type='hidden' name='_csrf' value='"+esc(token)+"'>"+
     "<label>E-mail do convidado<input name='email' type='email' maxlength='254' placeholder='usuario@exemplo.com' autocomplete='off' required></label>"+
-    "<button class='btn btn-primary' type='submit'>Enviar convite</button></form></section>"+
+    "<button class='btn btn-primary' type='submit'>Enviar convite por e-mail</button></form>"+
+    "<p class='setup-hint'>O envio automático para pessoas de fora da equipe exige SMTP próprio no Supabase. "+
+    "Para testar agora, use a opção abaixo, sem e-mail automático.</p>"+
+    "<form class='inline-form' method='post' action='/stream/admin/link-invite'>"+
+    "<input type='hidden' name='_csrf' value='"+esc(token)+"'>"+
+    "<label>E-mail para convite manual<input type='email' name='email' maxlength='254' placeholder='usuario@exemplo.com' required></label>"+
+    "<button class='btn' type='submit'>Gerar link privado</button></form>"+generated+"</section>"+
     "<section class='panel'><div class='panel-head'><h2>Usuários</h2><p class='hint'>Datas: São Paulo (BRT)</p></div>"+
     "<div class='tool-row'><label><span class='secondary'>Buscar usuário</span>"+
     "<input id='member-search' type='search' placeholder='Pesquisar por e-mail' aria-label='Pesquisar usuários'></label>"+
