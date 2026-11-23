@@ -270,7 +270,7 @@ async function main(){
       assert.equal(await page.locator('#recent-count').textContent(),'0/25');
 
       // Click one favorite and twenty-six distinct channels in sequence.
-      await page.locator('#channel-items .channel-btn').filter({hasText:'Canal Teste 2'}).click();
+      await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').click();
       await page.locator('#player-favorite').click();
       assert.equal(await page.locator('#favorite-count').textContent(),'1');
       assert.match(await page.locator('#favorite-items').textContent(),/★ Canal Teste 2/);
