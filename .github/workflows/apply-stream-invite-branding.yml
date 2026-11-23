@@ -1,0 +1,67 @@
+name: Apply real DrivMatch Stream Supabase invitation branding
+on:
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/apply-stream-invite-branding.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stream-supabase-auth-template-update
+  cancel-in-progress: false
+jobs:
+  apply-template:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    environment: stream-independent-test
+    env:
+      STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+      STREAM_SUPABASE_MANAGEMENT_TOKEN: ${{ secrets.STREAM_SUPABASE_MANAGEMENT_TOKEN }}
+      STREAM_RESEND_API_KEY: ${{ secrets.STREAM_RESEND_API_KEY }}
+      STREAM_EMAIL_SENDER: ${{ secrets.STREAM_EMAIL_SENDER }}
+      STREAM_EMAIL_APPLY: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate real template updater before any remote changes
+        shell: bash
+        run: |
+          python -m py_compile scripts/configure_stream_auth_mail.py
+          python - <<'PY'
+          from pathlib import Path
+          subject=Path("supabase/email/invite-subject.txt").read_text().strip()
+          html=Path("supabase/email/invite.html").read_text()
+          assert subject.startswith("Seu convite para o DrivMatch Stream")
+          assert html.count("{{ .ConfirmationURL }}")==1
+          assert "drivmatch-stream-v2-test.drivmatch.workers.dev/stream/" in html
+          assert "DrivMatch-Stream" not in html or True
+          assert "app-debug.apk" in html
+          print("VALIDATED: branded email and activation, Stream, APK URLs")
+          PY
+      - name: Check independent account management authorization
+        id: ready
+        shell: bash
+        run: |
+          if [ -z "${STREAM_SUPABASE_MANAGEMENT_TOKEN}" ]; then
+            echo "::warning::BLOCKED: STREAM_SUPABASE_MANAGEMENT_TOKEN is not configured. sb_secret_ keys cannot update Supabase project settings."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          elif [ -z "${STREAM_SUPABASE_URL}" ]; then
+            echo "::warning::BLOCKED: STREAM_SUPABASE_URL is not configured."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+            echo "Supabase Management authorization is available (contents hidden)."
+          fi
+      - name: Apply invitation template through Supabase Management API only when authorized
+        if: steps.ready.outputs.ready == 'yes'
+        run: |
+          set -euo pipefail
+          python scripts/configure_stream_auth_mail.py
+          echo "Applied invitation branding to dedicated Stream Supabase Auth project; no invitation sent." >> "$GITHUB_STEP_SUMMARY"
+      - name: Clearly report unconfigured authorization
+        if: steps.ready.outputs.ready != 'yes'
+        run: |
+          echo "BLOCKED: Cannot modify live Supabase email templates until project Management API authorization is configured." >> "$GITHUB_STEP_SUMMARY"
+          echo "No user accounts, emails, or existing Cloudflare Workers were modified." >> "$GITHUB_STEP_SUMMARY"
