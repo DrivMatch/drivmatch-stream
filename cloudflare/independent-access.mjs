@@ -87,8 +87,18 @@ async function currentUser(request, env) {
   ).bind(tokenHash, now()).first();
 }
 function csrf(request, url) {
+  // Browser form POSTs can legitimately omit Origin. Strictly reject any
+  // explicitly foreign Origin, then fall back to Fetch Metadata/Referer.
   const origin = request.headers.get("Origin");
-  return origin === url.origin;
+  if (origin !== null) return origin === url.origin;
+  if (request.headers.get("Sec-Fetch-Site") === "same-origin") return true;
+  const referer = request.headers.get("Referer");
+  if (!referer) return false;
+  try {
+    const previous = new URL(referer);
+    return previous.origin === url.origin &&
+      previous.protocol === "https:";
+  } catch { return false; }
 }
 async function form(request) {
   const size = Number(request.headers.get("Content-Length") || 0);
@@ -271,7 +281,10 @@ async function handle(request, env) {
   if (method === "GET" && (path === "/stream/login"))
     return user ? redirect(url.origin, "/stream/") : loginPage();
   if (method === "POST" && path === "/stream/login") {
-    if (!csrf(request,url)) return plain(403,"Forbidden");
+    if (!csrf(request,url)) return page("Acesso não validado",
+      "<p>O navegador não confirmou a origem do formulário.</p>" +
+      "<p>Abra novamente o login e tente entrar. Nenhuma senha foi alterada.</p>" +
+      "<p><a href='/stream/login'>Voltar ao login</a></p>",403);
     if (!await limit(request,env,"login")) return plain(429,"Muitas tentativas. Tente mais tarde.");
     const data = await form(request);
     const email = String(data.get("email") || "").trim().toLowerCase();
