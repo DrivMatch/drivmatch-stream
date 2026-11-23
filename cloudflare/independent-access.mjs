@@ -34,6 +34,8 @@ const TE = new TextEncoder();
 const COOKIE = "dm_stream_user";
 const FORM_COOKIE = "__Host-dm_stream_form_csrf";
 const SESSION_SECONDS = 7 * 24 * 3600;
+const DAILY_EMAIL_LIMIT = 20;
+const PUBLIC_EMAIL_LIMIT = 5;
 const HEADERS = {
   "Cache-Control": "private, no-store",
   "X-Content-Type-Options": "nosniff",
@@ -269,6 +271,58 @@ function validInviteActionLink(urlText,env,redirectURL){
       !!link.searchParams.get("token") &&
       link.searchParams.get("redirect_to")===redirectURL;
   }catch{return false;}
+}
+// Strict Stream-level transactional email budget, independent of the provider.
+// D1 serializes the conditional write so concurrent Workers cannot exceed 20.
+// Count accepted requests and uncertain outcomes; known provider rejections
+// are refunded. An accepted request is NOT proof of inbox delivery.
+function saoPauloDay() {
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date());
+  const fields=Object.fromEntries(parts.filter(x=>x.type!=="literal")
+    .map(x=>[x.type,x.value]));
+  return fields.year+"-"+fields.month+"-"+fields.day;
+}
+async function emailQuotaUsed(env) {
+  const entry=await env.STREAM_USERS_DB.prepare(
+    "SELECT COUNT(*) AS used FROM stream_email_budget WHERE local_day=?"
+  ).bind(saoPauloDay()).first();
+  return Number(entry?.used)||0;
+}
+async function reserveEmail(env,kind) {
+  const day=saoPauloDay(), id=crypto.randomUUID();
+  const result=await env.STREAM_USERS_DB.prepare(
+    "INSERT INTO stream_email_budget(request_id,local_day,kind,status) " +
+    "SELECT ?,?,?,'reserved' WHERE " +
+    "(SELECT COUNT(*) FROM stream_email_budget WHERE local_day=?)<? " +
+    "AND (? != 'public-recover' OR " +
+    "(SELECT COUNT(*) FROM stream_email_budget " +
+    "WHERE local_day=? AND kind='public-recover')<?)"
+  ).bind(id,day,kind,day,DAILY_EMAIL_LIMIT,kind,day,PUBLIC_EMAIL_LIMIT).run();
+  return result?.meta?.changes===1 ? id : null;
+}
+async function sendWithEmailQuota(env,kind,send) {
+  const ticket=await reserveEmail(env,kind);
+  if(!ticket)return {ok:false,quota:true};
+  let result;
+  try {result=await send();}
+  catch {
+    // Network error: provider may already have accepted the email. Do not
+    // refund an ambiguous attempt, otherwise retries can exceed the limit.
+    return {ok:false,quota:false,uncertain:true};
+  }
+  if(!result.ok) {
+    // Explicit provider rejection: no accepted email, refund the slot.
+    await env.STREAM_USERS_DB.prepare(
+      "DELETE FROM stream_email_budget WHERE request_id=? AND status='reserved'"
+    ).bind(ticket).run();
+    return {ok:false,quota:false,result};
+  }
+  await env.STREAM_USERS_DB.prepare(
+    "UPDATE stream_email_budget SET status='accepted' WHERE request_id=?"
+  ).bind(ticket).run();
+  return {ok:true,quota:false,result};
 }
 async function limit(request, env, prefix) {
   if (!env.STREAM_LOGIN_LIMITER?.limit) return false;
