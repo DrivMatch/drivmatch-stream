@@ -269,7 +269,7 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "<meta name='robots' content='noindex,nofollow,noarchive'>"+
     "<meta name='theme-color' content='#081c32'>"+
     "<title>Central de Acessos · DrivMatch Stream</title><style>"+css+"</style></head><body>"+
-    "<header class='masthead'><div class='wrap'><div class='logo'>▶ DrivMatch <span>Stream</span> · Administração</div>"+
+    "<header class='masthead'><div class='wrap'><div class='logo'>😺 <span>stream</span> · Administração</div>"+
     "<a class='toplink' href='/stream/'>Voltar à TV</a></div></header>"+
     "<main><div class='eyebrow'>Área restrita · Administrador</div><h1>Central de Controle</h1>"+
     "<p class='sub'>Gerencie convites, contas, segurança e acesso individual ao Stream.</p>"+
