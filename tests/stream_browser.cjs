@@ -73,7 +73,7 @@ async function main(){
         ['Canal Teste 10','BR','test10','General']
       ].filter(([name])=>name.toLowerCase().includes(term));
       res.writeHead(200,{"Content-Type":"text/plain","Cache-Control":"no-store"});
-      res.end(["#EXTM3U","#DM_SEARCH:"+term,"#DM_SOURCES_LOADED:26/26",
+      res.end(["#EXTM3U","#DM_SEARCH:"+term,"#DM_SOURCES_LOADED:25/25",
         "#DM_MATCHED_CHANNELS:"+rows.length,
         ...rows.flatMap(([name,country,slug,group])=>[
           '#EXTINF:-1 dm-country="'+country+'" dm-source="lista-2" group-title="'+group+'",'+name,
@@ -272,7 +272,7 @@ async function main(){
       for(const [name,countryName] of [
         ['CNN Brasil','Brasil'],['CNN Portugal','Portugal'],['CNN EUA','Estados Unidos']
       ]){
-        const btn=page.locator('#channel-items .channel-btn').filter({hasText:name});
+        const btn=page.locator('#channel-items .channel-btn').filter({hasText:name}).first();
         await btn.waitFor();
         assert.match(await btn.textContent(),new RegExp(countryName));
       }
