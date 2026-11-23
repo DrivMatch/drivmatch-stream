@@ -1,6 +1,6 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # One-time staging update for non-sensitive CSRF failure diagnostic.
+  # Controlled staging rollout: repair Chrome POST Origin:null with same-origin policy.
   push:
     branches: [feature/independent-cloudflare-access]
     paths: ['.github/workflows/deploy-independent-worker.yml']
