@@ -1,7 +1,9 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # Mobile login fix published and live HTTP test passed (2026-11-23).
-  # Future staging deploys require explicit manual dispatch.
+  # One controlled deployment of signed-CSRF mobile login fix to isolated Worker only.
+  push:
+    branches: [feature/independent-cloudflare-access]
+    paths: ['.github/workflows/deploy-independent-worker.yml']
   workflow_dispatch:
 permissions:
   contents: read
