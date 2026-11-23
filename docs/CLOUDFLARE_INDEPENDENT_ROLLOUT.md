@@ -89,3 +89,13 @@ Until the dedicated Cloudflare Worker exists, the APK cannot be end-to-end teste
 - Cloudflare D1: https://developers.cloudflare.com/d1/get-started/
 - Cloudflare rate limit binding: https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
 - Supabase Auth invite users: https://supabase.com/docs/guides/auth/users
+
+## Verified Cloudflare staging transition — 2026-11-23
+
+- **API token authentication fixed and deployment successful**: GitHub Actions run [45252298588](https://github.com/DrivMatch/drivmatch-stream/actions/runs/45252298588), conclusion `success`.
+- **Dedicated Cloudflare D1**: `drivmatch-stream-users-test`; migration `0001_stream_identities.sql` executed remotely and reported PASS.
+- **Dedicated Worker**: `drivmatch-stream-v2-test`, deployed with 17 static assets at `https://drivmatch-stream-v2-test.drivmatch.workers.dev`.
+- **No changes to production routes** for DrivMatch main, News, or original Stream; new Worker remains separate.
+- Authentication will **fail closed / 503** until dedicated Supabase Auth project and Worker secrets are configured. This is not a functional multiuser release yet.
+- The production migration of browser-local favorites remains **BLOCKED** until cross-origin export/import is implemented and verified.
+- The deployment workflow was returned to **manual-only** following the successful staging run.
