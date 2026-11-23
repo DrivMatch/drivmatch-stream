@@ -370,8 +370,9 @@ async function adminStepUpPage(env,error=false) {
     "<label>Senha do administrador<input type='password' name='password' "+
     "autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Desbloquear minha administração</button></form>" +
-    "<p><a href='/stream/'>Voltar ao Stream</a> · "+
-    "<a href='/stream/login'>Trocar de conta</a></p>",error?401:200),token);
+    "<p><a href='/stream/'>Voltar ao Stream</a></p>"+
+    "<form method='post' action='/stream/logout'>"+
+    "<button type='submit'>Sair e trocar de conta</button></form>",error?401:200),token);
 }
 async function adminPage(user,env,url,extra={}) {
   const token=await issueFormToken(env);
@@ -509,8 +510,10 @@ async function handle(request, env) {
       "<p><a href='/stream/login'>Voltar ao login</a></p>");
   }
   if (method === "GET" && path === "/stream/activate") {
-    // A new invite/recovery opened in a shared browser must NEVER inherit
-    // somebody else's current session (especially an admin session).
+    // An invitation/recovery opened in a shared browser must never inherit
+    // a previous administrator's session. Invalidate the old session in D1,
+    // not just its browser cookie, before showing activation.
+    await revokeCurrent(request,env);
     const response=setupPage();
     response.headers.set("Set-Cookie",sessionCookie("",0));
     return response;
