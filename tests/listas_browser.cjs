@@ -103,7 +103,7 @@ async function main(){
       await page.goto(origin+"/stream/listas/");
       await page.locator("#source-list .source").first().waitFor();
       assert.equal(await page.locator("#source-list .source").count(),9);
-      await page.locator('#country option[value="MX"]').waitFor();
+      await page.locator('#country option[value="MX"]').waitFor({state:"attached"});
       assert.equal(await page.locator("#country option").count(),15);
       await page.getByRole("button",{name:/Lista 1/}).click();
       await page.getByText("Canal Notícias Brasil").first().waitFor();
