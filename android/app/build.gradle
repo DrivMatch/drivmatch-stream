@@ -1,19 +1,40 @@
 plugins {
     id 'com.android.application'
 }
+
 android {
     namespace 'com.streamnow.app'
-    compileSdk 35
+    compileSdk 36
+
     defaultConfig {
         applicationId "com.streamnow.app"
         minSdk 26
-        targetSdk 35
-        versionCode 5
-        versionName "0.3.2-test"
-        // This exact host is the user's requested target. Never auto-switch to a legacy site.
+        targetSdk 36
+        versionCode 6
+        versionName "1.0.0"
+        // Stream Now's existing production frontend, guide and approved-account backend.
         buildConfigField "String", "STREAM_DEFAULT_URL", '"https://streamnow-2o1.pages.dev/"'
     }
+
     buildFeatures { buildConfig true }
+
+    // A real upload key is supplied only by the owner's protected GitHub Actions secrets.
+    // No debug keystore or automatically generated signing identity is used for the Play bundle.
+    def uploadStore = System.getenv("STREAMNOW_UPLOAD_KEYSTORE_FILE")
+    if (uploadStore && System.getenv("STREAMNOW_UPLOAD_KEYSTORE_PASSWORD") &&
+        System.getenv("STREAMNOW_UPLOAD_KEY_ALIAS") && System.getenv("STREAMNOW_UPLOAD_KEY_PASSWORD")) {
+        signingConfigs {
+            playUpload {
+                storeFile file(uploadStore)
+                storePassword System.getenv("STREAMNOW_UPLOAD_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("STREAMNOW_UPLOAD_KEY_ALIAS")
+                keyPassword System.getenv("STREAMNOW_UPLOAD_KEY_PASSWORD")
+            }
+        }
+        buildTypes {
+            release { signingConfig signingConfigs.playUpload }
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

@@ -4,7 +4,7 @@ import {readFileSync} from "node:fs";
 const read=path=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const DOMAIN="streamnow-2o1.pages.dev";
 const OLD="streamnow.pages.dev";
-test("Android APK native WebView loads ONLY the production free Pages host",()=>{
+test("Android native WebView loads ONLY the production free Pages host in debug and release",()=>{
  const java=read("android/app/src/main/java/com/streamnow/app/MainActivity.java");
  const gradle=read("android/app/build.gradle");
  const flow=read(".github/workflows/streamnow-android-apk.yml");
@@ -14,9 +14,10 @@ test("Android APK native WebView loads ONLY the production free Pages host",()=>
  }
  assert.match(java,/HOME\s*=\s*"https:\/\/streamnow-2o1\.pages\.dev\/"/);
  assert.match(java,/"streamnow-2o1\.pages\.dev"\.equalsIgnoreCase\(uri\.getHost\(\)\)/);
- assert.match(gradle,/versionCode 5/);
- assert.match(gradle,/versionName "0\.3\.2-test"/);
- assert.match(flow,/streamnow-android-v0\.3\.2-test/);
+ assert.match(gradle,/versionCode 6/);
+ assert.match(gradle,/versionName "1\.0\.0"/);
+ assert.match(read(".github/workflows/streamnow-android-production.yml"),/bundleRelease/);
+ assert.match(flow,/Build installable Android debug APK/);
 });
 test("Pages routing and deployed auth use real Cloudflare hostname, with no spoofed alias",()=>{
  const worker=read("cloudflare/stream-proxy.mjs");
