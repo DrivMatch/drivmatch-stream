@@ -1,0 +1,12 @@
+{
+  "id": "com.streamnow.tv",
+  "version": "0.1.0",
+  "vendor": "Stream Now",
+  "type": "web",
+  "main": "index.html",
+  "title": "Stream Now",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "resolution": "1920x1080",
+  "appDescription": "TV e canais com acesso individual autorizado"
+}
