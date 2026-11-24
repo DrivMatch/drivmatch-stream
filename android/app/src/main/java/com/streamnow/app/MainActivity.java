@@ -87,14 +87,16 @@ public final class MainActivity extends Activity {
         setContentView(root);
 
         LinearLayout bar = new LinearLayout(this);
-        bar.setPadding(12,7,12,7);
+        int pad = (int)(12 * getResources().getDisplayMetrics().density + 0.5f);
+        bar.setPadding(pad,pad / 2,pad,pad / 2);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setBackgroundColor(GRAPHITE);
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(R.drawable.streamnow_icon);
         icon.setContentDescription("Marca Stream Now");
-        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(42,42);
+        int logoDp = (int)(44 * getResources().getDisplayMetrics().density + 0.5f);
+        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(logoDp,logoDp);
         ip.setMargins(0,0,12,0);
         bar.addView(icon,ip);
 
