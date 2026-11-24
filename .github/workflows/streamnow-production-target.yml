@@ -1,0 +1,54 @@
+name: Identify existing Stream Now production account resources
+on:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-production-target.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    environment: stream-independent-test
+    timeout-minutes: 5
+    steps:
+      - name: Check whether the repository's production Worker and D1 already exist
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -o pipefail
+          python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, os, re
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
+
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          assert re.fullmatch(r"[a-fA-F0-9]{32}", account), "Invalid Cloudflare account"
+          api = "https://api.cloudflare.com/client/v4/accounts/" + account
+          headers = {"Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"]}
+
+          def listed(path):
+              try:
+                  with urlopen(Request(api + path, headers=headers), timeout=20) as response:
+                      answer = json.load(response)
+                      assert answer["success"], "Cloudflare returned an unsuccessful inventory"
+                      return answer["result"]
+              except HTTPError as error:
+                  raise RuntimeError(f"Cloudflare inventory returned HTTP {error.code}") from None
+
+          targets = (
+              ("Production account Worker", "drivmatch-stream-independent", "/workers/scripts", "id"),
+              ("Production account D1", "drivmatch-stream-users", "/d1/database?name=drivmatch-stream-users", "name"),
+              ("Existing staging Worker", "drivmatch-stream-v2-test", "/workers/scripts", "id"),
+              ("Existing staging D1", "drivmatch-stream-users-test", "/d1/database?name=drivmatch-stream-users-test", "name"),
+          )
+          inventories = {}
+          for label, name, path, field in targets:
+              if path not in inventories:
+                  inventories[path] = listed(path)
+              count = sum(entry[field] == name for entry in inventories[path])
+              print(f"{label}: {count} matching resource(s)")
+          PY
