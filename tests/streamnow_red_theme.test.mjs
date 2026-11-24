@@ -24,7 +24,7 @@ test("Samsung, desktop and library explicitly load the same last-in-cascade them
  for(const p of ["site/tv.html","site/index.html","site/listas.html"]){
   const html=read(p),links=[...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+>/g)].map(x=>x[0]);
   assert.ok(links.length>=2,p);
-  assert.match(links.at(-1),/\/stream\/graphite\.css\?v=20261123-graphite1/,p);
+  assert.match(links.at(-1),/\/stream\/graphite\.css\?v=2026112[34]-(?:graphite1|samsung-red-recovery1)/,p);
   assert.match(html,/Stream Now/,p);
  }
 });

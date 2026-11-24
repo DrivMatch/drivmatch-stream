@@ -316,6 +316,65 @@ function startPlaybackWatch(c){
  },60000));
 }
 
+/* Recovery is user-initiated and additive. Never clear previous browser keys,
+ * never overwrite a nonempty modern list with an empty legacy list. */
+var LEGACY_FAV_STORE="drivmatch-stream-favorites-v1";
+var FAV_RECOVERY_BACKUP="drivmatch-tv-favorites-recovery-backup-v1";
+function readLegacyFavoriteKeys(){
+ var out=[];
+ try{
+  var raw=localStorage.getItem(LEGACY_FAV_STORE);
+  if(!raw)return out;
+  var arr=JSON.parse(raw);
+  if(Object.prototype.toString.call(arr)!=="[object Array]")return out;
+  for(var i=0;i<arr.length&&i<1500;i++){
+   var old=arr[i];
+   if(typeof old!=="string"||old.length>240)continue;
+   var colon=old.indexOf(":");
+   if(colon<2||colon>6)continue;
+   var code=old.slice(0,colon).toUpperCase();
+   var name=trim(old.slice(colon+1)).toLowerCase().replace(/\s+/g," ");
+   if(!/^[A-Z]{2,5}$/.test(code)||!name)continue;
+   var key="lista-2:"+code+":"+name;
+   if(!has(out,key))out.push(key);
+  }
+ }catch(e){}
+ return out;
+}
+function updateFavoriteRecovery(){
+ var btn=D("recover-legacy-favorites"),status=D("recover-favorites-status");
+ if(!btn)return;
+ var legacy=readLegacyFavoriteKeys(),missing=0;
+ for(var i=0;i<legacy.length;i++)if(!has(favorites,legacy[i]))missing++;
+ btn.hidden=missing===0;
+ if(missing)T(btn,"↺ Recuperar "+missing+" favorito(s) antigo(s) desta TV");
+ if(status&&favorites.length===0&&missing===0){
+  status.hidden=false;
+  T(status,"Nenhum favorito salvo foi encontrado neste endereço. Favoritos de outro navegador ou endereço não são acessíveis automaticamente; não foram apagados aqui.");
+ }
+}
+function recoverLegacyFavorites(){
+ var status=D("recover-favorites-status"),legacy=readLegacyFavoriteKeys(),missing=[];
+ for(var i=0;i<legacy.length;i++)if(!has(favorites,legacy[i]))missing.push(legacy[i]);
+ if(!missing.length){updateFavoriteRecovery();return;}
+ try{
+  if(!localStorage.getItem(FAV_RECOVERY_BACKUP)){
+   localStorage.setItem(FAV_RECOVERY_BACKUP,JSON.stringify({
+    capturedAt:new Date().toISOString(),current:localStorage.getItem(STORE),
+    previous:localStorage.getItem(LEGACY_FAV_STORE),
+    metadata:localStorage.getItem(FAV_META_STORE)}));
+  }
+  var merged=favorites.slice(0);
+  for(i=0;i<missing.length;i++)merged.push(missing[i]);
+  localStorage.setItem(STORE,JSON.stringify(merged));
+  favorites=merged;
+  if(status){status.hidden=false;T(status,missing.length+" favorito(s) antigo(s) recuperado(s) deste navegador. Nenhum dado antigo foi excluído.");}
+  drawQuickLists();updateFavoriteRecovery();
+ }catch(e){
+  if(status){status.hidden=false;T(status,"Não foi possível salvar a recuperação nesta TV. Os dados antigos não foram alterados.");}
+ }
+}
+
 function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
 
@@ -1197,6 +1256,7 @@ function init(){
   }
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
+  on(D("recover-legacy-favorites"),"click",recoverLegacyFavorites);
   on(D("search"),"input",runGlobalSearch);
   on(D("search"),"keyup",function(e){if(!("oninput" in D("search")))runGlobalSearch();});
   on(D("clear-search"),"click",function(){D("search").value="";runGlobalSearch();});
