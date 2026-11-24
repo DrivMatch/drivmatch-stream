@@ -1,77 +1,107 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import worker from "../cloudflare/stream-proxy.mjs";
-const base="https://streamnow.pages.dev";
-const secret="local-testing-credential-123456789";
-const seen=[];
-const env={STREAM_ACCESS_PASSWORD:secret,ASSETS:{fetch:async r=>{
- const p=new URL(r.url).pathname;seen.push(p);return new Response(p,{status:200});
-}}};
-test("root gated and no original branding",async()=>{
- const r=await worker.fetch(new Request(base+"/"),env);
- assert.equal(r.status,200);
- assert.match(await r.text(),/Stream Now/);
- assert.equal(seen.length,0);
-});
-test("root session allows bundled local assets",async()=>{
- const r=await worker.fetch(new Request(base+"/stream/login",{method:"POST",
- headers:{"Content-Type":"application/x-www-form-urlencoded"},
- body:new URLSearchParams({password:secret}).toString()}),env);
- assert.equal(r.status,303);
- assert.equal(r.headers.get("location"),base+"/");
- assert.ok(r.headers.get("set-cookie").includes("Path=/;"));
- const cookie=r.headers.get("set-cookie").split(";")[0];
- seen.length=0;
- const page=await worker.fetch(new Request(base+"/",{headers:{Cookie:cookie}}),env);
- assert.equal(page.status,200);
- assert.equal(await page.text(),"/tv.html");
- assert.deepEqual(seen,["/tv.html"]);
-});
-test("direct assets cannot bypass login",async()=>{
- for(const p of ["/tv.html","/_worker.js","/stream/tv/tv.js"]){
- const r=await worker.fetch(new Request(base+p),env);
- assert.equal(r.status,p.startsWith("/stream/")?403:404,p);
- }
-});
-test("public daily playlist is allowlisted",async()=>{
- const r=await worker.fetch(new Request(base+"/daily-autopilot.m3u8"),env);
- assert.equal(r.status,200);
- assert.equal(await r.text(),"/daily-autopilot.m3u8");
-});
 
-test("canonical brand images are public without exposing app APIs",async()=>{
+const STAGING="https://streamnow-2o1.pages.dev",REQUESTED="https://streamnow.pages.dev";
+const PASS="test-password-123456789",EMAIL="viewer@example.test";
+const USER="25c8f362-3e8e-488c-a1f2-0a1c4ad60a85";
+const assets=[];
+const env={
+  STREAM_ACCESS_PASSWORD:"local-signing-key-very-long-123",
+  STREAM_SUPABASE_URL:"https://project-test.supabase.co",
+  STREAM_SUPABASE_PUBLIC_KEY:"public-test-api-key-long-enough",
+  ASSETS:{fetch:async r=>{const path=new URL(r.url).pathname;assets.push(path);
+     return new Response(path,{status:200,headers:{"Content-Type":"text/plain"}});}}
+};
+function loginRequest(host=STAGING,password=PASS,email=EMAIL){
+ return new Request(host+"/stream/login",{
+  method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Origin":host},
+  body:new URLSearchParams({email,password}).toString()
+ });
+}
+async function mockSupabase(authStatus,fn){
+ const original=globalThis.fetch;
+ globalThis.fetch=async (url,options)=>{
+  assert.equal(String(url),"https://project-test.supabase.co/auth/v1/token?grant_type=password");
+  assert.equal(options.method,"POST");
+  assert.equal(options.headers.apikey,env.STREAM_SUPABASE_PUBLIC_KEY);
+  const body=JSON.parse(options.body);
+  assert.equal(body.email,EMAIL);
+  if(authStatus===200)assert.equal(body.password,PASS);
+  return new Response(authStatus===200?JSON.stringify({access_token:"mock-access-token",user:{id:USER}}):
+      JSON.stringify({message:"invalid credentials"}),{status:authStatus,headers:{"Content-Type":"application/json"}});
+ };
+ try{return await fn();}
+ finally{globalThis.fetch=original;}
+}
+test("Pages login never advertises invented slogan, personal area or a shared access password",async()=>{
+ const response=await worker.fetch(new Request(STAGING+"/"),env);
+ assert.equal(response.status,200);
+ const page=await response.text();
+ assert.match(page,/Stream Now/);
+ assert.match(page,/type="email"/);
+ assert.match(page,/Entre com o e-mail e a senha da sua conta/);
+ assert.doesNotMatch(page,/Sua TV, do seu jeito|Área pessoal|senha particular|Digite sua senha particular/i);
+ assert.equal(assets.length,0);
+});
+test("Pages without configured Supabase fails closed",async()=>{
+ const response=await worker.fetch(new Request(STAGING+"/"),{STREAM_ACCESS_PASSWORD:env.STREAM_ACCESS_PASSWORD,ASSETS:env.ASSETS});
+ assert.equal(response.status,503);
+});
+test("unconfirmed account cannot log in or receive a cookie",async()=>{
+ await mockSupabase(400,async()=>{
+  const result=await worker.fetch(loginRequest(),env);
+  assert.equal(result.status,401);
+  assert.equal(result.headers.get("set-cookie"),null);
+  assert.match(await result.text(),/E-mail ou senha não reconhecidos/);
+ });
+});
+test("confirmed Supabase account issues secure scoped session, accesses player, logs out",async()=>{
+ await mockSupabase(200,async()=>{
+  const signin=await worker.fetch(loginRequest(),env);
+  assert.equal(signin.status,303);
+  assert.equal(signin.headers.get("location"),STAGING+"/");
+  const setCookie=signin.headers.get("set-cookie");
+  assert.match(setCookie,/sn_account=/);
+  assert.match(setCookie,/Path=\/;.*HttpOnly; Secure; SameSite=Strict/);
+  const cookie=setCookie.split(";")[0];
+  assets.length=0;
+  const viewer=await worker.fetch(new Request(STAGING+"/",{headers:{Cookie:cookie}}),env);
+  assert.equal(viewer.status,200);
+  assert.equal(await viewer.text(),"/tv.html");
+  assert.deepEqual(assets,["/tv.html"]);
+  const session=await worker.fetch(new Request(STAGING+"/stream/session",{headers:{Cookie:cookie}}),env);
+  assert.equal(session.status,200);
+  const logout=await worker.fetch(new Request(STAGING+"/stream/logout",{method:"POST",headers:{Origin:STAGING}}),env);
+  assert.equal(logout.status,303);
+  assert.match(logout.headers.get("set-cookie"),/sn_account=; Path=\/; Max-Age=0/);
+ });
+});
+test("shared PIN or standalone password cannot bypass email authentication on Pages",async()=>{
+ const r=await worker.fetch(loginRequest(STAGING,PASS,"not-an-email"),env);
+ assert.equal(r.status,401);
+ assert.equal(r.headers.get("set-cookie"),null);
+});
+test("unauthed JavaScript assets remain gated; approved logo/icon are public",async()=>{
+ assets.length=0;
+ for(const path of ["/stream/tv/tv.js","/stream/graphite.css","/stream/session"]){
+  const response=await worker.fetch(new Request(STAGING+path),env);
+  assert.equal(response.status,403,path);
+ }
  for(const [path,file] of [["/stream/brand.webp","/streamnow-brand.webp"],["/stream/icon.webp","/streamnow-icon.webp"]]){
-  const response=await worker.fetch(new Request(base+path),env);
-  assert.equal(response.status,200,path);
+  const response=await worker.fetch(new Request(STAGING+path),env);
+  assert.equal(response.status,200);
   assert.equal(response.headers.get("content-type"),"image/webp");
   assert.equal(await response.text(),file);
  }
- assert.equal((await worker.fetch(new Request(base+"/stream/catalog?list=lista-1"),env)).status,403);
+ assert.deepEqual(assets,["/streamnow-brand.webp","/streamnow-icon.webp"]);
 });
-
-test("Cloudflare-assigned suffix runs same gated application as staging",async()=>{
- const staging="https://streamnow-2o1.pages.dev";
- seen.length=0;
- const login=await worker.fetch(new Request(staging+"/"),env);
- assert.equal(login.status,200);
- assert.match(await login.text(),/Stream Now/);
- assert.equal(seen.length,0);
- const submitted=await worker.fetch(new Request(staging+"/stream/login",{
-  method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-  body:new URLSearchParams({password:secret}).toString()}),env);
- assert.equal(submitted.status,303);
- assert.equal(submitted.headers.get("location"),staging+"/");
- assert.match(submitted.headers.get("set-cookie"),/Path=\/;/);
- const cookie=submitted.headers.get("set-cookie").split(";")[0];
- const screen=await worker.fetch(new Request(staging+"/",{headers:{Cookie:cookie}}),env);
- assert.equal(screen.status,200);
- assert.equal(await screen.text(),"/tv.html");
- seen.length=0;
- const playlist=await worker.fetch(new Request(staging+"/stream/catalog?list=lista-12",{headers:{Cookie:cookie}}),env);
- assert.equal(playlist.status,200);
- assert.deepEqual(seen,["/daily-autopilot.m3u8"]);
-});
-test("unapproved pages.dev host remains inaccessible",async()=>{
+test("unapproved Pages hostname is rejected",async()=>{
  const r=await worker.fetch(new Request("https://streamnow-guess.pages.dev/"),env);
  assert.equal(r.status,404);
+});
+test("original requested host retains the same email sign-in scheme, without pretending it is owned",async()=>{
+ const r=await worker.fetch(new Request(REQUESTED+"/"),env);
+ assert.equal(r.status,200);
+ assert.match(await r.text(),/type="email"/);
 });

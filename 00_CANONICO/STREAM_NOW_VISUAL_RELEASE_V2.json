@@ -1,0 +1,34 @@
+{
+  "schema": "streamnow.canonical.production.release.v2",
+  "date": "2026-11-24",
+  "previous_manifest": "00_CANONICO/STREAM_NOW_CANONICAL_MANIFEST_v1.json",
+  "canonical_source_sha256": {
+    "main_logo": "703a88042b16208c46d7a904a82eea444fa9c2e9e3511dfa3b387482770e7186",
+    "visual_guide": "1eb23c5d10f34b2110bf12111c32f4bf577b8c0c3d970cacedab484a491008d2"
+  },
+  "production_git_blobs": {
+    "site/streamnow-brand.webp": "ea7de4183830abee6372d46b33365bbe7967f27a",
+    "site/streamnow-icon.webp": "b48d97462001f4eb6d40ff1291782bb8b6e460c2",
+    "android/app/src/main/res/drawable-nodpi/streamnow_icon.webp": "b48d97462001f4eb6d40ff1291782bb8b6e460c2"
+  },
+  "ui_palette": {
+    "background": "#080808",
+    "surface": "#181818",
+    "raised": "#242424",
+    "border": "#454545",
+    "text": "#f6f6f6",
+    "muted": "#bdbdbd",
+    "action": "#c40029"
+  },
+  "rules": [
+    "No additional slogans or personal-area copy",
+    "No shared-password login on Cloudflare Pages",
+    "No blue, green or purple UI",
+    "Canonical logo colors remain unmodified",
+    "Do not claim authentic vector/SVG without source file",
+    "Samsung, desktop, phone and tablet share a single CSS layer",
+    "Physical device tests remain a separate release gate"
+  ],
+  "original_artwork_intact": true,
+  "vector_master_included": false
+}

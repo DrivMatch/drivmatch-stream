@@ -47,9 +47,9 @@ jobs:
           test -s site/index.html
           grep -q 'fetch("./session"' site/stream.js
           grep -q 'STREAM_ACCESS_PASSWORD' cloudflare/stream-proxy.mjs
-          grep -q 'authenticated(request,sessionSecret)' cloudflare/stream-proxy.mjs
+          grep -q 'authenticatedAccount' cloudflare/stream-proxy.mjs
           ! grep -i 'supabase' site/stream.js
-          ! grep -i 'supabase' cloudflare/stream-proxy.mjs
+          grep -q 'verifySupabaseCredentials' cloudflare/stream-proxy.mjs
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
       - name: Cloudflare Access Worker security unit tests
         run: node --test tests/stream_worker.test.mjs
@@ -79,9 +79,18 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build transparent Stream Now display assets
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          mkdir -p dist
+          cp -a site/. dist/
+          python3 scripts/verify_streamnow_brand.py dist
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: dist
       # GitHub may temporarily return zero artifacts immediately after upload.
       # Allow the Pages artifact metadata to propagate before deployment.
       - name: Wait for GitHub Pages artifact indexing

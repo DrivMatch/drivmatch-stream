@@ -107,3 +107,19 @@ body .source small,body .source .source-kind,body .section-head p,body .status{c
 body .source input,body .source select,body .add-source input,body .filters input,body .filters select{background:#272727!important;color:#f4f4f4!important;border-color:#555!important}
 /* Minimal red highlights only. Avoid psychedelic gradients. */
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{animation:none!important;transition-duration:0s!important}}
+
+/* Canonical Stream Now visual system — all screens, no invented slogan.
+   The logo raster must be transparent in production; no background tile. */
+:root{--sn-bg:#080808;--sn-panel:#181818;--sn-panel-raised:#242424;--sn-border:#454545;--sn-text:#f6f6f6;--sn-muted:#bdbdbd;--sn-action:#c40029;--sn-action-hover:#a40023;--sn-focus:#f2f2f2;color-scheme:dark}
+.streamnow-wordmark,.streamnow-classic-logo,.streamnow-library-logo,.gate-logo,.brand-logo{object-fit:contain;object-position:center;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;max-width:100%}
+.tv-shell .streamnow-wordmark{height:44px;width:156px}
+.streamnow-classic-logo{height:70px;width:105px;flex-shrink:0}
+.streamnow-library-logo{height:60px;width:95px;flex-shrink:0}
+.gate-logo{height:110px;width:160px;max-width:100%}
+.tv-shell .catalog-header h1,.tv-shell .now-playing h2{letter-spacing:-.025em}
+.tv-shell .column{border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.24)!important}
+.tv-shell .quick-toggle,.tv-shell .channel-row,.tv-shell .filter-btn{transition:background-color .12s ease,border-color .12s ease}
+.tv-shell .play-symbol{box-shadow:none!important}
+button{touch-action:manipulation}
+@media(max-width:800px){.tv-shell .streamnow-wordmark{width:126px;height:35px}.streamnow-classic-logo{width:75px;height:54px}.streamnow-library-logo{width:85px;height:55px}}
+@media(prefers-reduced-motion:reduce){.tv-shell .quick-toggle,.tv-shell .channel-row,.tv-shell .filter-btn{transition:none}}

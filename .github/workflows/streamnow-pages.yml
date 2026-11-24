@@ -7,6 +7,7 @@ on:
       - 'cloudflare/**'
       - 'wrangler.streamnow.jsonc'
       - 'site/**'
+      - 'scripts/verify_streamnow_brand.py'
       - 'tests/streamnow_pages.test.mjs'
       - 'tests/streamnow_brand_lock.test.mjs'
       - 'tests/streamnow_red_theme.test.mjs'
@@ -46,9 +47,13 @@ jobs:
           npm install --no-save --no-audit --no-fund esbuild@0.25.12
           mkdir -p dist
           cp -a site/. dist/
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 scripts/verify_streamnow_brand.py dist
           npx esbuild cloudflare/stream-proxy.mjs --bundle --platform=browser --format=esm --outfile=dist/_worker.js
           test -s dist/_worker.js
           test -s dist/tv.html
+          test -s dist/streamnow-brand.webp
+          test -s dist/streamnow-icon.webp
           test -s dist/daily-autopilot.m3u8
       - name: Create or reuse Cloudflare Pages project
         env:
@@ -67,6 +72,19 @@ jobs:
           ACCESS_KEY: ${{ secrets.STREAM_ACCESS_PASSWORD }}
         run: |
           printf %s "$ACCESS_KEY" | npx --yes wrangler@4 pages secret put STREAM_ACCESS_PASSWORD --project-name streamnow --config wrangler.streamnow.jsonc
+      - name: Configure Supabase sign-in (public API key only)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SB_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          SB_PUBLIC_KEY: ${{ secrets.STREAM_SUPABASE_PUBLIC_KEY }}
+        run: |
+          test -n "$SB_URL" || { echo "::error::STREAM_SUPABASE_URL missing"; exit 1; }
+          test "${#SB_PUBLIC_KEY}" -ge 15 || { echo "::error::STREAM_SUPABASE_PUBLIC_KEY missing"; exit 1; }
+          case "$SB_URL" in https://*.supabase.co|https://*.supabase.co/) ;; *) echo "::error::Expected HTTPS Supabase project URL"; exit 1;; esac
+          printf %s "$SB_URL" | npx --yes wrangler@4 pages secret put STREAM_SUPABASE_URL --project-name streamnow --config wrangler.streamnow.jsonc
+          printf %s "$SB_PUBLIC_KEY" | npx --yes wrangler@4 pages secret put STREAM_SUPABASE_PUBLIC_KEY --project-name streamnow --config wrangler.streamnow.jsonc
+          echo "Supabase public authentication settings linked; service-role key was not deployed." >> "$GITHUB_STEP_SUMMARY"
       - name: Deploy no-cost Pages hostname
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
@@ -83,9 +101,12 @@ jobs:
           set -euo pipefail
           for i in 1 2 3 4 5 6; do
             if curl --fail --silent --show-error --max-time 10 https://streamnow-2o1.pages.dev/ > /tmp/streamnow-login.html; then
-              if grep -q "Stream Now" /tmp/streamnow-login.html; then
-                echo "Staging login accessible, user secrets not logged." >> "$GITHUB_STEP_SUMMARY"
-                exit 0
+              if grep -q 'name="email"' /tmp/streamnow-login.html && grep -q 'Stream Now' /tmp/streamnow-login.html && ! grep -q 'Sua TV, do seu jeito' /tmp/streamnow-login.html && ! grep -q 'Área pessoal' /tmp/streamnow-login.html; then
+                http=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 https://streamnow-2o1.pages.dev/stream/session)
+                if [ "$http" = "403" ]; then
+                  echo "Staging Supabase email sign-in present; anonymous catalog API remains blocked." >> "$GITHUB_STEP_SUMMARY"
+                  exit 0
+                fi
               fi
             fi
             sleep 5
