@@ -65,13 +65,17 @@ function testEnvironment() {
         },
         async run(){
           if(statement.startsWith("INSERT INTO stream_email_budget")) {
-            const [request_id,day,kind,dayCheck,limit,category,publicDay,publicLimit]=args;
+            const [request_id,day,kind,dayCheck,limit,category,publicDay,publicLimit,signupKind,signupDay,signupLimit]=args;
             assert.equal(day,dayCheck);
             assert.equal(kind,category);
             assert.equal(day,publicDay);
+            assert.equal(day,signupDay);
+            assert.equal(kind,signupKind);
             const total=emailBudget.filter(x=>x.day===day).length;
             const publicTotal=emailBudget.filter(x=>x.day===day && x.kind==="public-recover").length;
-            if(total>=limit || (kind==="public-recover" && publicTotal>=publicLimit))
+            const signupTotal=emailBudget.filter(x=>x.day===day && x.kind==="signup").length;
+            if(total>=limit || (kind==="public-recover" && publicTotal>=publicLimit) ||
+              (kind==="signup" && signupTotal>=signupLimit))
               return {success:true,meta:{changes:0}};
             emailBudget.push({request_id,day,kind,status:"reserved"});
             return {success:true,meta:{changes:1}};
@@ -120,6 +124,11 @@ function testEnvironment() {
           } else if(statement.startsWith("INSERT INTO stream_admin_events")){
             events.push({admin:args[1],action:args[2],subject:args[3],
               created_at:Math.floor(Date.now()/1000)});
+          } else if(statement.startsWith("INSERT OR IGNORE INTO stream_users")) {
+            const exists=[...accounts.values()].some(x=>x.email===args[1]||x.user_id===args[0]);
+            if(!exists)accounts.set(args[0],{user_id:args[0],email:args[1],
+              role:"viewer",status:"active",created_at:Math.floor(Date.now()/1000),
+              activated_at:null,first_login_at:null,last_login_at:null,canceled_invite_at:null});
           } else if(statement.startsWith("INSERT INTO stream_users")) {
             accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited",
               created_at:Math.floor(Date.now()/1000),activated_at:null,first_login_at:null,
@@ -184,6 +193,16 @@ async function withFakeSupabase(fn) {
       return Response.json(match?{user:{id:match.id,email:match.email}}:{error:"invalid"},{
         status:match?200:400});
     }
+    if(u.pathname==="/auth/v1/signup"){
+      assert.equal(options.headers.apikey,"testing-public-key");
+      assert.equal(options.headers.Authorization,undefined);
+      if(body.email==="smtp-error@example.test")
+        return Response.json({error_code:"email_address_not_authorized"},{status:422});
+      if(body.email==="provider-limit@example.test")
+        return Response.json({error_code:"over_email_send_rate_limit"},{status:429});
+      return Response.json({user:{id:"706664d1-cd56-47bb-9a20-17eebc5851bc",
+        email:body.email,identities:[{provider:"email"}]},session:null});
+    }
     if(u.pathname==="/auth/v1/recover"){
       assert.equal(options.headers.Authorization,undefined);
       assert.equal(options.headers.apikey,"testing-public-key");
@@ -221,7 +240,7 @@ test("closed when not configured",async()=>{
   const res=await worker.fetch(req("/stream/session"),{});
   assert.equal(res.status,503);
 });
-test("unauthenticated private data denied and login has no signup",async()=>{
+test("unauthenticated private data denied but login offers public signup",async()=>{
   const {env}=testEnvironment();
   assert.equal((await worker.fetch(req("/stream/favorites"),env)).status,401);
   const loginPage=await worker.fetch(req("/stream/login"),env);
@@ -230,7 +249,7 @@ test("unauthenticated private data denied and login has no signup",async()=>{
     "HTML forms require same-origin policy to avoid Chrome Origin:null");
   const html=await loginPage.text();
   assert.match(html,/Esqueci minha senha/);
-  assert.doesNotMatch(html,/Cadastre-se/);
+  assert.match(html,/Criar conta/);
 });
 test("separate accounts cannot access one another's favorites",async()=>{
   await withFakeSupabase(async()=>{
@@ -802,5 +821,88 @@ test("an account can explicitly import browser favorites on the official Pages o
     assert.equal((await imported(official,viewer.id,["BR:local","BR:local"])).status,200);
     assert.deepEqual([...favorites.get(viewer.id)],["BR:local"]);
     assert.equal(favorites.get(users[0].id),undefined);
+  });
+});
+
+
+test("site and APK WebView can open signed self-registration form without invitation",async()=>{
+  const {env}=testEnvironment();
+  const signIn=await worker.fetch(req("/stream/login"),env);
+  assert.match(await signIn.text(),/href='\/stream\/signup'/);
+  const form=await getForm("/stream/signup",env);
+  assert.match(form.html,/type='email'/);
+  assert.match(form.html,/minlength='12'/);
+  assert.match(form.html,/\/stream\/brand.webp/);
+  assert.doesNotMatch(form.html,/Sua TV, do seu jeito|Área pessoal/i);
+});
+test("public signup creates viewer row under shared 20/day quota, no invitation",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,emailBudget}=testEnvironment();
+    const f=await getForm("/stream/signup",env);
+    const created=await worker.fetch(req("/stream/signup",{method:"POST",
+      headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:f.token,email:"joiner@example.test",
+        password:"New-user-password-12345",confirm:"New-user-password-12345"})
+    }),env);
+    assert.equal(created.status,200);
+    assert.match(await created.text(),/Cadastro solicitado/);
+    const account=accounts.get("706664d1-cd56-47bb-9a20-17eebc5851bc");
+    assert.equal(account.status,"active");
+    assert.equal(account.role,"viewer");
+    assert.equal(account.email,"joiner@example.test");
+    assert.equal(emailBudget.length,1);
+    assert.equal(emailBudget[0].kind,"signup");
+    assert.equal(emailBudget[0].status,"accepted");
+  });
+});
+test("invalid or forged signup does not call email service or create account",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,emailBudget}=testEnvironment();
+    const f=await getForm("/stream/signup",env);
+    const bad=await worker.fetch(req("/stream/signup",{method:"POST",
+      headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:f.token,email:"joiner@example.test",
+        password:"New-user-password-12345",confirm:"wrong-password"})
+    }),env);
+    assert.equal(bad.status,400);
+    const forged=await worker.fetch(req("/stream/signup",{method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({email:"joiner@example.test",
+        password:"New-user-password-12345",confirm:"New-user-password-12345"})
+    }),env);
+    assert.equal(forged.status,403);
+    assert.equal(emailBudget.length,0);
+    assert.equal(accounts.size,2);
+  });
+});
+test("public signup quota is at most 10 daily, sharing 20-slot email pool",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,emailBudget}=testEnvironment();
+    for(let i=0;i<12;i++){
+      const f=await getForm("/stream/signup",env);
+      const result=await worker.fetch(req("/stream/signup",{method:"POST",
+        headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+        body:new URLSearchParams({_csrf:f.token,email:"member"+i+"@example.test",
+          password:"New-user-password-12345",confirm:"New-user-password-12345"})
+      }),env);
+      assert.equal(result.status,i<10?200:429);
+    }
+    assert.equal(emailBudget.length,10);
+    assert.ok(emailBudget.every(e=>e.kind==="signup"));
+    assert.equal(accounts.get(users[0].id).role,"admin");
+  });
+});
+test("known SMTP signup rejection refunds reservation and gives clear error",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,emailBudget}=testEnvironment();
+    const f=await getForm("/stream/signup",env);
+    const r=await worker.fetch(req("/stream/signup",{method:"POST",
+      headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({_csrf:f.token,email:"smtp-error@example.test",
+        password:"New-user-password-12345",confirm:"New-user-password-12345"})
+    }),env);
+    assert.equal(r.status,503);
+    assert.match(await r.text(),/Cadastro indisponível/);
+    assert.equal(emailBudget.length,0);
   });
 });
