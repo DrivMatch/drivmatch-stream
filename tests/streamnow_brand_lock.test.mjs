@@ -35,16 +35,26 @@ test("canonical source palette is locked",()=>{
   white:"#FFFFFF",ui_font_family:"Montserrat"
  });
 });
-test("production mark/icon remain reference-derived approved Git blobs",()=>{
+test("canonical v1 derived blobs remain preserved, not rewritten",()=>{
  const expected={
-  "site/streamnow-brand.webp":"df287f3b1ab8b237e9d0e164b06989c0d0f58381",
-  "site/streamnow-icon.webp":"3ce257e386ae6e717f60c84bdb5179162a4c3062"
+  "00_CANONICO/DERIVADOS_V1/streamnow-brand-v1.webp":"df287f3b1ab8b237e9d0e164b06989c0d0f58381",
+  "00_CANONICO/DERIVADOS_V1/streamnow-icon-v1.webp":"3ce257e386ae6e717f60c84bdb5179162a4c3062"
  };
  assert.equal(manifest.derived_assets.length,2);
- for(const asset of manifest.derived_assets){
-  assert.equal(asset.git_blob_sha1,expected[asset.path],asset.path);
-  assert.equal(gitBlobSha(asset.path),expected[asset.path],asset.path+" modified without canonical version");
- }
+ for(const [path,sha] of Object.entries(expected))
+  assert.equal(gitBlobSha(path),sha,path+" canonical historic artwork changed");
+});
+test("production assets match approved HD transparent release, not baseline v1",()=>{
+ const expected={
+  "site/streamnow-brand.webp":"ea7de4183830abee6372d46b33365bbe7967f27a",
+  "site/streamnow-icon.webp":"b48d97462001f4eb6d40ff1291782bb8b6e460c2",
+  "android/app/src/main/res/drawable-nodpi/streamnow_icon.webp":"b48d97462001f4eb6d40ff1291782bb8b6e460c2"
+ };
+ for(const [path,sha] of Object.entries(expected))
+   assert.equal(gitBlobSha(path),sha,path+" differs from approved production artifact");
+ const release=JSON.parse(utf8("00_CANONICO/STREAM_NOW_VISUAL_RELEASE_V2.json"));
+ assert.equal(release.previous_manifest,"00_CANONICO/STREAM_NOW_CANONICAL_MANIFEST_v1.json");
+ assert.deepEqual(release.production_git_blobs,expected);
 });
 test("public brand must remain Stream Now; legacy display mark is not allowed",()=>{
  for(const p of ["site/index.html","site/tv.html","site/listas.html"]){
