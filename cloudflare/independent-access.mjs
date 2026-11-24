@@ -6,6 +6,7 @@
  */
 import legacy from "./stream-proxy.mjs";
 import {renderAccessConsole} from "./admin-console.mjs";
+import {startTasting,tastingConfig,tastingRecord,tastingStatus} from "./stripe-tasting.mjs";
 
 /*
  * The independent Stream MUST serve its own deployed asset bundle, not the
@@ -220,6 +221,54 @@ async function loginPage(error = false, env, nextAdmin = false) {
     "<button type='submit'>Entrar</button></form>" +
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
     "<small>Novas contas são criadas apenas por convite.</small>", error ? 401 : 200),token);
+}
+async function tastingPage(url, request, env, user) {
+  const config = tastingConfig(env);
+  if (!config) return plain(404,"Plano Degustação indisponível.");
+  const title = "Plano Degustação";
+  const back = "<p><a href='/stream/tv/'>Voltar ao guia</a></p>";
+  const method = request.method;
+  if (method !== "GET" && method !== "POST") return plain(405,"Method Not Allowed");
+  if (method === "POST") {
+    const data = await form(request);
+    if (!await verifyFormToken(request,url,data,env))
+      return plain(403,"Formulário expirado. Abra o plano novamente.");
+    if (data.get("account") !== user.user_id) return plain(409,"A conta conectada mudou.");
+    if (!await limit(request,env,"stripe-tasting")) return plain(429,"Aguarde antes de tentar novamente.");
+  }
+
+  try {
+    const timestamp = now();
+    if (method === "POST") {
+      await startTasting(env.STREAM_USERS_DB,config,user.user_id,timestamp);
+      return redirect(url.origin,"/stream/degustacao");
+    }
+    const record = await tastingRecord(env.STREAM_USERS_DB,user.user_id,config.mode);
+    const state = await tastingStatus(config,record,timestamp);
+    const details = "<p><strong>R$ 0</strong> · Sem cartão e sem conversão automática.</p>";
+    const modeNotice = config.mode === "test" ? "<p>Ambiente de teste do Stripe.</p>" : "";
+    const endDate = record?.ends_at ? new Intl.DateTimeFormat("pt-BR",{
+      dateStyle:"long", timeZone:"America/Sao_Paulo"
+    }).format(new Date(record.ends_at * 1000)) : "";
+    if (state === "active")
+      return page(title,details + modeNotice + "<p>Plano ativo" +
+        (endDate ? " até " + endDate : " sem prazo") + ".</p>" + back);
+    if (state === "expired") return page(title,details + modeNotice + "<p>Plano encerrado.</p>" + back);
+    if (state === "review")
+      return page(title,details + modeNotice + "<p>Ativação em revisão.</p>" + back);
+
+    const token = await issueFormToken(env);
+    const duration = state === "pending"
+      ? "<p>Ativação em andamento. Você pode tentar concluir.</p>"
+      : (config.days ? "<p>A degustação dura " + config.days + " dias.</p>" : "<p>Plano gratuito sem prazo.</p>");
+    const activate = "<form method='post' action='/stream/degustacao'>" +
+      formTokenInput(token) + "<input type='hidden' name='account' value='" + escape(user.user_id) +
+      "'><button type='submit'>" +
+      (state === "pending" ? "Concluir ativação" : "Ativar degustação") + "</button></form>";
+    return stampForm(page(title,details + modeNotice + duration + activate + back),token);
+  } catch {
+    return page(title,"<p role='alert'>O plano está temporariamente indisponível.</p>" + back,502);
+  }
 }
 function activationURL(url) {
   const origin = SHARED_PAGES_HOSTS.has(url.hostname) ? APPROVED_AUTH_ORIGIN : url.origin;
@@ -589,9 +638,11 @@ async function handle(request, env) {
       "/stream/listas/"].includes(path)) return await loginPage(false,env);
     return plain(401,"Autenticação necessária.");
   }
+  if (path === "/stream/degustacao") return tastingPage(url,request,env,user);
   if (path === "/stream/session" && (method === "GET" || method === "HEAD"))
     return new Response(method === "HEAD" ? null :
-      JSON.stringify({allowed:true,user_id:user.user_id,role:user.role,email:user.email}), {
+      JSON.stringify({allowed:true,user_id:user.user_id,role:user.role,email:user.email,
+        ...(tastingConfig(env) ? {tasting_available:true} : {})}), {
       status:200,headers:{...HEADERS,"Content-Type":"application/json"}});
   if (path === "/stream/favorites") {
     const expectedUser = request.headers.get("X-Stream-Account");

@@ -75,6 +75,10 @@ async function main() {
     SUPABASE_URL:'https://auth.example.test',
     SUPABASE_PUBLIC_KEY:'fixture-public-key',
     SUPABASE_SECRET_KEY:'fixture-admin-key',
+    STRIPE_TASTING_MODE:'test',
+    STRIPE_TASTING_SECRET_KEY:'sk_test_fixture',
+    STRIPE_TASTING_PRICE_ID:'price_fixture',
+    STRIPE_TASTING_DAYS:'7',
     ASSETS:{async fetch(request) {
       const assetPath = new URL(request.url).pathname;
       const name = path.basename(assetPath);
@@ -157,6 +161,11 @@ async function main() {
     const desktop = await open(accounts[0], false);
     const mobile = await open(accounts[0], true);
     const other = await open(accounts[1], true);
+    await mobile.getByRole('link', {name:'Plano Degustação'}).click();
+    await mobile.getByRole('heading', {name:'Plano Degustação'}).waitFor();
+    assert.match(await mobile.locator('main').innerText(), /R\$ 0/);
+    await mobile.getByRole('link', {name:'Voltar ao guia'}).click();
+    await mobile.waitForURL('**/stream/tv/');
     const staleStatus = await desktop.evaluate(async account => {
       const response = await fetch('/stream/favorites', {headers:{'X-Stream-Account':account}});
       return response.status;
