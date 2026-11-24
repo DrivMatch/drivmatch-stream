@@ -1,0 +1,109 @@
+/* STREAM NOW — GRAPHITE / RED UI v1.0 (2026-11-23)
+   Scope: Samsung / TV browser / desktop / mobile / library.
+   UI-only treatment. Canonical logo pixels are not modified.
+   Approved colors: black, gray, white and red variations. No green/blue/purple.
+   Passive colors remain calm; red signals only selection, action and broadcast.
+*/
+:root{
+  color-scheme:dark;
+  --sn-bg:#080808;--sn-surface:#171717;--sn-surface2:#202020;
+  --sn-panel:#141414;--sn-muted:#bcbcbc;--sn-soft:#dedede;
+  --sn-white:#f6f6f6;--sn-border:#424242;
+  --sn-red:#d0002d;--sn-red-light:#e60036;--sn-red-dark:#690016;
+  --sn-red-wash:#290c12;--sn-focus:#f0f0f0;
+}
+html,body{background:var(--sn-bg)!important;color:var(--sn-white)!important}
+button,a,input,select,summary{accent-color:var(--sn-red)}
+button:focus,a:focus,input:focus,summary:focus,
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{
+  outline:3px solid #f0f0f0!important;outline-offset:2px;
+  color:#fff!important;
+}
+input::placeholder{color:#b5b5b5!important}
+.tv-shell,#app{background:#080808!important;color:#f6f6f6!important}
+/* Samsung and TV/desktop 3-column viewer */
+.tv-shell{background-image:linear-gradient(150deg,#111 0%,#080808 70%,#181818 100%)!important}
+.tv-shell .topbar{background:#0b0b0b!important;border-bottom:2px solid #93001c!important;box-shadow:0 5px 22px #0008!important}
+.tv-shell .live-label{color:#e6e6e6!important}
+.tv-shell .top-link{background:#222!important;color:#f4f4f4!important;border:1px solid #666!important}
+.tv-shell .top-link:hover{background:#303030!important;border-color:#bc0027!important}
+.tv-shell .tv-layout{background:transparent!important}
+.tv-shell .column{background:#151515!important;border:1px solid #3e3e3e!important;box-shadow:0 6px 28px #0005!important;scrollbar-color:#555 #181818!important}
+.tv-shell .sidebar{background:#141414!important}
+.tv-shell .catalog{background:#181818!important}
+.tv-shell .player-column{background:#151515!important}
+.tv-shell .section-title,.tv-shell .overline,.tv-shell .player-caption{color:#e7e7e7!important}
+.tv-shell .section-title b,.tv-shell .tree-count{background:#303030!important;color:#ddd!important}
+.tv-shell .quick-toggle{background:#242424!important;border:1px solid #555!important;border-left:3px solid #a90024!important;color:#f4f4f4!important}
+.tv-shell .quick-toggle .quick-chevron,.tv-shell .tree-chevron,.tv-shell .quick-toggle b{color:#dfdfdf!important}
+.tv-shell .quick-entry-btn,.tv-shell .quick-entry-name,
+.tv-shell .source-items button,.tv-shell .country-items button,
+.tv-shell .country-items .tree-country-btn,.tv-shell .country-items .tree-genre-btn,
+.tv-shell .country-items .tree-channel-btn{background:#202020!important;border:1px solid #484848!important;color:#f1f1f1!important}
+.tv-shell .country-items button.active,.tv-shell .country-items .tree-country-btn.active,
+.tv-shell .country-items .tree-genre-btn.active,.tv-shell .source-items button.active{
+  background:#7f001b!important;border-color:#d0002d!important;color:#fff!important
+}
+.tv-shell .sidebar-note,.tv-shell .catalog-header p,.tv-shell .catalog-status,
+.tv-shell .now-playing p,.tv-shell .channel-row .channel-btn small,
+.tv-shell .disclaimer,.tv-shell .remote-hint{color:#bcbcbc!important}
+.tv-shell .catalog-header h1,.tv-shell .now-playing h2{color:#fafafa!important}
+.tv-shell .filter-btn,.tv-shell .mobile-panes button{
+ background:#252525!important;color:#e7e7e7!important;border:1px solid #555!important
+}
+.tv-shell .filter-btn.active,html.dm-mobile-guide .tv-shell .mobile-panes button[aria-pressed="true"]{
+ background:#b30027!important;border-color:#e60036!important;color:#fff!important
+}
+.tv-shell .search-row input{background:#252525!important;color:#f5f5f5!important;border:1px solid #646464!important}
+.tv-shell .search-row input:focus{background:#303030!important;border-color:#e0e0e0!important}
+.tv-shell .search-row button{background:#333!important;color:#eee!important;border:1px solid #555!important}
+.tv-shell .channel-heading span{color:#dedede!important}
+.tv-shell .channel-heading button,.tv-shell .more-btn,.tv-shell .restore-hidden{
+ background:#84001c!important;border:1px solid #c5002a!important;color:#fff!important
+}
+.tv-shell .channel-row{background:#202020!important;border:1px solid #444!important}
+.tv-shell .channel-row.current{background:#390d18!important;border:1px solid #ce002a!important;box-shadow:inset 3px 0 0 #d0002d!important}
+.tv-shell .channel-row .channel-btn{color:#f5f5f5!important}
+.tv-shell .channel-number{color:#bcbcbc!important}
+.tv-shell .channel-row .fav-btn,.tv-shell .channel-row .fav-btn.marked{color:#e4e4e4!important}
+.tv-shell .player-frame{background:#050505!important;border:2px solid #515151!important;box-shadow:0 8px 22px #0008!important}
+.tv-shell .play-symbol{background:linear-gradient(140deg,#8d001d,#d0002d)!important;color:#fff!important;box-shadow:0 0 16px #30060e!important}
+.tv-shell .player-actions button{background:#292929!important;border:1px solid #666!important;color:#ededed!important}
+.tv-shell .player-actions button:not(:disabled):hover{background:#4a1722!important;border-color:#d0002d!important}
+.tv-shell .play-status{color:#ddd!important}
+.tv-shell .provider-footer button,.tv-shell .technical-footer button{background:#272727!important;border-color:#575757!important;color:#e7e7e7!important}
+.tv-shell .connection-status.online .status-dot,.tv-shell .status-dot{background:#cf002d!important}
+.tv-shell .connection-status.offline .status-dot{background:#888!important}
+/* Mobile/Tizen has earlier important legacy rules, override them explicitly */
+html.dm-mobile-guide .tv-shell .topbar{background:#0b0b0b!important;border-color:#93001c!important}
+html.dm-mobile-guide .tv-shell .mobile-panes button{background:#242424!important;border:1px solid #606060!important;color:#fff!important}
+html.dm-mobile-guide .tv-shell .mobile-panes button[aria-pressed="true"]{background:#96001f!important;border-color:#d0002d!important;color:#fff!important}
+/* Classic Stream fallback */
+body #tv .topbar{background:#101010!important;border:1px solid #414141!important}
+body #tv .brand p,body #tv .guide-heading p{color:#bbb!important}
+body #tv .watch-panel,body #tv .guide{background:#171717!important;border:1px solid #464646!important;color:#f4f4f4!important}
+body #tv .player-topline,body #tv .now-playing{background:#202020!important;color:#eee!important}
+body #tv .screen{background:#050505!important}
+body #tv .play-mark{background:#bc0029!important;color:#fff!important}
+body #tv .filters button,body #tv .countries button{background:#292929!important;border:1px solid #555!important;color:#eee!important}
+body #tv .filters button.chosen,body #tv .countries button.chosen{background:#a60024!important;border-color:#d0002d!important;color:#fff!important}
+body #tv #search{background:#252525!important;color:#f4f4f4!important;border-color:#555!important}
+body #tv .channel{background:#222!important;color:#eee!important;border:1px solid #444!important}
+body #tv .channel.active{background:#390e18!important;border-color:#c9002b!important}
+body #tv .channel .pick,body #tv .channel .pick strong{color:#fff!important}
+body #tv .channel-avatar{background:#323232!important;color:#f1f1f1!important}
+body #tv .library-entry,body #tv .more-channels{background:#990020!important;border-color:#d0002d!important;color:#fff!important}
+body #tv .player-actions button{background:#2b2b2b!important;border-color:#555!important;color:#f1f1f1!important}
+body #tv .site-footer,body #tv .status{color:#bcbcbc!important}
+/* Playlist library */
+body .header{background:#121212!important;border:1px solid #444!important;color:#f6f6f6!important}
+body .header .eyebrow,body .header h1 span{color:#e6e6e6!important}
+body .header p{color:#ccc!important}
+body .header .back{background:#94001d!important;border-color:#c9002b!important;color:#fff!important}
+body .panel{background:#191919!important;border:1px solid #484848!important;color:#f1f1f1!important}
+body .source{background:#242424!important;border:1px solid #4b4b4b!important;color:#eee!important}
+body .source.active{background:#400e19!important;border-color:#d0002d!important;box-shadow:inset 3px 0 0 #d0002d!important}
+body .source small,body .source .source-kind,body .section-head p,body .status{color:#bcbcbc!important}
+body .source input,body .source select,body .add-source input,body .filters input,body .filters select{background:#272727!important;color:#f4f4f4!important;border-color:#555!important}
+/* Minimal red highlights only. Avoid psychedelic gradients. */
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{animation:none!important;transition-duration:0s!important}}
