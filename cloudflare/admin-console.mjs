@@ -116,6 +116,8 @@ export function daysSinceFirstLogin(firstLoginEpoch,asOfEpoch=Math.floor(Date.no
   return Math.max(0,saoPauloCalendarDay(at)-saoPauloCalendarDay(first));
 }
 function state(u) {
+  if(u.approval_state==="pending") return ["Aguardando aprovação","invited"];
+  if(u.approval_state==="rejected") return ["Cadastro rejeitado","suspended"];
   if(u.status==="invited") return ["Convite pendente","invited"];
   if(u.status==="active") return ["Ativo","active"];
   return u.canceled_invite_at ? ["Convite cancelado","suspended"] :
@@ -134,7 +136,10 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
   const [label,cls]=state(u);
   let actions="";
   if(!own && u.role==="viewer") {
-    if(u.status==="invited"){
+    if(u.approval_state==="pending") {
+      actions+=formFor("approval",u.user_id,token,"Aprovar cadastro","btn-primary","Aprovar este usuário e permitir seu login?","", "approved").replace("name='status'","name='decision'");
+      actions+=formFor("approval",u.user_id,token,"Rejeitar cadastro","btn-danger","Rejeitar esta solicitação?","", "rejected").replace("name='status'","name='decision'");
+    }else     if(u.status==="invited"){
       actions+=formFor("resend",u.user_id,token,"Reenviar link de ativação","btn-subtle",
         "Solicitar novo e-mail de ativação para esta conta?");
       actions+=formFor("manual-link",u.user_id,token,"Gerar link privado para copiar","",
@@ -181,11 +186,13 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
     "</div></dialog>";
 }
 function activityName(action){
-  return ({"invite":"Convite solicitado","resend":"Reenvio solicitado","recover":"Recuperação solicitada",
+  return ({"signup-approved":"Cadastro aprovado","signup-rejected":"Cadastro rejeitado","invite":"Convite solicitado","resend":"Reenvio solicitado","recover":"Recuperação solicitada",
     "active":"Acesso reativado","suspended":"Acesso suspenso","cancel-invite":"Convite cancelado",
     "restore-invite":"Convite reativado","revoke":"Sessões encerradas"})[action]||"Ação administrativa";
 }
 const RESULTS={
+  approved:"Cadastro aprovado. O usuário já pode entrar após confirmar o e-mail.",
+  rejected:"Solicitação rejeitada. O usuário permanece sem acesso.",
   invited:"Convite solicitado ao provedor. Confirme o recebimento com o destinatário.",
   resent:"Reenvio solicitado ao provedor. Confira a caixa de entrada e o spam.",
   recovered:"E-mail de recuperação solicitado ao provedor. A entrega não é garantida.",
@@ -226,7 +233,7 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     dialogs.push(detailsFor(u,actorId,token,index,asOfEpoch));
   }
   const summary=[
-    ["Contas",users.length],["Ativos",totals.active],["Convites pendentes",totals.invited],
+    ["Contas",users.length],["Ativos",users.filter(u=>u.status==="active"&&u.approval_state!=="pending").length],["Aguardando decisão",users.filter(u=>u.approval_state==="pending").length],
     ["Suspensos/cancelados",totals.suspended]
   ].map(([title,count])=>"<div class='metric'><span>"+esc(title)+"</span><strong>"+esc(count)+"</strong></div>").join("");
   const history=events.length?events.map(e=>"<li><span><strong>"+esc(activityName(e.action))+"</strong>"+
