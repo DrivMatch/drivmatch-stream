@@ -24,7 +24,7 @@ test("login, favorites and tasting go through one authority without replacing th
     }
     return new Response("from the existing Worker");
   }}};
-  for(const path of ["/stream/login","/stream/favorites","/stream/degustacao"]){
+  for(const path of ["/stream/login","/stream/signup","/stream/favorites","/stream/degustacao"]){
     const response=await pages.fetch(request(official,path,{
       method:"POST",headers:{Cookie:"dm_stream_user=fixture",Origin:official},body:"example"
     }),env);
