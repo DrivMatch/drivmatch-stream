@@ -942,7 +942,7 @@ test("administrator can reject signup; rejected user stays blocked and cannot be
     const viewer=accounts.get(users[1].id);
     const old=cookie(await login(users[1].email,users[1].password,env));
     viewer.approval_state="pending";
-    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env)).status,200);
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env)).status,401);
     const blocked=await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env);
     assert.equal((await blocked.json()).allowed,false);
     const admin=cookie(await login(users[0].email,users[0].password,env));
