@@ -130,11 +130,11 @@
       "id": "lista-12",
       "title": "Lista 12 • Autopiloto diário — sinais públicos verificados",
       "kind": "automática · sinais HLS verificados remotamente",
-      "description": "Catálogo curado por rotina diária às 09h20 de Brasília. Pesquisa fontes públicas, classifica por país e categoria, valida manifesto e segmento HLS. Sinais sem resposta saem desta lista automática; isso não certifica licença nem reprodução na sua Samsung. Originais e favoritos permanecem preservados.",
+      "description": "Catálogo curado por rotina diária às 02h de Brasília. Pesquisa fontes públicas, classifica por país e categoria, valida manifesto e segmento HLS. Sinais sem resposta saem desta lista automática; isso não certifica licença nem reprodução na sua Samsung. Originais e favoritos permanecem preservados.",
       "urls": [
-        "https://streamnow.pages.dev/daily-autopilot.m3u8"
+        "https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8"
       ],
-      "source": "https://streamnow.pages.dev/daily-autopilot.m3u8"
+      "source": "https://drivmatch.github.io/drivmatch-stream/daily-autopilot.m3u8"
     },
     {
       "id": "lista-13",

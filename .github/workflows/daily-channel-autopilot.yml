@@ -65,13 +65,18 @@ jobs:
           git commit -m "chore(channels): daily verified public TV update"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
-      - name: Redeploy Pages after catalog update
+      - name: Redeploy GitHub Pages after catalog update
         if: steps.changes.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run pages.yml --ref main
           echo "::notice::Stream Pages deployment dispatched"
+      - name: Redeploy Stream Now Cloudflare Pages after catalog update
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run streamnow-pages.yml --ref main
       - name: Audit report
         if: always()
         run: |
