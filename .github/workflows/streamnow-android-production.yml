@@ -1,0 +1,107 @@
+name: Stream Now Android production AAB candidate
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/streamnow-android-production.yml'
+      - 'docs/STREAMNOW_GOOGLE_PLAY_RELEASE.md'
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/streamnow-android-production.yml'
+      - 'docs/STREAMNOW_GOOGLE_PLAY_RELEASE.md'
+permissions:
+  contents: read
+
+jobs:
+  android-aab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Validate production settings
+        run: |
+          set -euo pipefail
+          grep -Fq 'targetSdk 36' android/app/build.gradle
+          grep -Fq 'compileSdk 36' android/app/build.gradle
+          grep -Fq 'applicationId "com.streamnow.app"' android/app/build.gradle
+          grep -Fq 'versionName "1.0.0"' android/app/build.gradle
+          grep -Fq 'https://streamnow-2o1.pages.dev/' android/app/build.gradle
+          node --test tests/streamnow_domain_cutover.test.mjs
+      - name: Preserve original Stream Now icon
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 scripts/verify_streamnow_brand.py site
+          cp site/streamnow-icon.webp android/app/src/main/res/drawable-nodpi/streamnow_icon.webp
+      - name: Restore upload signing key only when properly configured
+        id: key
+        env:
+          KEYSTORE_B64: ${{ secrets.STREAMNOW_UPLOAD_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.STREAMNOW_UPLOAD_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.STREAMNOW_UPLOAD_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.STREAMNOW_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          count=0
+          for name in KEYSTORE_B64 STORE_PASS KEY_ALIAS KEY_PASS; do
+            if [ -n "${!name}" ]; then count=$((count + 1)); fi
+          done
+          if [ "$count" -eq 0 ]; then
+            echo 'signed=false' >> "$GITHUB_OUTPUT"
+            echo 'Upload signing key not configured. Bundle will be UNSIGNED and NOT eligible for Play submission.' >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$count" -ne 4 ]; then
+            echo '::error::Incomplete signing secrets. No bundle will be created.'
+            exit 1
+          else
+            umask 077
+            file="$RUNNER_TEMP/streamnow-upload-keystore.jks"
+            printf '%s' "$KEYSTORE_B64" | base64 --decode > "$file"
+            test -s "$file"
+            echo "STREAMNOW_UPLOAD_KEYSTORE_FILE=$file" >> "$GITHUB_ENV"
+            echo "STREAMNOW_UPLOAD_KEYSTORE_PASSWORD=$STORE_PASS" >> "$GITHUB_ENV"
+            echo "STREAMNOW_UPLOAD_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "STREAMNOW_UPLOAD_KEY_PASSWORD=$KEY_PASS" >> "$GITHUB_ENV"
+            echo 'signed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build real Android App Bundle
+        working-directory: android
+        run: gradle :app:bundleRelease --no-daemon --stacktrace
+      - name: Inspect generated bundle and signing state
+        env:
+          SIGNED: ${{ steps.key.outputs.signed }}
+        run: |
+          set -euo pipefail
+          a=android/app/build/outputs/bundle/release/app-release.aab
+          test -s "$a"
+          unzip -t "$a" > /dev/null
+          if [ "$SIGNED" = true ]; then
+            jarsigner -verify -strict -certs "$a"
+            echo 'AAB signed with the owner's provided upload key. Play and rights review are still required.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            if unzip -Z1 "$a" | grep -Eq '^META-INF/.*\\.(RSA|DSA|EC)$'; then
+              echo '::error::Unexpected signature on unsigned build'; exit 1
+            fi
+            echo 'Unsigned build validated for compiling only. DO NOT upload to Google Play.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          sha256sum "$a"
+      - name: Deliver build for release process
+        uses: actions/upload-artifact@v4
+        with:
+          name: StreamNow-Android-1.0.0-AAB-${{ steps.key.outputs.signed == 'true' && 'SIGNED-UPLOAD' || 'UNSIGNED-NOT-FOR-PLAY' }}
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+      - name: Destroy ephemeral key
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/streamnow-upload-keystore.jks"
