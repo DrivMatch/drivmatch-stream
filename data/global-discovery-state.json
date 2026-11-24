@@ -31653,6 +31653,12 @@
   },
   "schema": 1,
   "sources": {
+    "https://gitlab.com/best-iptv11/best-iptv": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-24",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
     "https://gitlab.com/bestnetworkprovider2026/guide-bestes-iptv-dach-8321": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-23",
@@ -31704,6 +31710,12 @@
     "https://gitlab.com/iptv-streaming-guide-group1/iptv-evening-trials-canada": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-23",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
+    "https://gitlab.com/iptv-streaming-guide-group1/iptv-trials-for-second-devices-uk": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-24",
       "state": "REVIEW_REQUIRED",
       "type": "repository_candidate"
     },

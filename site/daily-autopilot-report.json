@@ -62,7 +62,7 @@
       "twitch-broadcaster-live"
     ]
   },
-  "published_healthy": 301,
+  "published_healthy": 347,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
@@ -101,6 +101,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 120,
-  "tested_failed": 41,
-  "tested_ok": 79
+  "tested_failed": 39,
+  "tested_ok": 81
 }
