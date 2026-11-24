@@ -1,0 +1,35 @@
+name: Stream Now browser and device engine test matrix
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tests/streamnow_device_matrix.cjs'
+      - '.github/workflows/streamnow-device-matrix.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tests/streamnow_device_matrix.cjs'
+      - '.github/workflows/streamnow-device-matrix.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ui-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright and three rendering engines
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Execute ten viewport/browser-engine probes
+        run: node tests/streamnow_device_matrix.cjs
+      - name: Scope and honesty
+        run: |
+          echo 'Emulated browser engines and screen sizes only. Samsung hardware, Android WebView physical device and iPad hardware are not certified.' >> "$GITHUB_STEP_SUMMARY"
