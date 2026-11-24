@@ -67,6 +67,19 @@ jobs:
           ACCESS_KEY: ${{ secrets.STREAM_ACCESS_PASSWORD }}
         run: |
           printf %s "$ACCESS_KEY" | npx --yes wrangler@4 pages secret put STREAM_ACCESS_PASSWORD --project-name streamnow --config wrangler.streamnow.jsonc
+      - name: Configure Supabase sign-in (public API key only)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SB_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          SB_PUBLIC_KEY: ${{ secrets.STREAM_SUPABASE_PUBLIC_KEY }}
+        run: |
+          test -n "$SB_URL" || { echo "::error::STREAM_SUPABASE_URL missing"; exit 1; }
+          test "${#SB_PUBLIC_KEY}" -ge 15 || { echo "::error::STREAM_SUPABASE_PUBLIC_KEY missing"; exit 1; }
+          case "$SB_URL" in https://*.supabase.co|https://*.supabase.co/) ;; *) echo "::error::Expected HTTPS Supabase project URL"; exit 1;; esac
+          printf %s "$SB_URL" | npx --yes wrangler@4 pages secret put STREAM_SUPABASE_URL --project-name streamnow --config wrangler.streamnow.jsonc
+          printf %s "$SB_PUBLIC_KEY" | npx --yes wrangler@4 pages secret put STREAM_SUPABASE_PUBLIC_KEY --project-name streamnow --config wrangler.streamnow.jsonc
+          echo "Supabase public authentication settings linked; service-role key was not deployed." >> "$GITHUB_STEP_SUMMARY"
       - name: Deploy no-cost Pages hostname
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
