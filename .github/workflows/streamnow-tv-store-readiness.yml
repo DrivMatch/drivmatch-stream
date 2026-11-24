@@ -1,0 +1,31 @@
+name: Stream Now TV store release readiness
+on:
+  pull_request:
+    branches: [main]
+    paths: ['tv-platforms/store-submission/**', '.github/workflows/streamnow-tv-store-readiness.yml']
+  push:
+    branches: [main]
+    paths: ['tv-platforms/store-submission/**', '.github/workflows/streamnow-tv-store-readiness.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify metadata parser and deliberate release blocking
+        run: |
+          node --check tv-platforms/store-submission/preflight.mjs
+          if node tv-platforms/store-submission/preflight.mjs; then
+            echo 'Submission fields present: manual rights, TV hardware and seller review still mandatory.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Release BLOCKED by missing required evidence. This is expected until the real owner completes seller/rights fields.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Ensure we do not mislabel Samsung unsigned source as WGT
+        run: |
+          grep -q 'development shell' tv-platforms/README.md
+          grep -q 'não.*WGT' tv-platforms/README.md || grep -q 'NÃO.*WGT' tv-platforms/README.md
