@@ -18,7 +18,7 @@ const price = {
 function fixture(t, {days = "7", unitAmount = 0, failOnce = false} = {}) {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
-  for (const migration of ["0001_stream_identities.sql", "0004_stream_admin_stepup.sql", "0005_stream_tasting.sql"]) {
+  for (const migration of ["0001_stream_identities.sql", "0004_stream_admin_stepup.sql", "0005_stream_tasting.sql", "0007_stream_approval.sql"]) {
     db.exec(readFileSync(new URL("../migrations/" + migration, import.meta.url), "utf8"));
   }
   db.prepare("INSERT INTO stream_users(user_id,email,status) VALUES(?,?,'active')")
