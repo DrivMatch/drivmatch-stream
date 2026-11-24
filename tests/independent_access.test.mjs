@@ -914,3 +914,57 @@ test("known SMTP signup rejection refunds reservation and gives clear error",asy
     assert.equal(emailBudget.length,0);
   });
 });
+
+test("self-signup waits for administrator approval; approval permits login",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,events}=testEnvironment();
+    accounts.get(users[1].id).approval_state="pending";
+    const denied=await login(users[1].email,users[1].password,env);
+    assert.equal(denied.status,401);
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const board=await worker.fetch(req("/stream/admin",{headers:{Cookie:a}}),env);
+    const html=await board.text();
+    assert.match(html,/Aguardando aprova(?:ção|&#)/);
+    assert.match(html,/Aprovar cadastro/);
+    assert.match(html,/Rejeitar cadastro/);
+    assert.match(html,/name='decision' value='approved'/);
+    const approved=await adminAction(env,a,"approval",users[1].id,{decision:"approved"});
+    assert.equal(approved.status,303);
+    assert.equal(accounts.get(users[1].id).approval_state,"approved");
+    assert.ok(events.some(e=>e.action==="signup-approved"));
+    assert.equal((await login(users[1].email,users[1].password,env)).status,303);
+    assert.equal((await adminAction(env,a,"approval",users[1].id,{decision:"approved"})).status,409);
+  });
+});
+test("administrator can reject signup; rejected user stays blocked and cannot be reactivated via status",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,sessions}=testEnvironment();
+    const viewer=accounts.get(users[1].id);
+    const old=cookie(await login(users[1].email,users[1].password,env));
+    viewer.approval_state="pending";
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env)).status,200);
+    const blocked=await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env);
+    assert.equal((await blocked.json()).allowed,false);
+    const admin=cookie(await login(users[0].email,users[0].password,env));
+    const rejected=await adminAction(env,admin,"approval",viewer.user_id,{decision:"rejected"});
+    assert.equal(rejected.status,303);
+    assert.equal(viewer.status,"suspended");
+    assert.equal(viewer.approval_state,"rejected");
+    assert.equal((await login(users[1].email,users[1].password,env)).status,401);
+    assert.equal((await adminAction(env,admin,"status",viewer.user_id,{status:"active"})).status,409);
+    assert.equal([...sessions.values()].some(s=>s.user_id===viewer.user_id),false);
+  });
+});
+test("viewer cannot approve their own request or bypass signed administrative form",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    accounts.get(users[1].id).approval_state="pending";
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const request=await worker.fetch(req("/stream/admin/approval",{
+      method:"POST",headers:{Cookie:a,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({user_id:users[1].id,decision:"approved"})
+    }),env);
+    assert.equal(request.status,403);
+    assert.equal(accounts.get(users[1].id).approval_state,"pending");
+  });
+});
