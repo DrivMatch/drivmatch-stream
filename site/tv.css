@@ -810,3 +810,59 @@ html.dm-mobile-guide .technical-source-name{font-size:12px!important}
  html.dm-mobile-guide .now-playing h2{font-size:13px!important}
  html.dm-mobile-guide .player-actions button{min-height:24px!important}
 }
+
+
+/* STREAM NOW | Canonical brand layer | 2026-11-23
+ * Decorative-only overrides. Preserve the tested three-column Samsung layout,
+ * mobile panes, focus visibility and all player/catalog IDs.
+ */
+html,body{background:#080114;color:#fff}
+.tv-shell{background:#080114;background-image:linear-gradient(145deg,#160418 0%,#080114 48%,#12081d 100%)}
+.topbar{background:#09020e;border-bottom:2px solid #a61959;box-shadow:0 2px 20px rgba(255,20,120,.13)}
+.brand{height:100%;white-space:nowrap}
+.streamnow-wordmark{display:inline-block;width:156px;height:38px;max-width:100%;object-fit:contain;vertical-align:middle}
+.live-label{display:inline-block;font-size:12px;font-weight:bold;color:#ff6fa0;letter-spacing:1px;margin-right:14px}
+.top-link{color:#fff;border:1px solid #ff1478;border-radius:20px;background:#871139}
+.top-link:hover{background:#c91b5b}
+.tv-layout{background:transparent}
+.column{background:#120a1c;border:1px solid #47233b;scrollbar-color:#a12163 #14091b;box-shadow:0 4px 15px rgba(0,0,0,.16)}
+.sidebar{background:#12091c}
+.catalog{background:#0d0717}
+.player-column{background:#10091b}
+.section-title,.overline,.player-caption{color:#ff78ad}
+.section-title b,.tree-count{background:#32132d;color:#ffbed7}
+.quick-toggle{background:#27132d;border:1px solid #87405e;border-left:4px solid #ff1478;color:#fff}
+.quick-toggle .quick-chevron,.tree-chevron{color:#ff8eb7}
+.quick-toggle b{color:#ffe2ed}
+.quick-entry-btn,.quick-entry-name,.source-items button,.country-items button,.country-items .tree-country-btn,.country-items .tree-genre-btn,.country-items .tree-channel-btn{background:#1d1029;border-color:#51304c;color:#f7eff7}
+.source-items button.active,.country-items button.active,.country-items .tree-country-btn.active,.country-items .tree-genre-btn.active{background:#7b1549;border-color:#ff4c93;color:#fff}
+.country-items .tree-country-btn:hover,.country-items .tree-genre-btn:hover,.channel-row:hover{border-color:#bb407e}
+.sidebar-note,.catalog-header p,.catalog-status,.now-playing p,.channel-row .channel-btn small,.disclaimer,.remote-hint{color:#cab4ce}
+.catalog-header h1,.now-playing h2{color:#fff}
+.filter-btn,.mobile-panes button{background:#27142f;color:#f8e8f3;border:1px solid #6a3157}
+.filter-btn.active,html.dm-mobile-guide .mobile-panes button[aria-pressed="true"]{background:#ff003c;border-color:#ff6099;color:#fff}
+.search-row input{background:#1f1129!important;color:#fff!important;border:1px solid #86506f!important}
+.search-row input:focus{background:#2b1634!important;color:#fff!important;border-color:#ff6ea3!important}
+.search-row input::placeholder{color:#bfabc0}
+.search-row button{background:#5a1c43;color:#fff}
+.channel-heading span{color:#f8d5e6}
+.channel-heading button,.more-btn,.restore-hidden{color:#fff;background:#53183d;border:1px solid #a94c79}
+.channel-row{background:#1c1128;border:1px solid #4b304d}
+.channel-row.current{background:#64163f;border-color:#ff3d8b;box-shadow:inset 3px 0 0 #ff1478}
+.channel-row .channel-btn{color:#fff}
+.channel-number{color:#eeb6d0}
+.channel-row .fav-btn.marked{color:#ffca62}
+.player-frame{background:#05010a;border:2px solid #8f2758;box-shadow:0 0 22px rgba(255,20,120,.1)}
+.play-symbol{background:linear-gradient(125deg,#ff003c,#ff1478,#9c00ff);color:#fff;box-shadow:0 0 18px rgba(255,20,120,.3)}
+.player-actions button{background:#2c1431;border:1px solid #884568;color:#fff}
+.player-actions button:not(:disabled):hover{background:#7c174b;border-color:#ff5b9e}
+.play-status{color:#ffb3ce}
+.provider-footer button,.technical-footer button{background:#26132e;color:#f3e6f0;border-color:#824266}
+button:focus,a:focus,input:focus{outline:3px solid #ffb4d0!important;outline-offset:1px;background:#7f174b!important;color:#fff!important}
+html.dm-desktop-compact .streamnow-wordmark{width:151px;height:35px}
+@media(max-width:1000px){.streamnow-wordmark{width:145px;height:34px}.live-label{font-size:10px;margin-right:8px}}
+html.dm-mobile-guide .topbar{background:#09020e!important;border-bottom:2px solid #ff1478!important}
+html.dm-mobile-guide .streamnow-wordmark{width:122px;height:31px}
+html.dm-mobile-guide .live-label{font-size:10px;margin-right:6px}
+html.dm-mobile-guide .mobile-panes button{background:#30142c!important;border:1px solid #8d4267!important;color:#fff!important}
+html.dm-mobile-guide .mobile-panes button[aria-pressed="true"]{background:#be0b51!important;border-color:#ff75a9!important}

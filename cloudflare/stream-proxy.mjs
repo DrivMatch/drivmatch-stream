@@ -8,6 +8,8 @@ import {countryIndex,mergedCatalog,searchCatalog} from "./catalog-merge.mjs";
 const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
 const FILES={"/":"tv.html","/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
+  "/stream/brand.webp":"streamnow-brand.webp",
+  "/stream/icon.webp":"streamnow-icon.webp",
   "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html","/stream/tv/index.html":"tv.html",
   "/stream/tv/tv.css":"tv.css","/stream/tv/tv.js":"tv.js",
@@ -82,17 +84,17 @@ function loginPage(error=false,method="GET",pinMode=false){
  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<meta name="robots" content="noindex,nofollow,noarchive">',
- '<title>Stream Now · Acesso pessoal</title><style>',
- '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f6f8fa;color:#091a2b;display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;padding:20px}',
- 'main{width:min(440px,100%);padding:38px 30px;background:white;border:1px solid #dfe6ed;border-radius:24px}',
- '.eyebrow{font-size:.8rem;color:#167ade;letter-spacing:1.6px;font-weight:750}',
- 'h1{font-size:2rem;margin:14px 0}p{color:#536273;line-height:1.55}',
+ '<title>Stream Now · Acesso pessoal</title><link rel="icon" href="/stream/icon.webp" type="image/webp"><style>',
+ '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 13% 10%,#4d082d 0%,transparent 42%),radial-gradient(circle at 95% 94%,#290a40 0%,transparent 38%),#080114;color:#fff;display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;padding:20px}',
+ 'main{width:min(440px,100%);padding:38px 30px;background:#130a20;border:1px solid #742040;border-radius:24px}',
+ '.eyebrow{font-size:.8rem;color:#ff5e93;letter-spacing:1.6px;font-weight:750}',
+ 'h1{font-size:2rem;margin:14px 0}p{color:#dbc5d4;line-height:1.55}',
  'label{display:block;font-weight:650;margin:24px 0 8px}',
- 'input{width:100%;font-size:1.1rem;border:1px solid #aabacb;border-radius:12px;padding:14px;background:#fff}',
- 'button{width:100%;padding:15px;border:0;border-radius:12px;background:#091a2b;color:white;font-size:1rem;font-weight:700;margin-top:18px}',
- '.alert{color:#a81f25;font-weight:600}small{display:block;margin-top:20px;color:#667788}',
- '</style></head><body><main><div class="eyebrow">STREAM NOW · ACESSO PESSOAL</div>',
- '<h1>Minha TV Internacional</h1>',
+ 'input{width:100%;font-size:1.1rem;border:1px solid #aa416c;border-radius:12px;padding:14px;background:#fdf9fd;color:#16101c}',
+ 'button{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(110deg,#ff003c,#ff1478);color:white;font-size:1rem;font-weight:700;margin-top:18px}',
+ '.alert{color:#ff98ab;font-weight:600}small{display:block;margin-top:20px;color:#bca5ba}.brand-logo{display:block;width:min(250px,88%);height:auto;margin:0 auto 20px}.eyebrow{text-align:center}label{color:#f9ecf4}',
+ '</style></head><body><main><img class="brand-logo" src="/stream/brand.webp" width="220" height="62" alt="Stream Now"><div class="eyebrow">ACESSO PESSOAL</div>',
+ '<h1>Sua TV, do seu jeito.</h1>',
  pinMode?'<p>Digite seu PIN pessoal de 8 números para assistir aos canais.</p>':
  '<p>Digite sua senha particular para assistir aos canais.</p>',
  error?'<p role="alert" class="alert">'+(pinMode?'PIN incorreto.':'Senha incorreta.')+' Tente novamente.</p>':'',
@@ -105,7 +107,7 @@ function loginPage(error=false,method="GET",pinMode=false){
  ].join("");
  return new Response(method==="HEAD"?null:html,{status:error?401:200,
  headers:{...baseHeaders,"Content-Type":"text/html; charset=utf-8",
- "Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
+ "Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
 }
 const b64=bytes=>btoa(String.fromCharCode(...bytes)).replaceAll("+","-").replaceAll("/","_").replace(/=+$/,"");
 function decode64(s){try{
@@ -164,13 +166,26 @@ export default {async fetch(request,env){
  }:curatedCatalogue;
  if(host!=="drivmatch.com"&&!preview&&!pagesHost)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
- if(path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
+ if(path!=="/stream/brand.webp"&&path!=="/stream/icon.webp"&&path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
     path!=="/stream/logout"&&path!=="/stream/countries"&&path!=="/stream/search"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
+ if(path==="/stream/brand.webp"||path==="/stream/icon.webp"){
+   const assetFile=path==="/stream/icon.webp"?"streamnow-icon.webp":"streamnow-brand.webp";
+   if(request.method!=="GET"&&request.method!=="HEAD")return plain(405,"Method Not Allowed");
+   try{
+     const response=pagesHost
+       ?(env?.ASSETS?await env.ASSETS.fetch(new Request(new URL("/"+assetFile,url.origin),{method:request.method})):plain(503,"Asset missing"))
+       :await fetch(ORIGIN+assetFile,{method:request.method,redirect:"manual"});
+     if(!response.ok)return plain(502,"Logo temporarily unavailable");
+     return new Response(request.method==="HEAD"?null:response.body,{status:200,headers:{
+       "Content-Type":"image/webp","Cache-Control":"public,max-age=86400",
+       "X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"same-origin"}});
+   }catch{return plain(502,"Logo temporarily unavailable");}
+ }
  if(path==="/daily-autopilot.m3u8"){
    if(!pagesHost||!env?.ASSETS||(request.method!=="GET"&&request.method!=="HEAD"))return plain(404,"Not Found");
    try{
@@ -283,7 +298,8 @@ export default {async fetch(request,env){
    if(!upstream.ok)return plain(upstream.status===404?404:502,"Stream indisponível");
    const kind=file.endsWith(".js")?"text/javascript; charset=utf-8":
      file.endsWith(".css")?"text/css; charset=utf-8":
-     file.endsWith(".json")?"application/json; charset=utf-8":"text/html; charset=utf-8";
+     file.endsWith(".json")?"application/json; charset=utf-8":
+     file.endsWith(".webp")?"image/webp":"text/html; charset=utf-8";
    return new Response(request.method==="HEAD"?null:upstream.body,{
      status:200,headers:{...appHeaders,
        ...(file==="tv.html"?{"Referrer-Policy":"strict-origin-when-cross-origin"}:{}),

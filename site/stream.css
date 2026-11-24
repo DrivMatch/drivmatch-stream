@@ -259,3 +259,67 @@ body.tv-legacy .channel .pick{-webkit-box-flex:1;flex:1}
 body.tv-legacy #more-channels{display:block}
 body.tv-legacy #more-channels[hidden]{display:none!important}
 body.tv-legacy .site-footer{margin-left:58%}
+
+
+/* Stream Now official brand: classic browser/fallback presentation */
+:root{color-scheme:dark;--bg:#080114;--paper:#140a1f;--ink:#fff;--muted:#cbb4c5;--line:#59233d;--navy:#100619;--navy-2:#26102f;--blue:#ff1478;--blue-light:#421432;--gold:#ffc468;--green:#21c68c;--red:#ff003c;--shadow:0 12px 30px rgba(0,0,0,.24)}
+body{background:radial-gradient(circle at 90% 0,rgba(156,0,255,.14),transparent 38%),radial-gradient(circle at 0 100%,rgba(255,0,60,.10),transparent 43%),var(--bg);color:var(--ink)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffa0c3;outline-offset:2px}
+.gate-inner{background:#140a20;border:1px solid #862d58;color:#fff;box-shadow:0 20px 80px #0006}
+.gate-logo{width:min(270px,90%);height:auto;display:block;margin:0 auto 24px}
+.gate h1{color:#fff}
+.eyebrow,.section-eyebrow{color:#ff83b1}
+.topbar{background:linear-gradient(115deg,#100515,#20091e 62%,#360a32);border:1px solid #72213d;box-shadow:0 12px 38px rgba(255,20,120,.11)}
+.streamnow-classic-logo{width:190px;height:auto;max-height:57px;object-fit:contain;flex:none}
+.brand h1{color:#fff;font-size:clamp(20px,2.2vw,28px)}
+.brand p{color:#ead7e6}
+.brand-icon{background:linear-gradient(145deg,#ff003c,#ff1478,#9c00ff)}
+.top-actions a,.top-actions button{border-radius:99px}
+.library-entry{background:#7d1144;border:1px solid #ff4d90;color:#fff}
+.library-entry:hover,.logout-button:hover{background:#a81c57}
+.logout-button{border-color:#a13a67;color:#ffe5f0}
+.private-mark{color:#ffe1ec}
+.watch-panel,.guide{background:#160b20;border:1px solid #552743;box-shadow:0 10px 36px rgba(0,0,0,.19)}
+.player-topline{background:#13091d;color:#f2c7dc;border-bottom:1px solid #54203f}
+.player-separator{color:#ff679c}
+.screen{background:#050109}
+.play-mark{background:linear-gradient(145deg,#ff003c,#ff1478,#9c00ff);color:#fff;box-shadow:0 0 22px rgba(255,20,120,.25)}
+.screen-message p{color:#ddc4d6}
+.now-playing{background:#160b20}
+.mini-label{color:#ff94ba}
+.playing-copy p,.guide-heading p,.status,.site-footer{color:#c4aaba}
+.player-actions button{background:#25122d;color:#fff;border:1px solid #814263}
+.player-actions button:not(:disabled):hover{background:#5d1645;border-color:#ff6da8}
+.player-actions .fullscreen-button{background:linear-gradient(110deg,#ff003c,#ff1478);border-color:#ff1478}
+.guide h2,.catalog-heading h3{color:#fff}
+#refresh-channels{background:#28142c;color:#fff;border:1px solid #823a60}
+#refresh-channels:hover{background:#42193d}
+#search{background:#21132b;color:#fff;border:1px solid #693a5a}
+#search:focus{background:#2b1835;border-color:#ff77ac;box-shadow:0 0 0 3px #ff147832}
+#search::placeholder{color:#b8a3b7}
+.search-icon{color:#f27ea8}
+.filter-heading{color:#f3d3e2}
+.scroll-hint{color:#bda3b7}
+.filters button,.countries button{background:#28162f;color:#f8e6ef;border:1px solid #653653}
+.filters button:hover,.countries button:hover{background:#3d1b3b;border-color:#ff6b9c}
+.filters button.chosen,.countries button.chosen,#favorites-only.chosen{background:#ab1451;color:#fff;border-color:#ff66a0;box-shadow:none}
+.country-section{border-top-color:#53223a;border-bottom-color:#53223a}
+.result-count{color:#ffc2da}
+.ppv-notice{background:#28152f;border-color:#95436b;color:#fff}
+.channel{background:#1d1027;border:1px solid #50314b}
+.channel:hover{border-color:#ff5b98;box-shadow:0 3px 14px rgba(255,20,120,.12)}
+.channel.active{background:#511338;border-color:#ff1478;box-shadow:inset 3px 0 0 #ff1478}
+.channel-avatar{background:#371333;color:#ff9dbe}
+.channel-avatar[data-genre=news]{background:#30183c;color:#d9b3ff}
+.channel-avatar[data-genre=sports]{background:#34152e;color:#ffb2d0}
+.channel .pick{color:#fff}
+.channel .pick small{color:#c4aec0}
+.channel .pick small.signal-ok{color:#83e4b8}
+.channel .pick small.signal-bad{color:#ffb1b8}
+.channel .fav{color:#f3b5d2}
+.channel .fav.marked{color:#ffca62}
+.more-channels{background:#641645;color:#fff;border:1px solid #ac4473}
+.more-channels:hover{background:#8d1a56}
+.site-footer strong{color:#ffd7e8}
+.alert{background:#3c1929;border-top:1px solid #ab4b76;color:#fff1f4}
+@media(max-width:720px){.streamnow-classic-logo{width:137px;max-height:44px}.topbar{padding:12px}.brand{gap:8px}.brand p{font-size:11px}}
