@@ -49,6 +49,7 @@ const DAILY_EMAIL_LIMIT = 20;
 const PUBLIC_EMAIL_LIMIT = 5;
 const PUBLIC_SIGNUP_LIMIT = DAILY_EMAIL_LIMIT;
 const OFFICIAL_PAGES_HOST = "streamnow-2o1.pages.dev";
+const OFFICIAL_ANDROID_APK = "https://github.com/DrivMatch/drivmatch-stream/releases/download/streamnow-android-v0.3.2-test/app-debug.apk";
 const SHARED_PAGES_HOSTS = new Set([OFFICIAL_PAGES_HOST,"contas-compartilhadas.streamnow-2o1.pages.dev"]);
 const APPROVED_AUTH_ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev";
 const HEADERS = {
@@ -220,7 +221,8 @@ async function loginPage(error = false, env, nextAdmin = false) {
     "<label>Senha<input type='password' name='password' autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Entrar</button></form>" +
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
-    "<p><a href='/stream/signup'>Criar conta</a></p>", error ? 401 : 200),token);
+    "<p><a href='/stream/signup'>Criar conta</a></p>" +
+    "<p><a href='/stream/app'>Baixar app Android</a></p>", error ? 401 : 200),token);
 }
 async function tastingPage(url, request, env, user) {
   const config = tastingConfig(env);
@@ -270,6 +272,22 @@ async function tastingPage(url, request, env, user) {
     return page(title,"<p role='alert'>O plano está temporariamente indisponível.</p>" + back,502);
   }
 }
+function appDownloadPage() {
+  return page("Baixar aplicativo",
+    "<p>Stream Now para celulares e tablets Android.</p>" +
+    "<p><strong>APK de teste 0.3.2</strong> — instalação direta. Ainda não está na Google Play.</p>" +
+    "<p><a href='"+OFFICIAL_ANDROID_APK+"' rel='noopener noreferrer'>Baixar APK Android</a></p>" +
+    "<p>Para iPhone, iPad, computadores e TVs Samsung, use o Stream Now pelo navegador.</p>" +
+    "<p><a href='/stream/login'>Entrar</a> · <a href='/stream/signup'>Criar conta</a></p>");
+}
+async function signoutPage(env) {
+  const token=await issueFormToken(env);
+  return stampForm(page("Sair da conta",
+    "<p>Deseja encerrar a sessão neste dispositivo?</p>" +
+    "<form method='post' action='/stream/logout'>" + formTokenInput(token) +
+    "<button type='submit'>Confirmar saída</button></form>" +
+    "<p><a href='/stream/tv/'>Voltar aos canais</a></p>"),token);
+}
 async function signupPage(env,error="") {
   const token=await issueFormToken(env);
   return stampForm(page("Criar conta",
@@ -280,7 +298,8 @@ async function signupPage(env,error="") {
     "<label>Senha<input type='password' name='password' autocomplete='new-password' minlength='12' maxlength='256' required></label>"+
     "<label>Confirmar senha<input type='password' name='confirm' autocomplete='new-password' minlength='12' maxlength='256' required></label>"+
     "<button type='submit'>Criar conta</button></form>"+
-    "<p><a href='/stream/login'>Já tenho conta</a></p>",
+    "<p><a href='/stream/login'>Já tenho conta</a></p>" +
+    "<p><a href='/stream/app'>Baixar app Android</a></p>",
     error?400:200),token);
 }
 function signupReceipt() {
@@ -562,6 +581,9 @@ async function handle(request, env) {
     return redirect(url.origin, "/stream/");
   const user = await currentUser(request, env);
   const requestedAdmin = url.searchParams.get("next") === "admin";
+  if (path === "/stream/app" && method === "GET") return appDownloadPage();
+  if (path === "/stream/logout" && method === "GET")
+    return user ? await signoutPage(env) : redirect(url.origin,"/stream/login");
   if (method === "GET" && path === "/stream/login")
     return user ? redirect(url.origin, requestedAdmin && requireAdmin(user) ? "/stream/admin" : "/stream/") :
       await loginPage(false,env,requestedAdmin);
@@ -696,7 +718,11 @@ async function handle(request, env) {
     return response;
   }
   if (method === "POST" && path === "/stream/logout") {
-    if (!csrf(request,url)) return plain(403,"Forbidden");
+    const data=await form(request);
+    // Honor existing admin logout forms, but support signed form tokens on
+    // browsers that omit Origin and Referer (some Smart TV/Android WebViews).
+    if (!(await verifyFormToken(request,url,data,env)) && !csrf(request,url))
+      return plain(403,"Forbidden");
     await revokeCurrent(request,env);
     return redirect(url.origin,"/stream/login",sessionCookie("",0));
   }
