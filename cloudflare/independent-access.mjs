@@ -270,6 +270,14 @@ async function tastingPage(url, request, env, user) {
     return page(title,"<p role='alert'>O plano está temporariamente indisponível.</p>" + back,502);
   }
 }
+async function signoutPage(env) {
+  const token=await issueFormToken(env);
+  return stampForm(page("Sair da conta",
+    "<p>Deseja encerrar a sessão neste dispositivo?</p>" +
+    "<form method='post' action='/stream/logout'>" + formTokenInput(token) +
+    "<button type='submit'>Confirmar saída</button></form>" +
+    "<p><a href='/stream/tv/'>Voltar aos canais</a></p>"),token);
+}
 async function signupPage(env,error="") {
   const token=await issueFormToken(env);
   return stampForm(page("Criar conta",
@@ -562,6 +570,8 @@ async function handle(request, env) {
     return redirect(url.origin, "/stream/");
   const user = await currentUser(request, env);
   const requestedAdmin = url.searchParams.get("next") === "admin";
+  if (path === "/stream/logout" && method === "GET")
+    return user ? await signoutPage(env) : redirect(url.origin,"/stream/login");
   if (method === "GET" && path === "/stream/login")
     return user ? redirect(url.origin, requestedAdmin && requireAdmin(user) ? "/stream/admin" : "/stream/") :
       await loginPage(false,env,requestedAdmin);
@@ -696,7 +706,9 @@ async function handle(request, env) {
     return response;
   }
   if (method === "POST" && path === "/stream/logout") {
-    if (!csrf(request,url)) return plain(403,"Forbidden");
+    const data=await form(request);
+    if (!(await verifyFormToken(request,url,data,env)) && !csrf(request,url))
+      return plain(403,"Forbidden");
     await revokeCurrent(request,env);
     return redirect(url.origin,"/stream/login",sessionCookie("",0));
   }

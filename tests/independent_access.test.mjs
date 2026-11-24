@@ -906,3 +906,42 @@ test("known SMTP signup rejection refunds reservation and gives clear error",asy
     assert.equal(emailBudget.length,0);
   });
 });
+
+
+test("TV has clear Sair link but no invented app-install button",async()=>{
+  const {readFileSync}=await import("node:fs");
+  const html=readFileSync(new URL("../site/tv.html",import.meta.url),"utf8");
+  const css=readFileSync(new URL("../site/streamnow-graphite.css",import.meta.url),"utf8");
+  assert.match(html,/id="signout-link"[^>]*>Sair<\/a>/);
+  assert.match(html,/href="\/stream\/logout"/);
+  assert.doesNotMatch(html,/id="download-link"|Baixar app/);
+  assert.match(css,/#signout-link/);
+});
+test("logout confirmation revokes session with signed form (TV and WebView)",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,sessions}=testEnvironment();
+    const unauth=await worker.fetch(req("/stream/logout"),env);
+    assert.equal(unauth.status,303);
+    assert.equal(unauth.headers.get("Location"),base+"/stream/login");
+    const session=cookie(await login(users[1].email,users[1].password,env));
+    assert.equal(sessions.size,1);
+    const confirmation=await getForm("/stream/logout",env,session);
+    assert.match(confirmation.html,/Sair da conta/);
+    assert.match(confirmation.html,/Confirmar saída/);
+    const denied=await worker.fetch(new Request(base+"/stream/logout",{
+      method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded",Cookie:session},body:""
+    }),env);
+    assert.equal(denied.status,403);
+    assert.equal(sessions.size,1);
+    const ok=await worker.fetch(new Request(base+"/stream/logout",{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded",
+        Cookie:session+"; "+confirmation.cookie},
+      body:new URLSearchParams({_csrf:confirmation.token}).toString()
+    }),env);
+    assert.equal(ok.status,303);
+    assert.equal(ok.headers.get("Location"),base+"/stream/login");
+    assert.equal(sessions.size,0);
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:session}}),env)).status,401);
+  });
+});
