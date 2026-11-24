@@ -88,13 +88,13 @@ test("unauthed JavaScript assets remain gated; approved logo/icon are public",as
   const response=await worker.fetch(new Request(STAGING+path),env);
   assert.equal(response.status,403,path);
  }
- for(const [path,file] of [["/stream/brand.webp","/streamnow-brand-clean.webp"],["/stream/icon.webp","/streamnow-icon-clean.webp"]]){
+ for(const [path,file] of [["/stream/brand.webp","/streamnow-brand.webp"],["/stream/icon.webp","/streamnow-icon.webp"]]){
   const response=await worker.fetch(new Request(STAGING+path),env);
   assert.equal(response.status,200);
   assert.equal(response.headers.get("content-type"),"image/webp");
   assert.equal(await response.text(),file);
  }
- assert.deepEqual(assets,["/streamnow-brand-clean.webp","/streamnow-icon-clean.webp"]);
+ assert.deepEqual(assets,["/streamnow-brand.webp","/streamnow-icon.webp"]);
 });
 test("unapproved Pages hostname is rejected",async()=>{
  const r=await worker.fetch(new Request("https://streamnow-guess.pages.dev/"),env);
