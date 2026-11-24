@@ -254,7 +254,9 @@ function setupPage(url) {
   const script = "const f=document.getElementById('setup'),m=document.getElementById('message');" +
     "const p=new URLSearchParams(location.hash.slice(1));const token=p.get('access_token');" +
     "history.replaceState(null,'',location.pathname);" +
-    "if(!token){f.hidden=true;m.textContent='Link inválido ou expirado. Solicite um novo convite ou recuperação.';}" +
+    "if(p.get('type')==='signup'&&token){f.hidden=true;m.textContent='E-mail confirmado. Agora entre com o e-mail e a senha criada.';" +
+    "const a=document.createElement('a');a.href='https://"+OFFICIAL_PAGES_HOST+"/stream/login';a.textContent='Entrar no Stream Now';m.append(' ',a);}" +
+    "else if(!token){f.hidden=true;m.textContent='Link inválido ou expirado. Solicite um novo convite ou recuperação.';}" +
     "f.addEventListener('submit',async e=>{e.preventDefault();m.textContent='Verificando...';" +
     "const password=f.elements.password.value;try{" +
     "const r=await fetch('/stream/activate',{method:'POST',credentials:'same-origin'," +
