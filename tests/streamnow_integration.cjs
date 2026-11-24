@@ -76,7 +76,9 @@ async function main() {
     SUPABASE_PUBLIC_KEY:'fixture-public-key',
     SUPABASE_SECRET_KEY:'fixture-admin-key',
     ASSETS:{async fetch(request) {
-      const name = new URL(request.url).pathname.split('/').pop();
+      const assetPath = new URL(request.url).pathname;
+      const name = path.basename(assetPath);
+      if (assetPath !== '/' + name) return new Response(null, {status:404});
       return new Response(readFileSync(path.join(root, 'site', name)), {
         headers:{'Content-Type':contentTypes[path.extname(name)] || 'application/octet-stream'}
       });

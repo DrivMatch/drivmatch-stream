@@ -110,17 +110,21 @@ jobs:
         run: |
           set -euo pipefail
           origin=https://drivmatch-stream-v2-test.drivmatch.workers.dev
-          for attempt in {1..6}; do
-            if curl -fsS --max-time 15 "$origin/stream/login" -o /tmp/streamnow-login.html &&
-               grep -Fq "/stream/logo.jpg" /tmp/streamnow-login.html; then
-              break
+          expected=703a88042b16208c46d7a904a82eea444fa9c2e9e3511dfa3b387482770e7186
+          for attempt in {1..8}; do
+            login=$(curl -sS --max-time 15 -o /tmp/streamnow-login.html -w '%{http_code}' "$origin/stream/login")
+            logo=$(curl -sS --max-time 15 -o /tmp/streamnow-logo.jpg -w '%{http_code}' "$origin/stream/logo.jpg")
+            echo "Attempt $attempt: login HTTP $login, logo HTTP $logo"
+            if [ "$login" = 200 ] && [ "$logo" = 200 ] &&
+               grep -Fq "/stream/logo.jpg" /tmp/streamnow-login.html &&
+               printf '%s  %s\n' "$expected" /tmp/streamnow-logo.jpg | sha256sum -c; then
+              test "$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/stream/favorites")" = 401
+              test "$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/tv.html")" = 404
+              exit 0
             fi
             sleep 5
           done
-          grep -Fq "/stream/logo.jpg" /tmp/streamnow-login.html
-          curl -fsS --max-time 15 "$origin/stream/logo.jpg" -o /tmp/streamnow-logo.jpg
-          printf '%s  %s\n' '703a88042b16208c46d7a904a82eea444fa9c2e9e3511dfa3b387482770e7186' /tmp/streamnow-logo.jpg | sha256sum -c
-          test "$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/stream/favorites")" = 401
+          exit 1
       - name: Verify real staging Auth and favorites across separate sessions
         env:
           STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}

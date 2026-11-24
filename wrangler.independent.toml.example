@@ -8,7 +8,6 @@ workers_dev = true
 [assets]
 directory = "./site"
 binding = "ASSETS"
-base_path = "/stream"
 run_worker_first = true
 html_handling = "none"
 not_found_handling = "none"

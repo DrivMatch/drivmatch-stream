@@ -423,7 +423,7 @@ async function bundledAsset(request, env, url, path) {
   // Fail closed: falling back to GitHub Pages would reintroduce shared favorites.
   if (!env.ASSETS?.fetch) return plain(503, "Arquivos protegidos indisponíveis.");
   const name = STATIC_FILES[path];
-  const assetUrl = new URL("/stream/" + name, url.origin);
+  const assetUrl = new URL("/" + name, url.origin);
   const response = await env.ASSETS.fetch(new Request(assetUrl, {method:request.method}));
   if (!response.ok) return plain(502, "Arquivo protegido indisponível.");
   const headers = {...HEADERS, "Content-Security-Policy":APP_CSP,
@@ -464,7 +464,7 @@ async function handle(request, env) {
     if (method !== "GET" && method !== "HEAD") return plain(405,"Method Not Allowed");
     if (!env.ASSETS?.fetch) return plain(503,"Arquivo indisponível.");
     const [name,type]=PUBLIC_ASSETS[path];
-    const result=await env.ASSETS.fetch(new Request(new URL("/stream/"+name,url.origin),{method}));
+    const result=await env.ASSETS.fetch(new Request(new URL("/"+name,url.origin),{method}));
     if (!result.ok) return plain(502,"Arquivo indisponível.");
     return new Response(method==="HEAD"?null:result.body,{headers:{
       "Content-Type":type,"X-Content-Type-Options":"nosniff",
