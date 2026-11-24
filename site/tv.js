@@ -1362,6 +1362,7 @@ function init(){
       }else if(!document.hidden)fetchUserFavorites();
     });},300000);
     try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";T(D("account-identity"),"Conta: "+String(a.email||"não identificada")+(a.role==="admin"?" · ADMIN":" · USUÁRIO"));}}catch(e){T(D("account-identity"),"Conta não identificada");}
+    if(D("tasting-plan"))visibleEl(D("tasting-plan"),!!(a && a.tasting_available===true));
     // Management link is visible only for a server-confirmed admin session.
     if(D("admin-link"))visibleEl(D("admin-link"),streamUserRole==="admin");
     if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
