@@ -939,7 +939,7 @@ async function handle(request, env) {
       const validTransition =
         (targetRow.status === "invited" && newStatus === "suspended") ||
         (targetRow.status === "active" && newStatus === "suspended") ||
-        (targetRow.status === "suspended" &&
+        (targetRow.status === "suspended" && targetRow.approval_state !== "rejected" &&
           newStatus === (targetRow.canceled_invite_at ? "invited" : "active"));
       if (!validTransition) return plain(409,"Transição inválida.");
       const timestamp=now();
