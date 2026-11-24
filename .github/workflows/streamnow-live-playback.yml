@@ -25,10 +25,11 @@ jobs:
           set -o pipefail
           python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           from pathlib import Path
-          import re
           import subprocess
+          import time
           from urllib.parse import urlsplit
           from imageio_ffmpeg import get_ffmpeg_exe
+          from scripts.daily_channel_autopilot import fetch_bytes, probe_once
 
           known = {
               "Canal Gov": "canalgov-stream.ebc.com.br",
@@ -51,14 +52,36 @@ jobs:
           print("Verified catalog commit " + subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip())
           successes = 0
           ffmpeg = get_ffmpeg_exe()
+
+          def fetch_live_video(stream):
+              sample = b""
+
+              def capture(url, limit, deadline, segment=False):
+                  nonlocal sample
+                  if not segment:
+                      return fetch_bytes(url, limit, deadline)
+                  sample = fetch_bytes(url, 4 * 1024 * 1024, deadline)
+                  return sample
+
+              if probe_once(stream, time.monotonic() + 20, getter=capture) and sample[:1] in (b"G", b"I"):
+                  return sample
+              return b""
+
           for name, stream in candidates.items():
               command = [
                   ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error",
-                  "-rw_timeout", "10000000", "-protocol_whitelist", "http,https,tcp,tls,crypto",
-                  "-i", stream, "-t", "4", "-map", "0:v:0", "-an", "-f", "framemd5", "-",
+                  "-protocol_whitelist", "pipe", "-f", "mpegts",
+                  "-i", "pipe:0", "-t", "4", "-map", "0:v:0", "-an", "-f", "framemd5", "-",
               ]
               try:
-                  result = subprocess.run(command, capture_output=True, text=True, timeout=30, check=False)
+                  sample = fetch_live_video(stream)
+                  if not sample:
+                      print(f"{name} did not provide an unencrypted MPEG-TS sample.")
+                      continue
+                  result = subprocess.run(command, input=sample, capture_output=True, timeout=15, check=False)
+              except (OSError, ValueError) as error:
+                  print(f"{name} sample could not be retrieved ({type(error).__name__}).")
+                  continue
               except subprocess.TimeoutExpired:
                   print(f"{name} reached the playback timeout.")
                   continue
@@ -67,7 +90,7 @@ jobs:
                   successes += 1
                   print(f"{name} decoded {frames} live video frames.")
               else:
-                  details = re.sub(r"https?://[^\\s'\"]+", "[stream URL]", " ".join(result.stderr.splitlines()[-3:]))
+                  details = " ".join(result.stderr.decode(errors="replace").splitlines()[-2:])
                   print(f"{name} decoded {frames} frames, exit {result.returncode}. {details[:500]}")
           if successes < 1:
               raise SystemExit("No public live sample could be decoded.")
