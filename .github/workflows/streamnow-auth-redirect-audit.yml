@@ -1,0 +1,93 @@
+name: Verify Supabase recovery redirects before Stream Now launch
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-auth-redirect-audit.yml'
+permissions:
+  contents: read
+jobs:
+  recovery-redirect:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    environment: stream-independent-test
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check actual recovery redirect destinations without sending email
+        env:
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+        run: |
+          set -o pipefail
+          PYTHONPATH=scripts python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          from check_streamnow_account_cutover import project_url, read_json
+          import os
+          from urllib.error import HTTPError, URLError
+          from urllib.parse import parse_qs, urlsplit
+          from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
+          from uuid import uuid4
+
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, request, file, code, message, headers, next_url):
+                  return None
+
+          base = project_url()
+          users = base + "/auth/v1/admin/users"
+          headers = {"apikey": os.environ["STREAM_SUPABASE_SECRET_KEY"]}
+          known = (
+              ("Existing Worker", "https://drivmatch-stream-v2-test.drivmatch.workers.dev"),
+              ("Pages preview", "https://contas-compartilhadas.streamnow-2o1.pages.dev"),
+              ("Official Pages", "https://streamnow-2o1.pages.dev"),
+          )
+          email = "streamnow-redirect-qa-" + uuid4().hex + "@example.com"
+          user = read_json(users, headers=headers, body={
+              "email": email, "password": uuid4().hex + "@Q9", "email_confirm": True,
+          }, provider="Supabase")
+          assert user["email"] == email, "Disposable Supabase record mismatch"
+          browser = build_opener(NoRedirect())
+          results = {}
+          try:
+              for label, origin in known:
+                  target = origin + "/stream/activate"
+                  link = read_json(base + "/auth/v1/admin/generate_link", headers=headers, body={
+                      "type": "recovery", "email": email, "redirect_to": target,
+                  }, provider="Supabase")
+                  props = link.get("properties", link)
+                  action = props.get("action_link", "")
+                  parts = urlsplit(action)
+                  params = parse_qs(parts.query)
+                  if parts.scheme + "://" + parts.netloc != base or parts.path != "/auth/v1/verify":
+                      raise RuntimeError("Unknown recovery link issuer or path")
+                  if params.get("redirect_to") != [target]:
+                      results[label] = False
+                      continue
+                  try:
+                      with browser.open(action, timeout=20):
+                          raise RuntimeError("Supabase returned no recovery redirect")
+                  except HTTPError as error:
+                      if error.code not in (301, 302, 303, 307, 308):
+                          raise RuntimeError(f"Supabase recovery returned HTTP {error.code}") from None
+                      destination = urlsplit(error.headers.get("Location", ""))
+                  except (URLError, ValueError, TimeoutError):
+                      raise RuntimeError("Unable to verify the Supabase redirect") from None
+                  fragment = parse_qs(destination.fragment)
+                  results[label] = (
+                      destination.scheme + "://" + destination.netloc + destination.path == target
+                      and bool(fragment.get("access_token"))
+                      and fragment.get("type") == ["recovery"]
+                  )
+          finally:
+              try:
+                  with urlopen(Request(users + "/" + user["id"], headers=headers, method="DELETE"), timeout=20):
+                      print("Disposable Supabase recovery fixture removed.")
+              except HTTPError as error:
+                  raise RuntimeError(f"Supabase fixture cleanup returned HTTP {error.code}") from None
+          for label, allowed in results.items():
+              print(label + " recovery redirect: " + ("PASS" if allowed else "requires review"))
+          if not results.get("Official Pages"):
+              raise SystemExit("The official recovery address did not receive a valid Supabase redirect.")
+          PY
