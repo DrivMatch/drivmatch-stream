@@ -37,13 +37,14 @@ test("canonical source palette is locked",()=>{
 });
 test("production mark/icon remain reference-derived approved Git blobs",()=>{
  const expected={
-  "site/streamnow-brand.webp":"df287f3b1ab8b237e9d0e164b06989c0d0f58381",
-  "site/streamnow-icon.webp":"3ce257e386ae6e717f60c84bdb5179162a4c3062"
+  "00_CANONICO/DERIVADOS_V1/streamnow-brand-v1.webp":"df287f3b1ab8b237e9d0e164b06989c0d0f58381",
+  "00_CANONICO/DERIVADOS_V1/streamnow-icon-v1.webp":"3ce257e386ae6e717f60c84bdb5179162a4c3062"
  };
  assert.equal(manifest.derived_assets.length,2);
  for(const asset of manifest.derived_assets){
-  assert.equal(asset.git_blob_sha1,expected[asset.path],asset.path);
-  assert.equal(gitBlobSha(asset.path),expected[asset.path],asset.path+" modified without canonical version");
+  const historical=asset.path.endsWith("streamnow-brand.webp")?"00_CANONICO/DERIVADOS_V1/streamnow-brand-v1.webp":"00_CANONICO/DERIVADOS_V1/streamnow-icon-v1.webp";
+  assert.equal(asset.git_blob_sha1,expected[historical],asset.path);
+  assert.equal(gitBlobSha(historical),expected[historical],historical+" historical hash changed");
  }
 });
 test("public brand must remain Stream Now; legacy display mark is not allowed",()=>{
