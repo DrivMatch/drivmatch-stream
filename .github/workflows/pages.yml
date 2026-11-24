@@ -53,6 +53,8 @@ jobs:
           if grep -Fq 'target="_blank"' site/stream.js || grep -Fq 'window.open(' site/stream.js; then exit 1; fi
       - name: Cloudflare Access Worker security unit tests
         run: node --test tests/stream_worker.test.mjs
+      - name: Stream Now canonical identity integrity lock
+        run: node --test tests/streamnow_brand_lock.test.mjs
       - name: Install Chromium browser
         run: |
           npm install --no-audit --no-fund playwright@1.58.2

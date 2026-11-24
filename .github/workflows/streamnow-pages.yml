@@ -8,6 +8,8 @@ on:
       - 'wrangler.streamnow.jsonc'
       - 'site/**'
       - 'tests/streamnow_pages.test.mjs'
+      - 'tests/streamnow_brand_lock.test.mjs'
+      - '00_CANONICO/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,7 +28,7 @@ jobs:
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs
+          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_brand_lock.test.mjs
       - name: Validate deployment inputs
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
