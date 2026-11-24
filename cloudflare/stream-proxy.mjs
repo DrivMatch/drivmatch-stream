@@ -145,17 +145,18 @@ async function samePassword(candidate,p){
 }
 function goHome(url,cookie){
  return new Response(null,{status:303,headers:{...baseHeaders,
- "Location":new URL(url.hostname==="streamnow.pages.dev"?"/":"/stream/",url.origin).toString(),
+ "Location":new URL((url.hostname==="streamnow.pages.dev"||url.hostname==="streamnow-2o1.pages.dev")?"/":"/stream/",url.origin).toString(),
  ...(cookie?{"Set-Cookie":cookie}:{})}});
 }
 export default {async fetch(request,env){
  try{
  const url=new URL(request.url),host=url.hostname.toLowerCase();
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
- const pagesHost=host==="streamnow.pages.dev";
- const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":"https://streamnow.pages.dev/daily-autopilot.m3u8"}:TV_SOURCE_URLS;
+ const pagesHost=host==="streamnow.pages.dev"||host==="streamnow-2o1.pages.dev";
+ const localPlaylist=new URL("/daily-autopilot.m3u8",url.origin).toString();
+ const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":localPlaylist}:TV_SOURCE_URLS;
  const loadCatalogue=pagesHost?async (address,id)=>{
-   if(address==="https://streamnow.pages.dev/daily-autopilot.m3u8"){
+   if(address===localPlaylist){
      if(!env?.ASSETS)throw Error("Local catalogue unavailable");
      const res=await env.ASSETS.fetch(new Request(new URL("/daily-autopilot.m3u8",url.origin)));
      if(!res.ok)throw Error("Local catalogue unavailable");
