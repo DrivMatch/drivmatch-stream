@@ -333,7 +333,7 @@ function readLegacyFavoriteKeys(){
    var colon=old.indexOf(":");
    if(colon<2||colon>6)continue;
    var code=old.slice(0,colon).toUpperCase();
-   var name=trim(old.slice(colon+1)).toLowerCase().replace(/\\s+/g," ");
+   var name=trim(old.slice(colon+1)).toLowerCase().replace(/\s+/g," ");
    if(!/^[A-Z]{2,5}$/.test(code)||!name)continue;
    var key="lista-2:"+code+":"+name;
    if(!has(out,key))out.push(key);
