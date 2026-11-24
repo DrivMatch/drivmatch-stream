@@ -35,7 +35,7 @@ test("missing and short secrets deny all viewers",async()=>{
 test("login form exists on both permitted hosts",async()=>{
  for(const where of [origin,preview]){
   const r=await stream.fetch(new Request(where),env);
-  assert.equal(r.status,200);assert.match(await r.text(),/Senha de acesso/);
+  assert.equal(r.status,200);assert.match(await r.text(),/Código de acesso/);
  }
 });
 test("wrong password denied, no cookie",async()=>{
@@ -113,7 +113,7 @@ test("unexpected methods denied",async()=>{
 test("independent IPTV library is protected by the same signed session",async()=>{
  const entry=await stream.fetch(new Request(origin+"listas/"),env);
  assert.equal(entry.status,200);
- assert.match(await entry.text(),/Senha de acesso/);
+ assert.match(await entry.text(),/Código de acesso/);
  const denied=await stream.fetch(new Request(origin+"listas/sources.json"),env);
  assert.equal(denied.status,403);
  const c=await cookie(),before=globalThis.fetch,seen=[];
@@ -213,7 +213,7 @@ test("Samsung TV lounge page is private and served from fixed worker route",asyn
  try{
   globalThis.fetch=async u=>{seen.push(String(u));return new Response("tv-layout",{status:200});};
   const locked=await stream.fetch(new Request(origin+"tv/"),env);
-  assert.equal(locked.status,200);assert.match(await locked.text(),/Senha de acesso/);
+  assert.equal(locked.status,200);assert.match(await locked.text(),/Código de acesso/);
   const redirect=await stream.fetch(new Request(origin+"tv"),env);
   assert.equal(redirect.status,308);assert.match(redirect.headers.get("location"),/\/stream\/tv\/$/);
   for(const path of ["tv/","tv/tv.css","tv/tv.js"]){
