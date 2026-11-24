@@ -54,7 +54,7 @@ jobs:
       - name: Cloudflare Access Worker security unit tests
         run: node --test tests/stream_worker.test.mjs
       - name: Stream Now canonical identity integrity lock
-        run: node --test tests/streamnow_brand_lock.test.mjs
+        run: node --test tests/streamnow_brand_lock.test.mjs tests/streamnow_brand_v2.test.mjs
       - name: Stream Now black-red-gray theme verification
         run: node --test tests/streamnow_red_theme.test.mjs
       - name: Reject residual colored fallback CSS
