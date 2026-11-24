@@ -86,7 +86,7 @@ jobs:
           unzip -t "$a" > /dev/null
           if [ "$SIGNED" = true ]; then
             jarsigner -verify -strict -certs "$a"
-            echo 'AAB signed with the owner's provided upload key. Play and rights review are still required.' >> "$GITHUB_STEP_SUMMARY"
+            echo "AAB signed with the provided upload key. Play and rights review are still required." >> "$GITHUB_STEP_SUMMARY"
           else
             if unzip -Z1 "$a" | grep -Eq '^META-INF/.*\\.(RSA|DSA|EC)$'; then
               echo '::error::Unexpected signature on unsigned build'; exit 1
