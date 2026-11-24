@@ -1,0 +1,37 @@
+name: Audit the existing Stream Now catalog trigger
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-autopilot-trigger-audit.yml'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  cron-audit:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Report workflow registration and actual scheduled events
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          workflow="$GITHUB_REPOSITORY/actions/workflows/daily-channel-autopilot.yml"
+          branch="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)"
+          state="$(gh api "repos/$workflow" --jq .state)"
+          schedule_runs="$(gh api "repos/$workflow/runs?event=schedule&per_page=5" --jq '.workflow_runs | map({id, created_at, status, conclusion})')"
+          {
+            printf 'Default branch %s\n' "$branch"
+            printf 'Workflow state %s\n' "$state"
+            git grep -n -F "cron: '0 5 * * *'" -- .github/workflows/daily-channel-autopilot.yml
+            printf 'Recent events of type schedule %s\n' "$schedule_runs"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          test "$branch" = main
+          test "$state" = active
