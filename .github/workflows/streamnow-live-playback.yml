@@ -1,0 +1,67 @@
+name: Decode Stream Now public live catalog samples
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-live-playback.yml'
+permissions:
+  contents: read
+jobs:
+  decode:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Decode frames from public broadcaster streams in the existing catalog
+        run: |
+          set -o pipefail
+          python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          import subprocess
+          from urllib.parse import urlsplit
+
+          known = {
+              "Canal Gov": "canalgov-stream.ebc.com.br",
+              "TV Brasil": "tvbrasil-stream.ebc.com.br",
+              "TV Brasil Internacional": "tvbrasilinternacional-stream.ebc.com.br",
+              "Record News": "rnw-rn.otteravision.com",
+              "SBT News": "dai.google.com",
+          }
+          candidates = {}
+          name = ""
+          for line in Path("site/daily-autopilot.m3u8").read_text().splitlines():
+              if line.startswith("#EXTINF:"):
+                  name = line.rsplit(",", 1)[-1]
+              elif name in known and line.startswith("https://"):
+                  url = urlsplit(line)
+                  if url.hostname == known[name] and url.port is None and url.username is None:
+                      candidates[name] = line
+                  name = ""
+
+          print("Verified catalog commit " + subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip())
+          successes = 0
+          for name, stream in candidates.items():
+              command = [
+                  "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                  "-rw_timeout", "10000000", "-protocol_whitelist", "http,https,tcp,tls,crypto",
+                  "-i", stream, "-t", "4", "-map", "0:v:0", "-an", "-f", "framemd5", "-",
+              ]
+              try:
+                  result = subprocess.run(command, capture_output=True, text=True, timeout=30, check=False)
+              except subprocess.TimeoutExpired:
+                  print(f"{name} reached the playback timeout.")
+                  continue
+              frames = sum(line[:1].isdigit() for line in result.stdout.splitlines())
+              if result.returncode == 0 and frames >= 10:
+                  successes += 1
+                  print(f"{name} decoded {frames} live video frames.")
+              else:
+                  print(f"{name} did not reach the playback threshold on this runner.")
+          if successes < 1:
+              raise SystemExit("No public live sample could be decoded.")
+          PY
