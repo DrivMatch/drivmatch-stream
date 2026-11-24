@@ -94,9 +94,9 @@ jobs:
           # only in this ephemeral GitHub runner, preserving the legacy Worker config in Git.
           cp wrangler.streamnow.jsonc wrangler.jsonc
           npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch main
-          echo "Cloudflare-assigned staging URL: https://streamnow-2o1.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
-          echo "Requested streamnow.pages.dev is NOT owned by this project; do not advertise as live." >> "$GITHUB_STEP_SUMMARY"
-      - name: Verify gated staging login endpoint
+          echo "Official free Stream Now URL: https://streamnow-2o1.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
+          echo "The former requested streamnow.pages.dev is NOT assigned to this project." >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify live email login and private access
         run: |
           set -euo pipefail
           for i in 1 2 3 4 5 6; do
@@ -104,12 +104,12 @@ jobs:
               if grep -q 'name="email"' /tmp/streamnow-login.html && grep -q 'Stream Now' /tmp/streamnow-login.html && ! grep -q 'Sua TV, do seu jeito' /tmp/streamnow-login.html && ! grep -q 'Área pessoal' /tmp/streamnow-login.html; then
                 http=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 https://streamnow-2o1.pages.dev/stream/session)
                 if [ "$http" = "403" ]; then
-                  echo "Staging Supabase email sign-in present; anonymous catalog API remains blocked." >> "$GITHUB_STEP_SUMMARY"
+                  echo "Live Supabase email sign-in present; anonymous catalog API remains blocked." >> "$GITHUB_STEP_SUMMARY"
                   exit 0
                 fi
               fi
             fi
             sleep 5
           done
-          echo "::error::The staging login did not pass the public HTTPS check"
+          echo "::error::The production login did not pass the public HTTPS check"
           exit 1
