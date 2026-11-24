@@ -12,7 +12,7 @@ const sourceHashes={
 };
 function gitBlobSha(path){
  const bytes=readFileSync(new URL("../"+path,import.meta.url));
- return createHash("sha1").update("blob "+bytes.length+"\\0").update(bytes).digest("hex");
+ return createHash("sha1").update("blob "+bytes.length).update(Buffer.from([0])).update(bytes).digest("hex");
 }
 test("canonical v1 source references remain exactly approved",()=>{
  assert.equal(manifest.schema,"streamnow.canonical.brand.v1");
