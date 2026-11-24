@@ -364,29 +364,62 @@ function fetchUserFavorites(){
   }catch(e){T(D("catalog-status"),"Erro ao carregar Favoritos.");}
  },streamUserId);
 }
+function legacyFavoriteKeys(stores){
+ var canonical=[];
+ for(var i=0;i<stores.length;i++){
+  try{
+   var list=JSON.parse(localStorage.getItem(stores[i])||"[]");
+   if(!Array.isArray(list))continue;
+   for(var j=0;j<list.length;j++){
+    var key=canonicalFavoriteKeyFromLegacy(list[j]);
+    if(key&&canonical.indexOf(key)<0)canonical.push(key);
+   }
+  }catch(e){}
+ }
+ return canonical;
+}
 function migrateAdminFavorites(){
  if(streamUserRole!=="admin"){fetchUserFavorites();return;}
- var old=[],imported=STORE+":imported:"+streamUserId;
- try{
-  if(localStorage.getItem(imported)==="yes"){fetchUserFavorites();return;}
-  var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")old=a;}catch(e){}
- if(old.length){
-  var canonical=[];
-  for(var i=0;i<old.length;i++){
-    var key=canonicalFavoriteKeyFromLegacy(old[i]);
-    if(key && canonical.indexOf(key)<0)canonical.push(key);
-  }
-  if(!canonical.length){fetchUserFavorites();return;}
-  postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
-   if(st===409){window.location.replace("/stream/");return;}
-   if(st===200){
-    try{localStorage.setItem(imported,"yes");}catch(e){}
-   }else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
-   fetchUserFavorites();
-  });
- }else fetchUserFavorites();
+ var imported=STORE+":imported:"+streamUserId;
+ try{if(localStorage.getItem(imported)==="yes"){fetchUserFavorites();return;}}catch(e){}
+ var canonical=legacyFavoriteKeys([STORE]);
+ if(!canonical.length){fetchUserFavorites();return;}
+ postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
+  if(st===409){window.location.replace("/stream/");return;}
+  if(st===200){
+   try{localStorage.setItem(imported,"yes");}catch(e){}
+  }else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
+  fetchUserFavorites();
+ });
 }
-
+function offerBrowserFavoriteImport(){
+ fetchUserFavorites();
+ var button=D("import-browser-favorites");
+ var imported=STORE+":imported:"+streamUserId;
+ try{if(localStorage.getItem(imported)==="yes")return;}catch(e){}
+ var canonical=legacyFavoriteKeys([STORE,"drivmatch-stream-favorites-v1"]);
+ if(!button||!canonical.length)return;
+ visibleEl(button,true);
+ on(button,"click",function(){
+  if(!session||!window.confirm("Importar os favoritos deste navegador para a conta conectada?"))return;
+  button.disabled=true;
+  function importBatch(offset){
+   postJson("/stream/favorites",{operation:"import",keys:canonical.slice(offset,offset+20)},function(status){
+    if(status===409){window.location.replace("/stream/");return;}
+    if(status!==200){
+     button.disabled=false;
+     T(D("catalog-status"),"Importação pendente. Você pode tentar novamente.");
+     return;
+    }
+    if(offset+20<canonical.length){importBatch(offset+20);return;}
+    try{localStorage.setItem(imported,"yes");}catch(e){}
+    visibleEl(button,false);
+    fetchUserFavorites();
+   });
+  }
+  importBatch(0);
+ });
+}
 
 /* Only minimal channel identity is persisted locally; never keep stream URLs
  * or authentication tokens. Saved favorites use the preexisting key format. */
@@ -1365,7 +1398,12 @@ function init(){
     if(D("tasting-plan"))visibleEl(D("tasting-plan"),!!(a && a.tasting_available===true));
     // Management link is visible only for a server-confirmed admin session.
     if(D("admin-link"))visibleEl(D("admin-link"),streamUserRole==="admin");
-    if(streamUserId){recent=[];favoriteMeta={};favorites=[];loadQuickHistory();migrateAdminFavorites();}
+    if(streamUserId){
+      recent=[];favoriteMeta={};favorites=[];loadQuickHistory();
+      if(window.location.hostname==="streamnow-2o1.pages.dev"||
+         window.location.hostname==="contas-compartilhadas.streamnow-2o1.pages.dev")offerBrowserFavoriteImport();
+      else migrateAdminFavorites();
+    }
     else{loadHidden();loadFav();loadQuickHistory();drawQuickLists();}
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}

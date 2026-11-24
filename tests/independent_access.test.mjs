@@ -753,3 +753,26 @@ test("viewer cannot step up as administrator even with administrator password",a
     assert.doesNotMatch(await admin.text(),/Central de Controle/);
   });
 });
+
+test("an account can explicitly import browser favorites on the official Pages origin", async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,favorites}=testEnvironment();
+    const viewer=users[1];
+    const session=cookie(await login(viewer.email,viewer.password,env));
+    const official="https://streamnow-2o1.pages.dev";
+    const imported=(origin,account,keys,requestOrigin=origin)=>worker.fetch(new Request(origin+"/stream/favorites",{
+      method:"POST",
+      headers:{Cookie:session,Origin:requestOrigin,"Content-Type":"application/json",
+        ...(account?{"X-Stream-Account":account}:{})},
+      body:JSON.stringify({operation:"import",keys})
+    }),env);
+    assert.equal((await imported(base,viewer.id,["BR:local"])).status,403);
+    assert.equal((await imported(official,null,["BR:local"])).status,409);
+    assert.equal((await imported(official,users[0].id,["BR:local"])).status,409);
+    assert.equal((await imported(official,viewer.id,["BR:local"],"https://other.example")).status,403);
+    assert.equal((await imported(official,viewer.id,Array(21).fill("BR:local"))).status,400);
+    assert.equal((await imported(official,viewer.id,["BR:local","BR:local"])).status,200);
+    assert.deepEqual([...favorites.get(viewer.id)],["BR:local"]);
+    assert.equal(favorites.get(users[0].id),undefined);
+  });
+});

@@ -48,6 +48,7 @@ const SESSION_SECONDS = 7 * 24 * 3600;
 const ADMIN_STEPUP_SECONDS = 600;
 const DAILY_EMAIL_LIMIT = 20;
 const PUBLIC_EMAIL_LIMIT = 5;
+const SHARED_PAGES_HOSTS = new Set(["streamnow-2o1.pages.dev","contas-compartilhadas.streamnow-2o1.pages.dev"]);
 const HEADERS = {
   "Cache-Control": "private, no-store",
   "X-Content-Type-Options": "nosniff",
@@ -649,12 +650,25 @@ async function handle(request, env) {
     const data = await bodyJson(request);
     const valid = key => typeof key === "string" && key.length >= 2 && key.length <= 400 &&
       !/[\u0000-\u001f]/.test(key);
-    if (data.operation === "import" && user.role === "admin" && Array.isArray(data.keys) &&
-        data.keys.length <= 1500 && data.keys.every(valid)) {
-      for (const key of new Set(data.keys)) {
-        await env.STREAM_USERS_DB.prepare(
+    if (data.operation === "import") {
+      const browserImport = SHARED_PAGES_HOSTS.has(url.hostname);
+      if (!browserImport && user.role !== "admin") return plain(403,"Forbidden");
+      if (browserImport && request.headers.get("X-Stream-Account") !== user.user_id)
+        return plain(409,"A conta conectada mudou.");
+      const maximum = browserImport ? 20 : 1500;
+      if (!Array.isArray(data.keys) || !data.keys.length || data.keys.length > maximum || !data.keys.every(valid))
+        return plain(400,"Favoritos inválidos.");
+      const uniqueKeys = new Set(data.keys);
+      if (browserImport) {
+        await env.STREAM_USERS_DB.batch([...uniqueKeys].map(key => env.STREAM_USERS_DB.prepare(
           "INSERT OR IGNORE INTO stream_favorites(user_id,favorite_key) VALUES(?,?)"
-        ).bind(user.user_id,key).run();
+        ).bind(user.user_id,key)));
+      } else {
+        for (const key of uniqueKeys) {
+          await env.STREAM_USERS_DB.prepare(
+            "INSERT OR IGNORE INTO stream_favorites(user_id,favorite_key) VALUES(?,?)"
+          ).bind(user.user_id,key).run();
+        }
       }
       return json(200,{ok:true});
     }
