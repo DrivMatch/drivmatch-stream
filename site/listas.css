@@ -25,3 +25,44 @@
   .catalog-heading h2{font-size:19px}
   #back-to-lists{max-width:130px;line-height:1.25}
 }
+
+
+/* Stream Now — canonical dark library skin; functional selectors unchanged */
+:root{color-scheme:dark;--bg:#080114;--panel:#160b20;--text:#fff;--sub:#cbb5c7;--blue:#ff1478;--line:#542541}
+body{background:radial-gradient(circle at 88% 1%,rgba(156,0,255,.14),transparent 36%),radial-gradient(circle at 0 100%,rgba(255,0,60,.08),transparent 40%),#080114;color:#fff}
+a{color:#ff96bf}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #ff98c0;outline-offset:2px}
+.header{background:linear-gradient(115deg,#120617,#28091f);border:1px solid #842348;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+.streamnow-library-logo{display:block;width:165px;height:auto;max-height:51px;object-fit:contain;flex:none}
+.eyebrow{color:#ff87b0}
+.header h1 span{color:#ff4a93}
+.header p{color:#ebcddd}
+.back{background:#a21856;color:#fff;border:1px solid #ff528f;border-radius:30px}
+.back:hover{background:#ca215d}
+.panel{background:#160b20;border-color:#5a2946;box-shadow:0 7px 22px rgba(0,0,0,.2)}
+.source{background:#21132c;border-color:#59354f;color:#fff}
+.source strong{color:#fff}
+.source small,.section-head p,.current-source,.status,.notice,footer{color:#cbb6c7}
+.source.active{background:#5d173e;border-color:#ff4e94;box-shadow:inset 3px 0 0 #ff1478}
+.source .source-kind{color:#ffa2c7}
+.add-source{border-color:#60324b}
+.add-source summary{color:#ff9dc0}
+.add-source p,.add-source label,.filters label{color:#e4c9d9}
+.add-source input,.filters input[type=search],.filters select{background:#24152c;border:1px solid #784360;color:#fff}
+.add-source input::placeholder,.filters input::placeholder{color:#bba6b7}
+.add-source form button{background:linear-gradient(115deg,#ff003c,#ff1478);color:#fff}
+.workspace{color:#fff}
+.screen{background:#05010a;border:1px solid #793352}
+.now-playing p,.channel .pick small{color:#c5b0c3}
+.now-playing button{background:#7f1249;color:#fff}
+.error{background:#41192d;border-color:#b04b70;color:#ffe6ed}
+.channel{background:#20122a;border-color:#5d3651}
+.channel.active{background:#621842;border-color:#ff5497}
+.channel button.pick{color:#fff}
+.channel .logo{background:#301733}
+.channel .pick strong{color:#fff}
+.channel .star{color:#d1a9bf}
+.channel .star.marked{color:#ffc85d}
+.more{background:#741a4e;border-color:#bc4579;color:#fff}
+footer{color:#c7b1c1}
+@media(max-width:800px){.header{flex-wrap:wrap;gap:9px;padding:15px}.streamnow-library-logo{width:142px;max-height:43px}.header h1{font-size:25px}.back{margin-left:auto}}
