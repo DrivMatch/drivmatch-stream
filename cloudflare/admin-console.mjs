@@ -139,7 +139,7 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
     if(u.approval_state==="pending") {
       actions+=formFor("approval",u.user_id,token,"Aprovar cadastro","btn-primary","Aprovar este usuário e permitir seu login?","approved").replace("name='status'","name='decision'");
       actions+=formFor("approval",u.user_id,token,"Rejeitar cadastro","btn-danger","Rejeitar esta solicitação?","rejected").replace("name='status'","name='decision'");
-    }else     if(u.status==="invited"){
+    }else if(u.status==="invited"){
       actions+=formFor("resend",u.user_id,token,"Reenviar link de ativação","btn-subtle",
         "Solicitar novo e-mail de ativação para esta conta?");
       actions+=formFor("manual-link",u.user_id,token,"Gerar link privado para copiar","",
@@ -156,7 +156,7 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
     }else if(u.canceled_invite_at){
       actions+=formFor("status",u.user_id,token,"Reativar convite","btn-primary",
         "Reativar o convite? Depois será possível reenviar o link.", "invited");
-    }else{
+    }else if(u.approval_state!=="rejected"){
       actions+=formFor("status",u.user_id,token,"Reativar acesso","btn-primary",
         "Reativar o acesso deste usuário?", "active");
     }
@@ -233,7 +233,7 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     dialogs.push(detailsFor(u,actorId,token,index,asOfEpoch));
   }
   const summary=[
-    ["Contas",users.length],["Ativos",users.filter(u=>u.status==="active"&&u.approval_state!=="pending").length],["Aguardando decisão",users.filter(u=>u.approval_state==="pending").length],
+    ["Contas",users.length],["Ativos",users.filter(u=>u.status==="active"&&u.approval_state!=="pending"&&u.approval_state!=="rejected").length],["Aguardando decisão",users.filter(u=>u.approval_state==="pending").length],
     ["Suspensos/cancelados",totals.suspended]
   ].map(([title,count])=>"<div class='metric'><span>"+esc(title)+"</span><strong>"+esc(count)+"</strong></div>").join("");
   const history=events.length?events.map(e=>"<li><span><strong>"+esc(activityName(e.action))+"</strong>"+
