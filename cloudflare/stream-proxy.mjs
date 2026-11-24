@@ -200,7 +200,7 @@ export default {async fetch(request,env){
  }
  const password=env?.STREAM_ACCESS_PASSWORD;
  if(typeof password!=="string"||password.length<16||password.length>256)
-   return plain(503,"Acesso pessoal ainda não configurado.");
+   return plain(503,"Código de acesso temporariamente indisponível.");
  const pin=env?.STREAM_TV_PIN;
  const pinMode=typeof pin==="string"&&pin.length>0;
  if(pinMode&&!/^[0-9]{8}$/.test(pin))return plain(503,"PIN pessoal mal configurado.");
@@ -243,7 +243,7 @@ export default {async fetch(request,env){
       path==="/stream/tv/index.html"||path==="/stream/listas/"||
       path==="/stream/listas/index.html"||path==="/stream/login")
      return loginPage(false,request.method,pinMode);
-   return plain(403,"Acesso pessoal não autorizado.");
+   return plain(403,"Autenticação necessária.");
  }
  if(path==="/stream/session")
    return new Response(request.method==="HEAD"?null:JSON.stringify({allowed:true}),{
