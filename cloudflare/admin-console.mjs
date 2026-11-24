@@ -137,8 +137,8 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
   let actions="";
   if(!own && u.role==="viewer") {
     if(u.approval_state==="pending") {
-      actions+=formFor("approval",u.user_id,token,"Aprovar cadastro","btn-primary","Aprovar este usuário e permitir seu login?","", "approved").replace("name='status'","name='decision'");
-      actions+=formFor("approval",u.user_id,token,"Rejeitar cadastro","btn-danger","Rejeitar esta solicitação?","", "rejected").replace("name='status'","name='decision'");
+      actions+=formFor("approval",u.user_id,token,"Aprovar cadastro","btn-primary","Aprovar este usuário e permitir seu login?","approved").replace("name='status'","name='decision'");
+      actions+=formFor("approval",u.user_id,token,"Rejeitar cadastro","btn-danger","Rejeitar esta solicitação?","rejected").replace("name='status'","name='decision'");
     }else     if(u.status==="invited"){
       actions+=formFor("resend",u.user_id,token,"Reenviar link de ativação","btn-subtle",
         "Solicitar novo e-mail de ativação para esta conta?");
