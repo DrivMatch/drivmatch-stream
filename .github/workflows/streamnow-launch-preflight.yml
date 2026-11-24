@@ -1,0 +1,46 @@
+name: Stream Now launch account preflight
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-launch-preflight.yml'
+      - 'scripts/check_streamnow_account_cutover.py'
+permissions:
+  contents: read
+jobs:
+  pages-project:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    outputs:
+      project_sha256: ${{ steps.identify.outputs.project_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Identify the project configured for the official Pages login
+        id: identify
+        env:
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+        run: |
+          PYTHONPATH=scripts python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          from hashlib import sha256
+          from check_streamnow_account_cutover import project_url
+          print("project_sha256=" + sha256(project_url().encode()).hexdigest())
+          PY
+  account-audit:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    needs: pages-project
+    runs-on: ubuntu-24.04
+    environment: stream-independent-test
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare existing Supabase and D1 account coverage
+        env:
+          STREAMNOW_PAGES_PROJECT_SHA256: ${{ needs.pages-project.outputs.project_sha256 }}
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -o pipefail
+          python3 scripts/check_streamnow_account_cutover.py | tee -a "$GITHUB_STEP_SUMMARY"
