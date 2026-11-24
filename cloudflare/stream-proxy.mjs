@@ -80,12 +80,12 @@ const appHeaders={...baseHeaders,
    "base-uri 'none'; form-action 'self'"};
 function plain(status,msg){return new Response(msg,{status,
   headers:{...baseHeaders,"Content-Type":"text/plain; charset=utf-8"}});}
-function loginPage(error=false,method="GET",pinMode=false){
+function loginPage(error=false,method="GET",pinMode=false,accountMode=false){
  const html=[
  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<meta name="robots" content="noindex,nofollow,noarchive">',
- '<title>Stream Now · Acesso pessoal</title><link rel="icon" href="/stream/icon.webp" type="image/webp"><style>',
+ '<title>Stream Now · Entrar</title><link rel="icon" href="/stream/icon.webp" type="image/webp"><style>',
  '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#141414,#080808 68%,#191919);color:#fff;display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;padding:20px}',
  'main{width:min(440px,100%);padding:38px 30px;background:#191919;border:1px solid #494949;border-radius:24px}',
  '.eyebrow{font-size:.8rem;color:#e8e8e8;letter-spacing:1.6px;font-weight:750}',
@@ -94,17 +94,19 @@ function loginPage(error=false,method="GET",pinMode=false){
  'input{width:100%;font-size:1.1rem;border:1px solid #606060;border-radius:12px;padding:14px;background:#252525;color:#f6f6f6}',
  'button{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(110deg,#92001d,#d0002d);color:white;font-size:1rem;font-weight:700;margin-top:18px}',
  '.alert{color:#f0f0f0;font-weight:600}small{display:block;margin-top:20px;color:#bcbcbc}.brand-logo{display:block;width:min(250px,88%);height:auto;margin:0 auto 20px}.eyebrow{text-align:center}label{color:#f1f1f1}',
- '</style></head><body><main><img class="brand-logo" src="/stream/brand.webp" width="220" height="62" alt="Stream Now"><div class="eyebrow">ACESSO PESSOAL</div>',
- '<h1>Sua TV, do seu jeito.</h1>',
- pinMode?'<p>Digite seu PIN pessoal de 8 números para assistir aos canais.</p>':
- '<p>Digite sua senha particular para assistir aos canais.</p>',
- error?'<p role="alert" class="alert">'+(pinMode?'PIN incorreto.':'Senha incorreta.')+' Tente novamente.</p>':'',
+ '</style></head><body><main><img class="brand-logo" src="/stream/brand.webp" width="220" height="62" alt="Stream Now"><div class="eyebrow">STREAM NOW</div>',
+ '<h1>Entrar</h1>',
+ accountMode?'<p>Entre com o e-mail e a senha da sua conta.</p>':
+ pinMode?'<p>Informe o PIN configurado para este dispositivo.</p>':
+ '<p>Informe o código de acesso configurado.</p>',
+ error?'<p role="alert" class="alert">'+(accountMode?'E-mail ou senha não reconhecidos.':pinMode?'PIN incorreto.':'Senha incorreta.')+' Tente novamente.</p>':'',
  '<form method="post" action="/stream/login">',
- '<label for="password">'+(pinMode?'PIN de 8 números':'Senha de acesso')+'</label>',
+ accountMode?'<label for="email">E-mail</label><input id="email" type="email" name="email" autocomplete="username" inputmode="email" maxlength="254" required autofocus>':'',
+ '<label for="password">'+(accountMode?'Senha':pinMode?'PIN de 8 números':'Senha de acesso')+'</label>',
  pinMode?'<input id="password" type="password" inputmode="numeric" pattern="[0-9]{8}" name="password" autocomplete="off" required autofocus maxlength="8">':
  '<input id="password" type="password" name="password" autocomplete="current-password" required autofocus maxlength="256">',
- '<button type="submit">Entrar no Stream</button></form>',
- '<small>Área pessoal · Stream Now</small></main></body></html>'
+ '<button type="submit">Entrar</button></form>',
+ '<small>Stream Now</small></main></body></html>'
  ].join("");
  return new Response(method==="HEAD"?null:html,{status:error?401:200,
  headers:{...baseHeaders,"Content-Type":"text/html; charset=utf-8",
@@ -142,6 +144,52 @@ async function samePassword(candidate,p){
  const a=new Uint8Array(await crypto.subtle.digest("SHA-256",encoder.encode(candidate)));
  const b=new Uint8Array(await crypto.subtle.digest("SHA-256",encoder.encode(p)));
  let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;
+}
+const USER_COOKIE="sn_account";
+const ACCOUNT_TTL=86400;
+function supabaseConfig(env){
+  const base=env?.STREAM_SUPABASE_URL, key=env?.STREAM_SUPABASE_PUBLIC_KEY;
+  if(typeof base!=="string"||typeof key!=="string"||key.length<15)return null;
+  try{
+    const u=new URL(base);
+    if(u.protocol!=="https:"||!u.hostname.endsWith(".supabase.co")||u.username||u.password||u.search||u.hash)return null;
+    return {url:u.origin,key};
+  }catch{return null;}
+}
+async function verifySupabaseCredentials(env,email,password){
+  const settings=supabaseConfig(env);
+  if(!settings)throw Error("Supabase unavailable");
+  if(typeof email!=="string"||email.length>254||!/^\S+@\S+\.\S+$/.test(email)
+     ||typeof password!=="string"||password.length<1||password.length>256)return null;
+  const resp=await fetch(settings.url+"/auth/v1/token?grant_type=password",{
+    method:"POST",redirect:"error",
+    headers:{"Content-Type":"application/json","apikey":settings.key,"Accept":"application/json"},
+    body:JSON.stringify({email:email.trim(),password})
+  });
+  if(resp.status===400||resp.status===401||resp.status===422)return null;
+  if(!resp.ok)throw Error("Supabase auth failed "+resp.status);
+  const data=await resp.json();
+  if(!data?.access_token||!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(data?.user?.id||""))return null;
+  return data.user.id.toLowerCase();
+}
+async function issueAccountCookie(secret,userId){
+  const exp=Math.floor(Date.now()/1000)+ACCOUNT_TTL,nonce=b64(crypto.getRandomValues(new Uint8Array(16)));
+  const raw="v2."+exp+"."+userId+"."+nonce;
+  const mac=await crypto.subtle.sign("HMAC",await signingKey(secret),encoder.encode(raw));
+  return USER_COOKIE+"="+raw+"."+b64(new Uint8Array(mac))+"; Path=/; Max-Age="+ACCOUNT_TTL+"; HttpOnly; Secure; SameSite=Strict";
+}
+async function authenticatedAccount(request,secret){
+  const cookie=(request.headers.get("Cookie")||"").split(";").map(s=>s.trim())
+    .find(s=>s.startsWith(USER_COOKIE+"="));
+  if(!cookie||cookie.length>600)return false;
+  const v=cookie.slice(USER_COOKIE.length+1);
+  const m=/^v2\.(\d{10})\.([0-9a-f-]{36})\.([A-Za-z0-9_-]{22})\.([A-Za-z0-9_-]{43})$/.exec(v);
+  if(!m)return false;
+  const now=Math.floor(Date.now()/1000),exp=Number(m[1]);
+  if(!Number.isSafeInteger(exp)||exp<=now||exp>now+ACCOUNT_TTL)return false;
+  const sig=decode64(m[4]);
+  if(!sig||sig.length!==32)return false;
+  return crypto.subtle.verify("HMAC",await signingKey(secret),sig,encoder.encode("v2."+m[1]+"."+m[2]+"."+m[3]));
 }
 function goHome(url,cookie){
  return new Response(null,{status:303,headers:{...baseHeaders,
@@ -206,7 +254,8 @@ export default {async fetch(request,env){
  if(pinMode&&!/^[0-9]{8}$/.test(pin))return plain(503,"PIN pessoal mal configurado.");
  // Keep high-entropy original secret as the session HMAC signing key.
  // Bind each session to the current PIN so rotation expires older sessions.
- const sessionSecret=pinMode?password+"::tv-pin::"+pin:password;
+ const sessionSecret=pagesHost?password+"::supabase::"+(env.STREAM_SUPABASE_URL||""):pinMode?password+"::tv-pin::"+pin:password;
+ if(pagesHost&&!supabaseConfig(env))return plain(503,"Login com e-mail temporariamente indisponível.");
  if(path==="/stream/login"&&request.method==="POST"){
    // A valid private password is the sole credential for login.
    // Some mobile in-app browsers send Origin: null or a wrapper origin;
@@ -220,6 +269,17 @@ export default {async fetch(request,env){
      if(text.length>2048)return plain(413,"Payload Too Large");
      submitted=new URLSearchParams(text).get("password");
    }catch{return plain(400,"Bad Request");}
+   if(pagesHost){
+     const origin=request.headers.get("Origin");
+     if(origin&&origin!==url.origin)return plain(403,"Forbidden");
+     const params=new URLSearchParams(text);
+     const email=params.get("email");
+     let userId;
+     try{userId=await verifySupabaseCredentials(env,email,submitted);}
+     catch{return plain(502,"Não foi possível validar o acesso. Tente novamente.");}
+     if(!userId)return loginPage(true,"GET",false,true);
+     return goHome(url,await issueAccountCookie(sessionSecret,userId));
+   }
    if(pinMode){
      // Short numeric PIN requires an effective login limiter; deny if unavailable.
      if(!env?.STREAM_LOGIN_LIMITER?.limit)return plain(503,"Proteção de PIN indisponível.");
@@ -234,16 +294,16 @@ export default {async fetch(request,env){
  if(path==="/stream/logout"&&request.method==="POST"){
    const origin=request.headers.get("Origin");
    if(origin&&origin!==url.origin)return plain(403,"Forbidden");
-   return goHome(url,COOKIE+"=; Path="+(pagesHost?"/":"/stream")+"; Max-Age=0; HttpOnly; Secure; SameSite=Strict");
+   return goHome(url,(pagesHost?USER_COOKIE:COOKIE)+"=; Path="+(pagesHost?"/":"/stream")+"; Max-Age=0; HttpOnly; Secure; SameSite=Strict");
  }
  if(request.method!=="GET"&&request.method!=="HEAD")
    return new Response("Method Not Allowed",{status:405,headers:{...baseHeaders,Allow:"GET, HEAD"}});
- if(!await authenticated(request,sessionSecret)){
+ if(!(pagesHost?await authenticatedAccount(request,sessionSecret):await authenticated(request,sessionSecret))){
    if(path==="/"||path==="/stream/"||path==="/stream/index.html"||path==="/stream/tv/"||
       path==="/stream/tv/index.html"||path==="/stream/listas/"||
       path==="/stream/listas/index.html"||path==="/stream/login")
-     return loginPage(false,request.method,pinMode);
-   return plain(403,"Acesso pessoal não autorizado.");
+     return loginPage(false,request.method,pagesHost?false:pinMode,pagesHost);
+   return plain(403,"Autenticação necessária.");
  }
  if(path==="/stream/session")
    return new Response(request.method==="HEAD"?null:JSON.stringify({allowed:true}),{
