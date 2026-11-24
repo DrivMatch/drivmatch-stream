@@ -4,11 +4,13 @@ on:
     branches: [main]
     paths:
       - 'android/**'
+      - 'tests/streamnow_domain_cutover.test.mjs'
       - '.github/workflows/streamnow-android-apk.yml'
   push:
     branches: [main]
     paths:
       - 'android/**'
+      - 'tests/streamnow_domain_cutover.test.mjs'
       - '.github/workflows/streamnow-android-apk.yml'
   workflow_dispatch:
 permissions:
@@ -26,6 +28,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - name: Prevent hostname regression
+        run: node --test tests/streamnow_domain_cutover.test.mjs
       - name: Test strict native branding, host and theme
         run: |
           python3 - <<'PY'
