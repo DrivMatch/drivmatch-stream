@@ -1,5 +1,11 @@
 {
   "name": "streamnow",
   "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-11-23"
+  "compatibility_date": "2026-11-23",
+  "services": [
+    {
+      "binding": "STREAM_ACCOUNTS",
+      "service": "drivmatch-stream-v2-test"
+    }
+  ]
 }

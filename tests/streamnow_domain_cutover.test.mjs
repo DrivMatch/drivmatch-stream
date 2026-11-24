@@ -24,8 +24,10 @@ test("Pages routing and deployed auth use real Cloudflare hostname, with no spoo
  assert.match(worker,/const STREAM_NOW_HOST="streamnow-2o1\.pages\.dev"/);
  assert.match(worker,/const pagesHost=host===STREAM_NOW_HOST/);
  assert.doesNotMatch(worker,/host==="streamnow\.pages\.dev"/);
- assert.match(deploy,/https:\/\/streamnow-2o1\.pages\.dev\//);
- assert.match(deploy,/name="email"/);
+ assert.match(deploy,/origin=https:\/\/streamnow-2o1\.pages\.dev\b/);
+ assert.match(deploy,/name='email'/);
+ assert.match(read("cloudflare/streamnow-pages.mjs"),/env\.STREAM_ACCOUNTS\.fetch\(request\)/);
+ assert.match(read("wrangler.streamnow.jsonc"),/"binding": "STREAM_ACCOUNTS"/);
  assert.match(deploy,/stream\/session/);
  assert.match(deploy,/STREAM_SUPABASE_PUBLIC_KEY/);
  assert.doesNotMatch(deploy,/SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE/i);

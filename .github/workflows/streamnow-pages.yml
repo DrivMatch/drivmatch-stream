@@ -1,7 +1,7 @@
 name: Stream Now Cloudflare Pages
 on:
   push:
-    branches: [main]
+    branches: [main, codex/stream-now-launch-pages]
     paths:
       - '.github/workflows/streamnow-pages.yml'
       - 'cloudflare/**'
@@ -9,6 +9,7 @@ on:
       - 'site/**'
       - 'scripts/verify_streamnow_brand.py'
       - 'tests/streamnow_pages.test.mjs'
+      - 'tests/streamnow_pages_accounts.test.mjs'
       - 'tests/streamnow_domain_cutover.test.mjs'
       - 'tests/streamnow_brand_lock.test.mjs'
       - 'tests/streamnow_red_theme.test.mjs'
@@ -19,7 +20,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: streamnow-pages
+  group: streamnow-pages-${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
   cancel-in-progress: true
 jobs:
   deploy:
@@ -33,7 +34,7 @@ jobs:
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs
+          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_pages_accounts.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs
       - name: Validate deployment inputs
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
@@ -50,13 +51,14 @@ jobs:
           cp -a site/. dist/
           python3 -m pip install --disable-pip-version-check Pillow==11.3.0
           python3 scripts/verify_streamnow_brand.py dist
-          npx esbuild cloudflare/stream-proxy.mjs --bundle --platform=browser --format=esm --outfile=dist/_worker.js
+          npx esbuild cloudflare/streamnow-pages.mjs --bundle --platform=browser --format=esm --outfile=dist/_worker.js
           test -s dist/_worker.js
           test -s dist/tv.html
           test -s dist/streamnow-brand.webp
           test -s dist/streamnow-icon.webp
           test -s dist/daily-autopilot.m3u8
       - name: Create or reuse Cloudflare Pages project
+        if: github.ref == 'refs/heads/main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -67,6 +69,7 @@ jobs:
             grep -Fq streamnow /tmp/streamnow-pages-project-list.txt || { echo "::error::Pages project unavailable or Cloudflare Pages:Edit permission missing"; exit 1; }
           fi
       - name: Configure protected access on Pages
+        if: github.ref == 'refs/heads/main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -74,6 +77,7 @@ jobs:
         run: |
           printf %s "$ACCESS_KEY" | npx --yes wrangler@4 pages secret put STREAM_ACCESS_PASSWORD --project-name streamnow --config wrangler.streamnow.jsonc
       - name: Configure Supabase sign-in (public API key only)
+        if: github.ref == 'refs/heads/main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -94,23 +98,30 @@ jobs:
           # Wrangler Pages deploy refuses custom --config paths; use its required root file
           # only in this ephemeral GitHub runner, preserving the legacy Worker config in Git.
           cp wrangler.streamnow.jsonc wrangler.jsonc
-          npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch main
-          echo "Official free Stream Now URL: https://streamnow-2o1.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
-          echo "The former requested streamnow.pages.dev is NOT assigned to this project." >> "$GITHUB_STEP_SUMMARY"
-      - name: Verify live email login and private access
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            branch=main
+          else
+            branch=contas-compartilhadas
+          fi
+          npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch "$branch"
+      - name: Verify the existing account Worker through Pages
         run: |
           set -euo pipefail
-          for i in 1 2 3 4 5 6; do
-            if curl --fail --silent --show-error --max-time 10 https://streamnow-2o1.pages.dev/ > /tmp/streamnow-login.html; then
-              if grep -q 'name="email"' /tmp/streamnow-login.html && grep -q 'Stream Now' /tmp/streamnow-login.html && ! grep -q 'Sua TV, do seu jeito' /tmp/streamnow-login.html && ! grep -q 'Área pessoal' /tmp/streamnow-login.html; then
-                http=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 https://streamnow-2o1.pages.dev/stream/session)
-                if [ "$http" = "403" ]; then
-                  echo "Live Supabase email sign-in present; anonymous catalog API remains blocked." >> "$GITHUB_STEP_SUMMARY"
-                  exit 0
-                fi
+          origin=https://streamnow-2o1.pages.dev
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            origin=https://contas-compartilhadas.streamnow-2o1.pages.dev
+          fi
+          for attempt in {1..8}; do
+            if curl -LfSs --max-time 15 "$origin/" -o /tmp/streamnow-login.html &&
+               grep -q "Acesso individual" /tmp/streamnow-login.html &&
+               grep -q "name='email'" /tmp/streamnow-login.html; then
+              status=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/stream/session")
+              if [ "$status" = 401 ]; then
+                echo "Pages login and anonymous access check passed at $origin." >> "$GITHUB_STEP_SUMMARY"
+                exit 0
               fi
             fi
-            sleep 5
+            sleep 4
           done
-          echo "::error::The production login did not pass the public HTTPS check"
+          echo "::error::Pages shared-account login could not be verified."
           exit 1
