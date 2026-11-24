@@ -18,7 +18,8 @@ jobs:
           ref: main
           persist-credentials: false
       - name: Install FFmpeg
-        run: python3 -m pip install --disable-pip-version-check --only-binary=:all: imageio-ffmpeg==0.6.0
+        run: |
+          python3 -m pip install --disable-pip-version-check --only-binary=:all: imageio-ffmpeg==0.6.0
       - name: Decode frames from public broadcaster streams in the existing catalog
         run: |
           set -o pipefail
