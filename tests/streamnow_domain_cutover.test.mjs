@@ -17,7 +17,7 @@ test("Android native WebView loads ONLY the production free Pages host in debug 
  assert.match(gradle,/versionCode 6/);
  assert.match(gradle,/versionName "1\.0\.0"/);
  assert.match(read(".github/workflows/streamnow-android-production.yml"),/bundleRelease/);
- assert.match(flow,/streamnow-android-v0\.3\.2-test/);
+ assert.match(flow,/Build installable Android debug APK/);
 });
 test("Pages routing and deployed auth use real Cloudflare hostname, with no spoofed alias",()=>{
  const worker=read("cloudflare/stream-proxy.mjs");
