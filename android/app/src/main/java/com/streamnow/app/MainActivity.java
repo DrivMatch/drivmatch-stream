@@ -92,24 +92,17 @@ public final class MainActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setBackgroundColor(GRAPHITE);
 
-        ImageView icon = new ImageView(this);
-        icon.setImageResource(R.drawable.streamnow_icon);
-        icon.setContentDescription("Marca Stream Now");
-        int logoDp = (int)(44 * getResources().getDisplayMetrics().density + 0.5f);
-        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(logoDp,logoDp);
-        ip.setMargins(0,0,12,0);
-        bar.addView(icon,ip);
-
-        TextView title = new TextView(this);
-        title.setText("STREAM NOW");
-        title.setTextColor(Color.WHITE);
-        title.setTextSize(20);
-        title.setTypeface(null,1);
-        title.setGravity(Gravity.CENTER_VERTICAL);
-        bar.addView(title,new LinearLayout.LayoutParams(0,-2,1));
-
+        ImageView brand = new ImageView(this);
+        brand.setImageResource(R.drawable.streamnow_wordmark);
+        brand.setContentDescription("Stream Now");
+        brand.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int wordmarkHeight = (int)(52 * getResources().getDisplayMetrics().density + 0.5f);
+        LinearLayout.LayoutParams wordmarkParams = new LinearLayout.LayoutParams(0,wordmarkHeight,1);
+        wordmarkParams.setMargins(0,0,pad,0);
+        bar.addView(brand,wordmarkParams);
         Button home = action("⌂","Página inicial Stream Now");
         Button reload = action("↻","Recarregar Stream Now");
+        home.setBackgroundTintList(ColorStateList.valueOf(RED));
         bar.addView(home);
         bar.addView(reload);
         root.addView(bar,new LinearLayout.LayoutParams(-1,-2));
