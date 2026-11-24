@@ -875,19 +875,19 @@ test("invalid or forged signup does not call email service or create account",as
     assert.equal(accounts.size,2);
   });
 });
-test("public signup quota is at most 10 daily, sharing 20-slot email pool",async()=>{
+test("public signup shares existing 20/day total email cap, without extra arbitrary cutoff",async()=>{
   await withFakeSupabase(async()=>{
     const {env,accounts,emailBudget}=testEnvironment();
-    for(let i=0;i<12;i++){
+    for(let i=0;i<22;i++){
       const f=await getForm("/stream/signup",env);
       const result=await worker.fetch(req("/stream/signup",{method:"POST",
         headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
         body:new URLSearchParams({_csrf:f.token,email:"member"+i+"@example.test",
           password:"New-user-password-12345",confirm:"New-user-password-12345"})
       }),env);
-      assert.equal(result.status,i<10?200:429);
+      assert.equal(result.status,i<20?200:429);
     }
-    assert.equal(emailBudget.length,10);
+    assert.equal(emailBudget.length,20);
     assert.ok(emailBudget.every(e=>e.kind==="signup"));
     assert.equal(accounts.get(users[0].id).role,"admin");
   });
