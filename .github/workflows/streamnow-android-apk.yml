@@ -1,4 +1,4 @@
-name: Stream Now Android APK v0.2 test build and prerelease
+name: Stream Now Android APK v0.3 test build and prerelease
 on:
   pull_request:
     branches: [main]
@@ -41,6 +41,16 @@ jobs:
           assert 'Color.rgb(9,9,9)' in j and 'Color.rgb(184,0,40)' in j
           assert 'R.drawable.streamnow_icon' in j
           PY
+      - name: Use the transparent canonical-derived Android icon
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 scripts/build_streamnow_brand_assets.py site
+          cp site/streamnow-icon-clean.webp android/app/src/main/res/drawable-nodpi/streamnow_icon.webp
+          python3 - <<'PY'
+          from PIL import Image
+          image=Image.open("android/app/src/main/res/drawable-nodpi/streamnow_icon.webp")
+          assert image.mode=="RGBA" and image.getextrema()[3][0]==0
+          PY
       - name: Build installable Android debug APK
         working-directory: android
         run: gradle :app:assembleDebug --no-daemon --stacktrace
@@ -51,11 +61,11 @@ jobs:
           test -s "$a"
           unzip -t "$a" > /dev/null
           test "$(stat -c '%s' "$a")" -gt 10000
-          sha256sum "$a" | tee streamnow-android-v0.2.0-sha256.txt
+          sha256sum "$a" | tee streamnow-android-v0.3.0-sha256.txt
           echo 'Stream Now Android debug/beta built. Not device-homologated.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: StreamNow-Android-v0.2.0-TEST-APK
+          name: StreamNow-Android-v0.3.0-TEST-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
@@ -65,16 +75,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG=streamnow-android-v0.2.0-test
+          TAG=streamnow-android-v0.3.0-test
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo '::error::Release already exists; refusing to overwrite versioned APK.'
             exit 1
           fi
           gh release create "$TAG" \
-            'android/app/build/outputs/apk/debug/app-debug.apk#StreamNow-Android-v0.2.0-TEST.apk' \
-            'streamnow-android-v0.2.0-sha256.txt#SHA256SUMS.txt' \
+            'android/app/build/outputs/apk/debug/app-debug.apk#StreamNow-Android-v0.3.0-TEST.apk' \
+            'streamnow-android-v0.3.0-sha256.txt#SHA256SUMS.txt' \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'Stream Now Android 0.2.0 — beta APK' \
+            --title 'Stream Now Android 0.3.0 — beta APK' \
             --notes 'APK DEBUG de teste Android 8+. Nome, ícone e tema preto/cinza/vermelho. Aponta SOMENTE para https://streamnow.pages.dev/. Acesso pode falhar enquanto o Cloudflare Pages não for publicado; não redireciona para DrivMatch. Não foi homologado em aparelhos físicos nem distribuído pela Play Store. A instalação exige autorizar fonte externa no Android.' \
             --prerelease
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | .name+" "+.url)'
