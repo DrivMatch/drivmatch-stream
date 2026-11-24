@@ -374,6 +374,34 @@ test("recover form uses signed token when mobile sends no Origin",async()=>{
   });
 });
 
+test("both Pages hosts request recovery using the approved Supabase callback",async t=>{
+  const {env}=testEnvironment();
+  const approved="https://drivmatch-stream-v2-test.drivmatch.workers.dev";
+  const provider=t.mock.method(globalThis,"fetch",async resource=>{
+    const target=new URL(resource);
+    assert.equal(target.origin,"https://example.supabase.co");
+    assert.equal(target.pathname,"/auth/v1/recover");
+    assert.equal(target.searchParams.get("redirect_to"),approved+"/stream/activate");
+    return Response.json({});
+  });
+  for(const origin of ["https://streamnow-2o1.pages.dev","https://contas-compartilhadas.streamnow-2o1.pages.dev"]){
+    const url=origin+"/stream/recover";
+    const response=await worker.fetch(new Request(url),env);
+    const csrf=response.headers.get("Set-Cookie").split(";")[0];
+    const token=(await response.text()).match(/name='_csrf' value='([^']+)'/)[1];
+    const result=await worker.fetch(new Request(url,{
+      method:"POST",headers:{Cookie:csrf,Origin:origin},
+      body:new URLSearchParams({email:"fixture@example.test",_csrf:token})
+    }),env);
+    assert.equal(result.status,200);
+  }
+  assert.equal(provider.mock.callCount(),2);
+  const setup=await worker.fetch(new Request(approved+"/stream/activate?next=https://foreign.example"),env);
+  const body=await setup.text();
+  assert.match(body,/https:\/\/streamnow-2o1\.pages\.dev\/stream\/login/);
+  assert.doesNotMatch(body,/foreign\.example/);
+});
+
 test("admin destination survives login redirect and opens real management panel",async()=>{
   await withFakeSupabase(async()=>{
     const {env}=testEnvironment();

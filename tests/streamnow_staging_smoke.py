@@ -4,8 +4,8 @@ import json
 import os
 import re
 from urllib.error import HTTPError
-from urllib.parse import urlencode, urlsplit
-from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
+from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, HTTPCookieProcessor, Request, build_opener, urlopen
 from uuid import uuid4
 
 DEFAULT_ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev"
@@ -63,6 +63,51 @@ def favorite_change(browser, key, operation):
         body=json.dumps({"key": key, "operation": operation}).encode(),
     )
     assert json.loads(result)["ok"]
+
+
+class StopRedirect(HTTPRedirectHandler):
+    def redirect_request(self, request, handle, code, message, headers, target):
+        return None
+
+
+def verify_recovery(base, auth_headers, email, user_id, old_session):
+    callback = DEFAULT_ORIGIN + "/stream/activate"
+    link = api(base + "/auth/v1/admin/generate_link", method="POST", headers=auth_headers,
+               data={"type": "recovery", "email": email, "redirect_to": callback})
+    action = link.get("properties", link).get("action_link", "")
+    parts = urlsplit(action)
+    assert parts.scheme + "://" + parts.netloc == base and parts.path == "/auth/v1/verify"
+    assert parse_qs(parts.query).get("redirect_to") == [callback]
+    try:
+        with build_opener(StopRedirect()).open(action, timeout=25):
+            raise RuntimeError("Supabase did not redirect after verifying recovery")
+    except HTTPError as error:
+        if error.code not in (302, 303):
+            raise RuntimeError(f"Supabase recovery verification returned HTTP {error.code}") from None
+        destination = urlsplit(error.headers.get("Location", ""))
+    assert destination.scheme + "://" + destination.netloc + destination.path == callback
+    fragment = parse_qs(destination.fragment)
+    assert fragment.get("type") == ["recovery"] and len(fragment.get("access_token", [])) == 1
+    browser = build_opener(HTTPCookieProcessor(CookieJar()))
+    browser.addheaders = [("User-Agent", "StreamNow-QA Recovery Browser")]
+    _, page = send(callback, headers={"Accept": "text/html"}, open_url=browser.open)
+    assert b"https://streamnow-2o1.pages.dev/stream/login" in page
+    new_password = uuid4().hex + "Q@9"
+    _, response = send(
+        callback, method="POST", open_url=browser.open,
+        headers={"Origin": DEFAULT_ORIGIN, "Content-Type": "application/json"},
+        body=json.dumps({"access_token": fragment["access_token"][0], "password": new_password}).encode(),
+    )
+    assert json.loads(response)["ok"]
+    try:
+        send(ORIGIN + "/stream/session", open_url=old_session.open)
+    except RuntimeError as error:
+        if str(error) != "GET /stream/session returned HTTP 401":
+            raise
+    else:
+        raise RuntimeError("Password recovery left a prior session active")
+    sign_in(email, new_password, user_id, "StreamNow-QA Recovered Account")
+    print("PASS: Supabase recovery callback reset a disposable password and revoked the old login.")
 
 
 def main():
@@ -128,6 +173,7 @@ def main():
             assert favorites(other) == []
             favorite_change(mobile, browser_key, "remove")
             assert favorites(desktop) == []
+        verify_recovery(base, auth_headers, first_email, first_id, desktop)
         print("PASS: Supabase sessions, authenticated catalog and D1 favorites isolation in staging.")
     finally:
         cleanup_failed = False
