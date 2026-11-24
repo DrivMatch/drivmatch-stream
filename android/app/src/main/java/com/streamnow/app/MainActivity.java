@@ -30,7 +30,7 @@ import java.net.URI;
 
 /** Stream Now official-site Android WebView wrapper.
  * Target is intentionally restricted to https://streamnow.pages.dev/.
- * No DrivMatch domain/Worker fallback, credentials, tracking or built-in streams.
+ * No previous-domain fallback, credentials, tracking or bundled video streams.
  * This is an Android DEBUG/BETA build, not a Play Store release.
  */
 public final class MainActivity extends Activity {
