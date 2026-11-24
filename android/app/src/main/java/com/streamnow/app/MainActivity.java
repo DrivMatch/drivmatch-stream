@@ -95,7 +95,8 @@ public final class MainActivity extends Activity {
         brand.setImageResource(R.drawable.streamnow_wordmark);
         brand.setContentDescription("Stream Now");
         brand.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LinearLayout.LayoutParams brandParams = new LinearLayout.LayoutParams(0,52,1);
+        int brandHeight = (int)(52 * getResources().getDisplayMetrics().density + 0.5f);
+        LinearLayout.LayoutParams brandParams = new LinearLayout.LayoutParams(0,brandHeight,1);
         brandParams.setMargins(0,0,12,0);
         bar.addView(brand,brandParams);
         Button home = action("⌂","Página inicial Stream Now");
