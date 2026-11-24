@@ -1,0 +1,38 @@
+name: Stream Now shared accounts through Cloudflare Pages
+on:
+  workflow_dispatch:
+    inputs:
+      check_official:
+        description: Check the official hostname after deployment
+        type: boolean
+        default: false
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-launch-pages-e2e.yml'
+permissions:
+  contents: read
+concurrency:
+  group: streamnow-pages-account-smoke
+  cancel-in-progress: false
+jobs:
+  account-smoke:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    environment: stream-independent-test
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: abcd3bc3f41b0306ce83316590a038b704faceaf
+          persist-credentials: false
+      - name: Check Supabase login, catalog, shared favorites and fixture cleanup
+        env:
+          STREAMNOW_SMOKE_ORIGIN: ${{ inputs.check_official && 'https://streamnow-2o1.pages.dev' || 'https://contas-compartilhadas.streamnow-2o1.pages.dev' }}
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -o pipefail
+          python3 tests/streamnow_staging_smoke.py | tee -a "$GITHUB_STEP_SUMMARY"
