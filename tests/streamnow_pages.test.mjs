@@ -48,3 +48,30 @@ test("canonical brand images are public without exposing app APIs",async()=>{
  }
  assert.equal((await worker.fetch(new Request(base+"/stream/catalog?list=lista-1"),env)).status,403);
 });
+
+test("Cloudflare-assigned suffix runs same gated application as staging",async()=>{
+ const staging="https://streamnow-2o1.pages.dev";
+ seen.length=0;
+ const login=await worker.fetch(new Request(staging+"/"),env);
+ assert.equal(login.status,200);
+ assert.match(await login.text(),/Stream Now/);
+ assert.equal(seen.length,0);
+ const submitted=await worker.fetch(new Request(staging+"/stream/login",{
+  method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+  body:new URLSearchParams({password:secret}).toString()}),env);
+ assert.equal(submitted.status,303);
+ assert.equal(submitted.headers.get("location"),staging+"/");
+ assert.match(submitted.headers.get("set-cookie"),/Path=\/;/);
+ const cookie=submitted.headers.get("set-cookie").split(";")[0];
+ const screen=await worker.fetch(new Request(staging+"/",{headers:{Cookie:cookie}}),env);
+ assert.equal(screen.status,200);
+ assert.equal(await screen.text(),"/tv.html");
+ seen.length=0;
+ const playlist=await worker.fetch(new Request(staging+"/stream/catalog?list=lista-12",{headers:{Cookie:cookie}}),env);
+ assert.equal(playlist.status,200);
+ assert.deepEqual(seen,["/daily-autopilot.m3u8"]);
+});
+test("unapproved pages.dev host remains inaccessible",async()=>{
+ const r=await worker.fetch(new Request("https://streamnow-guess.pages.dev/"),env);
+ assert.equal(r.status,404);
+});

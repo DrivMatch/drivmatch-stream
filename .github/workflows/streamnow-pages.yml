@@ -72,6 +72,23 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch main --config wrangler.streamnow.jsonc
-          echo "Candidate URL: https://streamnow.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
-          echo "Verify unauthenticated and authenticated HTTP responses separately." >> "$GITHUB_STEP_SUMMARY"
+          # Wrangler Pages deploy refuses custom --config paths; use its required root file
+          # only in this ephemeral GitHub runner, preserving the legacy Worker config in Git.
+          cp wrangler.streamnow.jsonc wrangler.jsonc
+          npx --yes wrangler@4 pages deploy dist --project-name streamnow --branch main
+          echo "Cloudflare-assigned staging URL: https://streamnow-2o1.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
+          echo "Requested streamnow.pages.dev is NOT owned by this project; do not advertise as live." >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify gated staging login endpoint
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error --max-time 10 https://streamnow-2o1.pages.dev/ > /tmp/streamnow-login.html; then
+              if grep -q "Stream Now" /tmp/streamnow-login.html; then
+                echo "Staging login accessible, user secrets not logged." >> "$GITHUB_STEP_SUMMARY"
+                exit 0
+              fi
+            fi
+            sleep 5
+          done
+          echo "::error::The staging login did not pass the public HTTPS check"
+          exit 1
