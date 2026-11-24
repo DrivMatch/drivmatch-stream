@@ -1,0 +1,67 @@
+name: Stream Now Samsung LG TV candidate packages
+on:
+  pull_request:
+    branches: [main]
+    paths: ['tv-platforms/**', '.github/workflows/streamnow-tv-store-packages.yml']
+  push:
+    branches: [main]
+    paths: ['tv-platforms/**', '.github/workflows/streamnow-tv-store-packages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package-tv:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check metadata and hosted origin
+        run: |
+          python3 - <<'PY'
+          import json,xml.etree.ElementTree as ET
+          x=json.load(open('tv-platforms/lg/appinfo.json'))
+          assert x['type']=='web' and x['main']=='index.html'
+          assert x['resolution']=='1920x1080'
+          ET.parse('tv-platforms/samsung/config.xml')
+          for platform in ('lg','samsung'):
+              page=open('tv-platforms/'+platform+'/index.html').read()
+              assert 'https://streamnow-2o1.pages.dev/stream/' in page
+              assert 'password=' not in page and 'access_token=' not in page
+          print('TV manifests, host and secret checks: OK')
+          PY
+      - name: Convert exact existing Stream Now icon into platform resources
+        run: |
+          python3 -m pip install --disable-pip-version-check pillow
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          source=Path('site/streamnow-icon.webp')
+          assert source.exists()
+          image=Image.open(source).convert('RGBA')
+          for platform in ('lg','samsung'):
+              folder=Path('tv-platforms')/platform
+              image.resize((80,80),Image.Resampling.LANCZOS).save(folder/'icon.png')
+              image.resize((130,130),Image.Resampling.LANCZOS).save(folder/'largeIcon.png')
+          PY
+      - name: Install LG webOS CLI
+        run: npm install --global --no-audit --no-fund @webos-tools/cli
+      - name: Create LG IPK test package
+        run: |
+          mkdir -p dist/lg dist/samsung
+          ares-package tv-platforms/lg -o dist/lg
+          test "$(find dist/lg -maxdepth 1 -name '*.ipk' | wc -l)" -eq 1
+          echo 'IPK de teste LG criado. Não significa que foi enviado ou aprovado.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Archive Samsung source only (not signed WGT)
+        run: |
+          (cd tv-platforms/samsung && zip -q -r ../../dist/samsung/streamnow-tizen-source-unsigned.zip .)
+          echo 'Samsung: fonte de desenvolvimento SEM assinatura; NÃO é WGT instalável.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload separate test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: streamnow-samsung-lg-test-artifacts
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
