@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: abcd3bc3f41b0306ce83316590a038b704faceaf
+          ref: f51c6c8407440a526ba618775efdff7637305624
           persist-credentials: false
       - name: Check Supabase login, catalog, shared favorites and fixture cleanup
         env:
