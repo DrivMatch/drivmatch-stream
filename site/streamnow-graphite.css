@@ -112,7 +112,7 @@ body .source input,body .source select,body .add-source input,body .filters inpu
    The logo raster must be transparent in production; no background tile. */
 :root{--sn-bg:#080808;--sn-panel:#181818;--sn-panel-raised:#242424;--sn-border:#454545;--sn-text:#f6f6f6;--sn-muted:#bdbdbd;--sn-action:#c40029;--sn-action-hover:#a40023;--sn-focus:#f2f2f2;color-scheme:dark}
 .streamnow-wordmark,.streamnow-classic-logo,.streamnow-library-logo,.gate-logo,.brand-logo{object-fit:contain;object-position:center;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;max-width:100%}
-.tv-shell .streamnow-wordmark{height:44px;width:165px}
+.tv-shell .streamnow-wordmark{height:44px;width:156px}
 .streamnow-classic-logo{height:70px;width:105px;flex-shrink:0}
 .streamnow-library-logo{height:60px;width:95px;flex-shrink:0}
 .gate-logo{height:110px;width:160px;max-width:100%}
