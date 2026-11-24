@@ -31665,6 +31665,12 @@
       "state": "REVIEW_REQUIRED",
       "type": "repository_candidate"
     },
+    "https://gitlab.com/boo231285/best-iptv-for-frame-rate-matching-uk": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-24",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
     "https://gitlab.com/boo231285/best-iptv-switching-usa": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-23",

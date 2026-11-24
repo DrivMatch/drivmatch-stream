@@ -1,9 +1,9 @@
 {
   "community_candidates_research_only": 4489,
-  "curated_candidates": 6865,
+  "curated_candidates": 6871,
   "date_utc": "2026-11-24",
   "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification",
-  "not_tested_this_run": 6745,
+  "not_tested_this_run": 6751,
   "open_web_research": {
     "candidate_sources": [
       {
@@ -62,12 +62,12 @@
       "twitch-broadcaster-live"
     ]
   },
-  "published_healthy": 248,
+  "published_healthy": 301,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
     "biskyt-open-all": 2,
-    "broadcastatlas-official": 788,
+    "broadcastatlas-official": 794,
     "coldopen-publisher": 94,
     "freecasthub": 98,
     "freetv-br": 6,
@@ -101,6 +101,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 120,
-  "tested_failed": 48,
-  "tested_ok": 72
+  "tested_failed": 41,
+  "tested_ok": 79
 }
