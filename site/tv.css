@@ -820,7 +820,7 @@ html,body{background:#080114;color:#fff}
 .tv-shell{background:#080114;background-image:linear-gradient(145deg,#160418 0%,#080114 48%,#12081d 100%)}
 .topbar{background:#09020e;border-bottom:2px solid #a61959;box-shadow:0 2px 20px rgba(255,20,120,.13)}
 .brand{height:100%;white-space:nowrap}
-.streamnow-wordmark{display:inline-block;width:162px;height:38px;max-width:100%;object-fit:contain;vertical-align:middle}
+.streamnow-wordmark{display:inline-block;width:156px;height:38px;max-width:100%;object-fit:contain;vertical-align:middle}
 .live-label{display:inline-block;font-size:12px;font-weight:bold;color:#ff6fa0;letter-spacing:1px;margin-right:14px}
 .top-link{color:#fff;border:1px solid #ff1478;border-radius:20px;background:#871139}
 .top-link:hover{background:#c91b5b}
