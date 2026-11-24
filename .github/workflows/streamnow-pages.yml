@@ -101,9 +101,12 @@ jobs:
           set -euo pipefail
           for i in 1 2 3 4 5 6; do
             if curl --fail --silent --show-error --max-time 10 https://streamnow-2o1.pages.dev/ > /tmp/streamnow-login.html; then
-              if grep -q "Stream Now" /tmp/streamnow-login.html; then
-                echo "Staging login accessible, user secrets not logged." >> "$GITHUB_STEP_SUMMARY"
-                exit 0
+              if grep -q 'name="email"' /tmp/streamnow-login.html && grep -q 'Stream Now' /tmp/streamnow-login.html && ! grep -q 'Sua TV, do seu jeito' /tmp/streamnow-login.html && ! grep -q 'Área pessoal' /tmp/streamnow-login.html; then
+                http=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 https://streamnow-2o1.pages.dev/stream/session)
+                if [ "$http" = "403" ]; then
+                  echo "Staging Supabase email sign-in present; anonymous catalog API remains blocked." >> "$GITHUB_STEP_SUMMARY"
+                  exit 0
+                fi
               fi
             fi
             sleep 5
