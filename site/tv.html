@@ -7,13 +7,55 @@
 <meta name="theme-color" content="#080808">
 <link rel="icon" href="/stream/icon.webp" type="image/webp">
 <title>Stream Now | TV Samsung</title>
-<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-streamnow-brand1">
-<link rel="stylesheet" href="/stream/graphite.css?v=20261123-graphite1">
+<link rel="stylesheet" href="/stream/tv/tv.css?v=20261124-samsung-red-recovery1">
+<link rel="stylesheet" href="/stream/graphite.css?v=20261124-samsung-red-recovery1">
+<style id="streamnow-samsung-fallback-theme">
+/* Inline critical theme: older Samsung browsers must remain readable even when
+   external CSS requests fail or stale cached stylesheets are served. */
+html,body{background:#080808!important;color:#f7f7f7!important}
+body .tv-shell{background:#080808!important;color:#f7f7f7!important}
+body .tv-shell .topbar{background:#0b0b0b!important;border-bottom:3px solid #e60036!important}
+body .tv-shell .tv-layout{background:#080808!important}
+body .tv-shell .column,body .tv-shell .sidebar,
+body .tv-shell .catalog,body .tv-shell .player-column{
+ background:#181818!important;color:#f7f7f7!important;border:1px solid #4f4f4f!important
+}
+body .tv-shell .quick-toggle,body .tv-shell .quick-entry-btn,
+body .tv-shell .country-items button,body .tv-shell .source-items button,
+body .tv-shell .tree-country-btn,body .tv-shell .tree-genre-btn,
+body .tv-shell .tree-channel-btn,body .tv-shell .channel-row,
+body .tv-shell .filter-btn,body .tv-shell .player-actions button{
+ background:#262626!important;color:#fff!important;border:1px solid #636363!important
+}
+body .tv-shell .country-items button.active,body .tv-shell .filter-btn.active,
+body .tv-shell .channel-row.current{
+ background:#780018!important;color:#fff!important;border-color:#ff003c!important
+}
+body .tv-shell .quick-toggle{border-left:4px solid #ff003c!important}
+body .tv-shell .catalog-header h1,body .tv-shell .now-playing h2,
+body .tv-shell .player-empty strong{color:#fff!important}
+body .tv-shell .catalog-header p,body .tv-shell .catalog-status,
+body .tv-shell .now-playing p,body .tv-shell .disclaimer,
+body .tv-shell .player-empty p,body .tv-shell .sidebar-note{
+ color:#ddd!important
+}
+body .tv-shell .search-row input{background:#242424!important;color:#fff!important;border:2px solid #777!important}
+body .tv-shell .play-symbol,body .tv-shell #refresh,body .tv-shell #recover-legacy-favorites{
+ background:#c40029!important;border:2px solid #ff003c!important;color:#fff!important
+}
+body .tv-shell a{color:#fff!important}
+body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
+ outline:3px solid #fff!important;outline-offset:2px
+}
+#recover-legacy-favorites{display:block;margin:8px 0;width:100%;padding:9px;font-weight:bold}
+#recover-legacy-favorites[hidden],#recover-favorites-status[hidden]{display:none!important}
+#recover-favorites-status{color:#fff;font-size:14px;line-height:1.45}
+</style>
 </head>
 <body>
 <div class="tv-shell" id="tv-shell">
   <header class="topbar">
-    <div class="brand"><img class="streamnow-wordmark" src="/stream/brand.webp" width="220" height="62" alt="Stream Now"></div>
+    <div class="brand"><img class="streamnow-wordmark" src="/stream/brand.webp?v=20261124-brand-refresh" width="220" height="62" alt="Stream Now"></div>
     <div class="toplinks"><span class="live-label" aria-label="Transmissões ao vivo">● AO VIVO</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
   </header>
   <main class="tv-layout" id="tv-layout">
@@ -33,6 +75,8 @@
         <div id="favorite-items" class="quick-items" hidden>
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
+        <button id="recover-legacy-favorites" type="button" hidden>↺ Recuperar favoritos antigos desta TV</button>
+        <p id="recover-favorites-status" role="status" hidden></p>
       </section>
       <div class="section-title"><span>01 · PAÍSES E CANAIS</span><b id="country-caption">12 países</b></div>
       <div id="source-items" class="source-items" hidden></div>
@@ -99,6 +143,6 @@
   </main>
   <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream Now e autentique seu acesso.</p><a href="/stream/">Entrar no Stream Now</a></div>
 </div>
-<script src="/stream/tv/tv.js?v=20261123-global-2am1"></script>
+<script src="/stream/tv/tv.js?v=20261124-samsung-red-recovery1"></script>
 </body>
 </html>
