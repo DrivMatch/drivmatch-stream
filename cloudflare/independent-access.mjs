@@ -1,6 +1,6 @@
 /*
  * DrivMatch Stream - separate Cloudflare Worker for private individual accounts.
- * Identity provider: dedicated Supabase Auth project (invitation by email).
+ * Identity provider: dedicated Supabase Auth project (invitation and public signup).
  * Per-user sessions, permissions, and favorites: Cloudflare D1.
  * Production is NOT changed by adding this module.
  */
@@ -26,14 +26,13 @@ const STATIC_FILES = {
   "/stream/official-access.json":"official-access.json"
 };
 const PUBLIC_ASSETS = {
-  "/stream/logo.jpg": ["streamnow-original.jpg", "image/jpeg"],
   "/stream/brand.webp": ["streamnow-brand.webp", "image/webp"],
   "/stream/icon.webp": ["streamnow-icon.webp", "image/webp"],
   "/stream/montserrat-latin.woff2": ["montserrat-latin.woff2", "font/woff2"],
   "/stream/montserrat-OFL.txt": ["montserrat-OFL.txt", "text/plain; charset=utf-8"]
 };
 const BRAND_FONT = "@font-face{font-family:Montserrat;src:url(/stream/montserrat-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}";
-const BRAND_IMAGE = "<img class='streamnow-logo' src='/stream/logo.jpg' alt='Stream Now' width='180' height='180'>";
+const BRAND_IMAGE = "<img class='streamnow-logo' src='/stream/brand.webp' alt='Stream Now' width='270' height='80'>";
 const APP_CSP = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; " +
   "style-src 'self'; font-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; " +
   "worker-src blob:; img-src 'self' https: data:; " +
@@ -47,6 +46,7 @@ const SESSION_SECONDS = 7 * 24 * 3600;
 const ADMIN_STEPUP_SECONDS = 600;
 const DAILY_EMAIL_LIMIT = 20;
 const PUBLIC_EMAIL_LIMIT = 5;
+const PUBLIC_SIGNUP_LIMIT = 10;
 const OFFICIAL_PAGES_HOST = "streamnow-2o1.pages.dev";
 const SHARED_PAGES_HOSTS = new Set([OFFICIAL_PAGES_HOST,"contas-compartilhadas.streamnow-2o1.pages.dev"]);
 const APPROVED_AUTH_ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev";
@@ -219,7 +219,28 @@ async function loginPage(error = false, env, nextAdmin = false) {
     "<label>Senha<input type='password' name='password' autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Entrar</button></form>" +
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
-    "<small>Novas contas são criadas apenas por convite.</small>", error ? 401 : 200),token);
+    "<p><a href='/stream/signup'>Criar conta</a></p>", error ? 401 : 200),token);
+}
+
+async function signupPage(env,error="") {
+  const token=await issueFormToken(env);
+  return stampForm(page("Criar conta",
+    "<p>Cadastre seu e-mail e defina uma senha. Não é necessário convite.</p>" +
+    (error?"<p role='alert'>"+escape(error)+"</p>":"")+
+    "<form method='post' action='/stream/signup'>"+formTokenInput(token)+
+    "<label>E-mail<input type='email' name='email' autocomplete='username' maxlength='254' required></label>"+
+    "<label>Senha<input type='password' name='password' autocomplete='new-password' minlength='12' maxlength='256' required></label>"+
+    "<label>Confirmar senha<input type='password' name='confirm' autocomplete='new-password' minlength='12' maxlength='256' required></label>"+
+    "<button type='submit'>Criar conta</button></form>"+
+    "<p><a href='/stream/login'>Já tenho conta</a></p>",
+    error?400:200),token);
+}
+function signupReceipt() {
+  return page("Cadastro solicitado",
+    "<p>Se o cadastro puder ser realizado, confira seu e-mail para confirmar o endereço.</p>"+
+    "<p>Depois, entre com seu e-mail e a senha criada.</p>"+
+    "<p><a href='/stream/login'>Entrar</a></p>"+
+    "<p><a href='/stream/recover'>Recuperar acesso</a></p>");
 }
 function activationURL(url) {
   const origin = SHARED_PAGES_HOSTS.has(url.hostname) ? APPROVED_AUTH_ORIGIN : url.origin;
@@ -317,8 +338,11 @@ async function reserveEmail(env,kind) {
     "(SELECT COUNT(*) FROM stream_email_budget WHERE local_day=?)<? " +
     "AND (? != 'public-recover' OR " +
     "(SELECT COUNT(*) FROM stream_email_budget " +
-    "WHERE local_day=? AND kind='public-recover')<?)"
-  ).bind(id,day,kind,day,DAILY_EMAIL_LIMIT,kind,day,PUBLIC_EMAIL_LIMIT).run();
+    "WHERE local_day=? AND kind='public-recover')<?) " +
+    "AND (? != 'signup' OR " +
+    "(SELECT COUNT(*) FROM stream_email_budget " +
+    "WHERE local_day=? AND kind='signup')<?)"
+  ).bind(id,day,kind,day,DAILY_EMAIL_LIMIT,kind,day,PUBLIC_EMAIL_LIMIT,kind,day,PUBLIC_SIGNUP_LIMIT).run();
   return result?.meta?.changes===1 ? id : null;
 }
 async function sendWithEmailQuota(env,kind,send) {
@@ -514,6 +538,51 @@ async function handle(request, env) {
     const destination = requestedAdmin && requireAdmin(account) ? "/stream/admin" : "/stream/";
     return redirect(url.origin,destination,
       await createSession(account,env,requestedAdmin && requireAdmin(account)));
+  }
+
+  if(path==="/stream/signup" && method==="GET")
+    return user?redirect(url.origin,"/stream/"):await signupPage(env);
+  if(path==="/stream/signup" && method==="POST"){
+    const data=await form(request);
+    if(!await verifyFormToken(request,url,data,env))
+      return plain(403,"Formulário expirado. Abra novamente o cadastro.");
+    if(!await limit(request,env,"signup"))
+      return plain(429,"Muitas tentativas. Tente novamente mais tarde.");
+    const email=String(data.get("email")||"").trim().toLowerCase();
+    const password=String(data.get("password")||"");
+    const confirmation=String(data.get("confirm")||"");
+    if(email.length>254||!/^\S+@\S+\.\S+$/.test(email)||
+       password.length<12||password.length>256||password!==confirmation)
+      return await signupPage(env,"Confira o e-mail e informe duas senhas iguais de pelo menos 12 caracteres.");
+    const existing=await env.STREAM_USERS_DB.prepare(
+      "SELECT user_id FROM stream_users WHERE email=?"
+    ).bind(email).first();
+    if(existing)return signupReceipt();
+    const sent=await sendWithEmailQuota(env,"signup",()=>
+      supabase(env,"POST","signup?redirect_to="+encodeURIComponent(activationURL(url)),{email,password}));
+    if(!sent.ok){
+      if(sent.quota)return page("Cadastros temporariamente limitados",
+        "<p>O limite diário de confirmações de cadastro foi atingido. Tente novamente amanhã.</p>"+
+        "<p><a href='/stream/login'>Entrar</a></p>",429);
+      const kind=sent.result?invitationError(sent.result):"provider";
+      if(kind==="limit")return page("Envio temporariamente limitado",
+        "<p>O provedor atingiu seu limite de e-mails. Tente novamente mais tarde.</p>"+
+        "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",429);
+      return page("Cadastro indisponível",
+        "<p>Não foi possível solicitar a confirmação agora. Tente novamente mais tarde.</p>"+
+        "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",503);
+    }
+    const record=sent.result?.data?.user;
+    const identity=String(record?.id||"");
+    const returnedEmail=String(record?.email||"").trim().toLowerCase();
+    if(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(identity)&&
+       returnedEmail===email&&!(Array.isArray(record?.identities)&&record.identities.length===0)){
+       // Only viewer accounts are self-created. Supabase confirmation gates login.
+       await env.STREAM_USERS_DB.prepare(
+         "INSERT OR IGNORE INTO stream_users(user_id,email,role,status) VALUES(?,?,'viewer','active')"
+       ).bind(identity,email).run();
+    }
+    return signupReceipt();
   }
   if (method === "GET" && path === "/stream/recover") {
     const token=await issueFormToken(env);
