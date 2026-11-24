@@ -1,6 +1,10 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-accounts-worker]
+    paths:
+      - '.github/workflows/deploy-independent-worker.yml'
 permissions:
   contents: read
 concurrency:

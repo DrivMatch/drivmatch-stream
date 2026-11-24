@@ -8,7 +8,13 @@ from urllib.parse import urlencode, urlsplit
 from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
 from uuid import uuid4
 
-ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev"
+DEFAULT_ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev"
+ORIGIN = os.environ.get("STREAMNOW_SMOKE_ORIGIN", DEFAULT_ORIGIN)
+if ORIGIN not in {
+    DEFAULT_ORIGIN, "https://streamnow-2o1.pages.dev",
+    "https://contas-compartilhadas.streamnow-2o1.pages.dev",
+}:
+    raise RuntimeError("Unexpected Stream Now smoke-test origin")
 
 
 def send(url, *, method="GET", body=None, headers=None, open_url=urlopen):
@@ -110,6 +116,18 @@ def main():
         assert favorites(mobile) == [key] and favorites(other) == []
         favorite_change(mobile, key, "remove")
         assert favorites(desktop) == []
+        if ORIGIN != DEFAULT_ORIGIN:
+            browser_key = "BR:streamnow-import-" + uuid4().hex
+            _, imported = send(
+                ORIGIN + "/stream/favorites", method="POST", open_url=desktop.open,
+                headers={"Content-Type": "application/json", "Origin": ORIGIN,
+                         "X-Stream-Account": first_id},
+                body=json.dumps({"operation": "import", "keys": [browser_key]}).encode(),
+            )
+            assert json.loads(imported)["ok"] and favorites(mobile) == [browser_key]
+            assert favorites(other) == []
+            favorite_change(mobile, browser_key, "remove")
+            assert favorites(desktop) == []
         print("PASS: Supabase sessions, authenticated catalog and D1 favorites isolation in staging.")
     finally:
         cleanup_failed = False
