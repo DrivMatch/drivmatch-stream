@@ -1,0 +1,40 @@
+name: Stream Now zero-price Stripe Sandbox verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-degustacao]
+    paths:
+      - '.github/workflows/streamnow-stripe-sandbox.yml'
+      - 'scripts/verify_stripe_tasting_sandbox.mjs'
+      - 'cloudflare/stripe-tasting.mjs'
+      - 'tests/stripe_tasting.test.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: streamnow-stripe-sandbox
+  cancel-in-progress: false
+jobs:
+  stripe-sandbox:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check zero-price activation and simulated Stripe failures
+        run: node --test tests/stripe_tasting.test.mjs
+      - name: Verify the Sandbox invoice with disposable Stripe records
+        env:
+          STRIPE_TASTING_SECRET_KEY: ${{ secrets.STRIPE_TASTING_SANDBOX_KEY }}
+          STRIPE_TASTING_PRICE_ID: ${{ vars.STRIPE_TASTING_SANDBOX_PRICE_ID }}
+        run: |
+          set -o pipefail
+          if [ -z "$STRIPE_TASTING_SECRET_KEY" ] || [ -z "$STRIPE_TASTING_PRICE_ID" ]; then
+            echo "::error::Stripe Sandbox verification requires the encrypted Sandbox key and the zero-price BRL Price ID."
+            exit 1
+          fi
+          node scripts/verify_stripe_tasting_sandbox.mjs | tee -a "$GITHUB_STEP_SUMMARY"
