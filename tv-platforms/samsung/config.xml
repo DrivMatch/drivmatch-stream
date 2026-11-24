@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://streamnow.example/tv" version="0.1.0" viewmodes="fullscreen">
+  <tizen:application id="STRMNOW01.StreamNow" package="STRMNOW01" required_version="5.0"/>
+  <content src="index.html"/>
+  <icon src="icon.png"/>
+  <name>Stream Now</name>
+  <description>Catálogo de TV com acesso controlado</description>
+  <tizen:profile name="tv-samsung"/>
+  <tizen:privilege name="http://tizen.org/privilege/internet"/>
+  <access origin="https://streamnow-2o1.pages.dev" subdomains="false"/>
+  <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+</widget>
