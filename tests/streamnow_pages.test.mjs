@@ -38,3 +38,13 @@ test("public daily playlist is allowlisted",async()=>{
  assert.equal(r.status,200);
  assert.equal(await r.text(),"/daily-autopilot.m3u8");
 });
+
+test("canonical brand images are public without exposing app APIs",async()=>{
+ for(const [path,file] of [["/stream/brand.webp","/streamnow-brand.webp"],["/stream/icon.webp","/streamnow-icon.webp"]]){
+  const response=await worker.fetch(new Request(base+path),env);
+  assert.equal(response.status,200,path);
+  assert.equal(response.headers.get("content-type"),"image/webp");
+  assert.equal(await response.text(),file);
+ }
+ assert.equal((await worker.fetch(new Request(base+"/stream/catalog?list=lista-1"),env)).status,403);
+});
