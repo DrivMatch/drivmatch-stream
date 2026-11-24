@@ -88,13 +88,17 @@ def verify_recovery(base, auth_headers, email, user_id, old_session):
     assert destination.scheme + "://" + destination.netloc + destination.path == callback
     fragment = parse_qs(destination.fragment)
     assert fragment.get("type") == ["recovery"] and len(fragment.get("access_token", [])) == 1
-    _, page = send(callback)
+    browser = build_opener(HTTPCookieProcessor(CookieJar()))
+    browser.addheaders = [("User-Agent", "StreamNow-QA Recovery Browser")]
+    _, page = send(callback, headers={"Accept": "text/html"}, open_url=browser.open)
     assert b"https://streamnow-2o1.pages.dev/stream/login" in page
     new_password = uuid4().hex + "Q@9"
-    response = api(callback, method="POST", headers={"Origin": DEFAULT_ORIGIN}, data={
-        "access_token": fragment["access_token"][0], "password": new_password,
-    })
-    assert response["ok"]
+    _, response = send(
+        callback, method="POST", open_url=browser.open,
+        headers={"Origin": DEFAULT_ORIGIN, "Content-Type": "application/json"},
+        body=json.dumps({"access_token": fragment["access_token"][0], "password": new_password}).encode(),
+    )
+    assert json.loads(response)["ok"]
     try:
         send(ORIGIN + "/stream/session", open_url=old_session.open)
     except RuntimeError as error:
