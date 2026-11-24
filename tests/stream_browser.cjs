@@ -130,7 +130,7 @@ async function main(){
       const context=await setup(false);
       const page=await context.newPage();
       await page.goto(origin+'/stream/?layout=classic');
-      await page.getByText(/Acesso pessoal indisponível/).waitFor();
+      await page.getByText(/Sessão encerrada/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
     }
@@ -139,7 +139,7 @@ async function main(){
       const context=await setup(false);
       const page=await context.newPage();
       await page.goto(origin+'/stream/?layout=classic');
-      await page.getByText(/Acesso pessoal indisponível/).waitFor();
+      await page.getByText(/Sessão encerrada/).waitFor();
       assert.equal(await page.locator('#tv').isVisible(),false);
       await context.close();
     }
