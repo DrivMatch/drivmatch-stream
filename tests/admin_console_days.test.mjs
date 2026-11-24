@@ -53,17 +53,17 @@ test("pending invitation displays no elapsed login time instead of fabricated da
   assert.match(html,/Aguardando primeiro acesso/);
 });
 
-test("TV web and Android-compatible guide headers display exact requested 😺 stream",()=>{
+test("TV web and Android-compatible guide headers display the canonical Stream Now wordmark",()=>{
   const guide=readFileSync(new URL("../site/tv.html",import.meta.url),"utf8");
   const home=readFileSync(new URL("../site/index.html",import.meta.url),"utf8");
-  assert.match(guide,/<span class="logo" aria-hidden="true">😺<\/span><span><b>stream<\/b><\/span>/);
-  assert.match(home,/<div class="brand-icon" aria-hidden="true"><span>😺<\/span><\/div>/);
-  assert.match(home,/<h1>stream<\/h1>/);
+  assert.match(guide,/<img class="streamnow-wordmark" src="\/stream\/brand\.webp"/);
+  assert.match(home,/<img class="streamnow-classic-logo" src="\/stream\/brand\.webp"/);
+  assert.match(home,/<h1>TV ao vivo<\/h1>/);
   assert.doesNotMatch(guide,/<b>DrivMatch /);
 });
-test("admin header displays 😺 stream while retaining role and security controls",()=>{
+test("admin header displays the canonical Stream Now wordmark while retaining role and security controls",()=>{
   const {html}=renderAccessConsole({users:[],actorId:"root",token:"fake",
     asOfEpoch:unix("2026-11-23T23:03:00Z")});
-  assert.match(html,/<div class='logo'>😺 <span>stream<\/span> · Administração<\/div>/);
+  assert.match(html,/<div class='logo'><img src='\/stream\/brand\.webp' alt='Stream Now'/);
   assert.match(html,/Área restrita · Administrador/);
 });

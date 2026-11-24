@@ -68,7 +68,7 @@ async function main(){
   await new Promise(resolve=>server.listen(18765,"127.0.0.1",resolve));
   let browser;
   try{
-    browser=await chromium.launch({headless:true});
+    browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH});
     const newContext=async(mobile=false)=>{
       const context=await browser.newContext(mobile?{viewport:{width:375,height:780},isMobile:true,hasTouch:true}:{});
       await context.addInitScript(()=>{

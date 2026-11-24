@@ -1,0 +1,57 @@
+{
+  "schema": "streamnow.canonical.brand.v1",
+  "status": "LOCKED_REFERENCE",
+  "canonical_date": "2026-11-23",
+  "brand": "Stream Now",
+  "source_of_truth_page": "https://chatgpt.com/space/page_e12ad77a97f88191bf3bdcb578bbb7fe",
+  "source_assets": [
+    {
+      "role": "PRIMARY_LOGO",
+      "uploaded_original_name": "1004108571.png",
+      "original_mime_detected": "image/jpeg",
+      "width_px": 1536,
+      "height_px": 1536,
+      "bytes": 107827,
+      "sha256": "703a88042b16208c46d7a904a82eea444fa9c2e9e3511dfa3b387482770e7186",
+      "attachment": "library-file:fde1_bGliZmlsZV9PVXRYcDZZc3Vyby16MldqTFJNUlJB_FileDrive_c7f852a4730c819189f702941ce5cf22"
+    },
+    {
+      "role": "VISUAL_GUIDE",
+      "uploaded_original_name": "1004108578.png",
+      "original_mime_detected": "image/jpeg",
+      "width_px": 1536,
+      "height_px": 1024,
+      "bytes": 300704,
+      "sha256": "1eb23c5d10f34b2110bf12111c32f4bf577b8c0c3d970cacedab484a491008d2",
+      "attachment": "library-file:fde1_bGliZmlsZV91U0wweFlSbDItYmYyLTdvR3hCOHlR_FileDrive_c7f852a4730c819189f702941ce5cf22"
+    }
+  ],
+  "tokens": {
+    "primary_red": "#FF003C",
+    "secondary_pink": "#FF1478",
+    "accent_purple": "#9C00FF",
+    "background_dark": "#080114",
+    "background_secondary": "#1A0E2A",
+    "white": "#FFFFFF",
+    "ui_font_family": "Montserrat"
+  },
+  "derived_assets": [
+    {
+      "path": "site/streamnow-brand.webp",
+      "git_blob_sha1": "df287f3b1ab8b237e9d0e164b06989c0d0f58381",
+      "role": "optimized horizontal logo; not original"
+    },
+    {
+      "path": "site/streamnow-icon.webp",
+      "git_blob_sha1": "3ce257e386ae6e717f60c84bdb5179162a4c3062",
+      "role": "optimized app icon; not original"
+    }
+  ],
+  "policy": {
+    "source_asset_overwrite": false,
+    "redraw_existing_mark": false,
+    "public_brand_drivmatch": false,
+    "changes": "explicit owner approval + new version, preserve v1"
+  },
+  "immutability_scope": "Cryptographically identifiable image bytes preserved in private Page attachments; immutable Git content-addressed objects and CI integrity gate for derived assets. Page administrators can still edit/delete; not WORM."
+}

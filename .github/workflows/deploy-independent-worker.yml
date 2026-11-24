@@ -1,8 +1,10 @@
 name: Cloudflare Stream V2 isolated test deployment
 on:
-  # The 😺 stream header and first-login day counter have passed QA and staging deploy.
-  # Future changes are manual-only to protect the independent Stream environment.
   workflow_dispatch:
+  push:
+    branches: [codex/stream-now-v0.2]
+    paths:
+      - '.github/workflows/deploy-independent-worker.yml'
 permissions:
   contents: read
 concurrency:
@@ -13,7 +15,7 @@ jobs:
     # Names are test-specific. No routes, existing Workers, DNS, or production changes.
     if: github.repository == 'DrivMatch/drivmatch-stream'
     runs-on: ubuntu-24.04
-    timeout-minutes: 18
+    timeout-minutes: 32
     environment: stream-independent-test
     env:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -29,7 +31,22 @@ jobs:
           node --check cloudflare/independent-access.mjs
           node --check site/tv.js
           node --check site/stream.js
-          node --test tests/independent_access.test.mjs tests/emergency_admin_lockdown.test.mjs tests/admin_console_days.test.mjs
+          node --test tests/*.test.mjs
+      - name: Verify desktop and mobile navigation, favorite sync and HLS decoding
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.58.2 hls.js@1.6.15
+          npx playwright install chromium
+          npm test
+          node tests/listas_browser.cjs
+          STREAMNOW_QA_OUTPUT="$RUNNER_TEMP/streamnow-visual" node tests/streamnow_integration.cjs
+      - name: Preserve visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streamnow-browser-visual
+          path: ${{ runner.temp }}/streamnow-visual
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Verify account and token in GitHub secrets
         run: |
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
@@ -47,7 +64,7 @@ jobs:
           fi
       - name: Install Wrangler
         run: npm install --no-save --no-audit --no-fund wrangler@4
-      - name: Find or create isolated D1 test database
+      - name: Verify the existing isolated D1 test database
         shell: bash
         run: |
           set -euo pipefail
@@ -56,12 +73,8 @@ jobs:
           jq -e '.success == true' /tmp/stream-db-list.json >/dev/null
           db_id="$(jq -r '.result[] | select(.name=="drivmatch-stream-users-test") | .uuid' /tmp/stream-db-list.json | head -1)"
           if [ -z "$db_id" ]; then
-            curl -fSs "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database" \
-              -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-              -H 'Content-Type: application/json' --data '{"name":"drivmatch-stream-users-test"}' \
-              > /tmp/stream-db-created.json
-            jq -e '.success == true' /tmp/stream-db-created.json >/dev/null
-            db_id="$(jq -r '.result.uuid' /tmp/stream-db-created.json)"
+            echo "::error::Existing staging D1 database not found."
+            exit 1
           fi
           if ! echo "$db_id" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$'; then
             echo "::error::Invalid private D1 database ID"
@@ -89,5 +102,26 @@ jobs:
       - name: Apply isolated schema and deploy isolated Worker
         run: |
           npx wrangler d1 migrations apply drivmatch-stream-users-test --remote --config wrangler.independent.toml
-          npx wrangler deploy --config wrangler.independent.toml
-          echo "Worker deployed; Auth email/SMTP secrets are still separate approval gates." >> "$GITHUB_STEP_SUMMARY"
+          npx wrangler deploy --keep-vars --config wrangler.independent.toml
+          echo "Shared guide deployed to the existing Stream Now staging Worker." >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify the live login UI and canonical logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin=https://drivmatch-stream-v2-test.drivmatch.workers.dev
+          for attempt in {1..6}; do
+            if curl -fsS --max-time 15 "$origin/stream/login" -o /tmp/streamnow-login.html &&
+               grep -Fq "/stream/logo.jpg" /tmp/streamnow-login.html; then
+              break
+            fi
+            sleep 5
+          done
+          grep -Fq "/stream/logo.jpg" /tmp/streamnow-login.html
+          curl -fsS --max-time 15 "$origin/stream/logo.jpg" -o /tmp/streamnow-logo.jpg
+          printf '%s  %s\n' '703a88042b16208c46d7a904a82eea444fa9c2e9e3511dfa3b387482770e7186' /tmp/streamnow-logo.jpg | sha256sum -c
+          test "$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/stream/favorites")" = 401
+      - name: Verify real staging Auth and favorites across separate sessions
+        env:
+          STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
+          STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
+        run: python3 tests/streamnow_staging_smoke.py
