@@ -25,6 +25,7 @@ jobs:
           set -o pipefail
           python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           from pathlib import Path
+          import re
           import subprocess
           from urllib.parse import urlsplit
           from imageio_ffmpeg import get_ffmpeg_exe
@@ -66,7 +67,8 @@ jobs:
                   successes += 1
                   print(f"{name} decoded {frames} live video frames.")
               else:
-                  print(f"{name} did not reach the playback threshold on this runner.")
+                  details = re.sub(r"https?://[^\\s'\"]+", "[stream URL]", " ".join(result.stderr.splitlines()[-3:]))
+                  print(f"{name} decoded {frames} frames, exit {result.returncode}. {details[:500]}")
           if successes < 1:
               raise SystemExit("No public live sample could be decoded.")
           PY
