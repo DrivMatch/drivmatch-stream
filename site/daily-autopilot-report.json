@@ -1,7 +1,7 @@
 {
-  "community_candidates_research_only": 4502,
+  "community_candidates_research_only": 4489,
   "curated_candidates": 6865,
-  "date_utc": "2026-11-23",
+  "date_utc": "2026-11-24",
   "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification",
   "not_tested_this_run": 6745,
   "open_web_research": {
@@ -49,20 +49,20 @@
     ],
     "note": "Public search results only; approval/provenance pending; not included in playable catalog",
     "pages_attempted": 7,
-    "pages_responded": 4,
+    "pages_responded": 3,
     "pages_unavailable": [
       "reddit-legal-iptv",
       "reddit-public-tv",
-      "youtube-official-live"
+      "youtube-official-live",
+      "youtube-free-movies"
     ],
     "surfaces_reached": [
       "github-new-free-tv",
       "github-official-hls",
-      "youtube-free-movies",
       "twitch-broadcaster-live"
     ]
   },
-  "published_healthy": 193,
+  "published_healthy": 248,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
@@ -76,20 +76,20 @@
     "freetv-news": 37,
     "freetv-pt": 14,
     "freetv-us": 25,
-    "iptv-org-ar": 90,
-    "iptv-org-br": 274,
+    "iptv-org-ar": 91,
+    "iptv-org-br": 275,
     "iptv-org-ca": 232,
     "iptv-org-cl": 143,
     "iptv-org-co": 65,
     "iptv-org-de": 254,
-    "iptv-org-es": 233,
+    "iptv-org-es": 239,
     "iptv-org-fr": 195,
-    "iptv-org-in": 745,
+    "iptv-org-in": 732,
     "iptv-org-it": 275,
-    "iptv-org-mx": 112,
+    "iptv-org-mx": 113,
     "iptv-org-pt": 44,
-    "iptv-org-uk": 201,
-    "iptv-org-us": 1372,
+    "iptv-org-uk": 202,
+    "iptv-org-us": 1362,
     "iptv-org-uy": 9,
     "nexonic-all": 4160,
     "nexonic-open": 4107,
@@ -101,6 +101,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 120,
-  "tested_failed": 34,
-  "tested_ok": 86
+  "tested_failed": 48,
+  "tested_ok": 72
 }
