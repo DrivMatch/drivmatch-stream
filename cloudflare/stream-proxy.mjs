@@ -9,6 +9,7 @@ const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
 const FILES={"/":"tv.html","/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
   "/stream/brand.webp":"streamnow-brand.webp",
+  "/stream/icon.webp":"streamnow-icon.webp",
   "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html","/stream/tv/index.html":"tv.html",
   "/stream/tv/tv.css":"tv.css","/stream/tv/tv.js":"tv.js",
@@ -83,7 +84,7 @@ function loginPage(error=false,method="GET",pinMode=false){
  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<meta name="robots" content="noindex,nofollow,noarchive">',
- '<title>Stream Now · Acesso pessoal</title><link rel="icon" href="/stream/brand.webp" type="image/webp"><style>',
+ '<title>Stream Now · Acesso pessoal</title><link rel="icon" href="/stream/icon.webp" type="image/webp"><style>',
  '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 13% 10%,#4d082d 0%,transparent 42%),radial-gradient(circle at 95% 94%,#290a40 0%,transparent 38%),#080114;color:#fff;display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;padding:20px}',
  'main{width:min(440px,100%);padding:38px 30px;background:#130a20;border:1px solid #742040;border-radius:24px}',
  '.eyebrow{font-size:.8rem;color:#ff5e93;letter-spacing:1.6px;font-weight:750}',
@@ -165,19 +166,20 @@ export default {async fetch(request,env){
  }:curatedCatalogue;
  if(host!=="drivmatch.com"&&!preview&&!pagesHost)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
- if(path!=="/stream/brand.webp"&&path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
+ if(path!=="/stream/brand.webp"&&path!=="/stream/icon.webp"&&path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
     path!=="/stream/logout"&&path!=="/stream/countries"&&path!=="/stream/search"&&!Object.hasOwn(FILES,path))return plain(404,"Not Found");
  if((path==="/stream/tv"||path==="/stream/listas")&&
     (request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL(path+"/",url.origin),308);
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
- if(path==="/stream/brand.webp"){
+ if(path==="/stream/brand.webp"||path==="/stream/icon.webp"){
+   const assetFile=path==="/stream/icon.webp"?"streamnow-icon.webp":"streamnow-brand.webp";
    if(request.method!=="GET"&&request.method!=="HEAD")return plain(405,"Method Not Allowed");
    try{
      const response=pagesHost
-       ?(env?.ASSETS?await env.ASSETS.fetch(new Request(new URL("/streamnow-brand.webp",url.origin),{method:request.method})):plain(503,"Asset missing"))
-       :await fetch(ORIGIN+"streamnow-brand.webp",{method:request.method,redirect:"manual"});
+       ?(env?.ASSETS?await env.ASSETS.fetch(new Request(new URL("/"+assetFile,url.origin),{method:request.method})):plain(503,"Asset missing"))
+       :await fetch(ORIGIN+assetFile,{method:request.method,redirect:"manual"});
      if(!response.ok)return plain(502,"Logo temporarily unavailable");
      return new Response(request.method==="HEAD"?null:response.body,{status:200,headers:{
        "Content-Type":"image/webp","Cache-Control":"public,max-age=86400",
