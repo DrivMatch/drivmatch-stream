@@ -57,6 +57,8 @@ jobs:
         run: node --test tests/streamnow_brand_lock.test.mjs
       - name: Stream Now black-red-gray theme verification
         run: node --test tests/streamnow_red_theme.test.mjs
+      - name: Reject residual colored fallback CSS
+        run: node --test tests/streamnow_palette_source.test.mjs
       - name: Install Chromium browser
         run: |
           npm install --no-audit --no-fund playwright@1.58.2
