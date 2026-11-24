@@ -10,7 +10,7 @@ const users = [
 
 function testEnvironment() {
   const accounts = new Map(users.map(x=>[x.id,{
-    user_id:x.id,email:x.email,role:x.role,status:"active",
+    user_id:x.id,email:x.email,role:x.role,status:"active",approval_state:"approved",
     created_at:Math.floor(Date.now()/1000)-86400,first_login_at:null,last_login_at:null,
     activated_at:null,canceled_invite_at:null
   }]));
@@ -31,11 +31,11 @@ function testEnvironment() {
             const session=sessions.get(args[0]);
             if(!session || session.expires_at <= args[1])return null;
             const user=accounts.get(session.user_id);
-            return user?.status==="active"?{...user,admin_verified_until:session.admin_verified_until||0}:null;
+            return user?.status==="active"&&user.approval_state==="approved"?{...user,admin_verified_until:session.admin_verified_until||0}:null;
           }
           if(statement.includes("WHERE user_id=? AND email=? AND status='active'")) {
             const user=accounts.get(args[0]);
-            return user?.email===args[1]&&user.status==="active"?{...user}:null;
+            return user?.email===args[1]&&user.status==="active"&&user.approval_state==="approved"?{...user}:null;
           }
           if(statement.includes("WHERE user_id=? AND email=?")) {
             const user=accounts.get(args[0]);
@@ -111,6 +111,13 @@ function testEnvironment() {
             if(account?.status==="active"){
               account.first_login_at??=args[0];account.last_login_at=args[1];
             }
+          } else if(statement.startsWith("UPDATE stream_users SET approval_state=?")) {
+            const account=accounts.get(args[3]);
+            if(account?.role==="viewer" && account.status==="active" && account.approval_state==="pending"){
+              account.approval_state=args[0];account.status=args[1];
+              return {success:true,meta:{changes:1}};
+            }
+            return {success:true,meta:{changes:0}};
           } else if(statement.startsWith("UPDATE stream_users SET status=?")) {
             const account=accounts.get(args[3]);
             if(account?.status===args[4]){
@@ -127,10 +134,10 @@ function testEnvironment() {
           } else if(statement.startsWith("INSERT OR IGNORE INTO stream_users")) {
             const exists=[...accounts.values()].some(x=>x.email===args[1]||x.user_id===args[0]);
             if(!exists)accounts.set(args[0],{user_id:args[0],email:args[1],
-              role:"viewer",status:"active",created_at:Math.floor(Date.now()/1000),
+              role:"viewer",status:"active",approval_state:"pending",created_at:Math.floor(Date.now()/1000),
               activated_at:null,first_login_at:null,last_login_at:null,canceled_invite_at:null});
           } else if(statement.startsWith("INSERT INTO stream_users")) {
-            accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited",
+            accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited",approval_state:"approved",
               created_at:Math.floor(Date.now()/1000),activated_at:null,first_login_at:null,
               last_login_at:null,canceled_invite_at:null});
           } else throw Error("Unhandled run: "+statement);
@@ -848,6 +855,7 @@ test("public signup creates viewer row under shared 20/day quota, no invitation"
     assert.match(await created.text(),/Cadastro solicitado/);
     const account=accounts.get("706664d1-cd56-47bb-9a20-17eebc5851bc");
     assert.equal(account.status,"active");
+    assert.equal(account.approval_state,"pending");
     assert.equal(account.role,"viewer");
     assert.equal(account.email,"joiner@example.test");
     assert.equal(emailBudget.length,1);
@@ -904,5 +912,60 @@ test("known SMTP signup rejection refunds reservation and gives clear error",asy
     assert.equal(r.status,503);
     assert.match(await r.text(),/Cadastro indisponível/);
     assert.equal(emailBudget.length,0);
+  });
+});
+
+test("self-signup waits for administrator approval; approval permits login",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,events}=testEnvironment();
+    accounts.get(users[1].id).approval_state="pending";
+    const denied=await login(users[1].email,users[1].password,env);
+    assert.equal(denied.status,401);
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const board=await worker.fetch(req("/stream/admin",{headers:{Cookie:a}}),env);
+    const html=await board.text();
+    assert.match(html,/Aguardando aprova(?:ção|&#)/);
+    assert.match(html,/Aprovar cadastro/);
+    assert.match(html,/Rejeitar cadastro/);
+    assert.match(html,/name='decision' value='approved'/);
+    const approved=await adminAction(env,a,"approval",users[1].id,{decision:"approved"});
+    assert.equal(approved.status,303);
+    assert.equal(accounts.get(users[1].id).approval_state,"approved");
+    assert.ok(events.some(e=>e.action==="signup-approved"));
+    assert.equal((await login(users[1].email,users[1].password,env)).status,303);
+    assert.equal((await adminAction(env,a,"approval",users[1].id,{decision:"approved"})).status,409);
+  });
+});
+test("administrator can reject signup; rejected user stays blocked and cannot be reactivated via status",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,sessions}=testEnvironment();
+    const viewer=accounts.get(users[1].id);
+    const old=cookie(await login(users[1].email,users[1].password,env));
+    viewer.approval_state="pending";
+    assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env)).status,401);
+    const blocked=await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env);
+    assert.equal(blocked.status,401);
+    assert.match(await blocked.text(),/Autenticação necessária/);
+    const admin=cookie(await login(users[0].email,users[0].password,env));
+    const rejected=await adminAction(env,admin,"approval",viewer.user_id,{decision:"rejected"});
+    assert.equal(rejected.status,303);
+    assert.equal(viewer.status,"suspended");
+    assert.equal(viewer.approval_state,"rejected");
+    assert.equal((await login(users[1].email,users[1].password,env)).status,401);
+    assert.equal((await adminAction(env,admin,"status",viewer.user_id,{status:"active"})).status,409);
+    assert.equal([...sessions.values()].some(s=>s.user_id===viewer.user_id),false);
+  });
+});
+test("viewer cannot approve their own request or bypass signed administrative form",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    accounts.get(users[1].id).approval_state="pending";
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const request=await worker.fetch(req("/stream/admin/approval",{
+      method:"POST",headers:{Cookie:a,"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({user_id:users[1].id,decision:"approved"})
+    }),env);
+    assert.equal(request.status,403);
+    assert.equal(accounts.get(users[1].id).approval_state,"pending");
   });
 });
