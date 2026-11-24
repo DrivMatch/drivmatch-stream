@@ -48,7 +48,7 @@ test("new graphite CSS remains private to authenticated Supabase accounts",async
  const original=globalThis.fetch;
  try{
   globalThis.fetch=async (uri,opts)=>{
-   assert.match(String(uri),/supabase.co\\/auth\\/v1\\/token/);
+   assert.ok(String(uri).includes("supabase.co/auth/v1/token"));
    assert.equal(JSON.parse(opts.body).email,email);
    return new Response(JSON.stringify({access_token:"test-token",user:{id:userId}}),{status:200,headers:{"Content-Type":"application/json"}});
   };
