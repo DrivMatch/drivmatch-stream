@@ -1,0 +1,132 @@
+name: Stream Now public registration — shared account Worker
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cloudflare/independent-access.mjs'
+      - 'cloudflare/admin-console.mjs'
+      - 'migrations/**'
+      - 'tests/independent_access.test.mjs'
+      - 'tests/streamnow_pages_accounts.test.mjs'
+      - '.github/workflows/streamnow-public-signup.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/independent-access.mjs'
+      - 'cloudflare/admin-console.mjs'
+      - 'migrations/**'
+      - 'tests/independent_access.test.mjs'
+      - '.github/workflows/streamnow-public-signup.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: streamnow-accounts-worker
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify backend syntax and public registration with account isolation
+        run: |
+          node --check cloudflare/independent-access.mjs
+          node --check cloudflare/admin-console.mjs
+          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    environment: stream-independent-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify isolated account Worker credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${#CLOUDFLARE_ACCOUNT_ID}" -eq 32 || { echo "::error::Account ID missing or invalid"; exit 1; }
+          test "${#CLOUDFLARE_API_TOKEN}" -gt 20 || { echo "::error::Independent Worker API token missing"; exit 1; }
+          if [[ "$CLOUDFLARE_API_TOKEN" == *[[:space:]]* ]]; then
+            echo "::error::Token cannot contain whitespace"
+            exit 1
+          fi
+      - name: Install Cloudflare Wrangler
+        run: npm install --no-audit --no-fund --no-save wrangler@4
+      - name: Bind existing isolated D1 account database
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 20 \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?per_page=100" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /tmp/streamnow-db-list.json
+          jq -e '.success == true' /tmp/streamnow-db-list.json >/dev/null
+          db_id="$(jq -r '.result[] | select(.name=="drivmatch-stream-users-test") | .uuid' /tmp/streamnow-db-list.json | head -1)"
+          echo "$db_id" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$' || {
+            echo "::error::Existing isolated Stream D1 database not found"
+            exit 1
+          }
+          cp wrangler.independent.toml.example wrangler.independent.toml
+          sed -i "s/REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID/$db_id/g" wrangler.independent.toml
+          sed -i 's/database_name = "drivmatch-stream-users"/database_name = "drivmatch-stream-users-test"/' wrangler.independent.toml
+          sed -i 's/name = "drivmatch-stream-independent"/name = "drivmatch-stream-v2-test"/' wrangler.independent.toml
+          echo "Existing Worker/D1 binding verified, no new account database created." >> "$GITHUB_STEP_SUMMARY"
+      - name: Back up D1 before adding signup email quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          npx wrangler d1 export drivmatch-stream-users-test --remote \
+            --output=/tmp/streamnow-users-pre-signup.sql \
+            --config wrangler.independent.toml > /tmp/streamnow-db-export.log 2>&1 || {
+              echo "::error::D1 backup failed; no migration/deploy performed"
+              exit 1
+            }
+          test -s /tmp/streamnow-users-pre-signup.sql
+          grep -q 'stream_users' /tmp/streamnow-users-pre-signup.sql
+          grep -q 'stream_email_budget' /tmp/streamnow-users-pre-signup.sql
+          echo "Existing D1 database backup verified (private ephemeral runner)." >> "$GITHUB_STEP_SUMMARY"
+      - name: Apply additive public signup migration to existing D1
+        run: npx wrangler d1 migrations apply drivmatch-stream-users-test --remote --config wrangler.independent.toml
+      - name: Deploy same shared account Worker without changing secrets
+        run: |
+          npx wrangler deploy --keep-vars --config wrangler.independent.toml
+          echo "Existing Stream account Worker updated with public self-signup." >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke-test live signup on official Pages and Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          for root in \
+            "https://drivmatch-stream-v2-test.drivmatch.workers.dev" \
+            "https://streamnow-2o1.pages.dev"; do
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8; do
+              response="$(curl -LsS --max-time 15 --output /tmp/streamnow-signup.html --write-out '%{http_code}' "$root/stream/signup" || true)"
+              if [ "$response" = "200" ] \
+                 && grep -Fq "Criar conta" /tmp/streamnow-signup.html \
+                 && grep -Fq "name='email'" /tmp/streamnow-signup.html \
+                 && grep -Fq "name='confirm'" /tmp/streamnow-signup.html; then
+                ok=1
+                break
+              fi
+              sleep 4
+            done
+            if [ "$ok" != 1 ]; then
+              echo "::error::Public signup was not available at $root"
+              exit 1
+            fi
+            echo "Public signup form verified over HTTPS at $root." >> "$GITHUB_STEP_SUMMARY"
+          done
+          status="$(curl -sS --max-time 15 --output /dev/null --write-out '%{http_code}' https://streamnow-2o1.pages.dev/stream/favorites)"
+          test "$status" = "401" || { echo "::error::Private favorites must remain protected"; exit 1; }
+          echo "Private account favorites remain protected." >> "$GITHUB_STEP_SUMMARY"
