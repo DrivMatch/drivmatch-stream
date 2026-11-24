@@ -1,8 +1,8 @@
 # Stream Now
 
-Visualizador Stream Now, com marca independente e novo endereço gratuito previsto em https://streamnow.pages.dev/.
+Visualizador Stream Now, com marca independente e endereço gratuito oficial **https://streamnow-2o1.pages.dev/**.
 
-- Endereço novo pretendido: https://streamnow.pages.dev/ (publicação só depois de validação real).
+- Endereço ativo atribuído pela Cloudflare: **https://streamnow-2o1.pages.dev/** (projeto Pages `streamnow`; DNS `streamnow.pages.dev` não pertence ao projeto).
 - Hospedagem nova: Cloudflare Pages + Functions + ASSETS, independente do GitHub Pages original; endereço antigo mantido como rollback até validação.
 - Biblioteca IPTV: /stream/listas/ — nove listas numeradas. A Lista 2 é um índice consolidado por país que reúne as Listas 1 a 8 (não inclui a 9), preservando a origem de cada canal, até três alternativas e a classificação de país quando há metadados. A Lista 8 contém canais públicos da Free-TV Brasil; a Lista 9 permanece separada e contém uma seleção restrita de emissoras abertas extraídas de uma fonte comunitária com testes diários de manifesto HLS, sem comprovar direito de retransmissão nem funcionamento na Samsung. Disney+, DAZN, ESPN, SporTV, Premiere, Telecine e SKY+ não são falsamente exibidos como canais reproduzíveis por meio de links de páginas institucionais.
 - Autenticação: Cloudflare Worker com segredo de acesso STREAM_ACCESS_PASSWORD e cookie HttpOnly assinado. O JavaScript cliente e o GitHub Pages não contêm a senha.
