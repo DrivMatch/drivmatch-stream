@@ -1,0 +1,85 @@
+name: Stream Now launch APK verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-launch-android.yml'
+      - 'tests/verify-launch-webview.mjs'
+permissions:
+  contents: read
+jobs:
+  verify-published-apk:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools build-tools;35.0.0'
+      - name: Download and verify the published beta APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=streamnow-android-v0.3.2-test
+          gh release download "$tag" --pattern app-debug.apk --pattern streamnow-android-v0.3.2-sha256.txt --dir "$RUNNER_TEMP/streamnow"
+          apk="$RUNNER_TEMP/streamnow/app-debug.apk"
+          expected=$(awk 'NR==1 {print $1}' "$RUNNER_TEMP/streamnow/streamnow-android-v0.3.2-sha256.txt")
+          test "${#expected}" -eq 64
+          printf '%s  %s\n' "$expected" "$apk" | sha256sum -c
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$RUNNER_TEMP/streamnow-apk.txt"
+          grep -F "name='com.streamnow.app' versionCode='5' versionName='0.3.2-test'" "$RUNNER_TEMP/streamnow-apk.txt"
+          printf 'APK SHA-256 %s\n' "$expected" >> "$GITHUB_STEP_SUMMARY"
+      - name: Prepare hardware acceleration and space for the disposable emulator
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-streamnow-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          available_kib() { df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}'; }
+          for tool in /usr/share/dotnet /opt/ghc /usr/local/share/boost; do
+            if [ "$(available_kib)" -ge 12582912 ]; then break; fi
+            if [ -d "$tool" ]; then sudo rm -rf -- "$tool"; fi
+          done
+      - name: Install and open the exact APK on Android 14
+        run: |
+          set -euo pipefail
+          sdkmanager --install emulator 'system-images;android-34;google_apis;x86_64'
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/streamnow-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | avdmanager create avd --force --name streamnow-launch --package 'system-images;android-34;google_apis;x86_64' --device pixel_6
+          "$ANDROID_HOME/emulator/emulator" -avd streamnow-launch -no-window -gpu swiftshader \
+            -no-snapshot -noaudio -no-boot-anim > "$RUNNER_TEMP/streamnow-emulator.log" 2>&1 &
+          emulator_pid=$!
+          trap 'kill "$emulator_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..100}; do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/streamnow-emulator.log"
+              exit 1
+            fi
+            if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then
+              adb shell input keyevent 82
+              adb install -r "$RUNNER_TEMP/streamnow/app-debug.apk"
+              adb shell am start -W -n com.streamnow.app/.MainActivity
+              adb shell wm dismiss-keyguard
+              pid="$(adb shell pidof -s com.streamnow.app | tr -d '\r')"
+              port="$(adb forward tcp:0 "localabstract:webview_devtools_remote_$pid")"
+              node tests/verify-launch-webview.mjs "$port"
+              adb exec-out screencap -p > "$RUNNER_TEMP/streamnow-launch-login.png"
+              exit 0
+            fi
+            sleep 2
+          done
+          tail -n 60 "$RUNNER_TEMP/streamnow-emulator.log"
+          exit 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Stream-Now-v0.3.2-Android-login
+          path: ${{ runner.temp }}/streamnow-launch-login.png
+          if-no-files-found: error
