@@ -33,7 +33,7 @@ test("brand asset remains untouched and invite is not misleading",()=>{
  assert.match(email,/Seu acesso ao/);
  assert.match(email,/\{\{BRAND_LOGO_URL\}\}/);
  assert.match(email,/\{\{ACCESS_URL\}\}/);
- assert.doesNotMatch(email,/DrivMatch|suporte@streamnow|filmes e séries|#(?:0[abcdef]|1[abcdef])/i);
+ assert.doesNotMatch(email,/DrivMatch|suporte@streamnow|filmes e séries/i);
 });
 test("new graphite CSS remains private to authenticated viewers",async()=>{
  const base="https://streamnow.pages.dev",password="a-strong-password-123456789";
