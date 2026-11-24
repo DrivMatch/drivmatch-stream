@@ -47,7 +47,9 @@ const SESSION_SECONDS = 7 * 24 * 3600;
 const ADMIN_STEPUP_SECONDS = 600;
 const DAILY_EMAIL_LIMIT = 20;
 const PUBLIC_EMAIL_LIMIT = 5;
-const SHARED_PAGES_HOSTS = new Set(["streamnow-2o1.pages.dev","contas-compartilhadas.streamnow-2o1.pages.dev"]);
+const OFFICIAL_PAGES_HOST = "streamnow-2o1.pages.dev";
+const SHARED_PAGES_HOSTS = new Set([OFFICIAL_PAGES_HOST,"contas-compartilhadas.streamnow-2o1.pages.dev"]);
+const APPROVED_AUTH_ORIGIN = "https://drivmatch-stream-v2-test.drivmatch.workers.dev";
 const HEADERS = {
   "Cache-Control": "private, no-store",
   "X-Content-Type-Options": "nosniff",
@@ -219,7 +221,11 @@ async function loginPage(error = false, env, nextAdmin = false) {
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
     "<small>Novas contas são criadas apenas por convite.</small>", error ? 401 : 200),token);
 }
-function setupPage() {
+function activationURL(url) {
+  const origin = SHARED_PAGES_HOSTS.has(url.hostname) ? APPROVED_AUTH_ORIGIN : url.origin;
+  return origin + "/stream/activate";
+}
+function setupPage(url) {
   const nonce = b64(crypto.getRandomValues(new Uint8Array(16)));
   const body = "<p>Crie uma senha exclusiva, com 12 caracteres ou mais. Este link é pessoal e temporário.</p>" +
     "<form id='setup'><label>Nova senha<input name='password' type='password' autocomplete='new-password' minlength='12' maxlength='256' required></label>" +
@@ -233,6 +239,10 @@ function setupPage() {
     "const r=await fetch('/stream/activate',{method:'POST',credentials:'same-origin'," +
     "headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:token,password})});" +
     "if(!r.ok)throw Error('invalid');f.hidden=true;m.textContent='Senha definida. Agora você pode entrar.';" +
+    (url.origin === APPROVED_AUTH_ORIGIN
+      ? "const official=document.createElement('a');official.href='https://" + OFFICIAL_PAGES_HOST +
+        "/stream/login';official.textContent='Entrar no Stream Now';m.append(' ',official,' · ');"
+      : "") +
     "const a=document.createElement('a');a.href='/stream/login';a.textContent='Ir para o login';m.append(' ',a);" +
     "}catch{m.textContent='Não foi possível ativar. Solicite um novo link.';}});";
   return page("Ativar ou recuperar conta", body, 200, script, nonce);
@@ -523,7 +533,7 @@ async function handle(request, env) {
       // Keep public response generic to prevent account enumeration.
       await sendWithEmailQuota(env,"public-recover",()=>
         supabase(env,"POST","recover?redirect_to=" +
-          encodeURIComponent(url.origin + "/stream/activate"), {email}));
+          encodeURIComponent(activationURL(url)), {email}));
     }
     return page("Solicitação recebida","<p>Se o endereço possuir acesso, receberá um e-mail com instruções.</p>" +
       "<p><a href='/stream/login'>Voltar ao login</a></p>");
@@ -533,7 +543,7 @@ async function handle(request, env) {
     // a previous administrator's session. Invalidate the old session in D1,
     // not just its browser cookie, before showing activation.
     await revokeCurrent(request,env);
-    const response=setupPage();
+    const response=setupPage(url);
     response.headers.set("Set-Cookie",sessionCookie("",0));
     return response;
   }
@@ -690,8 +700,8 @@ async function handle(request, env) {
       ).bind(email).first();
       if(exists && (!manual || exists.role!=="viewer" || exists.status!=="invited"))
         return adminPage(user,env,url,{error:"existing"});
-      const endpoint="invite?redirect_to="+
-        encodeURIComponent(url.origin+"/stream/activate");
+      const redirectURL=activationURL(url);
+      const endpoint="invite?redirect_to="+encodeURIComponent(redirectURL);
       if(!manual){
         const outcome=await sendWithEmailQuota(env,"invite",()=>
           supabase(env,"POST",endpoint,{email},true));
@@ -716,14 +726,14 @@ async function handle(request, env) {
       // but never create/authorize a second identity for an existing email.
       const type=exists?"recovery":"invite";
       const generated=await supabase(env,"POST","admin/generate_link",
-        {type,email,redirect_to:url.origin+"/stream/activate"},true);
+        {type,email,redirect_to:redirectURL},true);
       const uid=authUserFromResponse(generated);
       const actionLink=generated.data?.action_link||
         generated.data?.properties?.action_link;
       if(!generated.ok||!uid||
          (exists && uid!==exists.user_id)||
          typeof actionLink!=="string"||
-         !validInviteActionLink(actionLink,env,url.origin+"/stream/activate"))
+         !validInviteActionLink(actionLink,env,redirectURL))
         return adminPage(user,env,url,{error:invitationError(generated)});
       if(!exists){
         await env.STREAM_USERS_DB.batch([
@@ -750,7 +760,7 @@ async function handle(request, env) {
     if (path === "/stream/admin/resend" && targetRow.status === "invited") {
       const outcome=await sendWithEmailQuota(env,"resend",()=>
         supabase(env,"POST","recover?redirect_to=" +
-          encodeURIComponent(url.origin + "/stream/activate"),{email:targetRow.email}));
+          encodeURIComponent(activationURL(url)),{email:targetRow.email}));
       if(outcome.quota)return adminPage(user,env,url,{error:"daily-quota"});
       if(!outcome.ok)return adminPage(user,env,url,{error:
         outcome.result?invitationError(outcome.result):"provider"});
@@ -764,7 +774,7 @@ async function handle(request, env) {
       // account owner only. Administrators never see a password/reset token.
       const outcome=await sendWithEmailQuota(env,"recover",()=>
         supabase(env,"POST","recover?redirect_to=" +
-          encodeURIComponent(url.origin + "/stream/activate"),{email:targetRow.email}));
+          encodeURIComponent(activationURL(url)),{email:targetRow.email}));
       if(outcome.quota)return adminPage(user,env,url,{error:"daily-quota"});
       if(!outcome.ok)return adminPage(user,env,url,{error:
         outcome.result?invitationError(outcome.result):"provider"});
