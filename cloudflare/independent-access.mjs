@@ -582,6 +582,11 @@ async function handle(request, env) {
     return new Response(method === "HEAD" ? null :
       JSON.stringify({allowed:true,user_id:user.user_id,role:user.role,email:user.email}), {
       status:200,headers:{...HEADERS,"Content-Type":"application/json"}});
+  if (path === "/stream/favorites") {
+    const expectedUser = request.headers.get("X-Stream-Account");
+    if (expectedUser !== null && expectedUser !== user.user_id)
+      return plain(409,"A conta conectada mudou.");
+  }
   if (path === "/stream/favorites" && method === "GET") {
     const result = await env.STREAM_USERS_DB.prepare(
       "SELECT favorite_key FROM stream_favorites WHERE user_id=? ORDER BY created_at"

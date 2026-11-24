@@ -41,7 +41,7 @@ button:focus,a:focus,input:focus{outline:4px solid #adadad!important;outline-off
 .filter-btn{display:inline-block;font-size:16px;font-weight:bold;border-radius:9px;border:1px solid #4f4f4f;background:#2b2b2b;color:#e7e7e7;padding:10px 12px;margin:0 5px 7px 0}
 .filter-btn.active{background:#6d6d6d;border-color:#a6a6a6;color:#fff}
 .search-row{height:47px;position:relative;margin-bottom:10px}
-.search-row input{background:#f3f8fc;color:#252525;width:100%;height:45px;border:0;border-radius:9px;padding:8px 43px 8px 13px;font-size:19px}
+.search-row input{background:#f7f7f7;color:#252525;width:100%;height:45px;border:0;border-radius:9px;padding:8px 43px 8px 13px;font-size:19px}
 .search-row button{position:absolute;right:2px;top:2px;width:43px;height:40px;border:0;background:#dcdcdc;border-radius:7px;font-size:24px;color:#2f2f2f}
 .channel-heading{min-height:38px;overflow:hidden}
 .channel-heading span{float:left;font-weight:bold;color:#dedede;font-size:16px;line-height:34px}
@@ -51,7 +51,7 @@ button:focus,a:focus,input:focus{outline:4px solid #adadad!important;outline-off
 .channel-row{background:#272727;border:1px solid #434343;border-radius:9px;overflow:hidden;min-height:63px;margin-bottom:7px}
 .channel-row.current{background:#3f3f3f;border-color:#a2a2a2}
 .channel-number{float:left;width:39px;padding:17px 4px 0 7px;text-align:right;color:#a8a8a8;font-size:16px}
-.channel-row .channel-btn{float:left;width:calc(100% - 92px);min-height:62px;padding:9px 4px 7px 11px;background:transparent;border:0;color:#f1f7fd;text-align:left}
+.channel-row .channel-btn{float:left;width:calc(100% - 92px);min-height:62px;padding:9px 4px 7px 11px;background:transparent;border:0;color:#f6f6f6;text-align:left}
 .channel-row .channel-btn strong{font-size:19px;line-height:1.2;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .channel-row .channel-btn small{display:block;color:#bdbdbd;font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .channel-row .fav-btn{float:right;width:48px;min-height:62px;border:0;background:transparent;color:#a5a5a5;font-size:28px}
@@ -59,7 +59,7 @@ button:focus,a:focus,input:focus{outline:4px solid #adadad!important;outline-off
 .more-btn{display:block;width:100%;padding:13px 10px;background:#484848;border:1px solid #787878;border-radius:10px;color:#fff;font-weight:bold;margin:10px 0 20px}
 .player-caption{height:32px;overflow:hidden;font-size:14px;font-weight:bold;letter-spacing:1px;color:#bdbdbd}
 .play-status{float:right;color:#c8c8c8;letter-spacing:0}
-.player-frame{width:100%;height:auto;aspect-ratio:16 / 9;position:relative;background:#01060b;border:2px solid #4e4e4e;border-radius:12px;overflow:hidden}
+.player-frame{width:100%;height:auto;aspect-ratio:16 / 9;position:relative;background:#050505;border:2px solid #4e4e4e;border-radius:12px;overflow:hidden}
 .player-frame:before{content:"";display:block;padding-top:56.25%}
 .player-frame video,.player-empty{position:absolute;left:0;top:0;width:100%;height:100%}
 .player-frame video{object-fit:contain}
@@ -209,7 +209,7 @@ html,body{font-size:24px;line-height:1.4}
 .tree-country{margin-bottom:5px}
 .country-items .tree-country-btn{
  width:100%;font-size:25px;min-height:49px;padding:7px 8px;margin:0 0 5px;
- background:#333333;border:1px solid #696969;color:#f0f8ff;
+ background:#333333;border:1px solid #696969;color:#f7f7f7;
  text-align:left;white-space:normal;overflow-wrap:break-word;
 }
 .country-items .tree-country-btn.active{background:#4d4d4d;border-color:#acacac}
@@ -228,7 +228,7 @@ html,body{font-size:24px;line-height:1.4}
 .tree-channel-btn,.tree-more-btn{
  display:block;width:100%;margin:3px 0;padding:6px 6px;
  min-height:37px;line-height:1.18;text-align:left;
- color:#f4f8fd;border:1px solid #4a4a4a;border-radius:5px;
+ color:#f8f8f8;border:1px solid #4a4a4a;border-radius:5px;
  font-size:21px;font-weight:normal;background:#242424;
  white-space:normal;overflow-wrap:break-word;
 }
@@ -382,17 +382,17 @@ html,body{font-size:24px;line-height:1.4}
 /* Stream TV • Contrast Edition (22 Nov 2026).
    Dark sapphire / slate panels, high-contrast cyan selection and readable
    24px channel text. ES5/Tizen-safe CSS (no Grid, CSS variables or clamp). */
-html,body{background:#0e0e0e;color:#f7faff}
+html,body{background:#0e0e0e;color:#fafafa}
 .tv-shell{background:#0e0e0e}
 .tv-layout{height:calc(100vh - 42px);padding:7px;background:#0e0e0e}
 .topbar{height:42px;padding:6px 14px;background:#181818;
   border-bottom:1px solid #555555}
 .logo{width:28px;height:28px;line-height:28px;font-size:12px;
   border-radius:7px;margin-right:7px;background:#6a6a6a;color:#fff}
-.brand b{font-size:24px;line-height:28px;letter-spacing:-.35px;color:#f9fcff}
+.brand b{font-size:24px;line-height:28px;letter-spacing:-.35px;color:#fcfcfc}
 .brand em{color:#c3c3c3}
 .toplinks{font-size:16px;line-height:28px;color:#f5f5f5}
-.top-link{font-size:16px;line-height:22px;padding:2px 10px;color:#f7fcff;
+.top-link{font-size:16px;line-height:22px;padding:2px 10px;color:#fbfbfb;
   border:1px solid #707070;background:#333333;border-radius:6px}
 .connection-status{font-size:16px;line-height:27px;margin-right:10px}
 .connection-status .status-dot{width:9px;height:9px;margin-right:5px}
@@ -410,22 +410,22 @@ html,body{background:#0e0e0e;color:#f7faff}
 .section-title{font-size:19px;color:#e0e0e0;background:#3f3f3f;
   border-left:3px solid #c4c4c4;padding:5px 7px;
   border-radius:4px;letter-spacing:.3px;margin-bottom:7px}
-.section-title b{font-size:15px;color:#f5fbff;background:#535353;
+.section-title b{font-size:15px;color:#fafafa;background:#535353;
   padding:2px 7px}
 .overline,.player-caption{color:#d6d6d6}
 .catalog-header h1{color:#fff}
 .catalog-header p,.catalog-status{color:#e2e2e2}
 .catalog-status{background:#3a3a3a;border-left:3px solid #9f9f9f;
   border-radius:4px;padding:5px 7px;margin:5px 0 8px;line-height:1.25}
-.channel-heading span{color:#f3f8ff}
+.channel-heading span{color:#f7f7f7}
 .channel-heading button,.more-btn{background:#505050;color:#fff;
   border:1px solid #9f9f9f}
-.search-row input{background:#f4faff;border:2px solid #a7a7a7;
+.search-row input{background:#f9f9f9;border:2px solid #a7a7a7;
   color:#242424;box-shadow:none}
 .search-row input:focus{background:#fff!important;color:#282828!important}
 .search-row button{color:#2d2d2d;background:#e0e0e0}
 .quick-section{border-bottom:1px solid #626262}
-.quick-toggle{background:#434343;color:#f7fbff;border:1px solid #818181;
+.quick-toggle{background:#434343;color:#fafafa;border:1px solid #818181;
   border-left:3px solid #c3c3c3}
 .quick-toggle .quick-chevron{color:#e0e0e0}
 .quick-toggle b{color:#f2f2f2}
@@ -444,13 +444,13 @@ html,body{background:#0e0e0e;color:#f7faff}
 .tree-count{color:#efefef}
 .tree-categories{border-left:2px solid #8e8e8e}
 .country-items .tree-genre-btn{
-  background:#3e3e3e;color:#f8fbff;border:1px solid #7e7e7e;
+  background:#3e3e3e;color:#fbfbfb;border:1px solid #7e7e7e;
   border-radius:5px
 }
 .country-items .tree-genre-btn.active{background:#525252;
   border-color:#d2d2d2;color:#fff}
 .country-items .tree-channel-btn{
-  background:#363636;color:#f9fcff;border:1px solid #6b6b6b;
+  background:#363636;color:#fcfcfc;border:1px solid #6b6b6b;
   border-radius:5px
 }
 .country-items .tree-channel-btn:nth-child(even){background:#404040}
@@ -463,7 +463,7 @@ html,body{background:#0e0e0e;color:#f7faff}
 .channel-row:nth-child(even){background:#434343}
 .channel-row.current{background:#4f4f4f;border:1px solid #cccccc;
   border-left:4px solid #d4d4d4}
-.channel-row .channel-btn{color:#f9fcff}
+.channel-row .channel-btn{color:#fcfcfc}
 .channel-row .channel-btn .channel-title{color:#fff;font-weight:bold}
 .channel-classification{color:#ebebeb}
 .channel-number{color:#d7d7d7}
@@ -479,9 +479,9 @@ html,body{background:#0e0e0e;color:#f7faff}
 .disclaimer,.remote-hint,.sidebar-note{color:#d6d6d6}
 .remote-hint{border-top-color:#6d6d6d}
 .provider-footer,.technical-footer{border-top-color:#787878}
-#provider-toggle,#technical-toggle{background:#3c3c3c;color:#f1f8ff;
+#provider-toggle,#technical-toggle{background:#3c3c3c;color:#f7f7f7;
   border-color:#868686}
-.provider-entry{background:#343434;color:#f6faff;border-color:#767676}
+.provider-entry{background:#343434;color:#fafafa;border-color:#767676}
 .technical-source-name{color:#dfdfdf}
 button:focus,a:focus,input:focus{outline:3px solid #e2e2e2!important;
   outline-offset:1px;background:#535353!important;color:#fff!important}
@@ -501,8 +501,8 @@ button:focus,a:focus,input:focus{outline:3px solid #e2e2e2!important;
 /* TV UI v2: charcoal + teal contrast, not three similar dark-blue panels.
    High-luminance text, clearly separated columns, remote focus in amber.
    No CSS variables/flex/grid dependency: conservative Samsung/Tizen layout. */
-html,body,.tv-shell{background:#0d1218;color:#ffffff}
-.tv-layout{background:#0d1218}
+html,body,.tv-shell{background:#111111;color:#ffffff}
+.tv-layout{background:#111111}
 .topbar{background:#1b1b1b;border-bottom:2px solid #aeaeae}
 .brand b{color:#fff}.brand em{color:#dadada}
 .logo{background:#6c6c6c;color:#fff}
@@ -516,11 +516,11 @@ html,body,.tv-shell{background:#0d1218;color:#ffffff}
 .section-title b{background:#5d5d5d;color:#fff}
 .overline,.player-caption{color:#e7e7e7}
 .catalog-header h1,.now-playing h2{color:#fff}
-.catalog-header p,.catalog-status{color:#f4faff}
-.catalog-status{background:#484848;border-left:4px solid #b0b0b0;color:#f3fdff}
+.catalog-header p,.catalog-status{color:#f9f9f9}
+.catalog-status{background:#484848;border-left:4px solid #b0b0b0;color:#fbfbfb}
 .channel-heading span{color:#fff}
 .channel-heading button,.more-btn{background:#585858;color:#fff;border:1px solid #cccccc}
-.search-row input{background:#f7fbff;color:#1c1c1c;border:2px solid #bbbbbb}
+.search-row input{background:#fafafa;color:#1c1c1c;border:2px solid #bbbbbb}
 .search-row button{background:#e4e4e4;color:#292929}
 .quick-toggle{background:#4b4b4b;color:#fff;border:2px solid #aeaeae;border-left:4px solid #c0c0c0}
 .quick-toggle .quick-chevron,.tree-chevron{color:#e6e6e6}
@@ -528,7 +528,7 @@ html,body,.tv-shell{background:#0d1218;color:#ffffff}
 .quick-entry-btn{background:#484848;border:1px solid #a1a1a1;color:#fff}
 .quick-entry-btn:nth-child(even){background:#535353}
 .quick-entry-btn.active{background:#4b4b4b;border-color:#dadada;color:#fff}
-.quick-entry-btn .quick-entry-meta{color:#f3f9ff}
+.quick-entry-btn .quick-entry-meta{color:#f8f8f8}
 .country-items .tree-country-btn{background:#484848;border:1px solid #a9a9a9;
  border-left:4px solid #bdbdbd;color:#fff}
 .country-items .tree-country-btn.active{background:#525252;border-color:#d4d4d4;color:#fff}
@@ -548,12 +548,12 @@ html,body,.tv-shell{background:#0d1218;color:#ffffff}
 .channel-row .channel-btn .channel-title{color:#fff;font-weight:bold}
 .channel-row .channel-btn{color:#fff}
 .channel-number{color:#f2f2f2}
-.channel-classification{color:#f5fcff}
+.channel-classification{color:#fbfbfb}
 .channel-row .fav-btn{color:#e0e0e0}
 .channel-row .fav-btn.marked{color:#d6d6d6}
 .play-status{color:#e7e7e7}
-.player-frame{background:#030608;border:2px solid #a7a7a7}
-.player-empty strong,.player-empty p,.now-playing p{color:#f7fbff}
+.player-frame{background:#060606;border:2px solid #a7a7a7}
+.player-empty strong,.player-empty p,.now-playing p{color:#fafafa}
 .player-actions button{background:#4e4e4e;color:#fff;border:1px solid #bbbbbb}
 #official-open{background:#606060;border-color:#dbdbdb}
 .sidebar-note,.disclaimer,.remote-hint{color:#eeeeee}
@@ -657,7 +657,7 @@ html.dm-desktop-compact .provider-note{font-size:12px}
 /* Official embedded players share the existing 16:9 third-column viewport.
    Keep Samsung/desktop sizing and original HLS HTML5 video unchanged. */
 .player-frame #official-embed{position:absolute;left:0;top:0;width:100%;height:100%;
-  border:0;background:#01060b;display:block}
+  border:0;background:#050505;display:block}
 .player-frame #official-embed[hidden]{display:none!important}
 
 
@@ -702,7 +702,7 @@ html.dm-mobile-guide .tv-layout > .mobile-panes{
 }
 html.dm-mobile-guide .mobile-panes button{
  flex:1;min-width:0;border:1px solid #b1b1b1;background:#464646;
- color:#f8ffff;border-radius:7px;font-size:14px;font-weight:bold;
+ color:#fefefe;border-radius:7px;font-size:14px;font-weight:bold;
  min-height:40px;padding:5px 4px
 }
 html.dm-mobile-guide .mobile-panes button[aria-pressed="true"]{
@@ -818,7 +818,7 @@ html.dm-mobile-guide .technical-source-name{font-size:12px!important}
  */
 html,body{background:#040404;color:#fff}
 .tv-shell{background:#040404;background-image:linear-gradient(145deg,#090909 0%,#040404 48%,#0c0c0c 100%)}
-.topbar{background:#09020e;border-bottom:2px solid #3c3c3c;box-shadow:0 2px 20px rgba(77,77,77,.13)}
+.topbar{background:#040404;border-bottom:2px solid #3c3c3c;box-shadow:0 2px 20px rgba(77,77,77,.13)}
 .brand{height:100%;white-space:nowrap}
 .streamnow-wordmark{display:inline-block;width:156px;height:38px;max-width:100%;object-fit:contain;vertical-align:middle}
 .live-label{display:inline-block;font-size:12px;font-weight:bold;color:#919191;letter-spacing:1px;margin-right:14px}
@@ -834,7 +834,7 @@ html,body{background:#040404;color:#fff}
 .quick-toggle{background:#191919;border:1px solid #515151;border-left:4px solid #4d4d4d;color:#fff}
 .quick-toggle .quick-chevron,.tree-chevron{color:#a9a9a9}
 .quick-toggle b{color:#e9e9e9}
-.quick-entry-btn,.quick-entry-name,.source-items button,.country-items button,.country-items .tree-country-btn,.country-items .tree-genre-btn,.country-items .tree-channel-btn{background:#151515;border-color:#393939;color:#f7eff7}
+.quick-entry-btn,.quick-entry-name,.source-items button,.country-items button,.country-items .tree-country-btn,.country-items .tree-genre-btn,.country-items .tree-channel-btn{background:#151515;border-color:#393939;color:#f1f1f1}
 .source-items button.active,.country-items button.active,.country-items .tree-country-btn.active,.country-items .tree-genre-btn.active{background:#2e2e2e;border-color:#777777;color:#fff}
 .country-items .tree-country-btn:hover,.country-items .tree-genre-btn:hover,.channel-row:hover{border-color:#5f5f5f}
 .sidebar-note,.catalog-header p,.catalog-status,.now-playing p,.channel-row .channel-btn small,.disclaimer,.remote-hint{color:#bbbbbb}
@@ -852,16 +852,16 @@ html,body{background:#040404;color:#fff}
 .channel-row .channel-btn{color:#fff}
 .channel-number{color:#c4c4c4}
 .channel-row .fav-btn.marked{color:#cecece}
-.player-frame{background:#05010a;border:2px solid #414141;box-shadow:0 0 22px rgba(77,77,77,.1)}
+.player-frame{background:#030303;border:2px solid #414141;box-shadow:0 0 22px rgba(77,77,77,.1)}
 .play-symbol{background:linear-gradient(125deg,#ff003c,#4d4d4d,#343434);color:#fff;box-shadow:0 0 18px rgba(77,77,77,.3)}
 .player-actions button{background:#1b1b1b;border:1px solid #565656;color:#fff}
 .player-actions button:not(:disabled):hover{background:#303030;border-color:#838383}
 .play-status{color:#c5c5c5}
-.provider-footer button,.technical-footer button{background:#191919;color:#f3e6f0;border-color:#525252}
+.provider-footer button,.technical-footer button{background:#191919;color:#e9e9e9;border-color:#525252}
 button:focus,a:focus,input:focus{outline:3px solid #c6c6c6!important;outline-offset:1px;background:#313131!important;color:#fff!important}
 html.dm-desktop-compact .streamnow-wordmark{width:151px;height:35px}
 @media(max-width:1000px){.streamnow-wordmark{width:145px;height:34px}.live-label{font-size:10px;margin-right:8px}}
-html.dm-mobile-guide .topbar{background:#09020e!important;border-bottom:2px solid #4d4d4d!important}
+html.dm-mobile-guide .topbar{background:#040404!important;border-bottom:2px solid #4d4d4d!important}
 html.dm-mobile-guide .streamnow-wordmark{width:122px;height:31px}
 html.dm-mobile-guide .live-label{font-size:10px;margin-right:6px}
 html.dm-mobile-guide .mobile-panes button{background:#1c1c1c!important;border:1px solid #555555!important;color:#fff!important}

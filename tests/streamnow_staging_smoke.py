@@ -60,7 +60,7 @@ def favorite_change(browser, key, operation):
 
 
 def main():
-    base = os.environ["STREAM_SUPABASE_URL"].strip().rstrip("/")
+    base = os.environ["STREAM_SUPABASE_URL"].strip().rstrip("/").removesuffix("/rest/v1")
     assert re.fullmatch(r"https://[a-z0-9]+\.supabase\.co", base), "Expected the dedicated Supabase URL"
     auth_key = os.environ["STREAM_SUPABASE_SECRET_KEY"]
     cf_account = os.environ["CLOUDFLARE_ACCOUNT_ID"]

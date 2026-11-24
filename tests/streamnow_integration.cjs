@@ -155,6 +155,11 @@ async function main() {
     const desktop = await open(accounts[0], false);
     const mobile = await open(accounts[0], true);
     const other = await open(accounts[1], true);
+    const staleStatus = await desktop.evaluate(async account => {
+      const response = await fetch('/stream/favorites', {headers:{'X-Stream-Account':account}});
+      return response.status;
+    }, accounts[1]);
+    assert.equal(staleStatus, 409);
     await findChannel(desktop, false);
     await desktop.locator('#player-favorite').click();
     await desktop.getByRole('button', {name:'★ Favoritado'}).waitFor();
@@ -179,7 +184,7 @@ async function main() {
     await desktop.getByRole('button', {name:'☆ Favoritar'}).waitFor();
     await mobile.getByRole('button', {name:'Sair'}).click();
     await mobile.getByRole('heading', {name:'Acesso individual'}).waitFor();
-    assert.equal((await mobile.request.get(origin + '/stream/favorites')).status(), 401);
+    assert.equal(await mobile.evaluate(async () => (await fetch('/stream/favorites')).status), 401);
     console.log('Login, isolamento, favoritos sincronizados e decodificação HLS em desktop e Android emulado.');
   } finally {
     await browser?.close();

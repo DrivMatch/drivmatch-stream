@@ -5,7 +5,7 @@ import {readFileSync} from "node:fs";
 const paths=["site/tv.css","site/stream.css","site/listas.css","site/streamnow-graphite.css"];
 function isAllowed(rgb){
  const [r,g,b]=rgb;
- const neutral=Math.max(r,g,b)-Math.min(r,g,b)<=15;
+ const neutral=r===g&&g===b;
  const red=r>=28&&r>g*1.6&&r>b*1.27&&g<=r*.42&&b<=(r<=85?r*.5:r*.28);
  return neutral||red;
 }

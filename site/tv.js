@@ -75,14 +75,23 @@ function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(t
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
 function visibleEl(el,on){el.style.display=on?"":"none";el.hidden=!on;}
 function on(el,k,fn){if(el&&el.addEventListener)el.addEventListener(k,fn,false);}
-function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
+function http(path,cb,expectedUser){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
 cb(x.status,x.responseText||"");}};
 x.onerror=function(){if(!done){done=true;cb(0,"");}};
-try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
+try{
+ x.open("GET",path,true);
+ if(expectedUser)x.setRequestHeader("X-Stream-Account",expectedUser);
+ x.send();
+}catch(e){cb(0,"");}}
 function postJson(path,data,cb){
  var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;cb(x.status);}};
  x.onerror=function(){if(!done){done=true;cb(0);}};
- try{x.open("POST",path,true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(data));}catch(e){cb(0);}
+ try{
+  x.open("POST",path,true);
+  x.setRequestHeader("Content-Type","application/json");
+  if(streamUserId)x.setRequestHeader("X-Stream-Account",streamUserId);
+  x.send(JSON.stringify(data));
+ }catch(e){cb(0);}
 }
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
@@ -348,11 +357,12 @@ function fetchUserFavorites(){
  var read=++favoriteRead;
  http("/stream/favorites",function(st,raw){
   if(!session||read!==favoriteRead)return;
+  if(st===409){window.location.replace("/stream/");return;}
   if(st!==200){T(D("catalog-status"),"Favoritos indisponíveis. Não serão substituídos.");return;}
   try{var data=JSON.parse(raw);if(Object.prototype.toString.call(data.favorites)!=="[object Array]")throw Error("format");
     favorites=data.favorites;favoritesReady=true;drawQuickLists();renderChannels();updateFavButton();
   }catch(e){T(D("catalog-status"),"Erro ao carregar Favoritos.");}
- });
+ },streamUserId);
 }
 function migrateAdminFavorites(){
  if(streamUserRole!=="admin"){fetchUserFavorites();return;}
@@ -368,6 +378,7 @@ function migrateAdminFavorites(){
   }
   if(!canonical.length){fetchUserFavorites();return;}
   postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
+   if(st===409){window.location.replace("/stream/");return;}
    if(st===200){
     try{localStorage.setItem(imported,"yes");}catch(e){}
    }else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
@@ -1032,6 +1043,7 @@ function toggleFavorite(c){
    favoriteWrites--;
    updateFavButton();
    if(!session)return;
+   if(st===409){window.location.replace("/stream/");return;}
    if(st===200)commit();
    else T(D("catalog-status"),"Não foi possível salvar Favorito. Tente novamente.");
   });

@@ -5,6 +5,7 @@ on:
     branches: [codex/stream-now-v0.2]
     paths:
       - '.github/workflows/deploy-independent-worker.yml'
+      - 'site/**'
 permissions:
   contents: read
 concurrency:
@@ -32,19 +33,13 @@ jobs:
           node --check site/tv.js
           node --check site/stream.js
           node --test tests/*.test.mjs
-      - name: Install FFmpeg for the test stream
-        run: |
-          if ! command -v ffmpeg >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y --no-install-recommends ffmpeg
-          fi
       - name: Verify desktop and mobile navigation, favorite sync and HLS decoding
         run: |
-          npm install --no-save --no-audit --no-fund playwright@1.58.2 hls.js@1.6.15
+          npm install --no-save --no-audit --no-fund playwright@1.58.2 hls.js@1.6.15 @ffmpeg-installer/linux-x64@4.1.0
           npx playwright install chromium
           npm test
           node tests/listas_browser.cjs
-          STREAMNOW_QA_OUTPUT="$RUNNER_TEMP/streamnow-visual" node tests/streamnow_integration.cjs
+          PATH="$PWD/node_modules/@ffmpeg-installer/linux-x64:$PATH" STREAMNOW_QA_OUTPUT="$RUNNER_TEMP/streamnow-visual" node tests/streamnow_integration.cjs
       - name: Preserve visual evidence
         if: always()
         uses: actions/upload-artifact@v4
