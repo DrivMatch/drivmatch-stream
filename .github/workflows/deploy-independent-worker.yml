@@ -32,6 +32,12 @@ jobs:
           node --check site/tv.js
           node --check site/stream.js
           node --test tests/*.test.mjs
+      - name: Install FFmpeg for the test stream
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends ffmpeg
+          fi
       - name: Verify desktop and mobile navigation, favorite sync and HLS decoding
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.58.2 hls.js@1.6.15
