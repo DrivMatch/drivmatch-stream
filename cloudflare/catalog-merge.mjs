@@ -133,7 +133,7 @@ export async function searchCatalog(query,urls,originalCountries,load){
   loaded++;
   const job=state.value;
   for(const row of parseRows(job.raw,job.id,job.country,"ALL")){
-   if(!normalize(row.name).includes(term))continue;
+   if(!normalize(row.name+" "+attr(row.meta,"dm-original-name")+" "+attr(row.meta,"dm-aliases")).includes(term))continue;
    const key=row.code+"|"+normalize(row.name);
    let item=groups.get(key);
    if(!item){

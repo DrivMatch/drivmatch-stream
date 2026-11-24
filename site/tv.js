@@ -9,6 +9,7 @@ var samsungTV=/SMART-TV|SmartTV|Tizen|TV Safari|NetCast|Web0S|WebOS/i.test(agent
 var portable=/Android|iPhone|iPad|iPod|Mobi|Mobile/i.test(agent);
 var mobileMode=portable&&!samsungTV;
 var desktopMode=!samsungTV; // Browsers, including Android, need HLS.js; Samsung remains native.
+if(samsungTV)document.documentElement.className+=" dm-tizen";
 if(mobileMode)document.documentElement.className+=" dm-mobile-guide";
 else if(desktopMode)document.documentElement.className+=" dm-desktop-compact";
 var desktopHls=null,desktopHlsLoading=false,desktopHlsWaiters=[];
@@ -23,6 +24,7 @@ var globalSearchMode=false,globalResults=[],globalStatus="",globalSearchTimer=nu
 var favorites=[],recent=[],favoriteMeta={},limit=60,serial=0,session=false,
  cache={},MAX_CHANNELS=15000,video=D("video");
 var streamUserId=null,streamUserRole=null;
+var favoritesReady=false,favoriteRead=0,favoriteWrites=0,pendingFavorites=Object.create(null);
 var STORE="drivmatch-tv-guide-favorites-v1";
 var HISTORY_STORE="drivmatch-tv-recent-25-v1",FAV_META_STORE="drivmatch-tv-favorite-meta-v1";
 var HIDDEN_STORE="drivmatch-tv-hidden-failed-60s-v1",HIDDEN_TTL=24*60*60*1000;
@@ -73,14 +75,23 @@ function E(tag,cl,s){var x=document.createElement(tag);if(cl)x.className=cl;if(t
 function clear(el){while(el.firstChild)el.removeChild(el.firstChild);}
 function visibleEl(el,on){el.style.display=on?"":"none";el.hidden=!on;}
 function on(el,k,fn){if(el&&el.addEventListener)el.addEventListener(k,fn,false);}
-function http(path,cb){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
+function http(path,cb,expectedUser){var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;
 cb(x.status,x.responseText||"");}};
 x.onerror=function(){if(!done){done=true;cb(0,"");}};
-try{x.open("GET",path,true);x.send();}catch(e){cb(0,"");}}
+try{
+ x.open("GET",path,true);
+ if(expectedUser)x.setRequestHeader("X-Stream-Account",expectedUser);
+ x.send();
+}catch(e){cb(0,"");}}
 function postJson(path,data,cb){
  var x=new XMLHttpRequest(),done=false;x.onreadystatechange=function(){if(x.readyState===4&&!done){done=true;cb(x.status);}};
  x.onerror=function(){if(!done){done=true;cb(0);}};
- try{x.open("POST",path,true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(data));}catch(e){cb(0);}
+ try{
+  x.open("POST",path,true);
+  x.setRequestHeader("Content-Type","application/json");
+  if(streamUserId)x.setRequestHeader("X-Stream-Account",streamUserId);
+  x.send(JSON.stringify(data));
+ }catch(e){cb(0);}
 }
 function trim(s){return String(s||"").replace(/^\s+|\s+$/g,"");}
 function lower(s){return trim(s).toLowerCase();}
@@ -342,17 +353,24 @@ function startPlaybackWatch(c){
 function saveFav(){if(streamUserId)return;try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
 function loadFav(){if(streamUserId)return;try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
 function fetchUserFavorites(){
+ if(!session||!streamUserId||favoriteWrites)return;
+ var read=++favoriteRead;
  http("/stream/favorites",function(st,raw){
+  if(!session||read!==favoriteRead)return;
+  if(st===409){window.location.replace("/stream/");return;}
   if(st!==200){T(D("catalog-status"),"Favoritos indisponíveis. Não serão substituídos.");return;}
   try{var data=JSON.parse(raw);if(Object.prototype.toString.call(data.favorites)!=="[object Array]")throw Error("format");
-    favorites=data.favorites;drawQuickLists();renderChannels();updateFavButton();
+    favorites=data.favorites;favoritesReady=true;drawQuickLists();renderChannels();updateFavButton();
   }catch(e){T(D("catalog-status"),"Erro ao carregar Favoritos.");}
- });
+ },streamUserId);
 }
 function migrateAdminFavorites(){
- var old=[];
- try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")old=a;}catch(e){}
- if(streamUserRole==="admin"&&old.length){
+ if(streamUserRole!=="admin"){fetchUserFavorites();return;}
+ var old=[],imported=STORE+":imported:"+streamUserId;
+ try{
+  if(localStorage.getItem(imported)==="yes"){fetchUserFavorites();return;}
+  var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")old=a;}catch(e){}
+ if(old.length){
   var canonical=[];
   for(var i=0;i<old.length;i++){
     var key=canonicalFavoriteKeyFromLegacy(old[i]);
@@ -360,8 +378,11 @@ function migrateAdminFavorites(){
   }
   if(!canonical.length){fetchUserFavorites();return;}
   postJson("/stream/favorites",{operation:"import",keys:canonical},function(st){
-   if(st===200)fetchUserFavorites();
-   else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
+   if(st===409){window.location.replace("/stream/");return;}
+   if(st===200){
+    try{localStorage.setItem(imported,"yes");}catch(e){}
+   }else T(D("catalog-status"),"Migração dos Favoritos pendente. Seus dados antigos foram preservados.");
+   fetchUserFavorites();
   });
  }else fetchUserFavorites();
 }
@@ -661,8 +682,11 @@ function parse(raw,forcedCode){
       continue;
     }
     var display=channelAlias(name,code);
+    var sourceOriginal=dataAttr(sourceMeta,"dm-original-name");
+    var rawAliases=dataAttr(sourceMeta,"dm-aliases");
     var item={id:source+":"+k,source:source,name:display,
-      originalName:display!==name?name:"",code:code,genre:genre,group:group,
+      originalName:sourceOriginal||(display!==name?name:""),
+      aliases:rawAliases?rawAliases.split(/\s*\|\s*/):[],code:code,genre:genre,group:group,
       premium:premium,urls:premium?[]:[ln],origins:[origin],
       lang:detectLanguage(sourceMeta,group)};
     dedupe[k]=item;result.push(item);
@@ -915,7 +939,7 @@ function fits(c){
   if(country!=="ALL" && c.code!==country)return false;
   if(category!=="all"&&category!=="fav"&&!genreFits(c,category))return false;
   if(category==="fav"&&!has(favorites,favorKey(c)))return false;
-  if(search && lower(c.name+" "+(c.originalName||"")+" "+c.group).indexOf(search)<0)return false;
+  if(search && lower(c.name+" "+(c.originalName||"")+" "+(c.aliases||[]).join(" ")+" "+c.group).indexOf(search)<0)return false;
   return true;
 }
 
@@ -941,7 +965,7 @@ function globalSearchMatches(serverItems,query){
   var list=cache[key]||[];
   for(i=0;i<list.length;i++){
    c=list[i];
-   if(lower(c.name+" "+(c.originalName||"")).indexOf(query)>=0)append(c);
+   if(lower(c.name+" "+(c.originalName||"")+" "+(c.aliases||[]).join(" ")).indexOf(query)>=0)append(c);
   }
  }
  for(i=0;i<officialFree.length;i++){
@@ -995,24 +1019,39 @@ function runGlobalSearch(){
 }
 
 function toggleFavorite(c){
-  var k=favorKey(c),idx=favorites.indexOf(k);
+  var k=favorKey(c),remove=has(favorites,k);
   function commit(){
-   if(idx>=0){favorites.splice(idx,1);delete favoriteMeta[k];}
-   else{favorites.push(k);favoriteMeta[k]=safeSnapshot(c);}
+   if(remove){
+    var idx=favorites.indexOf(k);
+    if(idx>=0)favorites.splice(idx,1);
+    delete favoriteMeta[k];
+   }else if(!has(favorites,k)){
+    favorites.push(k);favoriteMeta[k]=safeSnapshot(c);
+   }
    saveFav();
    if(!streamUserId)try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){}
    updateFavButton();renderChannels();drawQuickLists();
   }
-  if(streamUserId){
-   postJson("/stream/favorites",{operation:idx>=0?"remove":"add",key:k},function(st){
-    if(st===200)commit();
-    else T(D("catalog-status"),"Não foi possível salvar Favorito. Tente novamente.");
-   });
-  }else commit();
+  if(!streamUserId){commit();return;}
+  if(!session||!favoritesReady||pendingFavorites[k])return;
+  pendingFavorites[k]=true;
+  favoriteWrites++;
+  favoriteRead++;
+  updateFavButton();
+  postJson("/stream/favorites",{operation:remove?"remove":"add",key:k},function(st){
+   delete pendingFavorites[k];
+   favoriteWrites--;
+   updateFavButton();
+   if(!session)return;
+   if(st===409){window.location.replace("/stream/");return;}
+   if(st===200)commit();
+   else T(D("catalog-status"),"Não foi possível salvar Favorito. Tente novamente.");
+  });
 }
 function updateFavButton(){
-  var b=D("player-favorite");b.disabled=!selected;
-  T(b,selected&&has(favorites,favorKey(selected))?"★ Favoritado":"☆ Favoritar");
+  var b=D("player-favorite"),k=selected?favorKey(selected):"";
+  b.disabled=!selected||!!(streamUserId&&(!favoritesReady||pendingFavorites[k]));
+  T(b,selected&&has(favorites,k)?"★ Favoritado":"☆ Favoritar");
 }
 function renderChannels(){
   if(!globalSearchMode&&source==="lista-2"&&country==="ALL"){showCountryPrompt();return;}
@@ -1306,6 +1345,8 @@ function init(){
   for(var i=0;i<btns.length;i++){(function(b){
     on(b,"click",function(){category=b.getAttribute("data-category");limit=60;drawCategories();renderChannels();});
   }(btns[i]));}
+  on(window,"focus",fetchUserFavorites);
+  on(document,"visibilitychange",function(){if(!document.hidden)fetchUserFavorites();});
   http("/stream/session",function(code,body){
     if(code!==200||body.indexOf('"allowed":true')<0){
       visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);return;
@@ -1314,10 +1355,11 @@ function init(){
     // Stop a player when this account is suspended or its session expires.
     setInterval(function(){http("/stream/session",function(st,raw){
       if(st!==200||raw.indexOf('"allowed":true')<0){
-        session=false;clearPlaybackWatch();
+        session=false;clearPlaybackWatch();destroyDesktopHls();
         try{video.pause();video.removeAttribute("src");video.load();}catch(e){}
+        if(officialFrame)officialFrame.removeAttribute("src");
         visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);
-      }
+      }else if(!document.hidden)fetchUserFavorites();
     });},300000);
     try{var a=JSON.parse(body);if(typeof a.user_id==="string"){streamUserId=a.user_id;streamUserRole=a.role||"viewer";T(D("account-identity"),"Conta: "+String(a.email||"não identificada")+(a.role==="admin"?" · ADMIN":" · USUÁRIO"));}}catch(e){T(D("account-identity"),"Conta não identificada");}
     // Management link is visible only for a server-confirmed admin session.

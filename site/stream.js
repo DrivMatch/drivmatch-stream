@@ -3,19 +3,19 @@
   "use strict";
   const $ = id => document.getElementById(id);
   const countries = [
-    {code:"ALL",name:"Todos os países",flag:"🌐"},
-    {code:"BR",name:"Brasil",flag:"🇧🇷"},
-    {code:"PT",name:"Portugal",flag:"🇵🇹"},
-    {code:"ES",name:"Espanha",flag:"🇪🇸"},
-    {code:"JP",name:"Japão",flag:"🇯🇵"},
-    {code:"CN",name:"China",flag:"🇨🇳"},
-    {code:"US",name:"Estados Unidos",flag:"🇺🇸"},
-    {code:"AR",name:"Argentina",flag:"🇦🇷"},
-    {code:"UK",name:"UK",flag:"🇬🇧"},
-    {code:"BE",name:"Bélgica",flag:"🇧🇪"},
-    {code:"IT",name:"Itália",flag:"🇮🇹"},
-    {code:"FR",name:"França",flag:"🇫🇷"},
-    {code:"DE",name:"Alemanha",flag:"🇩🇪"}
+    {code:"ALL",name:"Todos os países"},
+    {code:"BR",name:"Brasil"},
+    {code:"PT",name:"Portugal"},
+    {code:"ES",name:"Espanha"},
+    {code:"JP",name:"Japão"},
+    {code:"CN",name:"China"},
+    {code:"US",name:"Estados Unidos"},
+    {code:"AR",name:"Argentina"},
+    {code:"UK",name:"UK"},
+    {code:"BE",name:"Bélgica"},
+    {code:"IT",name:"Itália"},
+    {code:"FR",name:"França"},
+    {code:"DE",name:"Alemanha"}
   ];
   const NEWS = /news|not[ií]cias|noticiero|informaci[oó]n|actualidad|jornalismo|journalism|nachrichten|nieuws|actualit[eé]s|tg\d|informazione|報道|ニュース|新闻/i;
   const SPORTS = /sports?|esport|deport|futebol|football|soccer|calcio|sportivo|スポーツ|体育/i;
@@ -173,7 +173,7 @@
     for(const b of $("countries").querySelectorAll("button")){
       const code=b.dataset.country,c=countries.find(x=>x.code===code);
       const count=code==="ALL"?state.channels.length:counts.get(code)||0;
-      b.textContent=c.flag+" "+c.name+" ("+count+")";
+      b.textContent=c.name+" ("+count+")";
     }
     $("catalog-status").textContent="Lista pública · sinais ainda não verificados"+
       (state.sourcesFailed?" · "+state.sourcesFailed+" fontes indisponíveis":"");
@@ -233,7 +233,7 @@
       const meta=document.createElement("small");
       const country=countries.find(x=>x.code===c.code);
       const label=c.genre==="sports"?"Esportes":c.genre==="news"?"Notícias":"Ao vivo";
-      meta.textContent=country.flag+" "+country.name+" • "+label+" • "+(c.premium?"Acesso oficial necessário":channelStatus(c));
+      meta.textContent=country.name+" • "+label+" • "+(c.premium?"Acesso oficial necessário":channelStatus(c));
       if(state.health.get(c.id)==="ok")meta.className="signal-ok";
       if(state.health.get(c.id)==="failed")meta.className="signal-bad";
       pick.append(title,meta);
@@ -383,7 +383,7 @@
       const b=document.createElement("button");
       b.type="button";
       b.dataset.country=c.code;
-      b.textContent=c.flag+" "+c.name;
+      b.textContent=c.name;
       if(c.code==="ALL")b.className="chosen";
       b.addEventListener("click",()=>{
         state.country=c.code;state.limit=80;

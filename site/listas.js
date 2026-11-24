@@ -2,9 +2,9 @@
 (() => {
 "use strict";
 const $=id=>document.getElementById(id);
-const countries={BR:"🇧🇷 Brasil",PT:"🇵🇹 Portugal",ES:"🇪🇸 Espanha",JP:"🇯🇵 Japão",
-CN:"🇨🇳 China",US:"🇺🇸 Estados Unidos",AR:"🇦🇷 Argentina",UK:"🇬🇧 UK",
-BE:"🇧🇪 Bélgica",IT:"🇮🇹 Itália",FR:"🇫🇷 França",DE:"🇩🇪 Alemanha"};
+const countries={BR:"Brasil",PT:"Portugal",ES:"Espanha",JP:"Japão",
+CN:"China",US:"Estados Unidos",AR:"Argentina",UK:"UK",
+BE:"Bélgica",IT:"Itália",FR:"França",DE:"Alemanha"};
 const norm=s=>String(s||"").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
 const NEWS=/news|not[ií]cias|jornal|actualidad|actualit[eé]s|nieuws|nachrichten|noticiero|informa|新闻|ニュース|報道/i;
 const SPORTS=/sport|esport|deport|football|futebol|soccer|calcio|スポーツ|体育/i;
@@ -188,7 +188,7 @@ function renderChannels(){
     }else logo.textContent="TV";
     const info=document.createElement("span"),title=document.createElement("strong"),meta=document.createElement("small");
     title.textContent=c.name;
-    meta.textContent=(countries[c.country]||"🌐 País não informado")+" • "+
+    meta.textContent=(countries[c.country]||"País não informado")+" • "+
       (c.group||({news:"Notícias",sports:"Esportes",other:"Ao vivo"}[c.kind]))+
       " • "+(c.premium?"Acesso oficial necessário":status(c))+
        (c.originalName?" • Nome da fonte: "+c.originalName:"")+

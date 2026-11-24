@@ -4,15 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="theme-color" content="#101820">
-<title>DrivMatch Stream | TV Samsung</title>
-<link rel="stylesheet" href="/stream/tv/tv.css?v=20261123-security-identity1">
+<meta name="theme-color" content="#101010">
+<link rel="icon" href="/stream/icon.webp" type="image/webp">
+<title>Stream Now | TV ao vivo</title>
+<link rel="stylesheet" href="/stream/tv/tv.css?v=0.2">
+<link rel="stylesheet" href="/stream/graphite.css?v=0.2">
 </head>
 <body>
 <div class="tv-shell" id="tv-shell">
   <header class="topbar">
-    <div class="brand"><span class="logo" aria-hidden="true">😺</span><span><b>stream</b></span></div>
-    <nav class="toplinks" aria-label="Navegação da conta"><span class="account-identity" id="account-identity" aria-label="Conta conectada">Verificando conta...</span><a href="/stream/admin" class="top-link admin-link" id="admin-link" hidden>⚙ Administração</a><a href="/stream/" class="top-link" id="home-link">Início</a><form class="account-logout" method="post" action="/stream/logout"><button type="submit">Sair</button></form></nav>
+    <div class="brand"><img class="streamnow-wordmark" src="/stream/brand.webp" width="220" height="62" alt="Stream Now"></div>
+    <nav class="toplinks" aria-label="Navegação da conta"><span class="account-identity" id="account-identity" aria-label="Conta conectada">Verificando conta...</span><a href="/stream/admin" class="top-link admin-link" id="admin-link" hidden>Administração</a><a href="/stream/" class="top-link" id="home-link">Início</a><form class="account-logout" method="post" action="/stream/logout"><button type="submit">Sair</button></form></nav>
   </header>
   <main class="tv-layout" id="tv-layout">
     <div class="mobile-panes" id="mobile-panes" role="group" aria-label="Navegar entre países e canais">
@@ -32,7 +34,7 @@
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
       </section>
-      <div class="section-title"><span>01 · PAÍSES E CANAIS</span><b id="country-caption">12 países</b></div>
+      <div class="section-title"><span>PAÍSES E CANAIS</span><b id="country-caption">12 países</b></div>
       <div id="source-items" class="source-items" hidden></div>
       <span id="source-count" hidden></span>
       <div id="country-items" class="country-items" role="tree" aria-label="País, categoria e canal">
@@ -50,7 +52,7 @@
     </nav>
     <section id="mobile-guide-panel" class="column catalog" aria-label="Canais IPTV">
       <div class="catalog-header">
-        <span class="overline">02 · GUIA DE CANAIS</span>
+        <span class="overline">GUIA DE CANAIS</span>
         <h1 id="catalog-title">Escolha um país</h1>
         <p id="catalog-subtitle">Clique em um país à esquerda para abrir os canais.</p>
       </div>
@@ -73,11 +75,11 @@
       <button id="show-more" class="more-btn" type="button" hidden>Mostrar mais canais</button>
     </section>
     <section class="column player-column" aria-label="Vídeo do canal selecionado">
-      <div class="player-caption"><span>▶ REPRODUÇÃO</span><span class="play-status" id="play-status">Pronto</span></div>
+      <div class="player-caption"><span>▸ REPRODUÇÃO</span><span class="play-status" id="play-status">Pronto</span></div>
       <div class="player-frame" id="player-frame">
         <video id="video" controls preload="none" playsinline hidden></video>
         <iframe id="official-embed" title="Player oficial da transmissão" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen loading="lazy" hidden></iframe>
-        <div id="player-empty" class="player-empty"><div class="play-symbol">▶</div><strong>Escolha um canal</strong><p>A transmissão aparece aqui.<br>O guia permanece visível ao lado.</p></div>
+        <div id="player-empty" class="player-empty"><div class="play-symbol">▸</div><strong>Escolha um canal</strong><p>A transmissão aparece aqui.<br>O guia permanece visível ao lado.</p></div>
       </div>
       <div class="now-playing">
         <span class="overline">AGORA NA TELA</span>
@@ -92,11 +94,11 @@
         <button id="official-open" type="button" hidden>Abrir transmissão no site oficial</button>
       </div>
       <p class="disclaimer">Sinais HLS e players oficiais permitidos podem abrir aqui. Lives do YouTube/Twitch dependem da transmissão ativa e da autorização para incorporar; sites de assinatura e serviços incompatíveis abrem externamente.</p>
-      <div class="remote-hint">CONTROLE REMOTO <b>◀ ▶ ▲ ▼</b> navegar · <b>OK</b> selecionar</div>
+      <div class="remote-hint">CONTROLE REMOTO <b>← → ↑ ↓</b> navegar · <b>OK</b> selecionar</div>
     </section>
   </main>
-  <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream e entre com seu e-mail e senha pessoal.</p><a href="/stream/">Entrar no DrivMatch Stream</a></div>
+  <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream e entre com seu e-mail e senha pessoal.</p><a href="/stream/">Entrar no Stream Now</a></div>
 </div>
-<script src="/stream/tv/tv.js?v=20261123-security-identity1"></script>
+<script src="/stream/tv/tv.js?v=0.2"></script>
 </body>
 </html>

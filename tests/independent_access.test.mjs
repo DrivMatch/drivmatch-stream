@@ -299,7 +299,7 @@ test("private site uses bundled matching assets only after authentication",async
     const allowed=await worker.fetch(req("/stream/stream.js",{headers:{Cookie:authCookie}}),env);
     assert.equal(allowed.status,200);
     assert.equal(await allowed.text(),"/* private branch stream.js */");
-    assert.deepEqual(seen,["/stream/stream.js"]);
+    assert.deepEqual(seen,["/stream.js"]);
     assert.match(allowed.headers.get("Content-Security-Policy"),/default-src/);
     assert.equal(allowed.headers.get("Cache-Control"),"private, no-store");
     const missing=await worker.fetch(req("/stream/stream.css",{headers:{Cookie:authCookie}}),

@@ -15,6 +15,7 @@ import {renderAccessConsole} from "./admin-console.mjs";
 const STATIC_FILES = {
   "/stream/":"index.html", "/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css", "/stream/stream.js":"stream.js",
+  "/stream/graphite.css":"streamnow-graphite.css",
   "/stream/stream-boot.js":"stream-boot.js", "/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html", "/stream/tv/index.html":"tv.html",
   "/stream/tv/tv.css":"tv.css", "/stream/tv/tv.js":"tv.js",
@@ -24,8 +25,17 @@ const STATIC_FILES = {
   "/stream/listas/brasil-servicos.json":"brasil-servicos.json",
   "/stream/official-access.json":"official-access.json"
 };
+const PUBLIC_ASSETS = {
+  "/stream/logo.jpg": ["streamnow-original.jpg", "image/jpeg"],
+  "/stream/brand.webp": ["streamnow-brand.webp", "image/webp"],
+  "/stream/icon.webp": ["streamnow-icon.webp", "image/webp"],
+  "/stream/montserrat-latin.woff2": ["montserrat-latin.woff2", "font/woff2"],
+  "/stream/montserrat-OFL.txt": ["montserrat-OFL.txt", "text/plain; charset=utf-8"]
+};
+const BRAND_FONT = "@font-face{font-family:Montserrat;src:url(/stream/montserrat-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}";
+const BRAND_IMAGE = "<img class='streamnow-logo' src='/stream/logo.jpg' alt='Stream Now' width='180' height='180'>";
 const APP_CSP = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; " +
-  "style-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; " +
+  "style-src 'self'; font-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; " +
   "worker-src blob:; img-src 'self' https: data:; " +
   "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv; " +
   "frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
@@ -167,27 +177,24 @@ async function bodyJson(request, max = 12000) {
   return JSON.parse(body);
 }
 function page(title, body, status = 200, script = "", nonce = "") {
-  const style = "body{font:16px system-ui,sans-serif;background:#0a1828;color:#eaf0f8;margin:0;padding:26px;min-height:100vh;box-sizing:border-box}" +
-    "main{background:#fff;color:#15243b;max-width:650px;margin:8vh auto;padding:30px;border-radius:18px}" +
-    "a{color:#206cbd}label{display:block;margin-top:16px;font-weight:650}" +
-    "input{display:block;width:100%;box-sizing:border-box;padding:12px;margin-top:6px;border-radius:8px;border:1px solid #aab6c3;font-size:16px}" +
-    "button{background:#15345b;color:white;border:0;border-radius:9px;padding:12px 18px;margin-top:18px;font-weight:700;cursor:pointer}" +
-    "small{color:#64748b}table{border-collapse:collapse;width:100%}td,th{padding:10px;text-align:left;border-bottom:1px solid #ddd}" +
-    "form.inline{display:inline-block;margin:3px 5px 3px 0}form.inline button{margin:0;padding:10px 12px}" +
-    ".user-card{border:1px solid #c7d3e0;border-radius:13px;padding:16px;margin:15px 0;overflow-wrap:anywhere}" +
-    ".user-card h3{font-size:18px;margin:0 0 12px;overflow-wrap:anywhere}" +
-    ".user-card p{margin:8px 0}.user-card dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin:12px 0}" +
-    ".user-card dt{font-weight:bold;color:#4b6175}.user-card dd{margin:0;text-align:right}" +
-    ".user-actions{border-top:1px solid #d9e2e9;padding-top:9px;margin-top:12px}" +
-    "@media(max-width:500px){body{padding:12px}main{padding:18px;margin:3vh auto}.user-card dl{grid-template-columns:1fr}.user-card dd{text-align:left;margin-bottom:9px}}";
+  const style = BRAND_FONT +
+    "html{color-scheme:dark}body{font:16px Montserrat,Arial,sans-serif;background:#101010;color:#f6f6f6;margin:0;padding:26px;min-height:100vh;box-sizing:border-box}" +
+    "main{background:#191919;max-width:430px;margin:8vh auto;padding:30px;border:1px solid #494949;border-radius:18px}" +
+    ".streamnow-logo{display:block;max-width:100%;height:auto;margin:0 auto 26px}" +
+    "h1{font-size:1.55rem;margin:0 0 14px}a{color:#f6f6f6}label{display:block;margin-top:16px;font-weight:650}" +
+    "input{display:block;width:100%;box-sizing:border-box;padding:12px;margin-top:6px;border-radius:8px;border:1px solid #686868;background:#252525;color:#fff;font:inherit}" +
+    "button{width:100%;background:#c80020;color:#fff;border:0;border-radius:9px;padding:12px 18px;margin-top:18px;font:inherit;font-weight:750;cursor:pointer}" +
+    "small{color:#c8c8c8}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}" +
+    "@media(max-width:500px){body{padding:14px}main{padding:22px;margin:4vh auto}}";
   const html = "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'>" +
     "<meta name='viewport' content='width=device-width,initial-scale=1'>" +
+    "<meta name='theme-color' content='#101010'><link rel='icon' href='/stream/icon.webp' type='image/webp'>" +
     "<meta name='robots' content='noindex,nofollow,noarchive'><title>" + escape(title) +
-    " · DrivMatch Stream</title><style>" + style + "</style></head><body><main>" +
-    "<p><strong>DRIVMATCH STREAM</strong></p><h1>" + escape(title) + "</h1>" + body +
+    " · Stream Now</title><style>" + style + "</style></head><body><main>" +
+    BRAND_IMAGE + "<h1>" + escape(title) + "</h1>" + body +
     "</main>" + (script ? "<script nonce='" + nonce + "'>" + script + "</script>" : "") +
     "</body></html>";
-  const csp = "default-src 'none'; style-src 'unsafe-inline'; " +
+  const csp = "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; font-src 'self'; " +
     (nonce ? "script-src 'nonce-" + nonce + "'; " : "") +
     "form-action 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'";
   // "no-referrer" makes Chrome send Origin: null on native same-origin
@@ -406,7 +413,7 @@ async function adminPage(user,env,url,extra={}) {
   return stampForm(new Response(html,{status:200,headers:{
     ...HEADERS,"Content-Type":"text/html; charset=utf-8",
     "Referrer-Policy":"same-origin",
-    "Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; " +
+    "Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; font-src 'self'; " +
       "script-src 'nonce-"+nonce+"'; form-action 'self'; connect-src 'self'; " +
       "base-uri 'none'; frame-ancestors 'none'"
   }}),token);
@@ -416,7 +423,7 @@ async function bundledAsset(request, env, url, path) {
   // Fail closed: falling back to GitHub Pages would reintroduce shared favorites.
   if (!env.ASSETS?.fetch) return plain(503, "Arquivos protegidos indisponíveis.");
   const name = STATIC_FILES[path];
-  const assetUrl = new URL("/stream/" + name, url.origin);
+  const assetUrl = new URL("/" + name, url.origin);
   const response = await env.ASSETS.fetch(new Request(assetUrl, {method:request.method}));
   if (!response.ok) return plain(502, "Arquivo protegido indisponível.");
   const headers = {...HEADERS, "Content-Security-Policy":APP_CSP,
@@ -453,6 +460,17 @@ async function proxyLegacy(request, env, url) {
 }
 async function handle(request, env) {
   const url = new URL(request.url), path = url.pathname, method = request.method;
+  if (Object.hasOwn(PUBLIC_ASSETS,path)) {
+    if (method !== "GET" && method !== "HEAD") return plain(405,"Method Not Allowed");
+    if (!env.ASSETS?.fetch) return plain(503,"Arquivo indisponível.");
+    const [name,type]=PUBLIC_ASSETS[path];
+    const result=await env.ASSETS.fetch(new Request(new URL("/"+name,url.origin),{method}));
+    if (!result.ok) return plain(502,"Arquivo indisponível.");
+    return new Response(method==="HEAD"?null:result.body,{headers:{
+      "Content-Type":type,"X-Content-Type-Options":"nosniff",
+      "Cache-Control":"public, max-age=86400","Cross-Origin-Resource-Policy":"same-origin"
+    }});
+  }
   if (!configured(env)) return plain(503, "Stream independente ainda não configurado.");
   if (!path.startsWith("/stream")) return plain(404, "Not Found");
   if (path === "/stream" && (method === "GET" || method === "HEAD"))
@@ -564,6 +582,11 @@ async function handle(request, env) {
     return new Response(method === "HEAD" ? null :
       JSON.stringify({allowed:true,user_id:user.user_id,role:user.role,email:user.email}), {
       status:200,headers:{...HEADERS,"Content-Type":"application/json"}});
+  if (path === "/stream/favorites") {
+    const expectedUser = request.headers.get("X-Stream-Account");
+    if (expectedUser !== null && expectedUser !== user.user_id)
+      return plain(409,"A conta conectada mudou.");
+  }
   if (path === "/stream/favorites" && method === "GET") {
     const result = await env.STREAM_USERS_DB.prepare(
       "SELECT favorite_key FROM stream_favorites WHERE user_id=? ORDER BY created_at"

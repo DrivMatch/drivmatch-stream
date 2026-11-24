@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
+const paths = {'/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/icon.webp':'streamnow-icon.webp','/stream/montserrat-latin.woff2':'montserrat-latin.woff2','/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
@@ -94,13 +94,14 @@ async function main(){
     // Versioned Samsung assets must resolve to the same file, ignoring query.
     const file=paths[new URL(req.url,origin).pathname];
     if(!file){res.writeHead(404);res.end();return;}
-    res.writeHead(200,{"Content-Type":file.endsWith(".html")?"text/html":file.endsWith(".css")?"text/css":"text/javascript"});
+    res.writeHead(200,{"Content-Type":file.endsWith(".html")?"text/html":file.endsWith(".css")?"text/css":
+      file.endsWith(".webp")?"image/webp":file.endsWith(".woff2")?"font/woff2":"text/javascript"});
     fs.createReadStream(path.join(ROOT,file)).pipe(res);
   });
   await new Promise(resolve=>server.listen(18764,'127.0.0.1',resolve));
   let browser;
   try{
-    browser=await chromium.launch({headless:true});
+    browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH});
     const setup=async allowed=>{
       authorized=allowed;
       const context=await browser.newContext();
@@ -430,7 +431,7 @@ async function main(){
       // Compact header without tagline, source label, or the "Privado" text.
       const top=page.locator('.topbar');
       assert((await top.boundingBox()).height<=43,'Header must be truly compact');
-      assert((await page.locator('.topbar .logo').boundingBox()).width<=29);
+      assert((await page.locator('.topbar .streamnow-wordmark').boundingBox()).height<=38);
       assert.equal(await top.getByText('TV INTERNACIONAL · ACESSO PESSOAL').count(),0);
       assert.equal(await top.getByText('Países e categorias').count(),0);
       assert.equal(await top.getByText('Privado',{exact:true}).count(),0);
