@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stream Now</title><style>html,body{margin:0;height:100%;background:#101010;color:#fff;font:24px Arial,sans-serif}main{display:flex;align-items:center;justify-content:center;flex-direction:column;height:100%;gap:22px;text-align:center}h1{color:#f02b51;font-size:48px}button{background:#c80020;color:#fff;border:0;border-radius:8px;padding:18px 30px;font:24px Arial}button:focus{outline:4px solid white}</style></head>
+<body><main><h1>STREAM NOW</h1><p id="status">Conectando ao catálogo e à sua conta…</p><button id="retry" type="button">Abrir Stream Now</button></main>
+<script>
+(function(){'use strict';
+  var url='https://streamnow-2o1.pages.dev/stream/';
+  function start(){window.location.replace(url);}
+  document.getElementById('retry').onclick=start;
+  if(navigator.onLine===false){document.getElementById('status').textContent='Sem conexão. Verifique sua internet e tente novamente.';}
+  else start();
+}());
+</script></body></html>
