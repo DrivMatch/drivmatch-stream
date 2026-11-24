@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import worker from "../cloudflare/stream-proxy.mjs";
 
-const STAGING="https://streamnow-2o1.pages.dev",REQUESTED="https://streamnow.pages.dev";
+const STAGING="https://streamnow-2o1.pages.dev",FORMER_UNAVAILABLE="https://streamnow.pages.dev";
 const PASS="test-password-123456789",EMAIL="viewer@example.test";
 const USER="25c8f362-3e8e-488c-a1f2-0a1c4ad60a85";
 const assets=[];
@@ -100,8 +100,7 @@ test("unapproved Pages hostname is rejected",async()=>{
  const r=await worker.fetch(new Request("https://streamnow-guess.pages.dev/"),env);
  assert.equal(r.status,404);
 });
-test("original requested host retains the same email sign-in scheme, without pretending it is owned",async()=>{
- const r=await worker.fetch(new Request(REQUESTED+"/"),env);
- assert.equal(r.status,200);
- assert.match(await r.text(),/type="email"/);
+test("unassigned former hostname is not silently treated as the production website",async()=>{
+ const r=await worker.fetch(new Request(FORMER_UNAVAILABLE+"/"),env);
+ assert.equal(r.status,404);
 });
