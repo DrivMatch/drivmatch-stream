@@ -1,0 +1,20 @@
+{
+  "appName": "Stream Now",
+  "shortDescription": "Assista a canais disponíveis em um guia organizado por país e categoria.",
+  "longDescription": "O Stream Now oferece navegação por países e categorias, pesquisa de canais, favoritos e reprodução de fontes compatíveis. O acesso requer cadastro individual, confirmação de e-mail e aprovação de um administrador. A disponibilidade de transmissões depende dos direitos, da fonte, da região, dos formatos suportados e da conexão à internet. O aplicativo não inclui acesso não autorizado a serviços pagos.",
+  "category": "Entretenimento",
+  "language": "pt-BR",
+  "accessModel": "Cadastro com aprovação administrativa",
+  "channelLicenseStatus": "PENDING_VERIFICATION",
+  "publisherLegalName": "REQUIRED_FROM_OWNER",
+  "supportEmail": "REQUIRED_FROM_OWNER",
+  "privacyPolicyUrl": "REQUIRED_BEFORE_SUBMISSION",
+  "termsOfUseUrl": "REQUIRED_BEFORE_SUBMISSION",
+  "supportUrl": "REQUIRED_BEFORE_SUBMISSION",
+  "sellerAccountIds": {
+    "samsung": "NOT_CONNECTED",
+    "lg": "NOT_CONNECTED"
+  },
+  "screenshots": "REAL_DEVICE_REQUIRED",
+  "storePublicationState": "NOT_SUBMITTED"
+}
