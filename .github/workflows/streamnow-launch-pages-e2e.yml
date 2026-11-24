@@ -1,11 +1,6 @@
 name: Stream Now shared accounts through Cloudflare Pages
 on:
   workflow_dispatch:
-    inputs:
-      check_preview:
-        description: Check the Pages preview instead of the official hostname
-        type: boolean
-        default: false
   push:
     branches: [codex/stream-now-launch-preflight]
     paths:
@@ -28,13 +23,14 @@ jobs:
           persist-credentials: false
       - name: Check Supabase login, catalog, shared favorites and fixture cleanup
         env:
-          STREAMNOW_SMOKE_ORIGIN: ${{ inputs.check_official && 'https://streamnow-2o1.pages.dev' || 'https://contas-compartilhadas.streamnow-2o1.pages.dev' }}
+          STREAMNOW_SMOKE_ORIGIN: https://streamnow-2o1.pages.dev
           STREAM_SUPABASE_URL: ${{ secrets.STREAM_SUPABASE_URL }}
           STREAM_SUPABASE_SECRET_KEY: ${{ secrets.STREAM_SUPABASE_SECRET_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -o pipefail
+          printf 'Official test origin %s\n' "$STREAMNOW_SMOKE_ORIGIN" >> "$GITHUB_STEP_SUMMARY"
           for attempt in {1..20}; do
             if curl -fsS --max-time 8 "$STREAMNOW_SMOKE_ORIGIN/stream/recover" -o "$RUNNER_TEMP/streamnow-recovery.html" &&
                grep -q "Recuperar acesso" "$RUNNER_TEMP/streamnow-recovery.html"; then
@@ -43,5 +39,5 @@ jobs:
             fi
             sleep 5
           done
-          echo "::error::The account Worker did not become available at the requested Pages hostname."
+          echo "::error::The account Worker did not become available at the official Pages hostname."
           exit 1
