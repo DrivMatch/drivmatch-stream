@@ -107,15 +107,15 @@ jobs:
       - name: Verify the existing account Worker through Pages
         run: |
           set -euo pipefail
-          origin=https://streamnow-2o1.pages.dev
+          origin=https://streamnow-2o1.pages.dev/
           if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            origin=https://contas-compartilhadas.streamnow-2o1.pages.dev
+            origin=https://contas-compartilhadas.streamnow-2o1.pages.dev/
           fi
           for attempt in {1..8}; do
-            if curl -LfSs --max-time 15 "$origin/" -o /tmp/streamnow-login.html &&
+            if curl -LfSs --max-time 15 "$origin" -o /tmp/streamnow-login.html &&
                grep -q "Acesso individual" /tmp/streamnow-login.html &&
-               grep -q "name='email'" /tmp/streamnow-login.html; then
-              status=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$origin/stream/session")
+               { grep -Fq 'name="email"' /tmp/streamnow-login.html || grep -Fq "name='email'" /tmp/streamnow-login.html; }; then
+              status=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "${origin}stream/session")
               if [ "$status" = 401 ]; then
                 echo "Pages login and anonymous access check passed at $origin." >> "$GITHUB_STEP_SUMMARY"
                 exit 0
