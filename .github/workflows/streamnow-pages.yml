@@ -9,6 +9,7 @@ on:
       - 'site/**'
       - 'tests/streamnow_pages.test.mjs'
       - 'tests/streamnow_brand_lock.test.mjs'
+      - 'tests/streamnow_brand_v2.test.mjs'
       - 'tests/streamnow_red_theme.test.mjs'
       - 'tests/streamnow_palette_source.test.mjs'
       - 'emails/**'
@@ -31,7 +32,7 @@ jobs:
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs
+          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_brand_v2.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs
       - name: Validate deployment inputs
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
