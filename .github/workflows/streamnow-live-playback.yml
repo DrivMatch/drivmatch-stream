@@ -18,9 +18,7 @@ jobs:
           ref: main
           persist-credentials: false
       - name: Install FFmpeg
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install --yes --no-install-recommends ffmpeg
+        run: python3 -m pip install --disable-pip-version-check --only-binary=:all: imageio-ffmpeg==0.6.0
       - name: Decode frames from public broadcaster streams in the existing catalog
         run: |
           set -o pipefail
@@ -28,6 +26,7 @@ jobs:
           from pathlib import Path
           import subprocess
           from urllib.parse import urlsplit
+          from imageio_ffmpeg import get_ffmpeg_exe
 
           known = {
               "Canal Gov": "canalgov-stream.ebc.com.br",
@@ -49,9 +48,10 @@ jobs:
 
           print("Verified catalog commit " + subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip())
           successes = 0
+          ffmpeg = get_ffmpeg_exe()
           for name, stream in candidates.items():
               command = [
-                  "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                  ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error",
                   "-rw_timeout", "10000000", "-protocol_whitelist", "http,https,tcp,tls,crypto",
                   "-i", stream, "-t", "4", "-map", "0:v:0", "-an", "-f", "framemd5", "-",
               ]
