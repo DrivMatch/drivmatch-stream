@@ -3,21 +3,51 @@ import {readFileSync} from "node:fs";
 import {DatabaseSync} from "node:sqlite";
 import {startTasting, tastingConfig, tastingRecord, tastingStatus} from "../cloudflare/stripe-tasting.mjs";
 
-const config = tastingConfig({...process.env, STRIPE_TASTING_MODE:"test", STRIPE_TASTING_DAYS:"0"});
-assert.ok(config, "Configure a Stripe Sandbox secret and a zero-price BRL recurring Price");
+const sandboxKey = process.env.STRIPE_TASTING_SECRET_KEY;
+assert.ok(/^(sk|rk)_test_[a-zA-Z0-9]+$/.test(sandboxKey ?? ""), "Configure a Stripe Sandbox key");
 
-async function stripe(path, method = "GET") {
+async function stripe(path, method = "GET", parameters, allowMissing = false) {
+  const headers = {Authorization:"Bearer " + sandboxKey, "Stripe-Version":"2025-08-27.basil"};
+  if (parameters) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    headers["Idempotency-Key"] = "stream-now-degustacao-sandbox-product-v1";
+  }
   const response = await fetch("https://api.stripe.com/v1/" + path, {
-    method,
-    headers:{Authorization:"Bearer " + config.secret, "Stripe-Version":"2025-08-27.basil"},
+    method, headers,
+    ...(parameters ? {body:new URLSearchParams(parameters)} : {}),
     redirect:"error",
     signal:AbortSignal.timeout(10000)
   });
+  if (allowMissing && response.status === 404) return null;
   assert.ok(response.ok, "Stripe Sandbox " + method + " returned HTTP " + response.status);
   const object = await response.json();
   assert.notEqual(object.livemode,true, "Stripe response must be from Sandbox");
   return object;
 }
+
+async function getSandboxPrice() {
+  const id = "prod_streamnow_degustacao_sandbox_v1";
+  let product = await stripe("products/" + id, "GET", undefined, true);
+  if (!product) {
+    product = await stripe("products", "POST", {
+      id,
+      name:"Stream Now Plano Degustação",
+      "metadata[stream_now_sandbox_plan]":"v1",
+      "default_price_data[currency]":"brl",
+      "default_price_data[unit_amount]":"0",
+      "default_price_data[recurring][interval]":"month"
+    });
+  }
+  assert.ok(product.id === id && product.active && product.livemode === false &&
+    product.metadata?.stream_now_sandbox_plan === "v1",
+  "The deterministic Stripe Sandbox product does not match Stream Now");
+  assert.ok(/^price_[a-zA-Z0-9]+$/.test(product.default_price ?? ""), "Sandbox product has no recurring Price");
+  return product.default_price;
+}
+
+const config = tastingConfig({...process.env, STRIPE_TASTING_MODE:"test", STRIPE_TASTING_DAYS:"0",
+  STRIPE_TASTING_PRICE_ID:process.env.STRIPE_TASTING_PRICE_ID || await getSandboxPrice()});
+assert.ok(config, "The Stripe Sandbox price ID is invalid");
 
 const database = new DatabaseSync(":memory:");
 for (const migration of ["0001_stream_identities.sql", "0005_stream_tasting.sql"]) {

@@ -33,8 +33,8 @@ jobs:
           STRIPE_TASTING_PRICE_ID: ${{ vars.STRIPE_TASTING_SANDBOX_PRICE_ID }}
         run: |
           set -o pipefail
-          if [ -z "$STRIPE_TASTING_SECRET_KEY" ] || [ -z "$STRIPE_TASTING_PRICE_ID" ]; then
-            echo "::error::Stripe Sandbox verification requires the encrypted Sandbox key and the zero-price BRL Price ID."
+          if [ -z "$STRIPE_TASTING_SECRET_KEY" ]; then
+            echo "::error::Stripe Sandbox verification requires an encrypted Sandbox key."
             exit 1
           fi
           node scripts/verify_stripe_tasting_sandbox.mjs | tee -a "$GITHUB_STEP_SUMMARY"
