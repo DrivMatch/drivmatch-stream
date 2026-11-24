@@ -944,7 +944,8 @@ test("administrator can reject signup; rejected user stays blocked and cannot be
     viewer.approval_state="pending";
     assert.equal((await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env)).status,401);
     const blocked=await worker.fetch(req("/stream/session",{headers:{Cookie:old}}),env);
-    assert.equal((await blocked.json()).allowed,false);
+    assert.equal(blocked.status,401);
+    assert.match(await blocked.text(),/Autenticação necessária/);
     const admin=cookie(await login(users[0].email,users[0].password,env));
     const rejected=await adminAction(env,admin,"approval",viewer.user_id,{decision:"rejected"});
     assert.equal(rejected.status,303);
