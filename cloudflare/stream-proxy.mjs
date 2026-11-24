@@ -263,17 +263,17 @@ export default {async fetch(request,env){
    if(!(request.headers.get("Content-Type")||"").startsWith("application/x-www-form-urlencoded"))
      return plain(415,"Unsupported Media Type");
    if(Number(request.headers.get("Content-Length")||"0")>2048)return plain(413,"Payload Too Large");
-   let submitted;
+   let submitted,email;
    try{
      const text=await request.text();
      if(text.length>2048)return plain(413,"Payload Too Large");
-     submitted=new URLSearchParams(text).get("password");
+     const params=new URLSearchParams(text);
+     submitted=params.get("password");
+     email=params.get("email");
    }catch{return plain(400,"Bad Request");}
    if(pagesHost){
      const origin=request.headers.get("Origin");
      if(origin&&origin!==url.origin)return plain(403,"Forbidden");
-     const params=new URLSearchParams(text);
-     const email=params.get("email");
      let userId;
      try{userId=await verifySupabaseCredentials(env,email,submitted);}
      catch{return plain(502,"Não foi possível validar o acesso. Tente novamente.");}
