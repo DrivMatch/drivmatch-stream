@@ -123,3 +123,30 @@ body .source input,body .source select,body .add-source input,body .filters inpu
 button{touch-action:manipulation}
 @media(max-width:800px){.tv-shell .streamnow-wordmark{width:126px;height:35px}.streamnow-classic-logo{width:75px;height:54px}.streamnow-library-logo{width:85px;height:55px}}
 @media(prefers-reduced-motion:reduce){.tv-shell .quick-toggle,.tv-shell .channel-row,.tv-shell .filter-btn{transition:none}}
+
+/* Public app download + secure account exit: compact, remote-focusable controls. */
+.tv-shell .topbar .toplinks{
+  float:right;display:flex;align-items:center;justify-content:flex-end;
+  height:100%;line-height:normal;gap:6px;white-space:nowrap
+}
+.tv-shell .topbar .toplinks .top-link{
+  display:inline-block;min-height:28px;line-height:20px;
+  padding:3px 10px!important;font-size:13px;font-weight:600;
+  text-decoration:none;border-radius:16px;
+}
+.tv-shell .topbar .toplinks #signout-link{
+  background:#2b2b2b!important;border-color:#ae0026!important;color:#fff!important
+}
+.tv-shell .topbar .toplinks #signout-link:hover{background:#690016!important}
+.tv-shell .topbar .toplinks .top-link:focus{
+  outline:3px solid #f0f0f0!important;outline-offset:2px
+}
+@media(max-width:780px){
+  .tv-shell .topbar .toplinks .live-label{display:none!important}
+  .tv-shell .topbar .toplinks{gap:4px}
+  .tv-shell .topbar .toplinks .top-link{font-size:12px;padding:3px 7px!important}
+}
+@media(max-width:460px){
+  .tv-shell .topbar .toplinks #home-link{display:none!important}
+  .tv-shell .topbar .toplinks #download-link{font-size:12px}
+}
