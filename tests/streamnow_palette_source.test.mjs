@@ -6,7 +6,7 @@ const paths=["site/tv.css","site/stream.css","site/listas.css","site/streamnow-g
 function isAllowed(rgb){
  const [r,g,b]=rgb;
  const neutral=Math.max(r,g,b)-Math.min(r,g,b)<=15;
- const red=r>=65&&r>g*1.6&&r>b*1.6&&g<=r*.27&&b<=r*.28;
+ const red=r>=28&&r>g*1.6&&r>b*1.27&&g<=r*.42&&b<=(r<=85?r*.5:r*.28);
  return neutral||red;
 }
 function hexRGB(hex){
