@@ -97,7 +97,7 @@
       $("tv").hidden=false;
       return true;
     }catch{
-      setGate("Acesso pessoal indisponível. Entre novamente com sua senha particular.");
+      setGate("Sessão encerrada. Entre novamente.");
       return false;
     }
   }
