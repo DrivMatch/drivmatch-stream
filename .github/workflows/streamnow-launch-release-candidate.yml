@@ -1,0 +1,60 @@
+name: Build Stream Now Android release candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/stream-now-launch-preflight]
+    paths:
+      - '.github/workflows/streamnow-launch-release-candidate.yml'
+permissions:
+  contents: read
+jobs:
+  compile-release:
+    if: github.repository == 'DrivMatch/drivmatch-stream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0'
+      - name: Verify official assets and hostname before compilation
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 scripts/verify_streamnow_brand.py site
+          cmp site/streamnow-brand.webp android/app/src/main/res/drawable-nodpi/streamnow_wordmark.webp
+          cp site/streamnow-icon.webp android/app/src/main/res/drawable-nodpi/streamnow_icon.webp
+          node --test tests/streamnow_domain_cutover.test.mjs
+      - name: Compile and run Android release unit tests and lint
+        working-directory: android
+        run: gradle :app:assembleRelease :app:testReleaseUnitTest :app:lintRelease --no-daemon
+      - name: Inspect candidate package and verify it is non-debuggable and unsigned
+        run: |
+          set -euo pipefail
+          apk=android/app/build/outputs/apk/release/app-release-unsigned.apk
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          unzip -t "$apk" > /dev/null
+          "$tools/aapt" dump badging "$apk" > "$RUNNER_TEMP/streamnow-candidate-badging.txt"
+          grep -F "name='com.streamnow.app'" "$RUNNER_TEMP/streamnow-candidate-badging.txt"
+          if grep -q "application-debuggable" "$RUNNER_TEMP/streamnow-candidate-badging.txt" ||
+             "$tools/apksigner" verify "$apk" >/dev/null 2>&1; then
+            echo "::error::Candidate must be non-debuggable and unsigned."
+            exit 1
+          fi
+          echo "Release compilation, unit test task and lint passed. Production signing has not been applied." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Stream-Now-Android-unsigned-release-candidate
+          path: |
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
+            android/app/build/reports/lint-results-release.html
+          if-no-files-found: error
+          retention-days: 14
