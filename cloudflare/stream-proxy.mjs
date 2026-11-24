@@ -6,6 +6,7 @@ import {countryIndex,mergedCatalog,searchCatalog} from "./catalog-merge.mjs";
  * This worker does not handle /news or /TV.
  */
 const ORIGIN="https://drivmatch.github.io/drivmatch-stream/";
+const STREAM_NOW_HOST="streamnow-2o1.pages.dev";
 const FILES={"/":"tv.html","/stream/":"index.html","/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css","/stream/stream.js":"stream.js",
   "/stream/graphite.css":"streamnow-graphite.css",
@@ -193,14 +194,14 @@ async function authenticatedAccount(request,secret){
 }
 function goHome(url,cookie){
  return new Response(null,{status:303,headers:{...baseHeaders,
- "Location":new URL((url.hostname==="streamnow.pages.dev"||url.hostname==="streamnow-2o1.pages.dev")?"/":"/stream/",url.origin).toString(),
+ "Location":new URL(url.hostname===STREAM_NOW_HOST?"/":"/stream/",url.origin).toString(),
  ...(cookie?{"Set-Cookie":cookie}:{})}});
 }
 export default {async fetch(request,env){
  try{
  const url=new URL(request.url),host=url.hostname.toLowerCase();
  const preview=host==="drivmatch-stream-proxy.drivmatch.workers.dev";
- const pagesHost=host==="streamnow.pages.dev"||host==="streamnow-2o1.pages.dev";
+ const pagesHost=host===STREAM_NOW_HOST;
  const localPlaylist=new URL("/daily-autopilot.m3u8",url.origin).toString();
  const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":localPlaylist}:TV_SOURCE_URLS;
  const loadCatalogue=pagesHost?async (address,id)=>{
@@ -308,7 +309,7 @@ export default {async fetch(request,env){
  if(path==="/stream/session")
    return new Response(request.method==="HEAD"?null:JSON.stringify({allowed:true}),{
      status:200,headers:{...appHeaders,"Content-Type":"application/json; charset=utf-8"}});
- if(path==="/stream/login")return Response.redirect(new URL("/stream/",url.origin),303);
+ if(path==="/stream/login")return Response.redirect(new URL(pagesHost?"/":"/stream/",url.origin),303);
  if(path==="/stream/countries"){
    if(url.searchParams.get("list")!=="lista-2")return plain(400,"Unsupported list");
    try{
