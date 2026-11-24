@@ -1,0 +1,74 @@
+{
+  "schema": "streamnow.visual.derivatives.v2",
+  "status": "APPROVED_SCOPE_USER_REQUEST",
+  "canonical_originals": "00_CANONICO/STREAM_NOW_CANONICAL_MANIFEST_v1.json",
+  "history_preserved": [
+    "00_CANONICO/DERIVADOS_V1/streamnow-brand-v1.webp",
+    "00_CANONICO/DERIVADOS_V1/streamnow-icon-v1.webp"
+  ],
+  "production_assets": [
+    {
+      "path": "site/streamnow-brand.webp",
+      "git_blob_sha1": "ea7de4183830abee6372d46b33365bbe7967f27a",
+      "format": "WebP RGBA",
+      "dimensions": [
+        960,
+        275
+      ],
+      "source": "user-supplied official logo reference",
+      "mode": "transparent raster; NOT vector"
+    },
+    {
+      "path": "site/streamnow-icon.webp",
+      "git_blob_sha1": "b48d97462001f4eb6d40ff1291782bb8b6e460c2",
+      "format": "WebP RGBA",
+      "dimensions": [
+        512,
+        512
+      ],
+      "source": "user-supplied official icon reference",
+      "mode": "transparent raster; NOT vector"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-nodpi/streamnow_icon.webp",
+      "git_blob_sha1": "b48d97462001f4eb6d40ff1291782bb8b6e460c2",
+      "format": "WebP RGBA",
+      "dimensions": [
+        512,
+        512
+      ],
+      "source": "same production icon",
+      "mode": "transparent raster"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-nodpi/streamnow_wordmark.webp",
+      "git_blob_sha1": "ea7de4183830abee6372d46b33365bbe7967f27a",
+      "format": "WebP RGBA",
+      "dimensions": [
+        960,
+        275
+      ],
+      "source": "same production horizontal mark",
+      "mode": "transparent raster"
+    }
+  ],
+  "interface_policy": {
+    "palette": [
+      "black",
+      "graphite gray",
+      "white",
+      "red and its shadows/highlights"
+    ],
+    "text": "Only functional labels; no unapproved slogan, 'Área pessoal', or invented product promise",
+    "target": [
+      "Samsung/Tizen browser UI",
+      "desktop browsers",
+      "responsive mobile and iPad web",
+      "Android APK WebView",
+      "email invitation HTML"
+    ],
+    "exclusions": "Official logo pixel colors untouched; no claim of true vector art; no physical device certification",
+    "domain": "APK intentionally retains https://streamnow.pages.dev/ per user; Cloudflare actually hosts staging streamnow-2o1.pages.dev",
+    "auth": "Supabase email/password integration under separate gated change; do not imply it is already deployed"
+  }
+}
