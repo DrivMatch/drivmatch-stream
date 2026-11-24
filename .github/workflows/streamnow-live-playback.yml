@@ -17,6 +17,10 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends ffmpeg
       - name: Decode frames from public broadcaster streams in the existing catalog
         run: |
           set -o pipefail
