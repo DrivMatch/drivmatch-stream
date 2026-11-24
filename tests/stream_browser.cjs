@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
@@ -426,6 +426,13 @@ async function main(){
       await page.setViewportSize({width:1440,height:900});
       await page.goto(origin+'/stream/tv/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
+
+      assert.equal(await page.locator('link[href*="/stream/graphite.css"]').count(),1,
+        'Samsung must load final graphite stylesheet');
+      const bg=await page.locator('.topbar').evaluate(el=>getComputedStyle(el).backgroundColor);
+      assert.equal(bg,'rgb(11, 11, 11)','No legacy green/blue header allowed');
+      const panel=await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).backgroundColor);
+      assert.equal(panel,'rgb(20, 20, 20)','Guide must use graphite, not green');
 
       // Compact header without tagline, source label, or the "Privado" text.
       const top=page.locator('.topbar');
