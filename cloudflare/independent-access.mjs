@@ -102,7 +102,7 @@ async function currentUser(request, env) {
   return env.STREAM_USERS_DB.prepare(
     "SELECT u.user_id,u.email,u.role,u.status,s.admin_verified_until FROM stream_sessions s " +
     "JOIN stream_users u ON u.user_id=s.user_id " +
-    "WHERE s.token_hash=? AND s.expires_at>? AND u.status='active'"
+    "WHERE s.token_hash=? AND s.expires_at>? AND u.status='active' AND u.approval_state='approved'"
   ).bind(tokenHash, now()).first();
 }
 function csrf(request, url) {
@@ -273,7 +273,7 @@ async function tastingPage(url, request, env, user) {
 async function signupPage(env,error="") {
   const token=await issueFormToken(env);
   return stampForm(page("Criar conta",
-    "<p>Cadastre seu e-mail e defina uma senha. Não é necessário convite.</p>" +
+    "<p>Cadastre seu e-mail e defina uma senha. Seu acesso dependerá da aprovação do administrador.</p>" +
     (error?"<p role='alert'>"+escape(error)+"</p>":"")+
     "<form method='post' action='/stream/signup'>"+formTokenInput(token)+
     "<label>E-mail<input type='email' name='email' autocomplete='username' maxlength='254' required></label>"+
@@ -286,7 +286,7 @@ async function signupPage(env,error="") {
 function signupReceipt() {
   return page("Cadastro solicitado",
     "<p>Se o cadastro puder ser realizado, confira seu e-mail para confirmar o endereço.</p>"+
-    "<p>Depois, entre com seu e-mail e a senha criada.</p>"+
+    "<p>Após confirmar o e-mail, sua solicitação ficará aguardando a decisão do administrador. Você só poderá entrar depois da aprovação.</p>"+
     "<p><a href='/stream/login'>Entrar</a></p>"+
     "<p><a href='/stream/recover'>Recuperar acesso</a></p>");
 }
@@ -471,7 +471,7 @@ async function adminPage(user,env,url,extra={}) {
   const [members,activity,sessionCounts]=await Promise.all([
     env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status,created_at,activated_at,first_login_at," +
-      "last_login_at,canceled_invite_at FROM stream_users ORDER BY created_at DESC LIMIT 150"
+      "last_login_at,canceled_invite_at,approval_state FROM stream_users ORDER BY created_at DESC LIMIT 150"
     ).all(),
     env.STREAM_USERS_DB.prepare(
       "SELECT e.action,e.created_at,t.email AS subject_email,a.email AS admin_email " +
@@ -582,7 +582,7 @@ async function handle(request, env) {
     const result = await supabase(env,"POST","token?grant_type=password",{email,password});
     if (!result.ok || !result.data?.user?.id) return await loginPage(true,env,requestedAdmin);
     const account = await env.STREAM_USERS_DB.prepare(
-      "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active'"
+      "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active' AND approval_state='approved'"
     ).bind(result.data.user.id,email).first();
     if (!account) return await loginPage(true,env,requestedAdmin);
     const destination = requestedAdmin && requireAdmin(account) ? "/stream/admin" : "/stream/";
@@ -628,7 +628,7 @@ async function handle(request, env) {
        returnedEmail===email&&!(Array.isArray(record?.identities)&&record.identities.length===0)){
        // Only viewer accounts are self-created. Supabase confirmation gates login.
        await env.STREAM_USERS_DB.prepare(
-         "INSERT OR IGNORE INTO stream_users(user_id,email,role,status) VALUES(?,?,'viewer','active')"
+         "INSERT OR IGNORE INTO stream_users(user_id,email,role,status,approval_state) VALUES(?,?,'viewer','active','pending')"
        ).bind(identity,email).run();
     }
     return signupReceipt();
@@ -873,7 +873,7 @@ async function handle(request, env) {
     }
     const target = String(data.get("user_id") || "");
     const targetRow = await env.STREAM_USERS_DB.prepare(
-      "SELECT user_id,email,role,status,canceled_invite_at FROM stream_users WHERE user_id=?"
+      "SELECT user_id,email,role,status,canceled_invite_at,approval_state FROM stream_users WHERE user_id=?"
     ).bind(target).first();
     if (!targetRow || targetRow.role !== "viewer" || target === user.user_id)
       return plain(403,"Forbidden");
@@ -914,6 +914,25 @@ async function handle(request, env) {
         ).bind(crypto.randomUUID(),user.user_id,"revoke",target)
       ]);
       return redirect(url.origin,"/stream/admin?result=revoked");
+    }
+    if (path === "/stream/admin/approval") {
+      const decision=String(data.get("decision")||"");
+      if(targetRow.approval_state!=="pending" ||
+          targetRow.status!=="active" ||
+          !["approved","rejected"].includes(decision))return plain(409,"Solicitação já decidida ou inválida.");
+      const timestamp=now();
+      const result=await env.STREAM_USERS_DB.prepare(
+        "UPDATE stream_users SET approval_state=?,status=?,updated_at=? "+
+        "WHERE user_id=? AND role='viewer' AND approval_state='pending' AND status='active'"
+      ).bind(decision,decision==="approved"?"active":"suspended",timestamp,target).run();
+      if(result?.meta?.changes!==1)return plain(409,"A solicitação mudou. Atualize o painel.");
+      await env.STREAM_USERS_DB.batch([
+        env.STREAM_USERS_DB.prepare("DELETE FROM stream_sessions WHERE user_id=?").bind(target),
+        env.STREAM_USERS_DB.prepare(
+          "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
+        ).bind(crypto.randomUUID(),user.user_id,"signup-"+decision,target)
+      ]);
+      return redirect(url.origin,"/stream/admin?result="+(decision==="approved"?"approved":"rejected"));
     }
     if (path === "/stream/admin/status") {
       const newStatus = data.get("status");
