@@ -29,12 +29,12 @@ import android.widget.TextView;
 import java.net.URI;
 
 /** Stream Now official-site Android WebView wrapper.
- * Target is intentionally restricted to https://streamnow.pages.dev/.
+ * Target is intentionally restricted to https://streamnow-2o1.pages.dev/.
  * No previous-domain fallback, credentials, tracking or bundled video streams.
  * This is an Android DEBUG/BETA build, not a Play Store release.
  */
 public final class MainActivity extends Activity {
-    private static final String HOME = "https://streamnow.pages.dev/";
+    private static final String HOME = "https://streamnow-2o1.pages.dev/";
     private static final int BLACK = Color.rgb(9,9,9);
     private static final int GRAPHITE = Color.rgb(25,25,25);
     private static final int RED = Color.rgb(184,0,40);
@@ -54,7 +54,7 @@ public final class MainActivity extends Activity {
     private static boolean sameHost(Uri uri) {
         return uri!=null
             && "https".equalsIgnoreCase(uri.getScheme())
-            && "streamnow.pages.dev".equalsIgnoreCase(uri.getHost())
+            && "streamnow-2o1.pages.dev".equalsIgnoreCase(uri.getHost())
             && uri.getPort()==-1;
     }
     private Button action(String text, String description) {
@@ -136,7 +136,7 @@ public final class MainActivity extends Activity {
             }
             @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error){
                 if(request.isForMainFrame())connectionIssue(
-                    "Não foi possível abrir streamnow.pages.dev. Verifique a conexão e a publicação do site.");
+                    "Não foi possível abrir streamnow-2o1.pages.dev. Verifique sua conexão.");
             }
             @Override public void onReceivedHttpError(WebView view,WebResourceRequest request,WebResourceResponse response){
                 if(request.isForMainFrame()&&response.getStatusCode()>=400)
