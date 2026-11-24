@@ -224,7 +224,7 @@ export default {async fetch(request,env){
  if(path==="/stream"&&(request.method==="GET"||request.method==="HEAD"))
    return Response.redirect(new URL("/stream/",url.origin),308);
  if(path==="/stream/brand.webp"||path==="/stream/icon.webp"){
-   const assetFile=path==="/stream/icon.webp"?"streamnow-icon-clean.webp":"streamnow-brand-clean.webp";
+   const assetFile=path==="/stream/icon.webp"?"streamnow-icon.webp":"streamnow-brand.webp";
    if(request.method!=="GET"&&request.method!=="HEAD")return plain(405,"Method Not Allowed");
    try{
      const response=pagesHost
