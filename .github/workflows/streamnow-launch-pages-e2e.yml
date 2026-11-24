@@ -2,8 +2,8 @@ name: Stream Now shared accounts through Cloudflare Pages
 on:
   workflow_dispatch:
     inputs:
-      check_official:
-        description: Check the official hostname after deployment
+      check_preview:
+        description: Check the Pages preview instead of the official hostname
         type: boolean
         default: false
   push:
@@ -35,4 +35,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -o pipefail
-          python3 tests/streamnow_staging_smoke.py | tee -a "$GITHUB_STEP_SUMMARY"
+          for attempt in {1..20}; do
+            if curl -fsS --max-time 8 "$STREAMNOW_SMOKE_ORIGIN/stream/recover" -o "$RUNNER_TEMP/streamnow-recovery.html" &&
+               grep -q "Recuperar acesso" "$RUNNER_TEMP/streamnow-recovery.html"; then
+              python3 tests/streamnow_staging_smoke.py | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::The account Worker did not become available at the requested Pages hostname."
+          exit 1
