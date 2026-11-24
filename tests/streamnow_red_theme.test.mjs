@@ -12,7 +12,7 @@ const allowedHue=color=>{
   const rgb=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16));
   const mx=Math.max(...rgb),mn=Math.min(...rgb);
   const neutral=mx-mn<=15;
-  const redFamily=rgb[0]>rgb[1]&&rgb[0]>rgb[2]&&rgb[1]<=rgb[2]+15&&rgb[2]<=rgb[1]+42;
+  const redFamily=rgb[0]>rgb[1]&&rgb[0]>rgb[2]&&rgb[1]<=rgb[0]*0.35&&rgb[2]<=(rgb[0]>=125?rgb[0]*0.32:rgb[0]*0.55);
   return neutral||redFamily;
 };
 test("graphite theme only uses achromatic or red-family hex colors",()=>{
