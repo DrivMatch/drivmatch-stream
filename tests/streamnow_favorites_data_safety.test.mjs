@@ -81,6 +81,7 @@ test("failed backup prevents modifying existing favorites",()=>{
 test("153 preserved in backup block suspicious empty main and can be restored",()=>{
  const {ctx,data,storage}=setup([]);
  storage.setItem(ctx.FAV_FOUNDATION_BACKUP,JSON.stringify(saved(153)));
+ storage.setItem(ctx.FAV_PREVIOUS_BACKUP,JSON.stringify([]));
  ctx.loadFav();
  assert.equal(ctx.favStorageSafe,false);
  assert.equal(ctx.persistFavoriteChange(["lista-2:BR:new"]),false);
