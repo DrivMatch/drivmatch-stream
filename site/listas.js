@@ -119,14 +119,26 @@ async function downloadM3u(address){
   }finally{clearTimeout(timer);}
 }
 function key(c){return c.sourceId+"::"+c.id;}
+const FAVORITES_STORE="drivmatch-iptv-library-fav-v1";
+let favoritesReadSafe=false;
 function favoritesLoad(){
-  try{
-    const entries=JSON.parse(localStorage.getItem("drivmatch-iptv-library-fav-v1")||"[]");
-    if(Array.isArray(entries))for(const s of entries)if(typeof s==="string")state.favorites.add(s);
-  }catch{}
+  const safety=window.StreamNowFavoritesSafety;
+  if(!safety){favoritesReadSafe=false;return;}
+  const result=safety.read(FAVORITES_STORE);
+  favoritesReadSafe=result.ok;
+  if(result.ok)for(const entry of result.list)state.favorites.add(entry);
 }
-function favoritesSave(){
-  try{localStorage.setItem("drivmatch-iptv-library-fav-v1",JSON.stringify([...state.favorites]));}catch{}
+function favoritesSave(next){
+  if(!favoritesReadSafe||!window.StreamNowFavoritesSafety)return false;
+  const previous=[...state.favorites];
+  if(!window.StreamNowFavoritesSafety.commit(FAVORITES_STORE,previous,next)) {
+    favoritesReadSafe=false;
+    const el=$("catalog-status");
+    if(el)el.textContent="Alteração de favoritos bloqueada para proteger os dados existentes.";
+    return false;
+  }
+  state.favorites=new Set(next);
+  return true;
 }
 function status(c){
   const v=state.health.get(key(c));
@@ -202,8 +214,10 @@ function renderChannels(){
     fav.className="star"+(marked?" marked":"");fav.textContent=marked?"★":"☆";
     fav.setAttribute("aria-label",(marked?"Remover favorito ":"Favoritar ")+c.name);
     fav.addEventListener("click",()=>{
-      if(marked)state.favorites.delete(key(c));else state.favorites.add(key(c));
-      if(!state.source?.personal)favoritesSave();
+      const next=new Set(state.favorites);
+      if(marked)next.delete(key(c));else next.add(key(c));
+      if(state.source?.personal){state.favorites=next;}
+      else if(!favoritesSave([...next]))return;
       renderChannels();
     });
     row.append(pick,fav);fragment.append(row);
