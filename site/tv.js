@@ -465,6 +465,10 @@ function loadAccountFavorites(userId){
    noteAccountFav("Favoritos consultados da conta ("+fromServer.length+"). Nenhuma exclusão ou substituição foi executada.");
   }
   updateAccountImport();drawQuickLists();updateFavButton();
+  if(accountFavoritesMissing.length&&owner===null)
+   T(D("favorite-count"),favorites.length+" + "+accountFavoritesMissing.length+" locais");
+  else if(!favorites.length)
+   T(D("favorite-count"),"0 (verificar)");
  });
 }
 function importLocalAccountFavorites(){
