@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "verifiedOn": "2026-11-23",
+  "verifiedOn": "2026-11-25",
   "status": "OFFICIAL_CHANNEL_REFERENCE_NOT_PLAYBACK_VERIFIED",
-  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung. Incluídas referências adicionais de canais oficiais YouTube e FAST: links para descobertas/embeds experimentais não comprovam live ativa ou direito a reprodução fora dos players oficiais. Novos canais de notícia/esporte foram listados por identidade oficial pública; embed só usa player do YouTube com sua atribuição, sem re-streaming ou remoção de marcas. A presença de um link não garante evento ao vivo ou direito de retransmissão.",
+  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung. Incluídas referências adicionais de canais oficiais YouTube e FAST: links para descobertas/embeds experimentais não comprovam live ativa ou direito a reprodução fora dos players oficiais. Novos canais de notícia/esporte foram listados por identidade oficial pública; embed só usa player do YouTube com sua atribuição, sem re-streaming ou remoção de marcas. A presença de um link não garante evento ao vivo ou direito de retransmissão. Catálogo de canais oficiais: reprodução apenas pelo YouTube/player da emissora quando disponibilizado; link oficial caso contrário. Lista não equivale a lives confirmadas.",
   "free": [
     {
       "id": "br-cazetv",
@@ -12,7 +12,11 @@
       "lang": "pt",
       "url": "https://www.youtube.com/@CazeTV",
       "access": "Transmissões abertas no YouTube",
-      "notes": "Disponibilidade geográfica e navegador não confirmados"
+      "notes": "Identidade oficial verificada. O player YouTube só reproduz quando houver live disponível e incorporável; nenhum evento está garantido.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCZiYbVptd3PVPf4f6eR6UaQ"
+      }
     },
     {
       "id": "br-getv",
@@ -705,6 +709,44 @@
         "provider": "youtube_live_channel",
         "channelId": "UCTl3QQTvqHFjurroKxexy2Q"
       }
+    },
+    {
+      "id": "br-cnn-brasil-live",
+      "name": "CNN Brasil — canal oficial ao vivo",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://www.cnnbrasil.com.br/ao-vivo/",
+      "access": "Sinal oficial da CNN Brasil e eventuais lives do YouTube",
+      "notes": "Verificar disponibilidade e incorporação no momento; fonte original identificada.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCvdwhh_fDyWccR42-rReZLw"
+      }
+    },
+    {
+      "id": "us-bloomberg-tv-live",
+      "name": "Bloomberg Television — transmissão oficial",
+      "code": "US",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.bloomberg.com/tv/",
+      "access": "Bloomberg Television: página oficial do sinal ao vivo",
+      "notes": "Live e incorporação podem variar por região e programação; acesso via emissora quando necessário.",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCIALMKvObZNtJ6AmdCLP7Lg"
+      }
+    },
+    {
+      "id": "br-times-brasil-cnbc-live",
+      "name": "Times Brasil | CNBC — ao vivo oficial",
+      "code": "BR",
+      "genre": "news",
+      "lang": "pt",
+      "url": "https://timesbrasil.com.br/videos/times-brasil-ao-vivo/",
+      "access": "Transmissão ao vivo publicada pela própria emissora",
+      "notes": "Canal com grade ao vivo; consultar player oficial da emissora. Incorporação não confirmada."
     }
   ],
   "paid": [
