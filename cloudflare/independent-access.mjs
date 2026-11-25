@@ -220,6 +220,7 @@ async function loginPage(error = false, env, nextAdmin = false) {
     "<label>Senha<input type='password' name='password' autocomplete='current-password' maxlength='256' required></label>" +
     "<button type='submit'>Entrar</button></form>" +
     "<p><a href='/stream/recover'>Esqueci minha senha</a></p>" +
+    "<p><a href='/stream/resend-confirmation'>Reenviar confirmação de e-mail</a></p>" +
     "<p><a href='/stream/signup'>Criar conta</a></p>", error ? 401 : 200),token);
 }
 async function tastingPage(url, request, env, user) {
@@ -287,6 +288,7 @@ function signupReceipt(emailPending=false) {
   return page("Cadastro solicitado",
     (emailPending?"<p>Solicitação registrada. O envio da confirmação está indisponível. Seu acesso permanece bloqueado até confirmar o endereço e receber aprovação.</p>":"<p>Se o cadastro puder ser realizado, confira seu e-mail para confirmar o endereço.</p>")+
     "<p>Após confirmar o e-mail, sua solicitação ficará aguardando a decisão do administrador. Você só poderá entrar depois da aprovação.</p>"+
+    "<p><a href='/stream/resend-confirmation'>Reenviar confirmação de e-mail</a></p>"+
     "<p><a href='/stream/login'>Entrar</a></p>"+
     "<p><a href='/stream/recover'>Recuperar acesso</a></p>");
 }
@@ -696,6 +698,27 @@ async function handle(request, env) {
       "<p>Não foi possível finalizar a solicitação. Código: CAD-REGISTRO.</p>"+
       "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",503);
     return signupReceipt();
+  }
+  if(path==="/stream/resend-confirmation" && method==="GET"){
+    const token=await issueFormToken(env);
+    return stampForm(page("Reenviar confirmação",
+      "<p>Informe seu e-mail para solicitar outra confirmação de cadastro.</p>"+
+      "<form method='post' action='/stream/resend-confirmation'>"+formTokenInput(token)+
+      "<label>E-mail<input name='email' type='email' maxlength='254' required></label>"+
+      "<button type='submit'>Reenviar confirmação</button></form><p><a href='/stream/login'>Entrar</a></p>"),token);
+  }
+  if(path==="/stream/resend-confirmation" && method==="POST"){
+    const data=await form(request);
+    if(!await verifyFormToken(request,url,data,env))return plain(403,"Formulário expirado.");
+    if(!await limit(request,env,"signup-resend"))return plain(429,"Muitas tentativas. Aguarde.");
+    const email=String(data.get("email")||"").trim().toLowerCase();
+    if(email.length<=254 && email.includes("@")){
+      const account=await env.STREAM_USERS_DB.prepare("SELECT user_id,role,status,approval_state FROM stream_users WHERE email=?").bind(email).first();
+      if(account?.role==="viewer" && account.status==="active" && account.approval_state!=="rejected"){
+        await sendWithEmailQuota(env,"signup",()=>supabase(env,"POST","resend?redirect_to="+encodeURIComponent(activationURL(url)),{type:"signup",email}));
+      }
+    }
+    return page("Confirmação solicitada","<p>Se houver um cadastro elegível e o serviço estiver disponível, o e-mail de confirmação será enviado. Confira também o spam.</p><p><a href='/stream/login'>Entrar</a></p>");
   }
   if (method === "GET" && path === "/stream/recover") {
     const token=await issueFormToken(env);
