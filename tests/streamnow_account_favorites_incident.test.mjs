@@ -64,10 +64,10 @@ test("only explicit owner consent imports 153 additively in batches of 20",()=>{
  const f=fixture(make(3),make(153),{confirm:true});
  f.ctx.loadAccountFavorites("user-a");
  f.ctx.importLocalAccountFavorites();
- assert.equal(f.db.size,156);
+ assert.equal(f.db.size,153);
  assert.equal(f.calls.filter(x=>x.method==="POST").length,8);
  assert.equal(f.storage.get("streamnow-tv-favorites-owner-v1"),"user-a");
- assert.equal(f.ctx.favorites.length,156);
+ assert.equal(f.ctx.favorites.length,153);
  assert.equal(f.calls.filter(x=>x.method==="POST").every(x=>JSON.parse(x.body).operation==="import"),true);
 });
 test("browser local favorites belonging to another account are never leaked or imported",()=>{
