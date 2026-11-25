@@ -8,6 +8,7 @@ on:
       - 'migrations/**'
       - 'tests/independent_access.test.mjs'
       - 'tests/streamnow_pages_accounts.test.mjs'
+      - 'tests/streamnow_account_favorites_incident.test.mjs'
       - '.github/workflows/streamnow-public-signup.yml'
   push:
     branches: [main]
@@ -36,7 +37,7 @@ jobs:
         run: |
           node --check cloudflare/independent-access.mjs
           node --check cloudflare/admin-console.mjs
-          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
+          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_incident.test.mjs
   deploy:
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -81,7 +82,7 @@ jobs:
           sed -i 's/database_name = "drivmatch-stream-users"/database_name = "drivmatch-stream-users-test"/' wrangler.independent.toml
           sed -i 's/name = "drivmatch-stream-independent"/name = "drivmatch-stream-v2-test"/' wrangler.independent.toml
           echo "Existing Worker/D1 binding verified, no new account database created." >> "$GITHUB_STEP_SUMMARY"
-      - name: Back up D1 before adding signup email quota
+      - name: Back up all account data including favorites before incident remediation
         shell: bash
         run: |
           set -euo pipefail
@@ -95,6 +96,7 @@ jobs:
           test -s /tmp/streamnow-users-pre-signup.sql
           grep -q 'stream_users' /tmp/streamnow-users-pre-signup.sql
           grep -q 'stream_email_budget' /tmp/streamnow-users-pre-signup.sql
+          grep -q 'stream_favorites' /tmp/streamnow-users-pre-signup.sql
           echo "Existing D1 database backup verified (private ephemeral runner)." >> "$GITHUB_STEP_SUMMARY"
       - name: Apply additive public signup migration to existing D1
         run: npx wrangler d1 migrations apply drivmatch-stream-users-test --remote --config wrangler.independent.toml
