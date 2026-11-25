@@ -1,0 +1,67 @@
+name: Stream Now P0 favorites integrity — independent account audits
+on:
+  schedule:
+    - cron: '5 5 * * *'   # 02:05 Sao Paulo
+    - cron: '5 7 * * *'   # 04:05 Sao Paulo
+    - cron: '5 9 * * *'   # 06:05 Sao Paulo
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: streamnow-favorites-account-audit
+  cancel-in-progress: false
+jobs:
+  favorites-integrity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    environment: stream-independent-test
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.STREAM_INDEPENDENT_CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.STREAM_INDEPENDENT_CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static and synthetic non-deletion safety audit
+        run: |
+          node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_incident.test.mjs
+          python3 -m unittest discover -s tests -p 'test_streamnow_favorites_db_lock.py' -v
+      - name: Prepare authenticated read-only D1 audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${#CLOUDFLARE_ACCOUNT_ID}" -eq 32
+          test "${#CLOUDFLARE_API_TOKEN}" -gt 20
+          curl -fsS --max-time 20 "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?per_page=100" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /tmp/stream-d1-list.json
+          jq -e '.success == true' /tmp/stream-d1-list.json >/dev/null
+          db_id="$(jq -r '.result[] | select(.name=="drivmatch-stream-users-test") | .uuid' /tmp/stream-d1-list.json | head -1)"
+          echo "$db_id" | grep -Eq '^[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$'
+          cp wrangler.independent.toml.example wrangler.independent.toml
+          sed -i "s/REPLACE_WITH_YOUR_PRIVATE_D1_DATABASE_UUID/$db_id/g" wrangler.independent.toml
+          sed -i 's/database_name = "drivmatch-stream-users"/database_name = "drivmatch-stream-users-test"/' wrangler.independent.toml
+          npm install --no-save --no-audit --no-fund wrangler@4
+      - name: Auditor database A — compare live, durable archive and missing pairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute drivmatch-stream-users-test --remote --config wrangler.independent.toml --json \
+            --command 'SELECT (SELECT COUNT(*) FROM stream_favorites) AS live, (SELECT COUNT(*) FROM stream_favorites_archive) AS archived, (SELECT COUNT(*) FROM stream_favorites f LEFT JOIN stream_favorites_archive a ON f.user_id=a.user_id AND f.favorite_key=a.favorite_key WHERE a.user_id IS NULL) AS missing_archive, (SELECT COUNT(*) FROM stream_favorites_archive a LEFT JOIN stream_favorites f ON a.user_id=f.user_id AND a.favorite_key=f.favorite_key WHERE f.user_id IS NULL) AS missing_live;' > /tmp/stream-favorites-audit.json
+          jq -e '.[0].success == true' /tmp/stream-favorites-audit.json >/dev/null
+          jq -e '.[0].results[0].missing_archive == 0 and .[0].results[0].missing_live == 0 and .[0].results[0].live == .[0].results[0].archived' /tmp/stream-favorites-audit.json >/dev/null || {
+            echo "::error::P0 FAVORITES DATA DRIFT: live count differs from permanent archive."
+            exit 1
+          }
+          echo "P0 account favorites live/archive counts matched, zero lost or extra entries." >> "$GITHUB_STEP_SUMMARY"
+      - name: Auditor database B — detect direct UPDATE/DELETE trigger removal
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute drivmatch-stream-users-test --remote --config wrangler.independent.toml --json \
+            --command "SELECT name FROM sqlite_master WHERE type='trigger' AND name IN ('stream_favorites_emergency_no_delete','stream_favorites_emergency_no_update','stream_favorites_immutable_insert_archive') ORDER BY name;" > /tmp/stream-favorites-triggers.json
+          jq -e '.[0].success == true and ([.[0].results[].name] | length)==3' /tmp/stream-favorites-triggers.json >/dev/null || {
+            echo "::error::P0 FAVORITES INTEGRITY: immutable database triggers missing."
+            exit 1
+          }
+          echo "P0 favorites append-only archive and deletion freeze triggers verified." >> "$GITHUB_STEP_SUMMARY"
