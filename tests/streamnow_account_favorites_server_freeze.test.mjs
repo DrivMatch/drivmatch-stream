@@ -14,5 +14,6 @@ test("P0 archival migration is additive and blocks direct D1 modifications",()=>
   assert.match(sql,/SELECT user_id,favorite_key,'baseline-before-freeze'/);
   assert.match(sql,/BEFORE DELETE ON stream_favorites/);
   assert.match(sql,/BEFORE UPDATE ON stream_favorites/);
-  assert.doesNotMatch(sql,/DROP TABLE|TRUNCATE|DELETE FROM stream_favorites/i);
+  const commands=sql.split("\n").filter(line=>!line.trim().startsWith("--")).join("\n");
+  assert.doesNotMatch(commands,/DROP TABLE|TRUNCATE|DELETE FROM stream_favorites/i);
 });
