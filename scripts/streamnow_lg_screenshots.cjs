@@ -116,21 +116,19 @@ async function main(){
    await page.waitForTimeout(350);
    await page.screenshot({path:path.join(OUT,"01_StreamNow_TV_Guia.png")});
    console.log("CAPTURE 01: actual TV UI, BR catalog from fixture, video idle");
-   // Filter news is a real interaction in the code.
-   const news=page.locator('.filter-btn[data-category="news"]');
-   if(await news.count()){
-      await news.click();
-      await page.waitForTimeout(220);
-   }
-   await page.screenshot({path:path.join(OUT,"02_StreamNow_TV_Noticias.png")});
-   console.log("CAPTURE 02: actual TV UI, news category from fixture, video idle");
+   // Country navigation is a visible interaction; category filters may be hidden
+   // until the official directory has loaded, so do not fabricate UI visibility.
+   await page.locator('.tree-country-btn[data-country="PT"]').click();
+   await page.waitForTimeout(450);
+   await page.screenshot({path:path.join(OUT,"02_StreamNow_TV_Portugal.png")});
+   console.log("CAPTURE 02: actual TV UI, Portugal country from fixture, video idle");
    const input=page.locator("#search");
    await input.fill("CNN");
    await page.waitForTimeout(1250);
    await page.screenshot({path:path.join(OUT,"03_StreamNow_TV_Busca_Global.png")});
    console.log("CAPTURE 03: actual TV UI, global search from fixture, video idle");
    if(errors.length)console.log("Non-fatal browser console page-errors:",errors.slice(0,6));
-   const sizes=["01_StreamNow_TV_Guia.png","02_StreamNow_TV_Noticias.png","03_StreamNow_TV_Busca_Global.png"].map(x=>({name:x,bytes:fs.statSync(path.join(OUT,x)).size}));
+   const sizes=["01_StreamNow_TV_Guia.png","02_StreamNow_TV_Portugal.png","03_StreamNow_TV_Busca_Global.png"].map(x=>({name:x,bytes:fs.statSync(path.join(OUT,x)).size}));
    if(sizes.some(x=>x.bytes>5_000_000))throw Error("One screenshot exceeds LG 5 MB cap");
    fs.writeFileSync(path.join(OUT,"LEIA_ANTES.txt"),
       "Capturas PNG 1920x1080 da interface REAL do Stream Now renderizada por Chromium, com catálogo sintético de testes e reprodução não executada.\nNão são provas de funcionamento em TV LG física nem de canais ao vivo; obtenha capturas de um aparelho autenticado para a submissão final da LG.\n");
