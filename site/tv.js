@@ -938,7 +938,9 @@ function loadOfficialDirectory(){
   }
   var id="lista-2:"+country;
   if(cache[id])channels=cache[id];
-  renderChannels();drawCountries();drawPaidProviders();drawQuickLists();
+  if(country==="ALL"&&!globalSearchMode)drawOfficialHome();
+  else renderChannels();
+  drawCountries();drawPaidProviders();drawQuickLists();
  });
 }
 /* Providers are official external destinations, not playable channels.
@@ -1159,16 +1161,56 @@ function closeAllGenres(){
 }
 /* Countries start closed, including Brazil; the guide only shows channels
  * after a country is intentionally opened. The video remains untouched. */
+/* On the landing screen expose real selectable publisher sources, not
+ * research-only leads. A YouTube channel may have no embeddable live now. */
+function drawOfficialHome(){
+ var area=D("channel-items");if(!area)return;
+ clear(area);
+ var priority=["br-cazetv","br-getv","br-cnn-brasil-live",
+   "br-times-brasil-cnbc-live","us-bloomberg-tv-live",
+   "br-goat","br-xsports","br-sbtnews-youtube",
+   "world-dw-news-youtube","world-aljazeera-english-youtube",
+   "world-athletics-youtube","olympics-youtube-official"];
+ var entries=[],i,j,x;
+ for(i=0;i<priority.length;i++){
+  for(j=0;j<officialFree.length;j++){
+   x=officialFree[j];
+   if(x.id===priority[i]&&validOfficialUrl(x.url)){entries.push(x);break;}
+  }
+ }
+ T(D("catalog-title"),"Canais oficiais para assistir");
+ T(D("catalog-subtitle"),"Escolha um canal. Lives do YouTube só reproduzem se estiverem ativas e permitirem incorporação; outras fontes abrem no site oficial.");
+ T(D("result-count"),entries.length+" fontes oficiais");
+ T(D("catalog-status"),entries.length?
+   "Selecione um canal. O sinal pode estar fora do ar ou indisponível em sua região.":
+   "Carregando canais oficiais…");
+ visibleEl(D("show-more"),false);
+ for(i=0;i<entries.length;i++){(function(entry){
+  var c={id:"official:"+entry.id,source:"official",name:entry.name,
+   code:entry.code,genre:entry.genre||"other",group:"Emissora oficial",
+   origins:["Fonte oficial"],premium:false,urls:[],lang:entry.lang||"",
+   officialUrl:entry.url,officialAccess:entry.access,
+   officialNotes:entry.notes,embed:entry.embed||null};
+  var row=E("div","channel-row");
+  var btn=E("button","channel-btn");btn.type="button";
+  btn.appendChild(E("strong","channel-title",c.name));
+  btn.appendChild(E("span","channel-classification",
+   entry.embed?"YouTube oficial · live conforme programação":"Site oficial · assistir na emissora"));
+  on(btn,"click",function(){play(c);});
+  row.appendChild(btn);
+  var starred=has(favorites,favorKey(c));
+  var star=E("button","fav-btn"+(starred?" marked":""),starred?"★":"☆");
+  star.type="button";star.setAttribute("aria-label","Favoritar "+c.name);
+  on(star,"click",function(){toggleFavorite(c);drawOfficialHome();});
+  row.appendChild(star);area.appendChild(row);
+ }(entries[i]));}
+}
 function showCountryPrompt(){
  cancelGlobalSearch();
  country="ALL";category="all";search="";limit=60;
  D("search").value="";
  channels=[];visible=[];
- T(D("catalog-title"),"Escolha um país");
- T(D("catalog-subtitle"),"Clique em um país à esquerda para abrir os canais.");
- T(D("result-count"),"Aguardando seleção");
- T(D("catalog-status"),"Abra um país para visualizar o guia de canais.");
- clear(D("channel-items"));visibleEl(D("show-more"),false);
+ drawOfficialHome();
 }
 function chooseCountry(code){
  if(openCountries[code]){
