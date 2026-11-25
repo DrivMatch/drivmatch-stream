@@ -25,10 +25,14 @@ function read(key){
   // Empty main list while snapshots contain favorites is suspected data loss.
   // Never normalize that situation to a brand-new empty user list.
   if(!parsed.length && (foundation!==null||previous!==null)){
-   var backup=previous||foundation;
-   try{if(valid(JSON.parse(backup))&&JSON.parse(backup).length)
-     return {ok:false,list:[],reason:"empty-main-with-nonempty-backup"};}catch(e){
-     return {ok:false,list:[],reason:"backup-unreadable"};
+   var candidates=[previous,foundation];
+   for(var k=0;k<candidates.length;k++){
+    if(candidates[k]===null)continue;
+    try{
+     var prior=JSON.parse(candidates[k]);
+     if(!valid(prior))return {ok:false,list:[],reason:"backup-unreadable"};
+     if(prior.length)return {ok:false,list:[],reason:"empty-main-with-nonempty-backup"};
+    }catch(e){return {ok:false,list:[],reason:"backup-unreadable"};}
    }
   }
   if(parsed.length){
@@ -55,8 +59,15 @@ function commit(key,before,after){
    var stored=JSON.parse(raw);
    if(!valid(stored)||JSON.stringify(stored)!==JSON.stringify(before))return false;
    if(!stored.length){
-    var backup=root.localStorage.getItem(key+"-previous")||root.localStorage.getItem(key+"-foundation");
-    if(backup){try{if(JSON.parse(backup).length)return false;}catch(e){return false;}}
+    var backupCandidates=[root.localStorage.getItem(key+"-previous"),
+                          root.localStorage.getItem(key+"-foundation")];
+    for(var b=0;b<backupCandidates.length;b++){
+     if(backupCandidates[b]===null)continue;
+     try{
+      var saved=JSON.parse(backupCandidates[b]);
+      if(!valid(saved)||saved.length)return false;
+     }catch(e){return false;}
+    }
    }
    var removed=0;
    for(var i=0;i<stored.length;i++)if(after.indexOf(stored[i])<0)removed++;
