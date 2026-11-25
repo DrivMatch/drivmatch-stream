@@ -131,6 +131,9 @@ function formFor(path,uid,token,title,variant,confirm,status) {
   return "<form method='post' action='/stream/admin/"+path+"'"+confirmation+">"+
     hidden+"<button type='submit' class='btn "+esc(variant)+"'>"+esc(title)+"</button></form>";
 }
+function noticeState(state){
+  return ({"not_requested":"Não solicitado",accepted:"Aceito pelo provedor (entrega não comprovada)",failed:"Falhou",uncertain:"Resultado incerto",quota:"Limite diário atingido",unconfigured:"Serviço não configurado"})[state]||"Não registrado";
+}
 function detailsFor(u,actorId,token,index,asOfEpoch) {
   const own=u.user_id===actorId;
   const [label,cls]=state(u);
@@ -168,6 +171,7 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
     "<span class='chip chip-"+cls+"'>"+esc(label)+"</span></div>"+
     "<dl class='data-list'>"+
     row("Perfil",own?"Administrador (sua conta)":u.role==="admin"?"Administrador":"Usuário")+
+    (u.role==="viewer"?row("Aviso de novo cadastro",noticeState(u.signup_notice_state))+row("Aviso da decisão",noticeState(u.decision_notice_state)):"")+
     row("Criado/convidado em",fmt(u.created_at))+
     row("Senha ativada em",fmt(u.activated_at))+
     row("Primeiro login",fmt(u.first_login_at))+
@@ -210,7 +214,7 @@ const ERRORS={
   failure:"O convite não foi enviado. A causa não foi confirmada. Você pode gerar um link privado enquanto verificamos o e-mail.",
   "daily-quota":"Limite diário atingido: 20 solicitações de e-mail no Stream Now. Novos envios ficam disponíveis na próxima data de São Paulo. Os acessos existentes continuam funcionando."
 };
-export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail="",emailQuotaUsed=0,emailQuotaLimit=20,asOfEpoch=Math.floor(Date.now()/1000)}){
+export function renderAccessConsole({users=[],actorId="",token="",events=[],notice="",error="",manualLink="",manualEmail="",emailQuotaUsed=0,emailQuotaLimit=20,notificationConfigured=false,asOfEpoch=Math.floor(Date.now()/1000)}){
   const totals={active:0,invited:0,suspended:0};
   const rows=[],dialogs=[];
   for(let i=0;i<users.length;i++){
@@ -282,7 +286,7 @@ export function renderAccessConsole({users=[],actorId="",token="",events=[],noti
     "<a class='toplink' href='/stream/'>Voltar à TV</a></div></header>"+
     "<main><div class='eyebrow'>Área restrita · Administrador</div><h1>Central de Controle</h1>"+
     "<p class='sub'>Gerencie convites, contas, segurança e acesso individual ao Stream.</p>"+
-    alert+failure+"<section class='metrics' aria-label='Resumo de acessos'>"+summary+"</section>"+
+    alert+failure+(notificationConfigured?"":"<p role='alert'>Avisos de cadastro e decisão por e-mail ainda não configurados. Consulte as pendências diretamente neste painel.</p>")+"<section class='metrics' aria-label='Resumo de acessos'>"+summary+"</section>"+
     "<section class='panel'><h2>Convidar usuário</h2>" +
     "<p class='hint'><strong>E-mails solicitados hoje: "+esc(emailQuotaUsed)+" de "+esc(emailQuotaLimit)+"</strong> " +
     "· Cota compartilhada por convites, reenvios e recuperação de senha. " +
