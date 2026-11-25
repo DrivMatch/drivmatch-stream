@@ -57,19 +57,39 @@
     return result.ok?result.list:[];
   }
   function contains(a,s) {for(var i=0;i<a.length;i++)if(a[i]===s)return true;return false;}
-  function toggleFav(c) {
-    if(!c||!favoritesSafe)return;
-    var k=key(c),i=favorites.indexOf(k),next=favorites.slice(0);
-    if(i>=0)next.splice(i,1);else next.push(k);
-    if(!window.StreamNowFavoritesSafety.commit(favStore,favorites,next)){
-      favoritesSafe=false;
-      status("Favoritos preservados. Atualização bloqueada para evitar perda de dados.");
-      return;
+  var accountFavorites=null;
+  function tvAccountStatus(message){status(message);}
+  function tvAccountImport(keys,ready){
+    var b=byId("account-favorites-import");
+    if(!b){
+      b=make("button","account-favorites-import");
+      b.id="account-favorites-import";b.type="button";
+      b.style.margin="8px";
+      var parent=byId("catalog-status");
+      if(parent&&parent.parentNode)parent.parentNode.insertBefore(b,parent.nextSibling);
+      on(b,"click",function(){
+        if(accountFavorites&&rootConfirm("Vincular seus favoritos antigos a esta conta? Não apagar os existentes."))
+          accountFavorites.importLocal(true);
+      });
     }
-    favorites=next;updateNowFav();render();
+    b.hidden=!ready||!keys.length;
+    text(b,"Vincular "+keys.length+" favoritos locais à minha conta");
+  }
+  function rootConfirm(message){return window.confirm?window.confirm(message):false;}
+  function toggleFav(c){
+    if(!c||!accountFavorites||!accountFavorites.ready()){
+      status("Conta de favoritos não confirmada. Nenhuma alteração foi feita.");return;
+    }
+    var k=key(c);
+    if(accountFavorites.contains(k)){
+      status("Exclusão bloqueada para proteger os favoritos de sua conta.");return;
+    }
+    accountFavorites.add(k,function(ok){
+      if(!ok)status("Erro ao salvar na conta. Favoritos anteriores preservados.");
+    });
   }
   function updateNowFav() {
-    var el=byId("player-favorite"),chosen=selected&&contains(favorites,key(selected));
+    var el=byId("player-favorite"),chosen=selected&&(accountFavorites?accountFavorites.contains(key(selected)):contains(favorites,key(selected)));
     if(!el)return;
     el.disabled=!selected;
     text(el,chosen?"★":"☆");
@@ -218,7 +238,7 @@
     for(var i=0;i<channels.length;i++){
       var c=channels[i];
       if(category!=="live" && c.genre!==category)continue;
-      if(favoritesOnly&&!contains(favorites,key(c)))continue;
+      if(favoritesOnly&&!(accountFavorites?accountFavorites.contains(key(c)):contains(favorites,key(c))))continue;
       if(search && c.name.toLowerCase().indexOf(search)===-1)continue;
       visible.push(c);
     }
@@ -238,7 +258,7 @@
           (c.premium?" · Acesso oficial necessário":" · Sinal não verificado"));
         pick.appendChild(title);pick.appendChild(meta);
         on(pick,"click",function (){playChannel(c);});
-        var favorite=contains(favorites,key(c));
+        var favorite=accountFavorites?accountFavorites.contains(key(c)):contains(favorites,key(c));
         var fav=make("button","fav"+(favorite?" marked":""),favorite?"★":"☆");
         fav.type="button";
         fav.setAttribute("aria-label",(favorite?"Remover favorito ":"Favoritar ")+c.name);
@@ -290,6 +310,15 @@
       }
       show(byId("gate"),false);show(byId("tv"),true);
       favorites=readFavorites();
+      if(window.StreamNowAccountFavorites){
+       accountFavorites=window.StreamNowAccountFavorites.create({
+        store:favStore,onStatus:tvAccountStatus,onPending:tvAccountImport,
+        onChange:function(keys,ready){if(ready)favorites=keys;updateNowFav();render();}
+       });
+       var user="";
+       try{user=JSON.parse(body).user_id||"";}catch(e){}
+       accountFavorites.init(user);
+      }else status("Sincronização da conta indisponível. Alterações bloqueadas.");
       appendCountrySelector();
       bindFilters();
       updateNowFav();
