@@ -11,6 +11,8 @@ ALLOWED = {
     "site/daily-autopilot-report.json",
     "data/global-discovery-state.json",
     "data/global-discovery-report.json",
+    "data/youtube-live-report.json",
+    "data/youtube-live-research.json",
 }
 FORBIDDEN = ("localStorage.clear(", "localStorage.removeItem(", "drivmatch-tv-guide-favorites-v1",
              "drivmatch-stream-favorites-v1", "drivmatch-iptv-library-fav-v1")
@@ -22,7 +24,7 @@ def validate_paths(paths):
     return True
 
 def validate_scripts():
-    for p in ("scripts/daily_channel_autopilot.py", "scripts/global_channel_discovery.py"):
+    for p in ("scripts/daily_channel_autopilot.py", "scripts/global_channel_discovery.py", "scripts/youtube_live_discovery.py"):
         s = (ROOT / p).read_text(encoding="utf-8")
         for mark in FORBIDDEN:
             if mark in s:

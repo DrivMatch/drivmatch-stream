@@ -40,7 +40,7 @@ def runs_for_day(runs: list[dict], now: dt.datetime) -> list[dict]:
             good.append(run)
     return good
 
-def audit_a(runs: list[dict], report: dict, now: dt.datetime) -> list[str]:
+def audit_a(runs: list[dict], report: dict, now: dt.datetime, youtube: dict | None = None) -> list[str]:
     """Auditor A: schedule delivery and daily catalog integrity."""
     problems = []
     today = runs_for_day(runs, now)
@@ -52,10 +52,17 @@ def audit_a(runs: list[dict], report: dict, now: dt.datetime) -> list[str]:
         problems.append("catalog-scanner-incomplete")
     if report.get("sources_responded", 0) <= 0 or report.get("published_healthy", 0) <= 0:
         problems.append("catalog-has-no-validated-healthy-channels")
+    if youtube is not None:
+        if youtube.get("run_utc","")[:10] != local_day(now):
+            problems.append("youtube-research-report-stale")
+        elif youtube.get("mode") != "RESEARCH_ONLY_NO_YOUTUBE_AUTO_PUBLICATION":
+            problems.append("youtube-research-mode-unsafe")
+        elif youtube.get("auto_published") != 0:
+            problems.append("youtube-unreviewed-channels-published")
     return problems
 
 def audit_b(runs: list[dict], report: dict, research: dict, playlist: str,
-            now: dt.datetime) -> list[str]:
+            now: dt.datetime, youtube: dict | None = None) -> list[str]:
     """Auditor B: independent source, output and research audit, not A's verdict."""
     problems = []
     today = runs_for_day(runs, now)
@@ -74,6 +81,13 @@ def audit_b(runs: list[dict], report: dict, research: dict, playlist: str,
         problems.append("worldwide-research-report-stale")
     if research.get("countries_scanned", 0) <= 0 or not research.get("multilingual_searches"):
         problems.append("multilingual-world-research-not-performed")
+    if youtube is not None:
+        if youtube.get("run_utc","")[:10] != local_day(now):
+            problems.append("youtube-research-report-stale")
+        elif youtube.get("auto_published") != 0:
+            problems.append("youtube-unreviewed-channels-published")
+        elif youtube.get("mode") != "RESEARCH_ONLY_NO_YOUTUBE_AUTO_PUBLICATION":
+            problems.append("youtube-research-mode-unsafe")
     return problems
 
 def github_api(url: str, token: str, *, method: str = "GET", data: dict | None = None):
@@ -104,12 +118,13 @@ def execute(mode: str, *, now: dt.datetime | None = None) -> dict:
     try:
         runs = github_api(api + "/actions/workflows/" + WORKFLOW + "/runs?per_page=100", token)["workflow_runs"]
         report = json.loads(repository_file(repo, token, "site/daily-autopilot-report.json"))
+        youtube = json.loads(repository_file(repo, token, "data/youtube-live-report.json"))
         if mode == "04":
-            errors = audit_a(runs, report, now)
+            errors = audit_a(runs, report, now, youtube)
         else:
             research = json.loads(repository_file(repo, token, "data/global-discovery-report.json"))
             playlist = repository_file(repo, token, "site/daily-autopilot.m3u8").decode("utf-8", "replace")
-            errors = audit_b(runs, report, research, playlist, now)
+            errors = audit_b(runs, report, research, playlist, now, youtube)
     except (OSError, KeyError, ValueError, TypeError, urllib.error.URLError) as e:
         errors = ["audit-input-unavailable:" + type(e).__name__]
         runs = []
@@ -134,7 +149,8 @@ def execute(mode: str, *, now: dt.datetime | None = None) -> dict:
             "date_local": local_day(now), "problems": errors, "action": action,
             "dispatch_confirmed": dispatched,
             "favorites_policy": "NO_LOCALSTORAGE_WRITES_OR_DELETION",
-            "worldwide_research_policy": "ALL_REGIONS_ALL_LANGUAGES_ROTATION"}
+            "worldwide_research_policy": "ALL_REGIONS_ALL_LANGUAGES_ALL_CATEGORIES_ROTATION",
+            "youtube_live_policy": "API_VERIFIED_RESEARCH_ONLY_NO_UNREVIEWED_PUBLICATION"}
 
 def main():
     ap = argparse.ArgumentParser()

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "run_utc": null,
+  "searches_attempted": 0,
+  "queries": [],
+  "candidates_total": 0,
+  "api_eligible_curated_lives": [],
+  "auto_published": 0,
+  "errors": [
+    "NOT_YET_EXECUTED"
+  ],
+  "mode": "RESEARCH_ONLY_NO_YOUTUBE_AUTO_PUBLICATION"
+}

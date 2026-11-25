@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "status": "CURATED_IDENTITY_REFERENCE_NOT_LIVE_OR_RIGHTS_CERTIFICATION",
+  "notes": "Identity only. YouTube source does not prove ongoing live, event rights, paid access, geo availability, playable Samsung embedding or a commercial license. No automatic publication.",
+  "channels": [
+    {
+      "id": "br-cazetv",
+      "name": "CazéTV — canal oficial",
+      "code": "BR",
+      "genre": "sports",
+      "url": "https://www.youtube.com/@CazeTV",
+      "channelId": "UCZiYbVptd3PVPf4f6eR6UaQ",
+      "identityEvidence": "https://www.youtube.com/channel/UCZiYbVptd3PVPf4f6eR6UaQ"
+    },
+    {
+      "id": "us-bloomberg-tv",
+      "name": "Bloomberg Television — canal oficial",
+      "code": "US",
+      "genre": "news",
+      "url": "https://www.youtube.com/@markets",
+      "channelId": "UCIALMKvObZNtJ6AmdCLP7Lg",
+      "identityEvidence": "https://www.youtube.com/channel/UCIALMKvObZNtJ6AmdCLP7Lg"
+    },
+    {
+      "id": "br-cnn",
+      "name": "CNN Brasil — canal oficial",
+      "code": "BR",
+      "genre": "news",
+      "url": "https://www.youtube.com/@CNNbrasil",
+      "channelId": "UCvdwhh_fDyWccR42-rReZLw",
+      "identityEvidence": "https://www.youtube.com/channel/UCvdwhh_fDyWccR42-rReZLw"
+    }
+  ]
+}

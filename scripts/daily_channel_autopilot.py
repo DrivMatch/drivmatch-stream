@@ -351,18 +351,21 @@ def priority(item: dict) -> tuple:
     return (p, g)
 
 def geographically_balanced(items: list[dict], limit: int) -> list[dict]:
-    """Avoid a few high-volume countries consuming every media probe slot."""
+    """Balance verification by BOTH country and category; never privilege news/sports.
+
+    All unknown genres keep a separate OTHER bucket, not a silent discard.
+    The original function name is retained for caller/API compatibility.
+    """
     groups = {}
     for row in items:
-        groups.setdefault(row.get("country") or "OTHER", deque()).append(row)
+        key=(row.get("country") or "OTHER", row.get("genre") or "other")
+        groups.setdefault(key, deque()).append(row)
     result = []
     while groups and len(result) < limit:
-        for code in sorted(list(groups)):
-            if len(result) >= limit:
-                break
-            result.append(groups[code].popleft())
-            if not groups[code]:
-                del groups[code]
+        for key in sorted(list(groups)):
+            if len(result) >= limit: break
+            result.append(groups[key].popleft())
+            if not groups[key]: del groups[key]
     return result
 
 def select_for_check(candidates: dict, previous: dict, now: dt.datetime) -> list[dict]:
