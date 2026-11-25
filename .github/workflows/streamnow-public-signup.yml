@@ -36,7 +36,7 @@ jobs:
         run: |
           node --check cloudflare/independent-access.mjs
           node --check cloudflare/admin-console.mjs
-          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs
+          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
   deploy:
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

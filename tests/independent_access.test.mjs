@@ -1056,3 +1056,14 @@ test("disabled signups are reported rather than misclassified as SMTP",async()=>
     assert.equal(accounts.size,2);
   });
 });
+
+
+test("only public canonical logo permits embedding by email clients",async()=>{
+ const env={ASSETS:{async fetch(){return new Response("public image");}}};
+ for(const [path,policy] of [["/stream/brand.webp","cross-origin"],["/stream/icon.webp","same-origin"]]){
+  const response=await worker.fetch(new Request(base+path),env);
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get("Cross-Origin-Resource-Policy"),policy);
+  assert.equal(response.headers.get("Content-Type"),"image/webp");
+ }
+});

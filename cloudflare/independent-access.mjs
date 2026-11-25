@@ -595,7 +595,7 @@ async function handle(request, env) {
     if (!result.ok) return plain(502,"Arquivo indisponível.");
     return new Response(method==="HEAD"?null:result.body,{headers:{
       "Content-Type":type,"X-Content-Type-Options":"nosniff",
-      "Cache-Control":"public, max-age=86400","Cross-Origin-Resource-Policy":"same-origin"
+      "Cache-Control":"public, max-age=86400","Cross-Origin-Resource-Policy":path==="/stream/brand.webp"?"cross-origin":"same-origin"
     }});
   }
   if (!configured(env)) return plain(503, "Stream independente ainda não configurado.");
