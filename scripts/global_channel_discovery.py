@@ -48,6 +48,20 @@ LANGUAGE_QUERIES = (
     ("de", "freie Fernsehsender IPTV m3u"),
     ("pt", "canais de televisão abertos IPTV m3u"),
     ("en", "official free live television playlist m3u"),
+    ("it", "canali televisivi gratuiti in diretta notizie sport"),
+    ("hi", "लाइव समाचार खेल टेलीविजन चैनल मुफ्त"),
+    ("ko", "무료 생방송 뉴스 스포츠 방송"),
+    ("tr", "ücretsiz canlı televizyon haber spor"),
+    ("th", "ทีวีถ่ายทอดสด ข่าว กีฬา ฟรี"),
+    ("vi", "truyền hình trực tiếp miễn phí tin tức thể thao"),
+    ("sw", "runinga moja kwa moja habari michezo bure"),
+    ("fa", "تلویزیون زنده رایگان اخبار ورزش"),
+    ("bn", "সরাসরি সংবাদ খেলা টেলিভিশন বিনামূল্যে"),
+    ("he", "חדשות ספורט טלוויזיה בשידור חי חינם"),
+    ("nl", "gratis live televisie nieuws sport"),
+    ("el", "δωρεάν ζωντανή τηλεόραση ειδήσεις αθλητικά"),
+    ("ro", "canale TV gratuite live știri sport"),
+    ("ur", "مفت لائیو ٹی وی خبریں کھیل"),
 )
 COUNTRY_NAMES_PT = {
     "BR": "Brasil", "US": "Estados Unidos", "PT": "Portugal",
@@ -208,18 +222,24 @@ def write_json(path: Path, value) -> None:
                     encoding="utf-8")
 
 def research_queries(day: int) -> list[tuple[str, str]]:
-    languages = [LANGUAGE_QUERIES[(day * 3 + i) % len(LANGUAGE_QUERIES)]
-                 for i in range(3)]
+    languages = [LANGUAGE_QUERIES[(day * 5 + i) % len(LANGUAGE_QUERIES)]
+                 for i in range(5)]
     targets = []
     for code, query in languages:
         url = "https://api.github.com/search/repositories?q=" + urllib.parse.quote(query) + "&sort=updated&per_page=10"
         targets.append(("github:" + code, url))
+    # Separate global live-news and sports research. Sources remain candidates
+    # until rights, official provenance and embeddability are checked.
+    for subject, suffix in (("news", "official live news television"), ("sports", "official live sports broadcaster")):
+        q = languages[0][1] + " " + suffix
+        targets.append(("github:" + subject, "https://api.github.com/search/repositories?q=" +
+                        urllib.parse.quote(q) + "&sort=updated&per_page=10"))
     targets.append(("gitlab", "https://gitlab.com/api/v4/projects?search=iptv&per_page=12"))
     targets.append(("codeberg", "https://codeberg.org/api/v1/repos/search?q=iptv&limit=10"))
     targets.append(("gitee", "https://gitee.com/api/v5/search/repositories?q=iptv&per_page=10"))
     local_query = languages[0][1]
     targets.append(("youtube", "https://www.youtube.com/results?search_query=" +
-                    urllib.parse.quote(local_query + " televisão ao vivo")))
+                    urllib.parse.quote(local_query + " official live news sports")))
     targets.append(("twitch", "https://www.twitch.tv/search?term=" +
                     urllib.parse.quote(local_query + " live television")))
     return targets
