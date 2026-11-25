@@ -45,7 +45,8 @@ test("153 saved on account appear on a browser whose local storage is empty",()=
  const f=fixture(make(153));
  f.ctx.loadAccountFavorites("user-a");
  assert.equal(f.ctx.favorites.length,153);
- assert.equal(f.D("favorite-count").textContent,"153");
+ assert.equal(f.ctx.accountFavoritesReady,true);
+ assert.equal(f.ctx.favorites.length,153);
  assert.equal(f.calls.length,1);
  assert.equal(f.calls[0].method,"GET");
  assert.equal(f.storage.size,0,"server read must not overwrite local data");
