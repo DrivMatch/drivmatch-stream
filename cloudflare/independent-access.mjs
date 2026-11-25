@@ -283,9 +283,9 @@ async function signupPage(env,error="") {
     "<p><a href='/stream/login'>Já tenho conta</a></p>",
     error?400:200),token);
 }
-function signupReceipt() {
+function signupReceipt(emailPending=false) {
   return page("Cadastro solicitado",
-    "<p>Se o cadastro puder ser realizado, confira seu e-mail para confirmar o endereço.</p>"+
+    (emailPending?"<p>Solicitação registrada. O envio da confirmação está indisponível. Seu acesso permanece bloqueado até confirmar o endereço e receber aprovação.</p>":"<p>Se o cadastro puder ser realizado, confira seu e-mail para confirmar o endereço.</p>")+
     "<p>Após confirmar o e-mail, sua solicitação ficará aguardando a decisão do administrador. Você só poderá entrar depois da aprovação.</p>"+
     "<p><a href='/stream/login'>Entrar</a></p>"+
     "<p><a href='/stream/recover'>Recuperar acesso</a></p>");
@@ -302,7 +302,7 @@ function setupPage(url) {
   const script = "const f=document.getElementById('setup'),m=document.getElementById('message');" +
     "const p=new URLSearchParams(location.hash.slice(1));const token=p.get('access_token');" +
     "history.replaceState(null,'',location.pathname);" +
-    "if(p.get('type')==='signup'&&token){f.hidden=true;m.textContent='E-mail confirmado. Agora entre com o e-mail e a senha criada.';" +
+    "if(p.get('type')==='signup'&&token){f.hidden=true;m.textContent='E-mail confirmado. Se o administrador já aprovou seu cadastro, entre com seu e-mail e senha.';" +
     "const a=document.createElement('a');a.href='https://"+OFFICIAL_PAGES_HOST+"/stream/login';a.textContent='Entrar no Stream Now';m.append(' ',a);}" +
     "else if(!token){f.hidden=true;m.textContent='Link inválido ou expirado. Solicite um novo convite ou recuperação.';}" +
     "f.addEventListener('submit',async e=>{e.preventDefault();m.textContent='Verificando...';" +
@@ -347,6 +347,45 @@ function invitationError(result){
   if(code.includes("already_registered")||code.includes("user_already_exists")||
      msg.includes("already registered")||msg.includes("already exists"))return "existing";
   return "provider";
+}
+// Independent transactional transport; never grants access or includes credentials.
+function noticeConfigured(env){
+  return typeof env.STREAM_NOTIFICATION_BREVO_KEY==="string" &&
+    env.STREAM_NOTIFICATION_BREVO_KEY.length>10 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.STREAM_NOTIFICATION_FROM||"") &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.STREAM_NOTIFICATION_ADMIN_TO||"");
+}
+async function sendNotice(env,kind,to,subject,message){
+  if(!noticeConfigured(env))return "unconfigured";
+  try{
+    const sent=await sendWithEmailQuota(env,kind,async()=>{
+      const res=await fetch("https://api.brevo.com/v3/smtp/email",{
+        method:"POST",redirect:"error",headers:{"api-key":env.STREAM_NOTIFICATION_BREVO_KEY,
+          "Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({sender:{name:"Stream Now",email:env.STREAM_NOTIFICATION_FROM},
+          to:[{email:to}],subject,textContent:message})
+      });
+      return {ok:res.ok,status:res.status};
+    });
+    return sent.ok?"accepted":sent.quota?"quota":sent.uncertain?"uncertain":"failed";
+  }catch{return "failed";}
+}
+async function notifySignup(env,identity){
+  const state=await sendNotice(env,"signup-notice",env.STREAM_NOTIFICATION_ADMIN_TO,
+    "Stream Now: novo cadastro para aprovação",
+    "Uma nova solicitação está aguardando decisão. Acesse https://"+OFFICIAL_PAGES_HOST+"/stream/admin");
+  try{await env.STREAM_USERS_DB.prepare(
+    "UPDATE stream_users SET signup_notice_state=? WHERE user_id=?"
+  ).bind(state,identity).run();}catch{console.error("streamnow_signup_notice_state_write_failed");}
+}
+async function notifyDecision(env,identity,email,decision){
+  const state=await sendNotice(env,"decision-notice",email,
+    decision==="approved"?"Stream Now: cadastro aprovado":"Stream Now: cadastro não aprovado",
+    decision==="approved"?"Sua solicitação foi aprovada. Confirme seu endereço de e-mail antes de entrar: https://"+OFFICIAL_PAGES_HOST+"/stream/login":
+      "Sua solicitação não foi aprovada. Seu acesso permanece bloqueado.");
+  try{await env.STREAM_USERS_DB.prepare(
+    "UPDATE stream_users SET decision_notice_state=? WHERE user_id=?"
+  ).bind(state,identity).run();}catch{console.error("streamnow_decision_notice_state_write_failed");}
 }
 function authUserFromResponse(result){
   return result?.data?.user?.id || result?.data?.id || null;
@@ -471,7 +510,7 @@ async function adminPage(user,env,url,extra={}) {
   const [members,activity,sessionCounts]=await Promise.all([
     env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status,created_at,activated_at,first_login_at," +
-      "last_login_at,canceled_invite_at,approval_state FROM stream_users ORDER BY created_at DESC LIMIT 150"
+      "last_login_at,canceled_invite_at,approval_state,signup_notice_state,decision_notice_state FROM stream_users ORDER BY CASE WHEN approval_state='pending' THEN 0 ELSE 1 END, created_at DESC LIMIT 150"
     ).all(),
     env.STREAM_USERS_DB.prepare(
       "SELECT e.action,e.created_at,t.email AS subject_email,a.email AS admin_email " +
@@ -493,7 +532,7 @@ async function adminPage(user,env,url,extra={}) {
     users,actorId:user.user_id,token,events:activity.results||[],
     notice:url.searchParams.get("result")||"",
     error:extra.error||"",manualLink:extra.manualLink||"",manualEmail:extra.manualEmail||"",
-    emailQuotaUsed:budgetUsed,emailQuotaLimit:DAILY_EMAIL_LIMIT
+    emailQuotaUsed:budgetUsed,emailQuotaLimit:DAILY_EMAIL_LIMIT,notificationConfigured:noticeConfigured(env)
   });
   return stampForm(new Response(html,{status:200,headers:{
     ...HEADERS,"Content-Type":"text/html; charset=utf-8",
@@ -584,7 +623,12 @@ async function handle(request, env) {
     const account = await env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active' AND approval_state='approved'"
     ).bind(result.data.user.id,email).first();
-    if (!account) return await loginPage(true,env,requestedAdmin);
+    if (!account) {
+      const pending=await env.STREAM_USERS_DB.prepare("SELECT user_id,approval_state FROM stream_users WHERE user_id=? AND email=?").bind(result.data.user.id,email).first();
+      if(pending?.approval_state==="pending")return page("Cadastro aguardando aprovação","<p>Seu cadastro está registrado. Aguarde a decisão do administrador.</p><p><a href='/stream/login'>Voltar ao login</a></p>",401);
+      if(pending?.approval_state==="rejected")return page("Cadastro não aprovado","<p>O administrador não aprovou sua solicitação.</p><p><a href='/stream/login'>Voltar ao login</a></p>",401);
+      return await loginPage(true,env,requestedAdmin);
+    }
     const destination = requestedAdmin && requireAdmin(account) ? "/stream/admin" : "/stream/";
     return redirect(url.origin,destination,
       await createSession(account,env,requestedAdmin && requireAdmin(account)));
@@ -609,6 +653,8 @@ async function handle(request, env) {
     if(existing)return signupReceipt();
     const sent=await sendWithEmailQuota(env,"signup",()=>
       supabase(env,"POST","signup?redirect_to="+encodeURIComponent(activationURL(url)),{email,password}));
+    let record=sent.result?.data?.user;
+    let emailPending=false;
     if(!sent.ok){
       if(sent.quota)return page("Cadastros temporariamente limitados",
         "<p>O limite diário de confirmações de cadastro foi atingido. Tente novamente amanhã.</p>"+
@@ -617,20 +663,38 @@ async function handle(request, env) {
       if(kind==="limit")return page("Envio temporariamente limitado",
         "<p>O provedor atingiu seu limite de e-mails. Tente novamente mais tarde.</p>"+
         "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",429);
-      return page("Cadastro indisponível",
-        "<p>Não foi possível solicitar a confirmação agora. Tente novamente mais tarde.</p>"+
+      // Only a definitive sender rejection permits a no-email fallback.
+      // Never mark the address confirmed; Auth still gates login.
+      const code=String(sent.result?.data?.error_code||sent.result?.data?.code||"").toLowerCase();
+      if(kind==="smtp" && code!=="email_address_invalid" && sent.result){
+        try{
+          const created=await supabase(env,"POST","admin/users",{email,password,email_confirm:false},true);
+          if(created.ok){record=created.data?.user||created.data;emailPending=true;}
+        }catch{}
+      }
+      if(!emailPending)return page("Cadastro indisponível",
+        "<p>Não foi possível registrar a solicitação. "+(kind==="smtp"?"O serviço de confirmação de e-mail está indisponível.":"O serviço de autenticação não respondeu corretamente.")+"</p>"+
+        "<p>Código: "+(kind==="smtp"?"CAD-EMAIL":kind==="permissions"?"CAD-AUTH":"CAD-PROVIDER")+"</p>"+
         "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",503);
     }
-    const record=sent.result?.data?.user;
     const identity=String(record?.id||"");
     const returnedEmail=String(record?.email||"").trim().toLowerCase();
     if(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(identity)&&
        returnedEmail===email&&!(Array.isArray(record?.identities)&&record.identities.length===0)){
        // Only viewer accounts are self-created. Supabase confirmation gates login.
-       await env.STREAM_USERS_DB.prepare(
+       const inserted=await env.STREAM_USERS_DB.prepare(
          "INSERT OR IGNORE INTO stream_users(user_id,email,role,status,approval_state) VALUES(?,?,'viewer','active','pending')"
        ).bind(identity,email).run();
+      if(inserted?.meta?.changes===1)await notifySignup(env,identity);
+      const persisted=await env.STREAM_USERS_DB.prepare(
+        "SELECT user_id FROM stream_users WHERE email=?"
+      ).bind(email).first();
+      if(persisted?.user_id===identity)return signupReceipt(emailPending);
     }
+    // A duplicate-account response stays neutral to prevent enumeration.
+    if(emailPending)return page("Cadastro indisponível",
+      "<p>Não foi possível finalizar a solicitação. Código: CAD-REGISTRO.</p>"+
+      "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",503);
     return signupReceipt();
   }
   if (method === "GET" && path === "/stream/recover") {
@@ -932,6 +996,7 @@ async function handle(request, env) {
           "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
         ).bind(crypto.randomUUID(),user.user_id,"signup-"+decision,target)
       ]);
+      await notifyDecision(env,target,targetRow.email,decision);
       return redirect(url.origin,"/stream/admin?result="+(decision==="approved"?"approved":"rejected"));
     }
     if (path === "/stream/admin/status") {
