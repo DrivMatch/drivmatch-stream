@@ -43,22 +43,47 @@
     const selected=state.selected;
     button.disabled=!selected;
     if(!selected){button.textContent="☆";button.classList.remove("is-favorite");return;}
-    const marked=state.favorites.includes(favoriteKey(selected));
+    const marked=(accountFavorites?accountFavorites.contains(favoriteKey(selected)):state.favorites.includes(favoriteKey(selected)));
     button.textContent=marked?"★":"☆";
     button.classList.toggle("is-favorite",marked);
     button.title=marked?"Remover dos favoritos":"Adicionar aos favoritos";
     button.setAttribute("aria-label",button.title);
   }
-  function toggleFavorite(c){
-    if(!c||!favoritesReadSafe)return;
-    const key=favoriteKey(c),before=state.favorites.slice();
-    const next=before.includes(key)?before.filter(x=>x!==key):[...before,key];
-    if(!window.StreamNowFavoritesSafety.commit(store,before,next)){
-      showError("Favoritos preservados: armazenamento indisponível ou alterado. Reabra a página antes de modificar.");
-      favoritesReadSafe=false;return;
+  let accountFavorites=null;
+  function renderAccountStatus(message){
+    let el=$("account-favorites-status");
+    if(!el){
+      el=document.createElement("p");el.id="account-favorites-status";
+      el.setAttribute("role","status");el.className="status";
+      const guide=document.querySelector(".guide");
+      if(guide)guide.insertBefore(el,guide.firstChild);
     }
-    state.favorites=next;
-    syncPlayerFavorite();render();
+    el.textContent=message;
+  }
+  function accountPending(keys,ready){
+    let b=$("account-favorites-import");
+    if(!b){
+      b=document.createElement("button");b.type="button";
+      b.id="account-favorites-import";
+      b.addEventListener("click",()=>{
+        if(accountFavorites&&window.confirm("Adicionar os favoritos locais desta máquina à sua conta Stream Now? Não apagar nenhum dos existentes."))accountFavorites.importLocal(true);
+      });
+      const el=$("account-favorites-status");if(el)el.parentNode.insertBefore(b,el.nextSibling);
+    }
+    b.hidden=!ready||!keys.length;
+    b.textContent="Vincular "+keys.length+" favoritos deste navegador à minha conta";
+  }
+  function toggleFavorite(c){
+    if(!c||!accountFavorites||!accountFavorites.ready()){
+      showError("Os favoritos da conta ainda não foram confirmados. Nenhuma lista foi alterada.");return;
+    }
+    const key=favoriteKey(c);
+    if(accountFavorites.contains(key)){
+      showError("Proteção emergencial: remover favoritos está bloqueado. Seu canal continua salvo na conta.");return;
+    }
+    accountFavorites.add(key,ok=>{
+      if(!ok)showError("Falha ao salvar o favorito no servidor. Sua lista anterior continua intacta.");
+    });
   }
   function showError(message){
     $("player-error").textContent=message;
@@ -191,7 +216,7 @@
       (state.category==="live" ||
        state.category==="sports"&&c.genre==="sports" ||
        state.category==="news"&&c.genre==="news") &&
-      (!state.favoritesOnly||state.favorites.includes(favoriteKey(c))) &&
+      (!state.favoritesOnly||(accountFavorites?accountFavorites.contains(favoriteKey(c)):state.favorites.includes(favoriteKey(c)))) &&
       normal(c.name).includes(normal(state.search));
   }
   function render(){
@@ -443,6 +468,23 @@
     setupFilters();
     if(!await verifyOwner())return;
     state.favorites=readFavorites();
+    if(window.StreamNowAccountFavorites){
+      accountFavorites=window.StreamNowAccountFavorites.create({
+        store:store,
+        onStatus:renderAccountStatus,
+        onPending:accountPending,
+        onChange:(keys,ready)=>{
+          if(ready)state.favorites=keys;
+          syncPlayerFavorite();render();
+        }
+      });
+      try{
+        const session=await fetch("/stream/session",{credentials:"same-origin",cache:"no-store"});
+        const data=await session.json();
+        if(session.ok&&data.allowed&&data.user_id)accountFavorites.init(data.user_id);
+        else renderAccountStatus("Conta não confirmada. Favoritos protegidos.");
+      }catch{renderAccountStatus("Não foi possível ler os favoritos da conta. Nenhum dado foi apagado.");}
+    }else renderAccountStatus("Módulo de favoritos da conta indisponível. Nenhuma alteração permitida.");
     syncPlayerFavorite();
     await loadChannels();
     setInterval(async()=>{if(state.authorised)await verifyOwner();},300000);
