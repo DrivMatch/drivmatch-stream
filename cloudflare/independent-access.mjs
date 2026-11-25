@@ -856,9 +856,11 @@ async function handle(request, env) {
         "INSERT OR IGNORE INTO stream_favorites(user_id,favorite_key) VALUES(?,?)"
       ).bind(user.user_id,data.key).run();
     } else {
-      await env.STREAM_USERS_DB.prepare(
-        "DELETE FROM stream_favorites WHERE user_id=? AND favorite_key=?"
-      ).bind(user.user_id,data.key).run();
+      // Emergency preservation lock: no favorite deletion until an auditable
+      // explicit-user-removal protocol with recovery has passed release review.
+      // Catalog refresh, account switching and old clients cannot remove data.
+      return json(423,{ok:false,error:"FAVORITES_DELETION_LOCKED",
+        message:"Remoção de favoritos temporariamente bloqueada para proteger seus canais."});
     }
     return json(200,{ok:true});
   }
