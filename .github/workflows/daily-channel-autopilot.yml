@@ -4,8 +4,6 @@ on:
   schedule:
     # 02:00 America/Sao_Paulo (UTC-3) = 05:00 UTC; GitHub may start late.
     - cron: '0 5 * * *'
-    # Retry outside the top of the hour if the primary event was dropped or failed.
-    - cron: '17 5 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -21,36 +19,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-scheduled-retry:
-    if: github.event_name == 'schedule' && github.event.schedule == '17 5 * * *'
-    permissions:
-      actions: read
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      run_scan: ${{ steps.history.outputs.run_scan }}
-    steps:
-      - name: Check for a successful scheduled publication today
-        id: history
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          since="$(date -u +%F)T05:00:00Z"
-          endpoint="repos/$GITHUB_REPOSITORY/actions/workflows/daily-channel-autopilot.yml/runs"
-          successful="$(gh api --method GET "$endpoint" -f event=schedule -f status=success -f "created=>=$since" --jq .total_count)"
-          [[ "$successful" =~ ^[0-9]+$ ]]
-          if [ "$successful" -eq 0 ]; then
-            echo "run_scan=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_scan=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::A scheduled catalog run already succeeded today."
-          fi
-
   discover-test-publish:
-    needs: check-scheduled-retry
-    if: >-
-      ${{ !cancelled() && (needs.check-scheduled-retry.result == 'skipped' ||
-      needs.check-scheduled-retry.outputs.run_scan == 'true') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     steps:
@@ -61,6 +30,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Non-destructive favorites preservation gate (ALL platforms)
+        run: node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
       - name: Code and policy tests
         run: |
           python3 -m py_compile scripts/daily_channel_autopilot.py scripts/global_channel_discovery.py
@@ -82,6 +53,10 @@ jobs:
           head -n 1 site/daily-autopilot.m3u8 | grep -q '#EXTM3U'
           python3 -c 'import json,pathlib; s=json.loads(pathlib.Path("data/global-discovery-state.json").read_text()); assert s.get("schema")==1 and isinstance(s.get("channels"),dict) and isinstance(s.get("sources"),dict)'
           git diff --check
+      - name: Confirm publisher touches NO favorites or user data
+        run: |
+          python3 scripts/streamnow_favorites_release_gate.py --mode catalog
+          git diff --name-only | python3 scripts/streamnow_favorites_release_gate.py --mode changed-paths
       - name: Save vetted catalog automatically
         id: changes
         run: |
