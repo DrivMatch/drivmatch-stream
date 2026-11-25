@@ -22,6 +22,15 @@ function read(key){
   }
   var parsed=JSON.parse(raw);
   if(!valid(parsed))return {ok:false,list:[],reason:"invalid-main"};
+  // Empty main list while snapshots contain favorites is suspected data loss.
+  // Never normalize that situation to a brand-new empty user list.
+  if(!parsed.length && (foundation!==null||previous!==null)){
+   var backup=previous||foundation;
+   try{if(valid(JSON.parse(backup))&&JSON.parse(backup).length)
+     return {ok:false,list:[],reason:"empty-main-with-nonempty-backup"};}catch(e){
+     return {ok:false,list:[],reason:"backup-unreadable"};
+   }
+  }
   if(parsed.length){
    if(foundation===null){
     root.localStorage.setItem(key+"-foundation",raw);
@@ -45,6 +54,10 @@ function commit(key,before,after){
   }else{
    var stored=JSON.parse(raw);
    if(!valid(stored)||JSON.stringify(stored)!==JSON.stringify(before))return false;
+   if(!stored.length){
+    var backup=root.localStorage.getItem(key+"-previous")||root.localStorage.getItem(key+"-foundation");
+    if(backup){try{if(JSON.parse(backup).length)return false;}catch(e){return false;}}
+   }
    var removed=0;
    for(var i=0;i<stored.length;i++)if(after.indexOf(stored[i])<0)removed++;
    if(removed>1)return false;
