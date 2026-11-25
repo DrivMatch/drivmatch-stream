@@ -34,9 +34,17 @@ jobs:
         run: node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
       - name: Code and policy tests
         run: |
-          python3 -m py_compile scripts/daily_channel_autopilot.py scripts/global_channel_discovery.py
+          python3 -m py_compile scripts/daily_channel_autopilot.py scripts/global_channel_discovery.py scripts/youtube_live_discovery.py
           python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
           python3 -m unittest discover -s tests -p 'test_global_channel_discovery.py' -v
+          python3 -m unittest discover -s tests -p 'test_youtube_live_discovery.py' -v
+      - name: Discover official YouTube lives (API-only, never fake live status)
+        # Independent research lane; missing API key must be reported and must
+        # never block vetted HLS catalog or delete any user preferences.
+        continue-on-error: true
+        env:
+          STREAMNOW_YOUTUBE_DATA_API_KEY: ${{ secrets.STREAMNOW_YOUTUBE_DATA_API_KEY }}
+        run: python3 scripts/youtube_live_discovery.py
       - name: Multi-source discovery and 60-second media probes
         env:
           DM_DAILY_MAX_CHECKS: '120'
@@ -52,6 +60,7 @@ jobs:
           test -s site/daily-autopilot.m3u8
           head -n 1 site/daily-autopilot.m3u8 | grep -q '#EXTM3U'
           python3 -c 'import json,pathlib; s=json.loads(pathlib.Path("data/global-discovery-state.json").read_text()); assert s.get("schema")==1 and isinstance(s.get("channels"),dict) and isinstance(s.get("sources"),dict)'
+          python3 -c 'import json,pathlib; p=pathlib.Path("data/youtube-live-report.json"); assert p.is_file() and json.loads(p.read_text()).get("auto_published")==0, "YouTube research lane must never auto publish unreviewed embeds"'
           git diff --check
       - name: Confirm publisher touches NO favorites or user data
         run: |
@@ -60,14 +69,14 @@ jobs:
       - name: Save vetted catalog automatically
         id: changes
         run: |
-          if git diff --quiet -- site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json; then
+          if git diff --quiet -- site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json data/youtube-live-report.json data/youtube-live-research.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "::notice::No catalog change"
             exit 0
           fi
           git config user.name "drivmatch-channel-autopilot[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json
+          git add site/daily-autopilot.m3u8 site/daily-autopilot-state.json site/daily-autopilot-report.json data/global-discovery-state.json data/global-discovery-report.json data/youtube-live-report.json data/youtube-live-research.json
           git commit -m "chore(channels): daily verified public TV update"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -89,6 +98,10 @@ jobs:
           if [ -f site/daily-autopilot-report.json ]; then
             echo 'Verified public HLS autopilot report:' >> "$GITHUB_STEP_SUMMARY"
             cat site/daily-autopilot-report.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f data/youtube-live-report.json ]; then
+            echo 'Official YouTube live research — no unreviewed auto-publication:' >> "$GITHUB_STEP_SUMMARY"
+            cat data/youtube-live-report.json >> "$GITHUB_STEP_SUMMARY"
           fi
           if [ -f data/global-discovery-report.json ]; then
             echo 'Worldwide research report (candidates not published):' >> "$GITHUB_STEP_SUMMARY"
