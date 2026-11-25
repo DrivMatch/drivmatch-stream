@@ -120,6 +120,29 @@ async function downloadM3u(address){
 }
 function key(c){return c.sourceId+"::"+c.id;}
 const FAVORITES_STORE="drivmatch-iptv-library-fav-v1";
+let accountFavorites=null;
+function canonicalAccountKey(c){
+  return "lista-2:"+c.country+":"+norm(c.originalName||c.name);
+}
+function libraryStatus(message){
+ let el=$("account-favorites-status");
+ if(!el){el=document.createElement("p");el.id="account-favorites-status";
+  el.setAttribute("role","status");el.className="status";
+  const parent=$("library-status");if(parent)parent.parentNode.insertBefore(el,parent.nextSibling);
+ }
+ el.textContent=message;
+}
+function showLibraryImport(keys,ready){
+ let b=$("account-favorites-import");
+ if(!b){b=document.createElement("button");b.id="account-favorites-import";b.type="button";
+  b.addEventListener("click",()=>{
+   if(accountFavorites&&window.confirm("Vincular favoritos locais desta biblioteca à sua conta, somente acrescentando?"))accountFavorites.importLocal(true);
+  });
+  const el=$("account-favorites-status");if(el)el.parentNode.insertBefore(b,el.nextSibling);
+ }
+ b.hidden=!ready||!keys.length;b.textContent="Vincular "+keys.length+" favoritos locais à minha conta";
+}
+
 let favoritesReadSafe=false;
 function favoritesLoad(){
   const safety=window.StreamNowFavoritesSafety;
@@ -210,15 +233,17 @@ function renderChannels(){
     info.append(title,meta);pick.append(logo,info);
     pick.addEventListener("click",()=>void chooseChannel(c));
     const fav=document.createElement("button");fav.type="button";
-    const marked=state.favorites.has(key(c));
+    const marked=accountFavorites?accountFavorites.contains(canonicalAccountKey(c))||state.favorites.has(key(c)):state.favorites.has(key(c));
     fav.className="star"+(marked?" marked":"");fav.textContent=marked?"★":"☆";
     fav.setAttribute("aria-label",(marked?"Remover favorito ":"Favoritar ")+c.name);
     fav.addEventListener("click",()=>{
-      const next=new Set(state.favorites);
-      if(marked)next.delete(key(c));else next.add(key(c));
-      if(state.source?.personal){state.favorites=next;}
-      else if(!favoritesSave([...next]))return;
-      renderChannels();
+      if(!accountFavorites||!accountFavorites.ready()){
+       libraryStatus("Favoritos da conta indisponíveis. Nenhuma alteração foi feita.");return;
+      }
+      if(marked){libraryStatus("Proteção emergencial: remoção bloqueada. O favorito continua na sua conta.");return;}
+      accountFavorites.add(canonicalAccountKey(c),ok=>{
+       if(!ok)libraryStatus("Não foi possível salvar na conta; lista anterior preservada.");
+      });
     });
     row.append(pick,fav);fragment.append(row);
   }
@@ -477,6 +502,18 @@ async function start(){
     if(!r.ok||(await r.json()).allowed!==true)throw Error("unauthorized");
   }catch{$("access-error").hidden=false;return;}
   $("library").hidden=false;favoritesLoad();
+  if(window.StreamNowAccountFavorites){
+   accountFavorites=window.StreamNowAccountFavorites.create({
+    store:FAVORITES_STORE,onStatus:libraryStatus,onPending:showLibraryImport,
+    onChange:(keys,ready)=>{if(ready)state.favorites=new Set(keys);renderChannels();}
+   });
+   try{
+    const response=await fetch("/stream/session",{credentials:"same-origin",cache:"no-store"});
+    const session=await response.json();
+    if(response.ok&&session.allowed&&session.user_id)accountFavorites.init(session.user_id);
+    else libraryStatus("Conta não identificada; favoritos protegidos.");
+   }catch{libraryStatus("Erro ao consultar favoritos da conta; nenhuma lista foi apagada.");}
+  }else libraryStatus("Sincronização de conta indisponível; alterações bloqueadas.");
   try{
     const r=await fetch("/stream/listas/sources.json",{credentials:"same-origin",cache:"no-store"});
     if(!r.ok)throw Error("sources");
