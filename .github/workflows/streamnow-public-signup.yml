@@ -40,7 +40,7 @@ jobs:
           node --check cloudflare/independent-access.mjs
           python3 -m unittest discover -s tests -p 'test_streamnow_favorites_db_lock.py' -v
           node --check cloudflare/admin-console.mjs
-          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_server_freeze.test.mjs tests/streamnow_multidevice_favorites.test.mjs
+          node --test tests/independent_access.test.mjs tests/streamnow_pages_accounts.test.mjs tests/stripe_tasting.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_server_freeze.test.mjs tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_constitution_v2.test.mjs
   deploy:
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
