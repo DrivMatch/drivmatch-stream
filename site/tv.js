@@ -366,8 +366,7 @@ function recoverLegacyFavorites(){
   }
   var merged=favorites.slice(0);
   for(i=0;i<missing.length;i++)merged.push(missing[i]);
-  localStorage.setItem(STORE,JSON.stringify(merged));
-  favorites=merged;
+  if(!persistFavoriteChange(merged))return;
   if(status){status.hidden=false;T(status,missing.length+" favorito(s) antigo(s) recuperado(s) deste navegador. Nenhum dado antigo foi excluído.");}
   drawQuickLists();updateFavoriteRecovery();
  }catch(e){
@@ -375,8 +374,147 @@ function recoverLegacyFavorites(){
  }
 }
 
-function saveFav(){try{localStorage.setItem(STORE,JSON.stringify(favorites));}catch(e){}}
-function loadFav(){try{var a=JSON.parse(localStorage.getItem(STORE)||"[]");if(Object.prototype.toString.call(a)==="[object Array]")favorites=a;}catch(e){}}
+/* FAVORITES DATA SAFETY GATE: data is user property, never a cache.
+ * Main, foundation and previous snapshots use independent keys on this origin.
+ * No background catalog refresh, migration or login state may reset this store.
+ * If stored data is malformed or inaccessible, block writes instead of
+ * interpreting an unknown state as an empty list. */
+var FAV_FOUNDATION_BACKUP="drivmatch-tv-guide-favorites-foundation-v1";
+var FAV_PREVIOUS_BACKUP="drivmatch-tv-guide-favorites-previous-v1";
+var favStorageSafe=false;
+function isFavoriteArray(a){
+ if(Object.prototype.toString.call(a)!=="[object Array]"||a.length>15000)return false;
+ var seen={};
+ for(var i=0;i<a.length;i++){
+  if(typeof a[i]!=="string"||a[i].length>300||!a[i]||
+     Object.prototype.hasOwnProperty.call(seen,"!"+a[i]))return false;
+  seen["!"+a[i]]=true;
+ }
+ return true;
+}
+function noteFavStorage(text){
+ var el=D("recover-favorites-status");if(el){el.hidden=false;T(el,text);}
+}
+function loadFav(){
+ favStorageSafe=false;
+ try{
+  var raw=localStorage.getItem(STORE);
+  if(raw===null){
+   // An empty list is valid only when no previous list survives in snapshots.
+   var foundation=localStorage.getItem(FAV_FOUNDATION_BACKUP);
+   var previous=localStorage.getItem(FAV_PREVIOUS_BACKUP);
+   if(foundation||previous){
+    noteFavStorage("Lista principal ausente, mas há uma cópia de segurança. Nenhum favorito será sobrescrito. Use a recuperação de backup.");
+    favorites=[];return;
+   }
+   favorites=[];favStorageSafe=true;return;
+  }
+  var a=JSON.parse(raw);
+  if(!isFavoriteArray(a))throw Error("Invalid favorites list");
+  favorites=a;
+  if(a.length){
+   // Snapshot immediately on first visit after upgrading, before any user action.
+   if(!localStorage.getItem(FAV_FOUNDATION_BACKUP)){
+    localStorage.setItem(FAV_FOUNDATION_BACKUP,raw);
+    if(localStorage.getItem(FAV_FOUNDATION_BACKUP)!==raw)throw Error("Initial snapshot not verified");
+   }
+   if(!localStorage.getItem(FAV_PREVIOUS_BACKUP)){
+    localStorage.setItem(FAV_PREVIOUS_BACKUP,raw);
+    if(localStorage.getItem(FAV_PREVIOUS_BACKUP)!==raw)throw Error("Initial previous snapshot not verified");
+   }
+  }
+  favStorageSafe=true;
+ }catch(e){
+  // Preserve the already read display list even if backing up was blocked.
+  // A failed snapshot must NOT erase or overwrite its main stored source.
+  if(!isFavoriteArray(favorites))favorites=[];
+  noteFavStorage("Falha ao ler favoritos. Escrita bloqueada para proteger os dados existentes.");
+ }
+}
+function persistFavoriteChange(next){
+ if(!favStorageSafe||!isFavoriteArray(next)){
+  noteFavStorage("Alteração bloqueada: os favoritos armazenados precisam ser verificados.");return false;
+ }
+ try{
+  var raw=localStorage.getItem(STORE);
+  if(raw===null){
+   if(localStorage.getItem(FAV_FOUNDATION_BACKUP)||localStorage.getItem(FAV_PREVIOUS_BACKUP)){
+    noteFavStorage("Alteração bloqueada: há um backup antigo que deve ser recuperado.");return false;
+   }
+  }else{
+   var existing=JSON.parse(raw);
+   if(!isFavoriteArray(existing)){
+    noteFavStorage("Alteração bloqueada: formato original inválido.");return false;
+   }
+   // Never replace a different stored snapshot with a stale in-memory copy.
+   if(JSON.stringify(existing)!==JSON.stringify(favorites)){
+    noteFavStorage("Alteração bloqueada: outro acesso atualizou os favoritos. Reabra a página.");return false;
+   }
+   var removed=0;
+   for(var i=0;i<existing.length;i++)if(!has(next,existing[i]))removed++;
+   if(removed>1){
+    noteFavStorage("Alteração bloqueada: remoção em massa não é permitida.");return false;
+   }
+   // Preserve the first non-empty snapshot forever on this origin.
+   if(existing.length&&!localStorage.getItem(FAV_FOUNDATION_BACKUP)){
+    localStorage.setItem(FAV_FOUNDATION_BACKUP,raw);
+    if(localStorage.getItem(FAV_FOUNDATION_BACKUP)!==raw)throw Error("Foundation backup not confirmed");
+   }
+   localStorage.setItem(FAV_PREVIOUS_BACKUP,raw);
+   if(localStorage.getItem(FAV_PREVIOUS_BACKUP)!==raw)throw Error("Previous backup not confirmed");
+  }
+  localStorage.setItem(STORE,JSON.stringify(next));
+  if(localStorage.getItem(STORE)!==JSON.stringify(next))throw Error("Favorites write not confirmed");
+  favorites=next;return true;
+ }catch(e){
+  favStorageSafe=false;
+  noteFavStorage("Não foi possível confirmar o salvamento. Nenhuma nova alteração será feita até verificar o armazenamento.");
+  return false;
+ }
+}
+function saveFav(){
+ /* For legacy callers: never write a mutated in-memory list directly. */
+ noteFavStorage("Salvamento direto não permitido. Use a operação protegida de favoritos.");
+ return false;
+}
+function recoverFavoriteBackup(){
+ if(favStorageSafe)return false;
+ try{
+  var original=localStorage.getItem(STORE);
+  if(original!==null){
+   var current=JSON.parse(original);
+   if(isFavoriteArray(current)){favorites=current;favStorageSafe=true;drawQuickLists();return true;}
+   noteFavStorage("Backup detectado, mas o registro principal está ilegível. Não será sobrescrito.");return false;
+  }
+  var raw=localStorage.getItem(FAV_PREVIOUS_BACKUP)||localStorage.getItem(FAV_FOUNDATION_BACKUP);
+  if(!raw)return false;
+  var list=JSON.parse(raw);
+  if(!isFavoriteArray(list))return false;
+  localStorage.setItem(STORE,raw);
+  if(localStorage.getItem(STORE)!==raw)throw Error("Recovery write not verified");
+  favorites=list;favStorageSafe=true;drawQuickLists();
+  noteFavStorage(list.length+" favoritos restaurados da cópia deste navegador.");
+  return true;
+ }catch(e){
+  noteFavStorage("Recuperação não concluída. Os backups foram preservados.");return false;
+ }
+}
+function exportFavoritesBackup(){
+ try{
+  var raw=localStorage.getItem(STORE);
+  if(raw===null||!isFavoriteArray(JSON.parse(raw)))throw Error("No valid main record");
+  var payload=JSON.stringify({schema:"streamnow.favorites.backup.v1",
+    createdAt:new Date().toISOString(),origin:window.location.origin,
+    favorites:JSON.parse(raw),metadata:favoriteMeta},null,2);
+  var blob=new Blob([payload],{type:"application/json"});
+  var URLAPI=window.URL||window.webkitURL;
+  if(!URLAPI||!URLAPI.createObjectURL)throw Error("Browser does not support downloading backups");
+  var url=URLAPI.createObjectURL(blob);
+  var a=E("a");a.href=url;a.download="streamnow-favoritos-backup.json";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  noteFavStorage("Backup solicitado. Confirme que o arquivo foi salvo fora do navegador antes de limpar qualquer dado.");
+ }catch(e){noteFavStorage("Este navegador não conseguiu exportar o backup. Não limpe os dados da TV.");}
+}
 
 
 /* Only minimal channel identity is persisted locally; never keep stream URLs
@@ -1010,14 +1148,13 @@ function runGlobalSearch(){
 }
 
 function toggleFavorite(c){
-  var k=favorKey(c),idx=favorites.indexOf(k);
-  if(idx>=0){
-    favorites.splice(idx,1);delete favoriteMeta[k];
-  }else{
-    favorites.push(k);favoriteMeta[k]=safeSnapshot(c);
+  var k=favorKey(c),idx=favorites.indexOf(k),next=favorites.slice(0);
+  if(idx>=0)next.splice(idx,1);else next.push(k);
+  if(!persistFavoriteChange(next))return;
+  if(idx>=0)delete favoriteMeta[k];else favoriteMeta[k]=safeSnapshot(c);
+  try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){
+    noteFavStorage("Favoritos preservados; não foi possível atualizar seus detalhes.");
   }
-  saveFav();
-  try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){}
   updateFavButton();renderChannels();drawQuickLists();
 }
 function updateFavButton(){
@@ -1257,6 +1394,8 @@ function init(){
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   on(D("recover-legacy-favorites"),"click",recoverLegacyFavorites);
+  on(D("recover-backup-favorites"),"click",recoverFavoriteBackup);
+  on(D("export-favorites-backup"),"click",exportFavoritesBackup);
   on(D("search"),"input",runGlobalSearch);
   on(D("search"),"keyup",function(e){if(!("oninput" in D("search")))runGlobalSearch();});
   on(D("clear-search"),"click",function(){D("search").value="";runGlobalSearch();});
