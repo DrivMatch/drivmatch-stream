@@ -1,69 +1,89 @@
 {
   "auto_promoted_to_player": 0,
-  "channels_examined": 858,
+  "channels_examined": 1147,
   "countries_scanned": 8,
   "country_scans": [
     {
-      "country": "US",
-      "entries": 550,
+      "country": "CA",
+      "entries": 233,
       "region": "north_central_america_caribbean"
     },
     {
-      "country": "PE",
-      "entries": 120,
+      "country": "UY",
+      "entries": 16,
       "region": "south_america"
     },
     {
-      "country": "PT",
-      "entries": 44,
+      "country": "IT",
+      "entries": 276,
       "region": "western_europe"
     },
     {
-      "country": "LT",
-      "entries": 9,
+      "country": "LV",
+      "entries": 10,
       "region": "eastern_europe_caucasus"
     },
     {
-      "country": "AE",
-      "entries": 19,
+      "country": "IL",
+      "entries": 35,
       "region": "africa_middle_east"
     },
     {
-      "country": "CN",
-      "entries": 41,
+      "country": "IN",
+      "entries": 550,
       "region": "asia"
     },
     {
-      "country": "AU",
-      "entries": 75,
+      "country": "NZ",
+      "entries": 26,
       "region": "oceania"
     },
     {
-      "country": "SO",
-      "entries": 0,
+      "country": "SR",
+      "entries": 1,
       "region": "additional_world_country"
     }
   ],
-  "date_utc": "2026-11-24",
+  "date_utc": "2026-11-25",
   "errors": {
     "codeberg": "HTTPError",
+    "github:sports": "HTTPError",
     "youtube": "ValueError"
   },
   "multilingual_searches": [
     {
-      "found": 0,
-      "provider": "github:ru",
+      "found": 2,
+      "provider": "github:zh",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:pl",
+      "provider": "github:ja",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:es",
+      "provider": "github:id",
       "status": "OK"
+    },
+    {
+      "found": 0,
+      "provider": "github:ar",
+      "status": "OK"
+    },
+    {
+      "found": 0,
+      "provider": "github:uk",
+      "status": "OK"
+    },
+    {
+      "found": 0,
+      "provider": "github:news",
+      "status": "OK"
+    },
+    {
+      "provider": "github:sports",
+      "status": "UNAVAILABLE"
     },
     {
       "found": 12,
@@ -89,25 +109,25 @@
       "status": "OK"
     }
   ],
-  "new_research_channel_records": 0,
-  "new_research_sources": 2,
+  "new_research_channel_records": 1147,
+  "new_research_sources": 3,
   "new_stream_alternatives_in_research": 0,
   "note": "Research-only registry. No newly discovered URLs or repository links are automatically promoted into the playable catalog.",
   "region_count": 7,
   "regions_selected": {
-    "additional_world_country": "SO",
-    "africa_middle_east": "AE",
-    "asia": "CN",
-    "eastern_europe_caucasus": "LT",
-    "north_central_america_caribbean": "US",
-    "oceania": "AU",
-    "south_america": "PE",
-    "western_europe": "PT"
+    "additional_world_country": "SR",
+    "africa_middle_east": "IL",
+    "asia": "IN",
+    "eastern_europe_caucasus": "LV",
+    "north_central_america_caribbean": "CA",
+    "oceania": "NZ",
+    "south_america": "UY",
+    "western_europe": "IT"
   },
   "scheduled_local": "02:00 America/Sao_Paulo",
   "schema": 1,
-  "started_at_utc": "2026-11-24T15:29:31.143426+00:00",
+  "started_at_utc": "2026-11-25T14:02:08.462302+00:00",
   "state": "PARTIAL",
-  "total_research_channels": 1266,
-  "total_sources_recorded": 32
+  "total_research_channels": 2413,
+  "total_sources_recorded": 43
 }
