@@ -381,7 +381,8 @@ function recoverLegacyFavorites(){
  * Account GET failure must never trigger an empty POST/import/removal. */
 var accountFavoritesReady=false,accountFavoritesUser="",accountFavoritesLocal=[],
     accountFavoritesMissing=[],accountFavoritesImporting=false,
-    accountOwnerKey="streamnow-tv-favorites-owner-v1";
+    accountOwnerKey="streamnow-tv-favorites-owner-v1",
+    accountMetaPrefix="streamnow-tv-account-favorite-meta-v1:",accountLegacyMeta={};
 function noteAccountFav(message){
  var el=D("account-favorites-status");
  if(el){el.hidden=false;T(el,message);}
@@ -425,8 +426,20 @@ function loadAccountFavorites(userId){
   noteAccountFav("Identidade da conta não confirmada. Nenhuma alteração de favoritos é permitida.");
   return;
  }
+ if(!accountFavoritesUser)accountLegacyMeta=favoriteMeta;
  accountFavoritesUser=userId;accountFavoritesReady=false;
  accountFavoritesLocal=favorites.slice(0);
+ // Metadata is local and per-user; never display another user's browser names.
+ favoriteMeta={};
+ try{
+  var savedMeta=localStorage.getItem(accountMetaPrefix+userId);
+  if(savedMeta){
+   var parsedMeta=JSON.parse(savedMeta);
+   if(parsedMeta&&typeof parsedMeta==="object"&&
+      Object.prototype.toString.call(parsedMeta)!=="[object Array]")
+     favoriteMeta=parsedMeta;
+  }
+ }catch(e){noteAccountFav("Metadados locais da conta indisponíveis; favoritos do servidor continuam protegidos.");}
  T(D("favorite-count"),"...");
  accountRequest("GET",null,function(code,data){
   if(code!==200||!data){
@@ -488,7 +501,12 @@ function importLocalAccountFavorites(){
     if(all)for(var i=0;i<todo.length;i++)
       if(!has(verified,todo[i])){all=false;break;}
     if(all){
-     try{localStorage.setItem(accountOwnerKey,accountFavoritesUser);}catch(e){}
+     try{
+      localStorage.setItem(accountOwnerKey,accountFavoritesUser);
+      for(var mi=0;mi<todo.length;mi++)
+       if(accountLegacyMeta[todo[mi]])favoriteMeta[todo[mi]]=accountLegacyMeta[todo[mi]];
+      localStorage.setItem(accountMetaPrefix+accountFavoritesUser,JSON.stringify(favoriteMeta));
+     }catch(e){noteAccountFav("Favoritos importados; metadados deste navegador não puderam ser copiados.");}
      noteAccountFav(todo.length+" favoritos adicionados à conta e confirmados pela leitura do servidor. Lista original preservada.");
      loadAccountFavorites(accountFavoritesUser);
     }else{
@@ -1352,7 +1370,9 @@ function toggleFavorite(c){
    }
    if(!has(favorites,k))favorites.push(k);
    favoriteMeta[k]=safeSnapshot(c);
-   // Never replace browser storage: this favorite is durable in D1.
+   // Preserve display names only in account-scoped metadata. Never overwrite
+   // legacy favorite lists or copy another viewer's metadata.
+   try{localStorage.setItem(accountMetaPrefix+accountFavoritesUser,JSON.stringify(favoriteMeta));}catch(e){}
    updateFavButton();renderChannels();drawQuickLists();
    noteAccountFav("Novo favorito salvo na conta. Listas anteriores preservadas.");
   });
