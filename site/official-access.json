@@ -2,7 +2,7 @@
   "schema": 1,
   "verifiedOn": "2026-11-23",
   "status": "OFFICIAL_CHANNEL_REFERENCE_NOT_PLAYBACK_VERIFIED",
-  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung. Incluídas referências adicionais de canais oficiais YouTube e FAST: links para descobertas/embeds experimentais não comprovam live ativa ou direito a reprodução fora dos players oficiais.",
+  "notes": "Os canais individuais adicionais representam a programação/rede identificada em fontes oficiais ou diretórios setoriais, não transmissões gratuitas. Nenhuma URL de vídeo paga é fornecida. A existência de um canal no catálogo não comprova que este possa ser reproduzido pela Samsung. Incluídas referências adicionais de canais oficiais YouTube e FAST: links para descobertas/embeds experimentais não comprovam live ativa ou direito a reprodução fora dos players oficiais. Novos canais de notícia/esporte foram listados por identidade oficial pública; embed só usa player do YouTube com sua atribuição, sem re-streaming ou remoção de marcas. A presença de um link não garante evento ao vivo ou direito de retransmissão.",
   "free": [
     {
       "id": "br-cazetv",
@@ -648,6 +648,62 @@
       "embed": {
         "provider": "youtube_live_channel",
         "channelId": "UC376n347Ob5Lwzq2WGzF1AA"
+      }
+    },
+    {
+      "id": "world-dw-news-youtube",
+      "name": "DW News — internacional (YouTube oficial)",
+      "code": "DE",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.youtube.com/@dwnews",
+      "access": "Canal oficial no YouTube; live sujeito à disponibilidade",
+      "notes": "Emissora verificada; player oficial quando permitir incorporação; transmissão ativa não garantida",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCknLrEdhRCp1aegoMqRaCZg"
+      }
+    },
+    {
+      "id": "world-aljazeera-english-youtube",
+      "name": "Al Jazeera English — ao vivo oficial",
+      "code": "QA",
+      "genre": "news",
+      "lang": "en",
+      "url": "https://www.youtube.com/@aljazeeraenglish",
+      "access": "Canal oficial no YouTube; live sujeito à disponibilidade",
+      "notes": "Pode haver bloqueio de incorporação ou geográfico; fonte YouTube identificada",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCNye-wNBqNL5ZzHSJj3l8Bg"
+      }
+    },
+    {
+      "id": "world-athletics-youtube",
+      "name": "World Athletics — eventos oficiais",
+      "code": "UK",
+      "genre": "sports",
+      "lang": "en",
+      "url": "https://www.youtube.com/@WorldAthletics",
+      "access": "Vídeos e eventuais lives oficiais no YouTube",
+      "notes": "Eventos dependem da programação e dos direitos por território; não equivale a um canal linear 24h",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCQk7fWv15ChjMJLCRVmtApw"
+      }
+    },
+    {
+      "id": "olympics-youtube-official",
+      "name": "Olympic Games — canal oficial",
+      "code": "OTHER",
+      "genre": "sports",
+      "lang": "en",
+      "url": "https://www.youtube.com/@Olympics",
+      "access": "Conteúdo oficial no YouTube; lives ocasionais",
+      "notes": "Não significa direitos de transmissão de todas as competições nem live 24 horas",
+      "embed": {
+        "provider": "youtube_live_channel",
+        "channelId": "UCTl3QQTvqHFjurroKxexy2Q"
       }
     }
   ],
