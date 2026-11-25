@@ -856,9 +856,10 @@ async function handle(request, env) {
         "INSERT OR IGNORE INTO stream_favorites(user_id,favorite_key) VALUES(?,?)"
       ).bind(user.user_id,data.key).run();
     } else {
-      await env.STREAM_USERS_DB.prepare(
-        "DELETE FROM stream_favorites WHERE user_id=? AND favorite_key=?"
-      ).bind(user.user_id,data.key).run();
+      // Emergency integrity freeze: only the verified account holder may add,
+      // and no client or catalog process may delete a saved channel.
+      return json(423,{ok:false,error:"FAVORITES_DELETION_LOCKED",
+        message:"Remoção temporariamente bloqueada para proteger seus favoritos."});
     }
     return json(200,{ok:true});
   }
