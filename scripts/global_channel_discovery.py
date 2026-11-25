@@ -228,9 +228,25 @@ def research_queries(day: int) -> list[tuple[str, str]]:
     for code, query in languages:
         url = "https://api.github.com/search/repositories?q=" + urllib.parse.quote(query) + "&sort=updated&per_page=10"
         targets.append(("github:" + code, url))
-    # Separate global live-news and sports research. Sources remain candidates
-    # until rights, official provenance and embeddability are checked.
-    for subject, suffix in (("news", "official live news television"), ("sports", "official live sports broadcaster")):
+    # Rotating thematic coverage prevents news and sports from monopolizing
+    # the entire international discovery budget. Research results remain leads.
+    themes = (
+        ("news", "official live news television"),
+        ("sports", "official live sports broadcaster"),
+        ("movies", "official free live cinema films television"),
+        ("kids", "official free live children's cartoons television"),
+        ("music", "official live music entertainment television"),
+        ("education", "official education documentaries culture live tv"),
+        ("science", "official live science technology documentary channel"),
+        ("travel", "official travel food nature live television"),
+        ("general", "official regional community public television live"),
+        ("faith", "official free religious cultural television live"),
+        ("business", "official free financial markets television live"),
+        ("events", "official community public events live television"),
+    )
+    # Six independent category queries per night, full rotation across 2 days.
+    for i in range(6):
+        subject, suffix = themes[(day * 6 + i) % len(themes)]
         q = languages[0][1] + " " + suffix
         targets.append(("github:" + subject, "https://api.github.com/search/repositories?q=" +
                         urllib.parse.quote(q) + "&sort=updated&per_page=10"))
@@ -239,9 +255,9 @@ def research_queries(day: int) -> list[tuple[str, str]]:
     targets.append(("gitee", "https://gitee.com/api/v5/search/repositories?q=iptv&per_page=10"))
     local_query = languages[0][1]
     targets.append(("youtube", "https://www.youtube.com/results?search_query=" +
-                    urllib.parse.quote(local_query + " official live news sports")))
+                    urllib.parse.quote(local_query + " official live television free channels")))
     targets.append(("twitch", "https://www.twitch.tv/search?term=" +
-                    urllib.parse.quote(local_query + " live television")))
+                    urllib.parse.quote(local_query + " official live television")))
     return targets
 
 def extract_repository_links(raw: bytes, provider: str) -> list[str]:
