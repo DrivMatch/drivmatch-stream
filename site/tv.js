@@ -374,6 +374,139 @@ function recoverLegacyFavorites(){
  }
 }
 
+/* CRITICAL: account favorites are the durable source after authenticated login.
+ * Never assume localStorage=[] is the state of the account. The account D1
+ * endpoint is user-scoped. A local browser list has no known owner until the
+ * current user EXPLICITLY consents to import it into their account.
+ * Account GET failure must never trigger an empty POST/import/removal. */
+var accountFavoritesReady=false,accountFavoritesUser="",accountFavoritesLocal=[],
+    accountFavoritesMissing=[],accountFavoritesImporting=false,
+    accountOwnerKey="streamnow-tv-favorites-owner-v1";
+function noteAccountFav(message){
+ var el=D("account-favorites-status");
+ if(el){el.hidden=false;T(el,message);}
+}
+function accountRequest(method,payload,callback){
+ var xhr=new XMLHttpRequest(),done=false;
+ xhr.onreadystatechange=function(){
+  if(xhr.readyState!==4||done)return;done=true;
+  var data=null;
+  try{data=JSON.parse(xhr.responseText||"");}catch(e){}
+  callback(xhr.status,data);
+ };
+ xhr.onerror=function(){if(!done){done=true;callback(0,null);}};
+ try{
+  xhr.open(method,"/stream/favorites",true);
+  xhr.setRequestHeader("X-Stream-Account",accountFavoritesUser);
+  if(method==="POST")xhr.setRequestHeader("Content-Type","application/json");
+  xhr.send(method==="POST"?JSON.stringify(payload):null);
+ }catch(e){if(!done){done=true;callback(0,null);}}
+}
+function accountFavKeys(list){
+ if(Object.prototype.toString.call(list)!=="[object Array]"||list.length>15000)return null;
+ var out=[],seen={};
+ for(var i=0;i<list.length;i++){
+  if(typeof list[i]!=="string"||!list[i]||list[i].length>400)return null;
+  if(!Object.prototype.hasOwnProperty.call(seen,"!"+list[i])){
+   seen["!"+list[i]]=true;out.push(list[i]);
+  }
+ }
+ return out;
+}
+function updateAccountImport(){
+ var b=D("account-import-favorites");
+ if(!b)return;
+ var n=accountFavoritesMissing.length;
+ b.hidden=!accountFavoritesReady||!n||accountFavoritesImporting;
+ if(n)T(b,"Vincular "+n+" favorito(s) locais a esta conta (sem apagar nenhum)");
+}
+function loadAccountFavorites(userId){
+ if(typeof userId!=="string"||!userId){
+  noteAccountFav("Identidade da conta não confirmada. Nenhuma alteração de favoritos é permitida.");
+  return;
+ }
+ accountFavoritesUser=userId;accountFavoritesReady=false;
+ accountFavoritesLocal=favorites.slice(0);
+ T(D("favorite-count"),"...");
+ accountRequest("GET",null,function(code,data){
+  if(code!==200||!data){
+   noteAccountFav("Não foi possível consultar os favoritos da conta. Dados locais preservados; alterações bloqueadas.");
+   drawQuickLists();return;
+  }
+  var fromServer=accountFavKeys(data.favorites);
+  if(!fromServer){
+   noteAccountFav("Resposta inválida do servidor. Dados locais preservados e alterações bloqueadas.");
+   drawQuickLists();return;
+  }
+  accountFavoritesReady=true;
+  favorites=fromServer;
+  accountFavoritesMissing=[];
+  var owner=null;
+  try{owner=localStorage.getItem(accountOwnerKey);}catch(e){}
+  // Unbound local data may belong to another login; user must opt in.
+  // Once the account has explicitly claimed its local data, show their
+  // previously saved entries while still pending upload.
+  if(owner===null||owner===userId){
+   for(var i=0;i<accountFavoritesLocal.length;i++)
+    if(!has(favorites,accountFavoritesLocal[i]))
+     accountFavoritesMissing.push(accountFavoritesLocal[i]);
+   if(owner===userId){
+    for(i=0;i<accountFavoritesMissing.length;i++)
+     favorites.push(accountFavoritesMissing[i]);
+   }
+  }
+  if(owner!==null&&owner!==userId){
+   noteAccountFav("Há favoritos locais associados a outra conta neste navegador. Eles não serão copiados nem apagados.");
+  }else if(accountFavoritesMissing.length){
+   noteAccountFav(accountFavoritesMissing.length+" favorito(s) local(is) ainda não salvo(s) na sua conta. Clique em Vincular para preservar no servidor. Nenhum dado será excluído.");
+  }else if(!favorites.length){
+   noteAccountFav("Esta conta não retornou favoritos e não há lista local vinculada confirmada. Isso NÃO prova exclusão: verifique backups e outros aparelhos. Nenhuma lista foi reinicializada.");
+  }else{
+   noteAccountFav("Favoritos consultados da conta ("+fromServer.length+"). Nenhuma exclusão ou substituição foi executada.");
+  }
+  updateAccountImport();drawQuickLists();updateFavButton();
+ });
+}
+function importLocalAccountFavorites(){
+ if(!accountFavoritesReady||!accountFavoritesUser||accountFavoritesImporting||
+    !accountFavoritesMissing.length)return;
+ if(!window.confirm("Adicionar "+accountFavoritesMissing.length+
+   " favoritos deste navegador à conta conectada? Apenas acrescentar, sem excluir nenhum. Confirme que esta lista é sua."))return;
+ accountFavoritesImporting=true;updateAccountImport();
+ var todo=accountFavoritesMissing.slice(0),position=0;
+ function next(){
+  if(position>=todo.length){
+   accountFavoritesImporting=false;
+   // Verify server result before binding ownership of the local source.
+   accountRequest("GET",null,function(code,data){
+    var verified=code===200&&data?accountFavKeys(data.favorites):null;
+    var all=!!verified;
+    if(all)for(var i=0;i<todo.length;i++)
+      if(!has(verified,todo[i])){all=false;break;}
+    if(all){
+     try{localStorage.setItem(accountOwnerKey,accountFavoritesUser);}catch(e){}
+     noteAccountFav(todo.length+" favoritos adicionados à conta e confirmados pela leitura do servidor. Lista original preservada.");
+     loadAccountFavorites(accountFavoritesUser);
+    }else{
+     noteAccountFav("A importação não pôde ser confirmada por completo. Nenhum favorito local foi excluído. Tente novamente após conferir sua conta.");
+     updateAccountImport();
+    }
+   });return;
+  }
+  var batch=todo.slice(position,position+20);
+  accountRequest("POST",{operation:"import",keys:batch},function(code,data){
+   if(code!==200||!data||data.ok!==true){
+    accountFavoritesImporting=false;updateAccountImport();
+    noteAccountFav("Importação interrompida na etapa "+(position+1)+
+      ". Nenhuma lista foi apagada; itens já aceitos permanecem na conta.");
+    return;
+   }
+   position+=batch.length;next();
+  });
+ }
+ next();
+}
+
 /* FAVORITES DATA SAFETY GATE: data is user property, never a cache.
  * Main, foundation and previous snapshots use independent keys on this origin.
  * No background catalog refresh, migration or login state may reset this store.
@@ -536,10 +669,18 @@ function recoverFavoriteBackup(){
 function exportFavoritesBackup(){
  try{
   var raw=localStorage.getItem(STORE);
-  if(raw===null||!isFavoriteArray(JSON.parse(raw)))throw Error("No valid main record");
-  var payload=JSON.stringify({schema:"streamnow.favorites.backup.v1",
+  var localList=raw!==null?JSON.parse(raw):[];
+  if(!isFavoriteArray(localList))throw Error("Invalid local favorites");
+  var exportList=localList.slice(0);
+  if(accountFavoritesReady)
+   for(var bi=0;bi<favorites.length;bi++)
+    if(!has(exportList,favorites[bi]))exportList.push(favorites[bi]);
+  if(!isFavoriteArray(exportList))throw Error("Invalid backup list");
+  if(!exportList.length)throw Error("No saved favorites visible");
+  var payload=JSON.stringify({schema:"streamnow.favorites.backup.v2",
     createdAt:new Date().toISOString(),origin:window.location.origin,
-    favorites:JSON.parse(raw),metadata:favoriteMeta},null,2);
+    accountReadVerified:accountFavoritesReady,
+    favorites:exportList,metadata:favoriteMeta},null,2);
   var blob=new Blob([payload],{type:"application/json"});
   var URLAPI=window.URL||window.webkitURL;
   if(!URLAPI||!URLAPI.createObjectURL)throw Error("Browser does not support downloading backups");
@@ -1182,14 +1323,27 @@ function runGlobalSearch(){
 }
 
 function toggleFavorite(c){
-  var k=favorKey(c),idx=favorites.indexOf(k),next=favorites.slice(0);
-  if(idx>=0)next.splice(idx,1);else next.push(k);
-  if(!persistFavoriteChange(next))return;
-  if(idx>=0)delete favoriteMeta[k];else favoriteMeta[k]=safeSnapshot(c);
-  try{localStorage.setItem(FAV_META_STORE,JSON.stringify(favoriteMeta));}catch(e){
-    noteFavStorage("Favoritos preservados; não foi possível atualizar seus detalhes.");
+  if(!c)return;
+  if(!accountFavoritesReady){
+   noteAccountFav("Alteração bloqueada: não foi possível confirmar os favoritos da conta.");
+   return;
   }
-  updateFavButton();renderChannels();drawQuickLists();
+  var k=favorKey(c);
+  if(has(favorites,k)){
+   noteAccountFav("Remoção temporariamente bloqueada para proteger seus favoritos. Nenhum canal foi excluído.");
+   return;
+  }
+  accountRequest("POST",{operation:"add",key:k},function(code,data){
+   if(code!==200||!data||data.ok!==true){
+    noteAccountFav("Não foi possível confirmar o favorito no servidor. Nenhum dado existente foi alterado.");
+    return;
+   }
+   if(!has(favorites,k))favorites.push(k);
+   favoriteMeta[k]=safeSnapshot(c);
+   // Never replace browser storage: this favorite is durable in D1.
+   updateFavButton();renderChannels();drawQuickLists();
+   noteAccountFav("Novo favorito salvo na conta. Listas anteriores preservadas.");
+  });
 }
 function updateFavButton(){
   var b=D("player-favorite");b.disabled=!selected;
@@ -1428,6 +1582,7 @@ function init(){
   on(D("recent-toggle"),"click",function(){toggleQuickGroup("recent");});
   on(D("favorite-toggle"),"click",function(){toggleQuickGroup("favorite");});
   on(D("recover-legacy-favorites"),"click",recoverLegacyFavorites);
+  on(D("account-import-favorites"),"click",importLocalAccountFavorites);
   on(D("recover-backup-favorites"),"click",recoverFavoriteBackup);
   on(D("export-favorites-backup"),"click",exportFavoritesBackup);
   on(D("search"),"input",runGlobalSearch);
@@ -1495,6 +1650,12 @@ function init(){
       visibleEl(D("tv-layout"),false);visibleEl(D("tv-error"),true);return;
     }
     session=true;
+    try{
+     var accountData=JSON.parse(body);
+     loadAccountFavorites(accountData.user_id);
+    }catch(e){
+     noteAccountFav("Erro de identificação da conta: alterações bloqueadas.");
+    }
     http("/stream/listas/sources.json",function(st,raw){
       if(st!==200){T(D("catalog-status"),"Não foi possível abrir a biblioteca. Tente Atualizar.");return;}
       try{var d=JSON.parse(raw);SOURCES=d.sources||[];}catch(e){SOURCES=[];}
