@@ -24,6 +24,15 @@ test("ES5 guard protects all web-wrapped interfaces and their backups",()=>{
  assert.equal(JSON.parse(saved.get(KEY+"-foundation")).length,153);
  assert.equal(JSON.parse(saved.get(KEY+"-previous")).length,153);
 });
+test("empty local list cannot hide 153 favorites in backup",()=>{
+ const {saved,api}=context([]);
+ saved.set(KEY+"-foundation",JSON.stringify(list(153)));
+ const state=api.read(KEY);
+ assert.equal(state.ok,false);
+ assert.equal(state.reason,"empty-main-with-nonempty-backup");
+ assert.equal(api.commit(KEY,[],["BR:new"]),false);
+ assert.equal(JSON.parse(saved.get(KEY+"-foundation")).length,153);
+});
 test("concurrent or corrupt lists are never overwritten",()=>{
  const {saved,api}=context(list(153)),old=api.read(KEY);
  saved.set(KEY,JSON.stringify(list(155)));
