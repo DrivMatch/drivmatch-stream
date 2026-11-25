@@ -101,6 +101,23 @@ jobs:
           echo "Existing D1 database backup verified (private ephemeral runner)." >> "$GITHUB_STEP_SUMMARY"
       - name: Apply additive public signup migration to existing D1
         run: npx wrangler d1 migrations apply drivmatch-stream-users-test --remote --config wrangler.independent.toml
+      - name: P0 — verify favorite archive and immutable triggers after additive migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute drivmatch-stream-users-test --remote --config wrangler.independent.toml --json \
+            --command 'SELECT (SELECT COUNT(*) FROM stream_favorites) AS live, (SELECT COUNT(*) FROM stream_favorites_archive) AS archived, (SELECT COUNT(*) FROM stream_favorites f LEFT JOIN stream_favorites_archive a ON f.user_id=a.user_id AND f.favorite_key=a.favorite_key WHERE a.user_id IS NULL) AS lost_archive;' > /tmp/streamnow-p0-check.json
+          jq -e '.[0].success == true and .[0].results[0].lost_archive == 0 and .[0].results[0].live == .[0].results[0].archived' /tmp/streamnow-p0-check.json >/dev/null || {
+            echo "::error::P0 favorites integrity verification failed: halt account deployment."
+            exit 1
+          }
+          npx wrangler d1 execute drivmatch-stream-users-test --remote --config wrangler.independent.toml --json \
+            --command "SELECT COUNT(*) AS total FROM sqlite_master WHERE type='trigger' AND name IN ('stream_favorites_emergency_no_delete','stream_favorites_emergency_no_update','stream_favorites_immutable_insert_archive');" > /tmp/streamnow-p0-triggers.json
+          jq -e '.[0].success == true and .[0].results[0].total == 3' /tmp/streamnow-p0-triggers.json >/dev/null || {
+            echo "::error::P0 favorites database deletion guards not installed."
+            exit 1
+          }
+          echo "P0: per-account archive matches current favorites; immutable triggers installed." >> "$GITHUB_STEP_SUMMARY"
       - name: Deploy same shared account Worker without changing secrets
         run: |
           npx wrangler deploy --keep-vars --config wrangler.independent.toml
