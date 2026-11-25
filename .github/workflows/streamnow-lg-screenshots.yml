@@ -1,0 +1,34 @@
+name: Stream Now LG screenshots (development UI capture)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/streamnow_lg_screenshots.cjs'
+      - '.github/workflows/streamnow-lg-screenshots.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium for Playwright screenshots
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Capture TV UI, category and global search at 1920x1080
+        run: node scripts/streamnow_lg_screenshots.cjs
+      - name: Publish test preview artifacts (not LG hardware proof)
+        uses: actions/upload-artifact@v4
+        with:
+          name: streamnow-lg-three-test-screenshots
+          path: dist/lg-screenshots/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Screenshot provenance
+        run: echo 'UI rendered from real source files with offline fixture catalog and no video playback. LG physical-device captures are still required for final store submission.' >> "$GITHUB_STEP_SUMMARY"
