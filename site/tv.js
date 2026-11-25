@@ -413,9 +413,10 @@ function loadFav(){
   if(!isFavoriteArray(a))throw Error("Invalid favorites list");
   favorites=a;
   if(!a.length){
-   var oldRaw=localStorage.getItem(FAV_PREVIOUS_BACKUP)||localStorage.getItem(FAV_FOUNDATION_BACKUP);
-   if(oldRaw){
-    var oldList=JSON.parse(oldRaw);
+   var oldSnapshots=[localStorage.getItem(FAV_PREVIOUS_BACKUP),localStorage.getItem(FAV_FOUNDATION_BACKUP)];
+   for(var si=0;si<oldSnapshots.length;si++){
+    if(oldSnapshots[si]===null)continue;
+    var oldList=JSON.parse(oldSnapshots[si]);
     if(!isFavoriteArray(oldList))throw Error("Old favorites backup unreadable");
     if(oldList.length){
      favStorageSafe=false;
@@ -461,6 +462,16 @@ function persistFavoriteChange(next){
    // Never replace a different stored snapshot with a stale in-memory copy.
    if(JSON.stringify(existing)!==JSON.stringify(favorites)){
     noteFavStorage("Alteração bloqueada: outro acesso atualizou os favoritos. Reabra a página.");return false;
+   }
+   if(!existing.length){
+    var backups=[localStorage.getItem(FAV_PREVIOUS_BACKUP),localStorage.getItem(FAV_FOUNDATION_BACKUP)];
+    for(var bi=0;bi<backups.length;bi++){
+     if(backups[bi]===null)continue;
+     var candidate=JSON.parse(backups[bi]);
+     if(!isFavoriteArray(candidate)||candidate.length){
+      noteFavStorage("Lista vazia suspeita com backup existente: alteração bloqueada.");return false;
+     }
+    }
    }
    var removed=0;
    for(var i=0;i<existing.length;i++)if(!has(next,existing[i]))removed++;
