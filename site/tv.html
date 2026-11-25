@@ -49,8 +49,8 @@ body .tv-shell a{color:#fff!important}
 body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
  outline:3px solid #fff!important;outline-offset:2px
 }
-#recover-legacy-favorites{display:block;margin:8px 0;width:100%;padding:9px;font-weight:bold}
-#recover-legacy-favorites[hidden],#recover-favorites-status[hidden]{display:none!important}
+#recover-legacy-favorites,#recover-backup-favorites,#export-favorites-backup{display:block;margin:8px 0;width:100%;padding:9px;font-weight:bold}
+#recover-legacy-favorites[hidden],#recover-backup-favorites[hidden],#recover-favorites-status[hidden]{display:none!important}
 #recover-favorites-status{color:#fff;font-size:14px;line-height:1.45}
 </style>
 </head>
@@ -77,6 +77,8 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
         <div id="favorite-items" class="quick-items" hidden>
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
+        <button id="recover-backup-favorites" type="button" hidden>↺ Restaurar favoritos do backup local</button>
+        <button id="export-favorites-backup" type="button">↓ Fazer backup dos meus favoritos</button>
         <button id="recover-legacy-favorites" type="button" hidden>↺ Recuperar favoritos antigos desta TV</button>
         <p id="recover-favorites-status" role="status" hidden></p>
       </section>
