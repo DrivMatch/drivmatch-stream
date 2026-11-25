@@ -50,13 +50,15 @@
     button.setAttribute("aria-label",button.title);
   }
   function toggleFavorite(c){
-    if(!c)return;
-    const key=favoriteKey(c);
-    state.favorites=state.favorites.includes(key)
-      ?state.favorites.filter(x=>x!==key):[...state.favorites,key];
-    saveFavorites();
-    syncPlayerFavorite();
-    render();
+    if(!c||!favoritesReadSafe)return;
+    const key=favoriteKey(c),before=state.favorites.slice();
+    const next=before.includes(key)?before.filter(x=>x!==key):[...before,key];
+    if(!window.StreamNowFavoritesSafety.commit(store,before,next)){
+      showError("Favoritos preservados: armazenamento indisponível ou alterado. Reabra a página antes de modificar.");
+      favoritesReadSafe=false;return;
+    }
+    state.favorites=next;
+    syncPlayerFavorite();render();
   }
   function showError(message){
     $("player-error").textContent=message;
@@ -167,17 +169,17 @@
     render();
   }
   function favoriteKey(c){return c.code+":"+normal(c.name.replace(/\s*\(\d{3,4}p\)$/,""));}
+  let favoritesReadSafe=false;
   function readFavorites(){
-    try{
-      const v=JSON.parse(localStorage.getItem(store)||"[]");
-      return Array.isArray(v)?[...new Set(v.filter(x=>typeof x==="string").map(x=>{
-        const i=x.indexOf(":");
-        return i<1?x:x.slice(0,i)+":"+normal(x.slice(i+1).replace(/\s*\(\d{3,4}p\)\s*$/i,""));
-      }))]:[];
-    }catch{return [];}
+    const safety=window.StreamNowFavoritesSafety;
+    if(!safety){favoritesReadSafe=false;return [];}
+    const loaded=safety.read(store);
+    favoritesReadSafe=loaded.ok;
+    return loaded.ok?loaded.list:[];
   }
   function saveFavorites(){
-    try{localStorage.setItem(store,JSON.stringify(state.favorites));}catch{}
+    // Direct writes are forbidden. All mutations must pass commit().
+    return false;
   }
   function channelStatus(c){
     const s=state.health.get(c.id);
