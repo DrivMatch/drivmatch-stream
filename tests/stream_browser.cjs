@@ -231,11 +231,12 @@ async function main(){
       const brazil=page.locator('.tree-country-btn[data-country="BR"]');
       await brazil.waitFor();
       assert.equal(await brazil.getAttribute('aria-expanded'),'false');
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0,
-        'Initial desktop guide must not show channels before user opens a country');
+      await page.locator('#channel-items .channel-btn').first().waitFor();
+      assert((await page.locator('#channel-items .channel-btn').count())>=5,
+        'Official channels must appear before a country is selected');
       assert.equal(await page.locator('.tree-genre-btn').count(),0,
         'Brazil must start folded like every other country on desktop');
-      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
+      assert.equal(await page.locator('#catalog-title').textContent(),'Canais oficiais para assistir');
       await brazil.click();
       await page.locator('#channel-items .channel-btn').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
@@ -281,8 +282,8 @@ async function main(){
         'Showing provider links must not change or interrupt the channel');
       await brazil.click();
       assert.equal(await brazil.getAttribute('aria-expanded'),'false');
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0,
-        'Closing Brazil must hide its guide rather than leave the channel grid visible');
+      assert((await page.locator('#channel-items .channel-btn').count())>=5,
+        'Closing Brazil must return to the official channel home without clearing the playing channel');
       assert.equal(await page.locator('#now-name').textContent(),'24 Horas (720p)',
         'Collapsing the country must not clear the currently selected channel');
       await brazil.click();
@@ -316,8 +317,8 @@ async function main(){
       await page.locator('#channel-items .channel-btn').filter({hasText:'CNN EUA'}).click();
       assert.equal(await page.locator('#now-name').textContent(),'CNN EUA');
       await page.locator('#clear-search').click();
-      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      assert.equal(await page.locator('#catalog-title').textContent(),'Canais oficiais para assistir');
+      assert((await page.locator('#channel-items .channel-btn').count())>=5);
       assert.equal(await page.locator('#now-name').textContent(),'CNN EUA',
         'Clearing search must not stop or reset the selected channel');
 
@@ -435,7 +436,7 @@ async function main(){
       await page.goto(origin+'/stream/');
       await page.locator('.tree-country-btn[data-country="BR"]').waitFor();
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
+      assert((await page.locator('#channel-items .channel-btn').count())>=5);
       await page.locator('.tree-country-btn[data-country="BR"]').click();
       await page.getByText('24 Horas (720p)').first().waitFor();
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
@@ -492,8 +493,8 @@ async function main(){
       assert.equal(await page.locator('#category-items').isVisible(),false);
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'false');
       assert.equal(await page.locator('.tree-genre-btn[data-country="BR"]').count(),0);
-      assert.equal(await page.locator('#channel-items .channel-btn').count(),0);
-      assert.equal(await page.locator('#catalog-title').textContent(),'Escolha um país');
+      assert((await page.locator('#channel-items .channel-btn').count())>=5);
+      assert.equal(await page.locator('#catalog-title').textContent(),'Canais oficiais para assistir');
       await page.locator('.tree-country-btn[data-country="BR"]').click();
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
       const sportsCategory=page.locator('.tree-genre-btn[data-genre="sports"][data-country="BR"]');
