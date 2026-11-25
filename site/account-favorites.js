@@ -32,6 +32,8 @@
  function equivalent(k){
   if(typeof k!=="string")return "";
   // Existing canonical Stream Now guide and historical classic favorites.
+  var library=/^lista-[0-9]+::name:(.+)\\|([A-Za-z]{2,5})$/.exec(k);
+  if(library)return library[2].toUpperCase()+":"+library[1].toLowerCase().replace(/^\\s+|\\s+$/g,"").replace(/\\s+/g," ");
   var m=/^(?:lista-2:)?([A-Za-z]{2,5}):(.+)$/.exec(k);
   if(m)return m[1].toUpperCase()+":"+m[2].toLowerCase().replace(/^\\s+|\\s+$/g,"").replace(/\\s+/g," ");
   return k;
