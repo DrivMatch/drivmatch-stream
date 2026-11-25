@@ -60382,6 +60382,12 @@
       "state": "REVIEW_REQUIRED",
       "type": "repository_candidate"
     },
+    "https://gitlab.com/boo231285/iptv-reseller-supplier-switching-usa": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-25",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
     "https://gitlab.com/boo231285/monthly-iptv-subscriptions-uk-2027": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-23",

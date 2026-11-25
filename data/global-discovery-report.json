@@ -47,7 +47,9 @@
   "date_utc": "2026-11-25",
   "errors": {
     "codeberg": "HTTPError",
-    "github:sports": "HTTPError",
+    "github:business": "HTTPError",
+    "github:events": "HTTPError",
+    "github:faith": "HTTPError",
     "youtube": "ValueError"
   },
   "multilingual_searches": [
@@ -78,11 +80,29 @@
     },
     {
       "found": 0,
-      "provider": "github:news",
+      "provider": "github:science",
       "status": "OK"
     },
     {
-      "provider": "github:sports",
+      "found": 0,
+      "provider": "github:travel",
+      "status": "OK"
+    },
+    {
+      "found": 0,
+      "provider": "github:general",
+      "status": "OK"
+    },
+    {
+      "provider": "github:faith",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "provider": "github:business",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "provider": "github:events",
       "status": "UNAVAILABLE"
     },
     {
@@ -109,8 +129,8 @@
       "status": "OK"
     }
   ],
-  "new_research_channel_records": 1147,
-  "new_research_sources": 3,
+  "new_research_channel_records": 0,
+  "new_research_sources": 1,
   "new_stream_alternatives_in_research": 0,
   "note": "Research-only registry. No newly discovered URLs or repository links are automatically promoted into the playable catalog.",
   "region_count": 7,
@@ -126,8 +146,8 @@
   },
   "scheduled_local": "02:00 America/Sao_Paulo",
   "schema": 1,
-  "started_at_utc": "2026-11-25T14:02:08.462302+00:00",
+  "started_at_utc": "2026-11-25T19:25:47.015993+00:00",
   "state": "PARTIAL",
   "total_research_channels": 2413,
-  "total_sources_recorded": 43
+  "total_sources_recorded": 44
 }

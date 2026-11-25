@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "run_utc": null,
+  "run_utc": "2026-11-25T19:20:27.577868+00:00",
   "searches_attempted": 0,
   "queries": [],
   "candidates_total": 0,
   "api_eligible_curated_lives": [],
   "auto_published": 0,
   "errors": [
-    "NOT_YET_EXECUTED"
+    "YOUTUBE_API_KEY_NOT_CONFIGURED"
   ],
   "mode": "RESEARCH_ONLY_NO_YOUTUBE_AUTO_PUBLICATION"
 }
