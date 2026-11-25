@@ -87,6 +87,16 @@ def official_ids():
         if embed.get("provider")=="youtube_live_channel" and isinstance(ident,str) and len(ident)==24 and ident.startswith("UC"):
             result[ident]={"name":entry["name"],"code":entry.get("code","OTHER"),
                            "genre":entry.get("genre","other"),"url":entry["url"],"id":entry["id"]}
+    # Independently reviewed identities do not automatically enter the user's
+    # public TV guide. This separate registry only authorizes API examination.
+    try:
+        registry=json.loads((ROOT/"data/youtube-official-channel-registry.json").read_text(encoding="utf-8"))
+        for channel in registry.get("channels",[]):
+            ident=channel.get("channelId")
+            if isinstance(ident,str) and len(ident)==24 and ident.startswith("UC"):
+                result[ident]={k:channel[k] for k in ("name","code","genre","url","id")}
+    except (OSError,ValueError,KeyError,TypeError):
+        pass
     return result
 
 def api_json(endpoint,params,fetch=None):
