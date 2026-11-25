@@ -695,7 +695,18 @@ async function main(){
       assert.equal(await page.locator('.sidebar > :first-child').getAttribute('class'),'quick-section');
       assert.equal(await page.locator('.sidebar > :nth-child(2)').getAttribute('class'),'quick-section');
       assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
-      await page.waitForFunction(()=>document.querySelector('#favorite-count')?.textContent==='0 (verificar)');
+      try{
+        await page.waitForFunction(()=>document.querySelector('#favorite-count')?.textContent==='0 (verificar)',null,{timeout:6000});
+      }catch(e){
+        const details=await page.evaluate(async()=>{
+          const session=await fetch('/stream/session').then(x=>x.json()).catch(()=>null);
+          const f=await fetch('/stream/favorites').then(async x=>({status:x.status,body:await x.text()})).catch(x=>({error:String(x)}));
+          return {count:document.querySelector('#favorite-count')?.textContent,
+            accountStatus:document.querySelector('#account-favorites-status')?.textContent,
+            session,favoritesRequest:f,local:localStorage.getItem('drivmatch-tv-guide-favorites-v1')};
+        });
+        throw new Error("Account favorites initial hydration did not finish: "+JSON.stringify(details));
+      }
       assert.equal(await page.locator('#recent-count').textContent(),'0/25');
       assert.equal(await page.locator('#favorite-items').isVisible(),false);
       assert.equal(await page.locator('#recent-items').isVisible(),false);
