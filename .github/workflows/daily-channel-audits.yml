@@ -1,0 +1,51 @@
+name: Stream Now independent 04h and 06h channel audits
+on:
+  schedule:
+    # America/Sao_Paulo = UTC-3 on operating dates.
+    - cron: '0 7 * * *'  # 04:00 Auditor A
+    - cron: '0 9 * * *'  # 06:00 Auditor B
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: 'Independent auditor'
+        type: choice
+        options:
+          - '04'
+          - '06'
+        default: '04'
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: streamnow-independent-channel-audit-${{ github.event.schedule || inputs.agent || 'manual' }}
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enforce non-destructive favorites and channel audit invariants
+        run: |
+          node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
+          python3 -m unittest discover -s tests -p 'test_streamnow_autopilot_audit.py' -v
+          python3 scripts/streamnow_favorites_release_gate.py --mode catalog
+      - name: Auditor A (04:00) or Auditor B (06:00) — recover if required
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_AGENT: ${{ inputs.agent }}
+        run: |
+          if [ "$EVENT_SCHEDULE" = "0 9 * * *" ]; then agent=06
+          elif [ "$EVENT_SCHEDULE" = "0 7 * * *" ]; then agent=04
+          else agent="${MANUAL_AGENT:-04}"; fi
+          python3 scripts/streamnow_autopilot_audit.py --agent "$agent"
