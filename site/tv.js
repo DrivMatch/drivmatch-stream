@@ -789,7 +789,15 @@ function drawQuickLists(){
   }
   list.push(item);
  }
- T(D("favorite-count"),String(list.length));
+ var accountCount=String(list.length);
+ if(accountFavoritesReady){
+  var owner=null;
+  try{owner=localStorage.getItem(accountOwnerKey);}catch(e){}
+  if(accountFavoritesMissing.length&&owner===null)
+   accountCount+=" + "+accountFavoritesMissing.length+" locais";
+  else if(!list.length)accountCount="0 (verificar)";
+ }
+ T(D("favorite-count"),accountCount);
  drawQuickGroup("favorite-items",list,"favorite");
 }
 function focusQuickItem(key,kind){
