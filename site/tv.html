@@ -49,9 +49,9 @@ body .tv-shell a{color:#fff!important}
 body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
  outline:3px solid #fff!important;outline-offset:2px
 }
-#recover-legacy-favorites,#recover-backup-favorites,#export-favorites-backup{display:block;margin:8px 0;width:100%;padding:9px;font-weight:bold}
-#recover-legacy-favorites[hidden],#recover-backup-favorites[hidden],#recover-favorites-status[hidden]{display:none!important}
-#recover-favorites-status{color:#fff;font-size:14px;line-height:1.45}
+#recover-legacy-favorites,#recover-backup-favorites,#export-favorites-backup,#account-import-favorites{display:block;margin:8px 0;width:100%;padding:9px;font-weight:bold}
+#recover-legacy-favorites[hidden],#recover-backup-favorites[hidden],#recover-favorites-status[hidden],#account-import-favorites[hidden],#account-favorites-status[hidden]{display:none!important}
+#recover-favorites-status,#account-favorites-status{color:#fff;font-size:14px;line-height:1.45}#account-import-favorites{background:#970025!important;color:white!important;border:2px solid #ff003c!important}
 </style>
 </head>
 <body>
@@ -77,6 +77,8 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
         <div id="favorite-items" class="quick-items" hidden>
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
+        <button id="account-import-favorites" type="button" hidden>Vincular favoritos locais a esta conta (sem apagar nenhum)</button>
+        <p id="account-favorites-status" role="status" hidden></p>
         <button id="recover-backup-favorites" type="button" hidden>↺ Restaurar favoritos do backup local</button>
         <button id="export-favorites-backup" type="button">↓ Fazer backup dos meus favoritos</button>
         <button id="recover-legacy-favorites" type="button" hidden>↺ Recuperar favoritos antigos desta TV</button>
@@ -148,6 +150,6 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
   <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream Now e autentique seu acesso.</p><a href="/stream/">Entrar no Stream Now</a></div>
 </div>
 <script src="/stream/favorites-safety.js"></script>
-<script src="/stream/tv/tv.js?v=20261124-samsung-red-recovery1"></script>
+<script src="/stream/tv/tv.js?v=20261125-favorites-account-hotfix1"></script>
 </body>
 </html>

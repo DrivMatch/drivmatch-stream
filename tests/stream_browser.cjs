@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json','/stream/favorites-safety.js':'favorites-safety.js'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
@@ -23,8 +23,39 @@ const m3uGlobal = ['#EXTM3U','#EXTINF:-1 tvg-id="NHKWorldJapan.jp@HD" group-titl
   'https://mock.example/nhk.m3u8'].join('\n');
 
 async function main(){
-  let authorized=false;
+  let authorized=false,contextSequence=0;
+  const accounts=new Map();
+  const cookieAccount=req=>{
+    const cookie=(req.headers.cookie||"").split(";").map(v=>v.trim()).find(v=>v.startsWith("test_stream_user="));
+    return cookie?cookie.slice("test_stream_user=".length):"";
+  };
   const server=http.createServer((req,res)=>{
+    const current=cookieAccount(req);
+    if(req.url==="/stream/favorites"){
+      if(!authorized||!current||!accounts.has(current)){
+        res.writeHead(401);res.end("Unauthorized");return;
+      }
+      const entries=accounts.get(current);
+      if(req.method==="GET"){
+        res.writeHead(200,{"Content-Type":"application/json"});
+        res.end(JSON.stringify({favorites:[...entries]}));return;
+      }
+      if(req.method==="POST"){
+        let text="";
+        req.on("data",x=>{text+=x;});
+        req.on("end",()=>{
+          let data={};try{data=JSON.parse(text);}catch{}
+          if(data.operation==="remove"){res.writeHead(423);res.end();return;}
+          if(data.operation==="add"&&typeof data.key==="string")entries.add(data.key);
+          else if(data.operation==="import"&&Array.isArray(data.keys)&&data.keys.length<=20){
+            for(const key of data.keys)entries.add(key);
+          }else{res.writeHead(400);res.end();return;}
+          res.writeHead(200,{"Content-Type":"application/json"});
+          res.end(JSON.stringify({ok:true}));
+        });return;
+      }
+      res.writeHead(405);res.end();return;
+    }
     if(req.url==="/stream/listas/sources.json"){
       if(!authorized){res.writeHead(403);res.end();return;}
       res.writeHead(200,{"Content-Type":"application/json"});res.end(JSON.stringify({sources:[{id:"lista-1",title:"Lista 1 • Free-TV"},{id:"lista-2",title:"Lista 2 • Canais por país (Listas 1–8)"},{id:"lista-3",title:"Lista 3 • Notícias"},{id:"lista-4",title:"Lista 4 • Esportes"},{id:"lista-5",title:"Lista 5 • Nexonic"},{id:"lista-6",title:"Lista 6 • Open Legal"},{id:"lista-7",title:"Lista 7 • FreeCastHub"},{id:"lista-8",title:"Lista 8 • Brasil: canais abertos"},{id:"lista-9",title:"Lista 9 • Brasil: canais públicos recentes"},
@@ -88,7 +119,7 @@ async function main(){
     if(req.url==="/stream/session"||
        (req.url&&req.url.startsWith("/stream/session?connectivity="))){
       res.writeHead(authorized?200:403,{"Content-Type":"application/json","Cache-Control":"no-store"});
-      res.end(JSON.stringify({allowed:authorized}));
+      res.end(JSON.stringify({allowed:authorized,user_id:current}));
       return;
     }
     // Versioned Samsung assets must resolve to the same file, ignoring query.
@@ -104,6 +135,9 @@ async function main(){
     const setup=async allowed=>{
       authorized=allowed;
       const context=await browser.newContext();
+      const userId="test-account-"+(++contextSequence);
+      accounts.set(userId,new Set());
+      await context.addCookies([{name:"test_stream_user",value:userId,url:origin}]);
       await context.addInitScript(() => {
         HTMLMediaElement.prototype.canPlayType = function(type){return type.includes('mpegurl') ? 'probably' : '';};
         HTMLMediaElement.prototype.play = function(){return Promise.reject(new Error('Simulated media disabled'));};
@@ -661,7 +695,18 @@ async function main(){
       assert.equal(await page.locator('.sidebar > :first-child').getAttribute('class'),'quick-section');
       assert.equal(await page.locator('.sidebar > :nth-child(2)').getAttribute('class'),'quick-section');
       assert.equal(await page.locator('.sidebar > :last-child').getAttribute('class'),'technical-footer');
-      assert.equal(await page.locator('#favorite-count').textContent(),'0');
+      try{
+        await page.waitForFunction(()=>document.querySelector('#favorite-count')?.textContent==='0 (verificar)',null,{timeout:6000});
+      }catch(e){
+        const details=await page.evaluate(async()=>{
+          const session=await fetch('/stream/session').then(x=>x.json()).catch(()=>null);
+          const f=await fetch('/stream/favorites').then(async x=>({status:x.status,body:await x.text()})).catch(x=>({error:String(x)}));
+          return {count:document.querySelector('#favorite-count')?.textContent,
+            accountStatus:document.querySelector('#account-favorites-status')?.textContent,
+            session,favoritesRequest:f,local:localStorage.getItem('drivmatch-tv-guide-favorites-v1')};
+        });
+        throw new Error("Account favorites initial hydration did not finish: "+JSON.stringify(details));
+      }
       assert.equal(await page.locator('#recent-count').textContent(),'0/25');
       assert.equal(await page.locator('#favorite-items').isVisible(),false);
       assert.equal(await page.locator('#recent-items').isVisible(),false);
@@ -671,7 +716,7 @@ async function main(){
       // Click one favorite and twenty-six distinct channels in sequence.
       await page.locator('#channel-items .channel-btn[data-channel-id="lista-2:BR|canal teste 2"]').click();
       await page.locator('#player-favorite').click();
-      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      await page.waitForFunction(()=>document.querySelector('#favorite-count')?.textContent==='1');
       assert.match(await page.locator('#favorite-items').textContent(),/★ Canal Teste 2/);
       const testNames=await page.evaluate(()=>
         [...document.querySelectorAll('#channel-items .channel-btn strong')]
@@ -702,14 +747,15 @@ async function main(){
         oldFavorites:JSON.parse(localStorage.getItem('drivmatch-tv-guide-favorites-v1'))
       }));
       assert.equal(persisted.recent.length,25);
-      assert(persisted.oldFavorites.some(x=>x.endsWith(':canal teste 2')));
+      // Account-scoped favorites are saved to D1; never assume localStorage is the source of truth.
+      assert.equal(persisted.oldFavorites,null);
 
       // Country-crossing favorites are flat, not grouped by country or genre.
       await page.locator('.tree-country-btn[data-country="MX"]').click();
       await page.locator('.tree-genre-btn[data-country="MX"]').first().waitFor();
       await page.locator('#channel-items .channel-btn').filter({hasText:'Canal México'}).click();
       await page.locator('#player-favorite').click();
-      assert.equal(await page.locator('#favorite-count').textContent(),'2');
+      await page.waitForFunction(()=>document.querySelector('#favorite-count')?.textContent==='2');
       assert.match(await page.locator('#favorite-items').textContent(),/Canal México/);
       assert.match(await page.locator('#favorite-items').textContent(),/Canal Teste 2/);
       const before=await page.locator('#favorite-items .quick-entry-btn').count();
@@ -729,9 +775,10 @@ async function main(){
       assert.equal(await page.locator('#now-name').textContent(),'Canal México');
       assert.equal(await page.locator('#favorite-count').textContent(),'2');
 
-      // Removing a favorite does not clear the twenty-five-channel history.
+      // P0 incident freeze: clicking an existing favorite may NOT delete it.
       await page.locator('#player-favorite').click();
-      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      await page.waitForFunction(()=>/bloqueada/.test(document.querySelector('#account-favorites-status')?.textContent||""));
+      assert.equal(await page.locator('#favorite-count').textContent(),'2');
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
       await context.close();
     }
