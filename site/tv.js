@@ -412,6 +412,18 @@ function loadFav(){
   var a=JSON.parse(raw);
   if(!isFavoriteArray(a))throw Error("Invalid favorites list");
   favorites=a;
+  if(!a.length){
+   var oldRaw=localStorage.getItem(FAV_PREVIOUS_BACKUP)||localStorage.getItem(FAV_FOUNDATION_BACKUP);
+   if(oldRaw){
+    var oldList=JSON.parse(oldRaw);
+    if(!isFavoriteArray(oldList))throw Error("Old favorites backup unreadable");
+    if(oldList.length){
+     favStorageSafe=false;
+     noteFavStorage("A lista ficou vazia, mas há favoritos salvos em backup. Nenhuma gravação será permitida; use Restaurar favoritos.");
+     return;
+    }
+   }
+  }
   if(a.length){
    // Snapshot immediately on first visit after upgrading, before any user action.
    if(!localStorage.getItem(FAV_FOUNDATION_BACKUP)){
@@ -483,13 +495,24 @@ function recoverFavoriteBackup(){
   var original=localStorage.getItem(STORE);
   if(original!==null){
    var current=JSON.parse(original);
-   if(isFavoriteArray(current)){favorites=current;favStorageSafe=true;drawQuickLists();return true;}
-   noteFavStorage("Backup detectado, mas o registro principal está ilegível. Não será sobrescrito.");return false;
+   if(isFavoriteArray(current)&&current.length){
+    favorites=current;favStorageSafe=true;drawQuickLists();return true;
+   }
+   if(!isFavoriteArray(current)){
+    noteFavStorage("Registro principal inválido: preservar para análise antes de restaurar.");return false;
+   }
   }
-  var raw=localStorage.getItem(FAV_PREVIOUS_BACKUP)||localStorage.getItem(FAV_FOUNDATION_BACKUP);
-  if(!raw)return false;
-  var list=JSON.parse(raw);
-  if(!isFavoriteArray(list))return false;
+  // Select the longest verified local snapshot when the main list is empty.
+  var variants=[localStorage.getItem(FAV_PREVIOUS_BACKUP),localStorage.getItem(FAV_FOUNDATION_BACKUP)];
+  var raw=null,list=[];
+  for(var k=0;k<variants.length;k++){
+   if(!variants[k])continue;
+   var candidate=JSON.parse(variants[k]);
+   if(isFavoriteArray(candidate)&&candidate.length>list.length){
+    raw=variants[k];list=candidate;
+   }
+  }
+  if(!raw||!list.length)return false;
   localStorage.setItem(STORE,raw);
   if(localStorage.getItem(STORE)!==raw)throw Error("Recovery write not verified");
   favorites=list;favStorageSafe=true;drawQuickLists();
