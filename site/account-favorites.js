@@ -29,6 +29,13 @@
    x.send(payload?JSON.stringify(payload):null);
   }catch(e){finish(0,"");}
  }
+ function equivalent(k){
+  if(typeof k!=="string")return "";
+  // Existing canonical Stream Now guide and historical classic favorites.
+  var m=/^(?:lista-2:)?([A-Za-z]{2,5}):(.+)$/.exec(k);
+  if(m)return m[1].toUpperCase()+":"+m[2].toLowerCase().replace(/^\\s+|\\s+$/g,"").replace(/\\s+/g," ");
+  return k;
+ }
  function create(opts){
   opts=opts||{};
   var user="",all=[],ready=false,pending=[],busy=false,local=[],owner="";
@@ -91,7 +98,7 @@
    if(!ready||!user||typeof key!=="string"||key.length<2||key.length>400){
     tell("Conta não confirmada. Não foi possível adicionar sem risco.");if(callback)callback(false);return;
    }
-   if(all.indexOf(key)>=0){if(callback)callback(true);return;}
+   for(var ci=0;ci<all.length;ci++)if(equivalent(all[ci])===equivalent(key)){if(callback)callback(true);return;}
    xhr("POST",user,{operation:"add",key:key},function(st,data){
     if(st===200&&data&&data.ok){all.push(key);draw();tell("Favorito salvo na conta.");if(callback)callback(true);}
     else{tell("Falha ao salvar no servidor. Nenhum favorito existente foi alterado.");if(callback)callback(false);}
@@ -99,6 +106,7 @@
   }
   return {init:init,refresh:refresh,add:add,importLocal:importLocal,
    ready:function(){return ready;},favorites:function(){return all.slice(0);},
+   contains:function(k){var e=equivalent(k);for(var i=0;i<all.length;i++)if(equivalent(all[i])===e)return true;return false;},
    pending:function(){return pending.slice(0);},user:function(){return user;}};
  }
  root.StreamNowAccountFavorites={create:create};
