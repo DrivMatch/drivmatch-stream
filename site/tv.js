@@ -15,7 +15,7 @@ var desktopHls=null,desktopHlsLoading=false,desktopHlsWaiters=[];
 var desktopSourceGeneration=0,desktopFailureReason="";
 var COUNTRY=[["ALL","Todos os países"],["BR","Brasil"],["US","Estados Unidos"],["PT","Portugal"],
  ["ES","Espanha"],["AR","Argentina"],["JP","Japão"],["CN","China"],["UK","Reino Unido"],
- ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["OTHER","Outros / não identificados"]];
+ ["BE","Bélgica"],["IT","Itália"],["FR","França"],["DE","Alemanha"],["QA","Catar"],["OTHER","Outros / não identificados"]];
 var SOURCES=[],source="lista-2",country="ALL",category="all",search="",channels=[],visible=[],selected=null;
 var openCountries={},openGenres={},treeLimits={},treeErrors={};
 var officialFree=[],officialPaid=[];
