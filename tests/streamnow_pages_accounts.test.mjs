@@ -47,7 +47,10 @@ test("the Pages deployments continue to serve their original brand and published
   }}};
   for(const origin of [official,preview]){
     for(const path of ["/stream/brand.webp","/stream/icon.webp","/daily-autopilot.m3u8"]){
-      assert.equal((await pages.fetch(request(origin,path),env)).status,200);
+      const response=await pages.fetch(request(origin,path),env);
+      assert.equal(response.status,200);
+      if(path==="/stream/brand.webp")assert.equal(response.headers.get("Cross-Origin-Resource-Policy"),"cross-origin");
+      if(path==="/stream/icon.webp")assert.equal(response.headers.get("Cross-Origin-Resource-Policy"),"same-origin");
     }
   }
   assert.deepEqual(paths,Array(2).fill(["/streamnow-brand.webp","/streamnow-icon.webp","/daily-autopilot.m3u8"]).flat());

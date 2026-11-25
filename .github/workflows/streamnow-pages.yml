@@ -125,7 +125,10 @@ jobs:
                { grep -Fq 'name="email"' /tmp/streamnow-login.html || grep -Fq "name='email'" /tmp/streamnow-login.html; }; then
               status=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "${origin}stream/session")
               if [ "$status" = 401 ]; then
-                echo "Pages login and anonymous access check passed at $origin." >> "$GITHUB_STEP_SUMMARY"
+                curl -fsS --max-time 15 -D /tmp/streamnow-brand-headers.txt -o /tmp/streamnow-brand.webp "${origin}stream/brand.webp?email=2"
+                grep -Eiq '^cross-origin-resource-policy:[[:space:]]*cross-origin' /tmp/streamnow-brand-headers.txt
+                grep -Eiq '^content-type:[[:space:]]*image/webp' /tmp/streamnow-brand-headers.txt
+                echo "Pages login, anonymous access and public email logo checks passed at $origin." >> "$GITHUB_STEP_SUMMARY"
                 exit 0
               fi
             fi

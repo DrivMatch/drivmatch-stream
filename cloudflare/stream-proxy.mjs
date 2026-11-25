@@ -235,7 +235,7 @@ export default {async fetch(request,env){
      if(!response.ok)return plain(502,"Logo temporarily unavailable");
      return new Response(request.method==="HEAD"?null:response.body,{status:200,headers:{
        "Content-Type":"image/webp","Cache-Control":"public,max-age=86400",
-       "X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"same-origin"}});
+       "X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":path==="/stream/brand.webp"?"cross-origin":"same-origin"}});
    }catch{return plain(502,"Logo temporarily unavailable");}
  }
  if(path==="/daily-autopilot.m3u8"){
