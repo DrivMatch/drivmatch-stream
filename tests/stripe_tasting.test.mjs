@@ -18,7 +18,7 @@ const price = {
 function fixture(t, {days = "7", unitAmount = 0, failOnce = false} = {}) {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
-  for (const migration of ["0001_stream_identities.sql", "0004_stream_admin_stepup.sql", "0005_stream_tasting.sql", "0007_stream_approval.sql"]) {
+  for (const migration of ["0001_stream_identities.sql", "0002_stream_access_audit.sql", "0003_stream_email_budget.sql", "0004_stream_admin_stepup.sql", "0005_stream_tasting.sql", "0006_stream_public_signup.sql", "0007_stream_approval.sql", "0008_stream_signup_notifications.sql"]) {
     db.exec(readFileSync(new URL("../migrations/" + migration, import.meta.url), "utf8"));
   }
   db.prepare("INSERT INTO stream_users(user_id,email,status) VALUES(?,?,'active')")
@@ -156,4 +156,18 @@ test("an unlimited plan omits cancellation and a completed fixed plan cannot dup
   assert.equal((await begin()).status,303);
   assert.match(await (await get(env)).text(),/Plano encerrado/);
   assert.equal(calls.filter(call => call.route === "/v1/subscriptions").length,1);
+});
+
+ test("notification migration preserves existing email budget and approval states",t=>{
+  const db=new DatabaseSync(":memory:");
+  t.after(()=>db.close());
+  const apply=name=>db.exec(readFileSync(new URL("../migrations/"+name,import.meta.url),"utf8"));
+  for(const name of ["0001_stream_identities.sql","0002_stream_access_audit.sql","0003_stream_email_budget.sql","0004_stream_admin_stepup.sql","0005_stream_tasting.sql","0006_stream_public_signup.sql","0007_stream_approval.sql"])apply(name);
+  db.exec("INSERT INTO stream_users(user_id,email,role,status,approval_state) VALUES('test-pending','pending@example.test','viewer','active','pending'); INSERT INTO stream_email_budget(request_id,local_day,kind,status) VALUES('old','2026-11-25','signup','accepted');");
+  apply("0008_stream_signup_notifications.sql");
+  assert.equal(db.prepare("SELECT approval_state FROM stream_users WHERE user_id='test-pending'").get().approval_state,"pending");
+  assert.equal(db.prepare("SELECT signup_notice_state FROM stream_users WHERE user_id='test-pending'").get().signup_notice_state,"not_requested");
+  assert.equal(db.prepare("SELECT status FROM stream_email_budget WHERE request_id='old'").get().status,"accepted");
+  db.exec("INSERT INTO stream_email_budget(request_id,local_day,kind,status) VALUES('new','2026-11-25','signup-notice','accepted');");
+  assert.equal(db.prepare("SELECT COUNT(*) AS total FROM stream_email_budget").get().total,2);
 });

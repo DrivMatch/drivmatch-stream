@@ -111,6 +111,10 @@ function testEnvironment() {
             if(account?.status==="active"){
               account.first_login_at??=args[0];account.last_login_at=args[1];
             }
+          } else if(statement.startsWith("UPDATE stream_users SET signup_notice_state=?") || statement.startsWith("UPDATE stream_users SET decision_notice_state=?")) {
+            const account=accounts.get(args[1]);
+            if(account)account[statement.includes("signup_notice_state")?"signup_notice_state":"decision_notice_state"]=args[0];
+            return {success:true,meta:{changes:account?1:0}};
           } else if(statement.startsWith("UPDATE stream_users SET approval_state=?")) {
             const account=accounts.get(args[3]);
             if(account?.role==="viewer" && account.status==="active" && account.approval_state==="pending"){
@@ -136,6 +140,7 @@ function testEnvironment() {
             if(!exists)accounts.set(args[0],{user_id:args[0],email:args[1],
               role:"viewer",status:"active",approval_state:"pending",created_at:Math.floor(Date.now()/1000),
               activated_at:null,first_login_at:null,last_login_at:null,canceled_invite_at:null});
+            return {success:true,meta:{changes:exists?0:1}};
           } else if(statement.startsWith("INSERT INTO stream_users")) {
             accounts.set(args[0],{user_id:args[0],email:args[1],role:"viewer",status:"invited",approval_state:"approved",
               created_at:Math.floor(Date.now()/1000),activated_at:null,first_login_at:null,
@@ -209,6 +214,25 @@ async function withFakeSupabase(fn) {
         return Response.json({error_code:"over_email_send_rate_limit"},{status:429});
       return Response.json({user:{id:"706664d1-cd56-47bb-9a20-17eebc5851bc",
         email:body.email,identities:[{provider:"email"}]},session:null});
+    }
+    if(u.pathname==="/auth/v1/admin/users"){
+      assert.equal(options.headers.apikey,"testing-secret-key");
+      assert.equal(body.email_confirm,false);
+      if(body.email==="smtp-error@example.test")
+        return Response.json({id:"806664d1-cd56-47bb-9a20-17eebc5851bc",email:body.email,identities:[{provider:"email"}]});
+      return Response.json({error_code:"user_already_exists"},{status:422});
+    }
+    if(u.pathname==="/auth/v1/resend"){
+      assert.equal(options.headers.apikey,"testing-public-key");
+      assert.equal(body.type,"signup");
+      return Response.json({});
+    }
+    if(u.hostname==="api.brevo.com"&&u.pathname==="/v3/smtp/email"){
+      assert.equal(options.headers["api-key"],"testing-notification-key");
+      assert.equal(body.sender.email,"sender@example.test");
+      assert.equal(body.to.length,1);
+      assert.doesNotMatch(body.textContent,/New-user-password/);
+      return Response.json({messageId:"test-notice"},{status:201});
     }
     if(u.pathname==="/auth/v1/recover"){
       assert.equal(options.headers.Authorization,undefined);
@@ -900,18 +924,23 @@ test("public signup shares existing 20/day total email cap, without extra arbitr
     assert.equal(accounts.get(users[0].id).role,"admin");
   });
 });
-test("known SMTP signup rejection refunds reservation and gives clear error",async()=>{
+test("known SMTP signup rejection retains unconfirmed pending registration and refunds failed email reservation",async()=>{
   await withFakeSupabase(async()=>{
-    const {env,emailBudget}=testEnvironment();
+    const {env,emailBudget,accounts}=testEnvironment();
     const f=await getForm("/stream/signup",env);
     const r=await worker.fetch(req("/stream/signup",{method:"POST",
       headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},
       body:new URLSearchParams({_csrf:f.token,email:"smtp-error@example.test",
         password:"New-user-password-12345",confirm:"New-user-password-12345"})
     }),env);
-    assert.equal(r.status,503);
-    assert.match(await r.text(),/Cadastro indisponível/);
+    assert.equal(r.status,200);
+    assert.match(await r.text(),/Solicitação registrada/);
+    assert.equal(accounts.get("806664d1-cd56-47bb-9a20-17eebc5851bc").approval_state,"pending");
     assert.equal(emailBudget.length,0);
+    const resend=await getForm("/stream/resend-confirmation",env);
+    const resent=await worker.fetch(req("/stream/resend-confirmation",{method:"POST",headers:{Cookie:resend.cookie,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({_csrf:resend.token,email:"smtp-error@example.test"})}),env);
+    assert.equal(resent.status,200);
+    assert.equal(emailBudget.length,1);
   });
 });
 
@@ -967,5 +996,23 @@ test("viewer cannot approve their own request or bypass signed administrative fo
     }),env);
     assert.equal(request.status,403);
     assert.equal(accounts.get(users[1].id).approval_state,"pending");
+  });
+});
+
+ test("configured notification transport records provider acceptance without granting access",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,emailBudget}=testEnvironment();
+    Object.assign(env,{STREAM_NOTIFICATION_BREVO_KEY:"testing-notification-key",STREAM_NOTIFICATION_FROM:"sender@example.test",STREAM_NOTIFICATION_ADMIN_TO:"owner@example.test"});
+    const f=await getForm("/stream/signup",env);
+    const r=await worker.fetch(req("/stream/signup",{method:"POST",headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({_csrf:f.token,email:"joiner@example.test",password:"New-user-password-12345",confirm:"New-user-password-12345"})}),env);
+    assert.equal(r.status,200);
+    const id="706664d1-cd56-47bb-9a20-17eebc5851bc";
+    assert.equal(accounts.get(id).approval_state,"pending");
+    assert.equal(accounts.get(id).signup_notice_state,"accepted");
+    assert.equal(emailBudget.filter(x=>x.kind==="signup-notice").length,1);
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    assert.equal((await adminAction(env,a,"approval",id,{decision:"approved"})).status,303);
+    assert.equal(accounts.get(id).decision_notice_state,"accepted");
+    assert.equal(emailBudget.filter(x=>x.kind==="decision-notice").length,1);
   });
 });
