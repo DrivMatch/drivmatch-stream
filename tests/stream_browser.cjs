@@ -26,8 +26,8 @@ async function main(){
   let authorized=false,contextSequence=0;
   const accounts=new Map();
   const cookieAccount=req=>{
-    const m=/(?:^|;\\s*)test_stream_user=([^;]+)/.exec(req.headers.cookie||"");
-    return m?m[1]:"";
+    const cookie=(req.headers.cookie||"").split(";").map(v=>v.trim()).find(v=>v.startsWith("test_stream_user="));
+    return cookie?cookie.slice("test_stream_user=".length):"";
   };
   const server=http.createServer((req,res)=>{
     const current=cookieAccount(req);
