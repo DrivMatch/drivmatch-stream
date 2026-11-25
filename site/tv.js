@@ -411,9 +411,23 @@ function loadFav(){
   }
   var a=JSON.parse(raw);
   if(!isFavoriteArray(a))throw Error("Invalid favorites list");
-  favorites=a;favStorageSafe=true;
+  favorites=a;
+  if(a.length){
+   // Snapshot immediately on first visit after upgrading, before any user action.
+   if(!localStorage.getItem(FAV_FOUNDATION_BACKUP)){
+    localStorage.setItem(FAV_FOUNDATION_BACKUP,raw);
+    if(localStorage.getItem(FAV_FOUNDATION_BACKUP)!==raw)throw Error("Initial snapshot not verified");
+   }
+   if(!localStorage.getItem(FAV_PREVIOUS_BACKUP)){
+    localStorage.setItem(FAV_PREVIOUS_BACKUP,raw);
+    if(localStorage.getItem(FAV_PREVIOUS_BACKUP)!==raw)throw Error("Initial previous snapshot not verified");
+   }
+  }
+  favStorageSafe=true;
  }catch(e){
-  favorites=[];
+  // Preserve the already read display list even if backing up was blocked.
+  // A failed snapshot must NOT erase or overwrite its main stored source.
+  if(!isFavoriteArray(favorites))favorites=[];
   noteFavStorage("Falha ao ler favoritos. Escrita bloqueada para proteger os dados existentes.");
  }
 }
