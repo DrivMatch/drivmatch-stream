@@ -38,6 +38,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
           python3 -m unittest discover -s tests -p 'test_global_channel_discovery.py' -v
           python3 -m unittest discover -s tests -p 'test_youtube_live_discovery.py' -v
+          python3 -m unittest discover -s tests -p 'test_channel_category_balance.py' -v
       - name: Discover official YouTube lives (API-only, never fake live status)
         # Independent research lane; missing API key must be reported and must
         # never block vetted HLS catalog or delete any user preferences.
