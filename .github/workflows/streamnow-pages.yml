@@ -35,6 +35,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Independently test 04:00 and 06:00 auditors (offline)
+        run: |
+          python3 -m py_compile scripts/streamnow_autopilot_audit.py
+          python3 -m unittest discover -s tests -p 'test_streamnow_autopilot_audit.py' -v
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
