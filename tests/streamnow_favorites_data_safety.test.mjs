@@ -72,7 +72,7 @@ test("failed backup prevents modifying existing favorites",()=>{
  const {ctx,data,storage}=setup(saved(153));ctx.loadFav();
  const original=storage.setItem;
  storage.setItem=(k,v)=>{
-   if(k===ctx.FAV_FOUNDATION_BACKUP)throw Error("quota exceeded");
+   if(k===ctx.FAV_PREVIOUS_BACKUP)throw Error("quota exceeded");
    original(k,v);
  };
  assert.equal(ctx.persistFavoriteChange([...ctx.favorites,"lista-2:BR:add"]),false);
