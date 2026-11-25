@@ -1,4 +1,4 @@
-# STREAM NOW — CONSTITUIÇÃO DE PRESERVAÇÃO DE FAVORITOS v1.0
+# STREAM NOW — CONSTITUIÇÃO DE PRESERVAÇÃO DE FAVORITOS v1.1
 Status: **REGRA OBRIGATÓRIA / NÃO NEGOCIÁVEL** — 25/11/2026.
 
 ## Princípio fundamental
@@ -40,3 +40,16 @@ A reconstrução manual de uma lista com 153 canais na Samsung após apareciment
 **Status atual:** proteções locais e exportação implementadas; sincronização de favoritos no servidor ainda **NÃO IMPLEMENTADA**. Não confundir com garantia de restauração em outra TV.
 
 Regra de mudança: qualquer exceção exige justificativa expressa do titular, avaliação de risco, cópia externa verificada e testes de recuperação aprovados.
+## 13. UNIVERSALIDADE OBRIGATÓRIA — TODOS OS DISPOSITIVOS E FORMATOS
+
+**Esta constituição aplica-se sem exceção e sem interpretação restritiva a:** APK Android (debug/release), AAB Google Play, app Android TV e Google TV quando existir, aplicativo Samsung Tizen e navegador Samsung Smart TV, aplicativo LG webOS e navegador LG, desktop Windows/macOS/Linux e navegadores, iPad/iPadOS (Safari e app/PWA quando existirem), iPhone/iOS e celulares Android, versão mobile web e qualquer implementação futura de tablet, Smart TV ou TV box. A inclusão em uma plataforma não exclui nenhuma outra. O conjunto de plataformas é extensível, não fechado.
+
+**Invariantes universais obrigatórios:** preservação de favoritos, listas pessoais, histórico útil e preferências do usuário; proibição de sobrescrita por vazio ou erro; snapshots e exportação; migração aditiva e rastreável; bloqueio de release sem teste; identificação explícita de onde os dados estão. Toda feature e correção deve ser analisada em matriz cross-platform ANTES da implementação, e testada nos alvos correspondentes ANTES da entrega.
+
+**Arquitetura única:** todas as interfaces hospedadas apontam para o mesmo serviço Stream Now; wrappers Android, Tizen, webOS NÃO podem criar um armazenamento paralelo independente sem mecanismo real de migração/sincronização. Enquanto não houver armazenamento autenticado no servidor, os favoritos locais NÃO são compartilhados automaticamente entre aparelhos e origens. É proibido prometer sincronização universal até que haja prova ponta a ponta de gravação, leitura, concorrência, exportação, restauração, logout/login e troca de dispositivo.
+
+**Regra adicional de release:** workflows web/Cloudflare, Android APK e AAB, Samsung e LG devem executar a suíte de preservação universal. Novos clientes/plataformas devem incluí-la como condição de aceite. Ausência do teste ou incompatibilidade => não publicar. Uma modificação visual ou de catálogo também deve passar pelo gate.
+
+**Matriz de validação mínima:** Android APK; Android AAB/Play; celular Android via navegador; iPhone; iPad; desktop; Samsung navegador; Samsung app; LG navegador; LG app. Para cada um, registrar se o comportamento foi verificado em código, em emulação ou em aparelho real. Nunca converter um teste de web browser em homologação de TV física.
+
+**Nenhum compartilhamento de conta implica compartilhamento de favoritos** sem sincronização de backend implementada e auditada. Dados locais são propriedade do usuário; o sistema só poderá substituí-los após reconciliação e backup verificado.
