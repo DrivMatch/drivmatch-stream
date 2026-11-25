@@ -16,7 +16,10 @@ class YouTubeLiveResearchTests(unittest.TestCase):
         strings=" ".join(q[2] for q in yt.QUERIES).lower()
         for term in ("cnn","bloomberg","cazétv","ge tv","times brasil",
                      "volleyball","tennis","basketball","nfl","football",
-                     "formula 1","nascar","athletics","gymnastics","flamengo","palmeiras"):
+                     "formula 1","nascar","athletics","gymnastics","flamengo","palmeiras",
+                     "rally","snooker","bowling","equestrian polo","horse racing","turf",
+                     "extreme sports","football clubs live","cnn official regional",
+                     "bloomberg official regional"):
             self.assertIn(term,strings)
         self.assertEqual(len(yt.selected_queries(NOW)),yt.MAX_SEARCHES)
         self.assertLessEqual(len(yt.selected_queries(NOW)),18)
