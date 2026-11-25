@@ -15,6 +15,7 @@ on:
       - 'tests/streamnow_red_theme.test.mjs'
       - 'tests/streamnow_palette_source.test.mjs'
       - 'tests/streamnow_favorites_data_safety.test.mjs'
+      - 'tests/streamnow_universal_favorites_scope.test.mjs'
       - 'docs/STREAMNOW_FAVORITES_DATA_CONSTITUTION.md'
       - 'AGENTS.md'
       - 'emails/**'
@@ -34,10 +35,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Independently test 04:00 and 06:00 auditors (offline)
+        run: |
+          python3 -m py_compile scripts/streamnow_autopilot_audit.py
+          python3 -m unittest discover -s tests -p 'test_streamnow_autopilot_audit.py' -v
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_pages_accounts.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs tests/streamnow_favorites_data_safety.test.mjs
+          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_pages_accounts.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
       - name: Validate deployment inputs
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}

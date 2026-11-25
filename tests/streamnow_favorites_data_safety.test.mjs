@@ -78,6 +78,17 @@ test("failed backup prevents modifying existing favorites",()=>{
  assert.equal(ctx.persistFavoriteChange([...ctx.favorites,"lista-2:BR:add"]),false);
  assert.equal(JSON.parse(data.get(ctx.STORE)).length,153);
 });
+test("153 preserved in backup block suspicious empty main and can be restored",()=>{
+ const {ctx,data,storage}=setup([]);
+ storage.setItem(ctx.FAV_FOUNDATION_BACKUP,JSON.stringify(saved(153)));
+ storage.setItem(ctx.FAV_PREVIOUS_BACKUP,JSON.stringify([]));
+ ctx.loadFav();
+ assert.equal(ctx.favStorageSafe,false);
+ assert.equal(ctx.persistFavoriteChange(["lista-2:BR:new"]),false);
+ assert.equal(ctx.recoverFavoriteBackup(),true);
+ assert.equal(ctx.favorites.length,153);
+ assert.equal(JSON.parse(data.get(ctx.STORE)).length,153);
+});
 test("no automatic destructive clear path in TV, legacy TV or library",()=>{
  for(const file of ["site/tv.js","site/stream-tv.js","site/listas.js"]){
   const text=readFileSync(new URL("../"+file,import.meta.url),"utf8");

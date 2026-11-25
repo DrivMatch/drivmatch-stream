@@ -12,6 +12,7 @@ const FILES={"/":"tv.html","/stream/":"index.html","/stream/index.html":"index.h
   "/stream/graphite.css":"streamnow-graphite.css",
   "/stream/brand.webp":"streamnow-brand.webp",
   "/stream/icon.webp":"streamnow-icon.webp",
+  "/stream/favorites-safety.js":"favorites-safety.js",
   "/stream/stream-boot.js":"stream-boot.js","/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html","/stream/tv/index.html":"tv.html",
   "/stream/tv/tv.css":"tv.css","/stream/tv/tv.js":"tv.js",

@@ -407,7 +407,7 @@ async function main(){
       assert.equal(new URL(page.url()).pathname,'/stream/tv/');
       assert.equal(await page.locator('#source-items .source-btn').first().isVisible(),false);
       await page.locator('.tree-country-btn[data-country="MX"]').waitFor();
-      assert.equal(await page.locator('#country-items .country-btn').count(),14);
+      assert.equal(await page.locator('#country-items .country-btn').count(),15);
       assert.equal(await page.locator('.tree-country-btn[data-country="BR"]').getAttribute('aria-expanded'),'true');
       await page.locator('#channel-items .channel-btn').first().click();
       await page.locator('video[src="https://mock.example/24horas.m3u8"]').waitFor();
