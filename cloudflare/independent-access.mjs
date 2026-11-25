@@ -341,6 +341,7 @@ function invitationError(result){
   const data=result.data||{};
   const code=String(data.error_code||data.code||"").toLowerCase();
   const msg=String(data.msg||data.message||data.error_description||data.error||"").toLowerCase();
+  if(code==="signup_disabled")return "signup-disabled";
   if(code.includes("rate_limit")||msg.includes("rate limit")||msg.includes("too many"))return "limit";
   if(code.includes("email_address_not_authorized")||
      code.includes("email_address_invalid")||msg.includes("not authorized")||
@@ -621,7 +622,14 @@ async function handle(request, env) {
     if (email.length > 254 || !email.includes("@") || !password || password.length > 256)
       return await loginPage(true,env,requestedAdmin);
     const result = await supabase(env,"POST","token?grant_type=password",{email,password});
-    if (!result.ok || !result.data?.user?.id) return await loginPage(true,env,requestedAdmin);
+    if (!result.ok || !result.data?.user?.id) {
+      const code=String(result.data?.error_code||result.data?.code||"").toLowerCase();
+      if(code==="email_not_confirmed")return page("Confirme seu e-mail",
+        "<p>O provedor informa que seu endereço de e-mail ainda não foi confirmado. A aprovação administrativa não substitui esta confirmação.</p>"+
+        "<p><a href='/stream/resend-confirmation'>Reenviar confirmação de e-mail</a></p>"+
+        "<p><a href='/stream/login'>Voltar ao login</a></p>",401);
+      return await loginPage(true,env,requestedAdmin);
+    }
     const account = await env.STREAM_USERS_DB.prepare(
       "SELECT user_id,email,role,status FROM stream_users WHERE user_id=? AND email=? AND status='active' AND approval_state='approved'"
     ).bind(result.data.user.id,email).first();
@@ -662,6 +670,9 @@ async function handle(request, env) {
         "<p>O limite diário de confirmações de cadastro foi atingido. Tente novamente amanhã.</p>"+
         "<p><a href='/stream/login'>Entrar</a></p>",429);
       const kind=sent.result?invitationError(sent.result):"provider";
+      if(kind==="signup-disabled")return page("Cadastro indisponível",
+        "<p>Novos cadastros estão desabilitados no serviço de autenticação. Código: CAD-DESATIVADO.</p>"+
+        "<p><a href='/stream/login'>Entrar</a></p>",503);
       if(kind==="limit")return page("Envio temporariamente limitado",
         "<p>O provedor atingiu seu limite de e-mails. Tente novamente mais tarde.</p>"+
         "<p><a href='/stream/signup'>Voltar ao cadastro</a></p>",429);
@@ -964,6 +975,28 @@ async function handle(request, env) {
     ).bind(target).first();
     if (!targetRow || targetRow.role !== "viewer" || target === user.user_id)
       return plain(403,"Forbidden");
+    if(path==="/stream/admin/resend-confirmation"){
+      if(targetRow.status!=="active" || targetRow.approval_state==="rejected")return plain(409,"Conta não elegível.");
+      // Read the identity from Auth, never assume D1 approval verifies the address.
+      let auth;
+      try{auth=await supabase(env,"GET","admin/users/"+encodeURIComponent(target),undefined,true);}
+      catch{return adminPage(user,env,url,{error:"confirm-unknown"});}
+      const identity=auth.data?.user||auth.data;
+      if(!auth.ok || identity?.id!==target || String(identity.email||"").toLowerCase()!==targetRow.email.toLowerCase())
+        return adminPage(user,env,url,{error:"confirm-unknown"});
+      if(identity.email_confirmed_at)return redirect(url.origin,"/stream/admin?result=email-confirmed");
+      const outcome=await sendWithEmailQuota(env,"signup",()=>
+        supabase(env,"POST","resend?redirect_to="+encodeURIComponent(activationURL(url)),{type:"signup",email:targetRow.email}));
+      if(outcome.quota)return adminPage(user,env,url,{error:"daily-quota"});
+      if(!outcome.ok){
+        const kind=outcome.result?invitationError(outcome.result):"provider";
+        return adminPage(user,env,url,{error:kind==="signup-disabled"?"signup-disabled":kind==="limit"?"confirm-limit":kind==="smtp"?"confirm-smtp":outcome.uncertain?"confirm-uncertain":"confirm-failed"});
+      }
+      await env.STREAM_USERS_DB.prepare(
+        "INSERT INTO stream_admin_events(event_id,admin_id,action,subject_id) VALUES(?,?,?,?)"
+      ).bind(crypto.randomUUID(),user.user_id,"signup-confirmation-resend",target).run();
+      return redirect(url.origin,"/stream/admin?result=confirmation-requested");
+    }
     if (path === "/stream/admin/resend" && targetRow.status === "invited") {
       const outcome=await sendWithEmailQuota(env,"resend",()=>
         supabase(env,"POST","recover?redirect_to=" +

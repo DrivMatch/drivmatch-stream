@@ -139,6 +139,9 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
   const [label,cls]=state(u);
   let actions="";
   if(!own && u.role==="viewer") {
+    if(u.status==="active" && u.approval_state!=="rejected")
+      actions+=formFor("resend-confirmation",u.user_id,token,"Verificar e reenviar confirmação de e-mail","btn-subtle",
+        "Consultar confirmação no Supabase e reenviar somente se o e-mail ainda não estiver confirmado?");
     if(u.approval_state==="pending") {
       actions+=formFor("approval",u.user_id,token,"Aprovar cadastro","btn-primary","Aprovar este usuário e permitir seu login?","approved").replace("name='status'","name='decision'");
       actions+=formFor("approval",u.user_id,token,"Rejeitar cadastro","btn-danger","Rejeitar esta solicitação?","rejected").replace("name='status'","name='decision'");
@@ -190,11 +193,13 @@ function detailsFor(u,actorId,token,index,asOfEpoch) {
     "</div></dialog>";
 }
 function activityName(action){
-  return ({"signup-approved":"Cadastro aprovado","signup-rejected":"Cadastro rejeitado","invite":"Convite solicitado","resend":"Reenvio solicitado","recover":"Recuperação solicitada",
+  return ({"signup-confirmation-resend":"Confirmação de e-mail solicitada","signup-approved":"Cadastro aprovado","signup-rejected":"Cadastro rejeitado","invite":"Convite solicitado","resend":"Reenvio solicitado","recover":"Recuperação solicitada",
     "active":"Acesso reativado","suspended":"Acesso suspenso","cancel-invite":"Convite cancelado",
     "restore-invite":"Convite reativado","revoke":"Sessões encerradas"})[action]||"Ação administrativa";
 }
 const RESULTS={
+  "email-confirmed":"O Supabase confirma que o endereço de e-mail já foi verificado. Nenhum e-mail adicional foi solicitado.",
+  "confirmation-requested":"O Supabase aceitou o reenvio da confirmação. A entrega ainda precisa ser verificada no destinatário ou nos logs do Brevo.",
   approved:"Cadastro aprovado. O usuário já pode entrar após confirmar o e-mail.",
   rejected:"Solicitação rejeitada. O usuário permanece sem acesso.",
   invited:"Convite solicitado ao provedor. Confirme o recebimento com o destinatário.",
@@ -206,6 +211,12 @@ const RESULTS={
   revoked:"Sessões existentes encerradas."
 };
 const ERRORS={
+  "signup-disabled":"O Supabase está com novos cadastros desabilitados (signup_disabled).",
+  "confirm-unknown":"Não foi possível consultar a confirmação deste usuário no Supabase. Nenhum reenvio foi efetuado.",
+  "confirm-limit":"O Supabase recusou o reenvio por limite de e-mails. Consulte os logs de Auth.",
+  "confirm-smtp":"O Supabase recusou o envio por restrição de endereço ou falha de e-mail/SMTP. Consulte os logs de Auth e do Brevo.",
+  "confirm-uncertain":"O resultado do envio é incerto. Consulte os logs antes de repetir.",
+  "confirm-failed":"O Supabase recusou a confirmação. Consulte os logs de Auth para identificar a causa.",
   smtp:"E-mail externo bloqueado pelo serviço padrão do Supabase. Configure SMTP próprio para enviar convites ou use 'Gerar link privado' abaixo.",
   limit:"O Supabase atingiu o limite de e-mails. Configure SMTP próprio ou use um link privado para este teste.",
   existing:"Este e-mail já existe no Supabase. Verifique o cadastro e o vínculo com o Stream antes de convidar novamente.",

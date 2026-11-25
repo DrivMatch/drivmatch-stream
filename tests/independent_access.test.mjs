@@ -201,6 +201,7 @@ async function withFakeSupabase(fn) {
       assert.equal(options.headers.apikey,"testing-public-key");
       assert.equal(options.headers.Authorization,undefined,
         "Opaque Supabase publishable key must not be used as Bearer JWT");
+      if(body.email==="unconfirmed@example.test")return Response.json({error_code:"email_not_confirmed"},{status:400});
       const match=users.find(x=>x.email===body.email&&x.password===body.password);
       return Response.json(match?{user:{id:match.id,email:match.email}}:{error:"invalid"},{
         status:match?200:400});
@@ -208,12 +209,20 @@ async function withFakeSupabase(fn) {
     if(u.pathname==="/auth/v1/signup"){
       assert.equal(options.headers.apikey,"testing-public-key");
       assert.equal(options.headers.Authorization,undefined);
+      if(body.email==="signup-disabled@example.test")
+        return Response.json({error_code:"signup_disabled",msg:"Signups not allowed for this instance"},{status:422});
       if(body.email==="smtp-error@example.test")
         return Response.json({error_code:"email_address_not_authorized"},{status:422});
       if(body.email==="provider-limit@example.test")
         return Response.json({error_code:"over_email_send_rate_limit"},{status:429});
       return Response.json({user:{id:"706664d1-cd56-47bb-9a20-17eebc5851bc",
         email:body.email,identities:[{provider:"email"}]},session:null});
+    }
+    if(u.pathname.startsWith("/auth/v1/admin/users/")){
+      assert.equal(options.headers.apikey,"testing-secret-key");
+      const id=u.pathname.split("/").pop();
+      const identity=users.find(x=>x.id===id);
+      return identity?Response.json({id:identity.id,email:identity.email,email_confirmed_at:null}):Response.json({error:"not found"},{status:404});
     }
     if(u.pathname==="/auth/v1/admin/users"){
       assert.equal(options.headers.apikey,"testing-secret-key");
@@ -1014,5 +1023,36 @@ test("viewer cannot approve their own request or bypass signed administrative fo
     assert.equal((await adminAction(env,a,"approval",id,{decision:"approved"})).status,303);
     assert.equal(accounts.get(id).decision_notice_state,"accepted");
     assert.equal(emailBudget.filter(x=>x.kind==="decision-notice").length,1);
+  });
+});
+
+test("unconfirmed email login explains confirmation without creating a session",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,sessions}=testEnvironment();
+    const r=await login("unconfirmed@example.test","New-user-password-12345",env);
+    assert.equal(r.status,401);
+    assert.match(await r.text(),/Confirme seu e-mail/);
+    assert.equal(sessions.size,0);
+  });
+});
+test("administrator can verify and request confirmation resend without modifying approval",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts,emailBudget}=testEnvironment();
+    const a=cookie(await login(users[0].email,users[0].password,env));
+    const result=await adminAction(env,a,"resend-confirmation",users[1].id);
+    assert.equal(result.status,303);
+    assert.match(result.headers.get("Location"),/confirmation-requested/);
+    assert.equal(accounts.get(users[1].id).approval_state,"approved");
+    assert.equal(emailBudget.filter(x=>x.kind==="signup").length,1);
+  });
+});
+test("disabled signups are reported rather than misclassified as SMTP",async()=>{
+  await withFakeSupabase(async()=>{
+    const {env,accounts}=testEnvironment();
+    const f=await getForm("/stream/signup",env);
+    const r=await worker.fetch(req("/stream/signup",{method:"POST",headers:{Cookie:f.cookie,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({_csrf:f.token,email:"signup-disabled@example.test",password:"New-user-password-12345",confirm:"New-user-password-12345"})}),env);
+    assert.equal(r.status,503);
+    assert.match(await r.text(),/CAD-DESATIVADO/);
+    assert.equal(accounts.size,2);
   });
 });
