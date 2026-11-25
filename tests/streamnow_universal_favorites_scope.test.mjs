@@ -27,6 +27,7 @@ test("ES5 guard protects all web-wrapped interfaces and their backups",()=>{
 test("empty local list cannot hide 153 favorites in backup",()=>{
  const {saved,api}=context([]);
  saved.set(KEY+"-foundation",JSON.stringify(list(153)));
+ saved.set(KEY+"-previous",JSON.stringify([]));
  const state=api.read(KEY);
  assert.equal(state.ok,false);
  assert.equal(state.reason,"empty-main-with-nonempty-backup");
