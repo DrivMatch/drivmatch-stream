@@ -17,7 +17,7 @@ const STATIC_FILES = {
   "/stream/":"index.html", "/stream/index.html":"index.html",
   "/stream/stream.css":"stream.css", "/stream/stream.js":"stream.js",
   "/stream/graphite.css":"streamnow-graphite.css",
-  "/stream/stream-boot.js":"stream-boot.js", "/stream/stream-tv.js":"stream-tv.js",
+  "/stream/account-favorites.js":"account-favorites.js", "/stream/stream-boot.js":"stream-boot.js", "/stream/stream-tv.js":"stream-tv.js",
   "/stream/tv/":"tv.html", "/stream/tv/index.html":"tv.html",
   "/stream/tv/tv.css":"tv.css", "/stream/tv/tv.js":"tv.js",
   "/stream/listas/":"listas.html", "/stream/listas/index.html":"listas.html",
