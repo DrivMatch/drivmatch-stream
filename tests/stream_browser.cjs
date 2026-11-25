@@ -775,9 +775,10 @@ async function main(){
       assert.equal(await page.locator('#now-name').textContent(),'Canal México');
       assert.equal(await page.locator('#favorite-count').textContent(),'2');
 
-      // Removing a favorite does not clear the twenty-five-channel history.
+      // P0 incident freeze: clicking an existing favorite may NOT delete it.
       await page.locator('#player-favorite').click();
-      assert.equal(await page.locator('#favorite-count').textContent(),'1');
+      await page.waitForFunction(()=>/bloqueada/.test(document.querySelector('#account-favorites-status')?.textContent||""));
+      assert.equal(await page.locator('#favorite-count').textContent(),'2');
       assert.equal(await page.locator('#recent-count').textContent(),'25/25');
       await context.close();
     }
