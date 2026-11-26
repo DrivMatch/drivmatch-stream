@@ -13,7 +13,7 @@ class PublishedChannelDeltaTests(unittest.TestCase):
         self.assertEqual(len(before & after), 1)
 
     def test_volatile_probe_date_does_not_fake_churn(self):
-        old = '#EXTM3U\\n#EXTINF:-1 dm-auto-checked="2026-11-25" tvg-country="BR",One\\nhttps://example.com/one.m3u8\\n'
+        old = '#EXTM3U\n#EXTINF:-1 dm-auto-checked="2026-11-25" tvg-country="BR",One\nhttps://example.com/one.m3u8\n'
         new = old.replace('2026-11-25', '2026-11-26')
         self.assertEqual(published_channel_signatures(old), published_channel_signatures(new))
 
