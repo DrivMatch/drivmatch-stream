@@ -6,7 +6,10 @@ const run=(override={})=>({
  status:'completed',conclusion:'failure',run_attempt:1,
  ...override
 });
-test('all five operational workflows covered',()=>assert.equal(WATCHED.size,5));
+test('six operational workflows covered, including account-favorite integrity',()=>{
+ assert.equal(WATCHED.size,6);
+ assert.ok(WATCHED.has('Stream Now P0 favorites integrity — independent account audits'));
+});
 test('one bounded rerun only, and only on main branch',()=>{
  assert.equal(shouldRetry(run()),true);
  assert.equal(shouldRetry(run({run_attempt:2})),false);
