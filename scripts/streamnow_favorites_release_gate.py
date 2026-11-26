@@ -9,6 +9,7 @@ ALLOWED = {
     "site/daily-autopilot.m3u8",
     "site/daily-autopilot-state.json",
     "site/daily-autopilot-report.json",
+    "site/channel-health.json",
     "data/global-discovery-state.json",
     "data/global-discovery-report.json",
     "data/youtube-live-report.json",
