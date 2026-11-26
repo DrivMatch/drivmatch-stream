@@ -9,7 +9,7 @@ const token=process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const repo=process.env.GITHUB_REPOSITORY;
 const required=Boolean(token && repo && /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo));
 if(!required)throw Error("Required scoped GitHub repo and token missing");
-const base="https://api.github.com/repos/"+repo;
+const base="/repos/"+repo;
 const apiHeaders={
  "Authorization":"Bearer "+token,
  "Accept":"application/vnd.github+json",
