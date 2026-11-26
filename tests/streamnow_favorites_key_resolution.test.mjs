@@ -30,3 +30,21 @@ test('invalid keys remain non-destructively unresolved',()=>{
  assert.equal(r.key,'nonsense');
  assert.equal(r.code,'OTHER');
 });
+
+test('playlist parser retains forced source when loading a saved lista-12 favorite',()=>{
+ const start=src.indexOf('function parse(raw,forcedCode,forcedSource){');
+ const end=src.indexOf('function drawSources(){',start);
+ assert.ok(start>=0&&end>start,'source-aware parser must exist');
+ const context={
+  MAX_CHANNELS:15000,source:'lista-2',PREMIUM:/(?!)/,trim:(v)=>String(v||'').trim(),
+  lower:(v)=>String(v||'').toLowerCase(),
+  dataAttr:()=>'',inferCountry:()=> 'BR',channelGenre:()=> 'news',
+  channelAlias:(name)=>name,detectLanguage:()=>'',has:(list,key)=>list.includes(key)
+ };
+ vm.runInNewContext(src.slice(start,end),context);
+ const rows=context.parse('#EXTM3U\\n#EXTINF:-1,Record News\\nhttps://example.com/record.m3u8\\n','BR','lista-12');
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].code,'BR');
+ assert.equal(rows[0].source,'lista-12');
+ assert.equal(rows[0].id,'lista-12:BR|record news');
+});
