@@ -1,8 +1,12 @@
 import unittest
-from scripts.daily_channel_autopilot import published_channel_signatures
+from scripts.daily_channel_autopilot import published_channel_signatures, MAX_LIVE
 
 
 class PublishedChannelDeltaTests(unittest.TestCase):
+    def test_verified_catalog_has_room_for_new_daily_additions(self):
+        self.assertGreater(MAX_LIVE, 360)
+        self.assertLessEqual(MAX_LIVE, 15000)
+
     def test_added_removed_and_unchanged(self):
         old = '#EXTM3U\n#EXTINF:-1 tvg-country="BR",One\nhttps://example.com/one.m3u8\n#EXTINF:-1 tvg-country="US",Two\nhttps://example.com/two.m3u8\n'
         new = '#EXTM3U\n#EXTINF:-1 tvg-country="BR",One\nhttps://example.com/one.m3u8\n#EXTINF:-1 tvg-country="PT",Three\nhttps://example.com/three.m3u8\n'
