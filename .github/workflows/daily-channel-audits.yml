@@ -35,8 +35,9 @@ jobs:
           node-version: '22'
       - name: Enforce non-destructive favorites and channel audit invariants
         run: |
-          node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_incident.test.mjs tests/streamnow_multidevice_favorites.test.mjs
+          node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_account_favorites_incident.test.mjs tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_key_resolution.test.mjs
           python3 -m unittest discover -s tests -p 'test_streamnow_autopilot_audit.py' -v
+          python3 -m unittest discover -s tests -p 'test_streamnow_catalog_delta.py' -v
           python3 scripts/streamnow_favorites_release_gate.py --mode catalog
       - name: Auditor A (04:00) or Auditor B (06:00) — recover if required
         env:
