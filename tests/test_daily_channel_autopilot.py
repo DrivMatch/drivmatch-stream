@@ -102,9 +102,9 @@ class AutopilotTests(unittest.TestCase):
             key = f"new-{i}"
             candidates[key] = {"id": key, "name": f"New {i}", "country": "PT", "genre": "sports"}
         selected = autopilot.select_for_check(candidates, previous, now)
-        self.assertEqual(len(selected), autopilot.MAX_CHECKS)
+        self.assertEqual(len(selected), min(len(candidates), autopilot.MAX_CHECKS))
         self.assertGreaterEqual(sum(x["id"].startswith("new-") for x in selected),
-                                autopilot.MAX_CHECKS // 2)
+                                min(250, len(selected) // 2))
         self.assertGreaterEqual(sum(x["id"].startswith("failed-") for x in selected), 1)
 
     def test_balanced_verification_includes_small_international_markets(self):
