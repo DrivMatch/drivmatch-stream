@@ -79,6 +79,18 @@ class AutopilotTests(unittest.TestCase):
                 "https://media.example.org/live.m3u8", 100,
                 lambda url, limit, deadline=None, segment=False: manifest.encode()))
 
+    def test_broken_chunked_response_is_retryable_and_does_not_abort_shard(self):
+        import http.client
+        clock = [100.0]
+        def advance(seconds): clock[0] += seconds
+        with mock.patch.object(autopilot.time, "monotonic", side_effect=lambda: clock[0]), \
+             mock.patch.object(autopilot.time, "sleep", side_effect=advance), \
+             mock.patch.object(autopilot, "probe_once", side_effect=http.client.IncompleteRead(b"")):
+            key, good = autopilot.check_channel({"id": "broken", "url": "https://media.example.org/live.m3u8"})
+        self.assertEqual(key, "broken")
+        self.assertFalse(good)
+        self.assertGreaterEqual(clock[0]-100, 60.0)
+
     def test_failed_probe_waits_full_minute_without_real_delay(self):
         clock = [100.0]
         def advance(seconds): clock[0] += seconds

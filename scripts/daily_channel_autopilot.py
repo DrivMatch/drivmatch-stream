@@ -14,6 +14,7 @@ import concurrent.futures as cf
 from collections import deque
 import datetime as dt
 import hashlib
+import http.client
 import ipaddress
 import json
 import os
@@ -260,7 +261,9 @@ def check_channel(item: dict, budget: float = PROBE_SECONDS) -> tuple[str, bool]
         try:
             if probe_once(item["url"], deadline):
                 return item["id"], True
-        except (OSError, ValueError, TimeoutError, urllib.error.URLError):
+        except (OSError, ValueError, TimeoutError, urllib.error.URLError,
+                http.client.IncompleteRead, http.client.HTTPException):
+            # Broken chunked stream response is a failed probe, not a fatal batch crash.
             pass
         left = deadline - time.monotonic()
         if left <= 0:
