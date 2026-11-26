@@ -10,6 +10,7 @@ const map={
  "/stream/tv/tv.css":"tv.css","/stream/graphite.css":"streamnow-graphite.css",
  "/stream/tv/tv.js":"tv.js","/stream/brand.webp":"streamnow-brand.webp",
  "/stream/icon.webp":"streamnow-icon.webp",
+ "/stream/streamnow-i18n.js":"streamnow-i18n.js",
  "/stream/listas/sources.json":"playlist-sources.json",
  "/stream/official-access.json":"official-access.json"
 };
