@@ -838,7 +838,7 @@ function playFromQuick(c,record,kind){
  if(c.source!=="paid"&&c.id&&String(c.id).indexOf("paid:")!==0){
   country=c.code;category="all";openCountries[c.code]=true;closeAllGenres();
   search="";D("search").value="";limit=60;
-  channels=cache["lista-2:"+c.code]||[];
+  channels=cache[c.source+":"+c.code]||cache["lista-2:"+c.code]||[];
   T(D("catalog-title"),countryName(c.code));T(D("catalog-subtitle"),"Todos os canais");
   renderChannels();drawCountries();
  }
@@ -858,7 +858,9 @@ function openQuickChannel(record,kind){
    return;
   }
  }
- var code=record.code;
+ var repaired=oldFavoriteSnapshot(record.key),code=String(record.code||"").toUpperCase();
+ // Saved metadata may be malformed although the immutable key has a valid country.
+ if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER")code=repaired.code;
  if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER"){
   T(D("catalog-status"),"Este favorito não tem país válido no catálogo atual.");return;
  }
@@ -873,7 +875,7 @@ function openQuickChannel(record,kind){
    T(D("catalog-status"),"Catálogo temporariamente indisponível para "+countryName(code));
    return;
   }
-  cache[listId+":"+code]=attachOfficial(code,parse(body,code));
+  cache[listId+":"+code]=attachOfficial(code,parse(body,code,listId));
   var found=findKnown(record.key,code,record.name);
   if(found)playFromQuick(found,record,kind);
   else T(D("catalog-status"),"Canal não encontrado nas fontes atuais. O favorito foi preservado.");
@@ -1006,7 +1008,7 @@ function inferCountry(meta,group,name,defaultCode){
   if(/^[A-Z]{2}$/.test(code))return code;
   return "OTHER";
 }
-function parse(raw,forcedCode){
+function parse(raw,forcedCode,forcedSource){
   var result=[],dedupe={},inf="",lines=raw.split(/\r?\n/),marker=forcedCode||"ALL";
   for(var i=0;i<lines.length&&result.length<MAX_CHANNELS;i++){
     var ln=trim(lines[i]);
@@ -1031,7 +1033,8 @@ function parse(raw,forcedCode){
     var sourceOriginal=dataAttr(sourceMeta,"dm-original-name");
     var rawAliases=dataAttr(sourceMeta,"dm-aliases");
     var entryAliases=rawAliases?rawAliases.split(/\s*\|\s*/):[];
-    var item={id:source+":"+k,source:source,name:display,
+    var resolvedSource=forcedSource||source;
+    var item={id:resolvedSource+":"+k,source:resolvedSource,name:display,
       originalName:sourceOriginal|| (display!==name?name:""),
       aliases:entryAliases,code:code,genre:genre,group:group,
       premium:premium,urls:premium?[]:[ln],origins:[origin],
