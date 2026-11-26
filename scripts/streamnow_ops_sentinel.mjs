@@ -3,7 +3,7 @@
 // No login, favorites, D1, catalog, or financial data are read or modified.
 import fs from "node:fs";
 import crypto from "node:crypto";
-import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing, resumableFullAudit, canCloseRecoveredAuditIncident} from "./streamnow_ops_policy.mjs";
+import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing, resumableFullAudit, canCloseRecoveredAuditIncident, githubContentsNeedsBlobFetch, decodeCanonicalGitBlob} from "./streamnow_ops_policy.mjs";
 
 const token=process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const repo=process.env.GITHUB_REPOSITORY;
@@ -190,13 +190,11 @@ if(!deploying){
    // GitHub Contents API returns encoding:"none" and no inline content for
    // blobs larger than 1 MB. Read the exact Git blob by its trusted SHA.
    let source=gh;
-   if(gh.encoding!=="base64" || !gh.content){
+   if(githubContentsNeedsBlobFetch(gh)){
      if(!/^[a-f0-9]{40}$/i.test(String(gh.sha||"")))throw Error("Canonical catalog content and Git SHA unavailable");
      source=await api("GET",base+"/git/blobs/"+gh.sha);
    }
-   if(source.encoding!=="base64" || !source.content)throw Error("Canonical playlist blob cannot be decoded");
-   const canonical=Buffer.from(String(source.content).replace(/\s+/g,""),"base64");
-   if(!canonical.length)throw Error("Canonical GitHub playlist is empty");
+   const canonical=decodeCanonicalGitBlob(source);
    const publicCatalog=await artifact("https://streamnow-2o1.pages.dev/daily-autopilot.m3u8");
    const hash=x=>crypto.createHash("sha256").update(x).digest("hex");
    const match=hash(canonical)===hash(publicCatalog);
