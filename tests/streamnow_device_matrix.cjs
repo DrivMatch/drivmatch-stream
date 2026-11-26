@@ -10,6 +10,7 @@ const map={
  "/stream/tv/tv.css":"tv.css","/stream/graphite.css":"streamnow-graphite.css",
  "/stream/tv/tv.js":"tv.js","/stream/brand.webp":"streamnow-brand.webp",
  "/stream/icon.webp":"streamnow-icon.webp",
+ "/stream/streamnow-i18n.js":"streamnow-i18n.js",
  "/stream/listas/sources.json":"playlist-sources.json",
  "/stream/official-access.json":"official-access.json"
 };
@@ -87,6 +88,19 @@ const profiles=[
     assert.ok(values.width<=values.viewport+20,
        "Unexpected horizontal overflow "+JSON.stringify(values));
     await page.locator('.tree-country-btn[data-country="BR"]').waitFor({timeout:12000});
+    // Internationalization must not change the data or create horizontal overflow.
+    const language=page.locator("#streamnow-language");
+    await language.selectOption("en");
+    assert.equal(await page.locator("#mobile-guide").textContent(),"Guide & Search");
+    assert.equal(await page.locator(".catalog-header .overline").textContent(),"02 · CHANNEL GUIDE");
+    assert.equal(await page.locator("html").getAttribute("lang"),"en");
+    await language.selectOption("ja");
+    assert.equal(await page.locator("#mobile-guide").textContent(),"ガイドと検索");
+    await language.selectOption("pt");
+    assert.equal(await page.locator("#mobile-guide").textContent(),"Guia e busca");
+    assert.equal(await page.locator("html").getAttribute("lang"),"pt-BR");
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+20),
+      "Language selector caused horizontal overflow");
     assert.equal(errors.length,0,"Script error: "+errors.join(" / "));
     console.log("PASS "+p.name+" "+JSON.stringify({viewport:p.size,palette:"graphite-red",ready:true}));
    }finally{await context.close();}
