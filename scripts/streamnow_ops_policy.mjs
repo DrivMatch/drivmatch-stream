@@ -75,3 +75,13 @@ export function resumableFullAudit(run,jobs,artifacts,superseded=false){
   return names.has("streamnow-full-prepare") &&
     Array.from({length:24},(_,n)=>"streamnow-full-scan-"+n).every(x=>names.has(x));
 }
+
+export function canCloseRecoveredAuditIncident(failed,recovered,health,shaMatch){
+  return Boolean(shaMatch && health?.schema===1 && health?.status==="COMPLETE_HLS" &&
+    Number(health.tested)>0 && failed?.name==="Stream Now full-channel health audit" &&
+    failed?.status==="completed" && failed?.conclusion==="failure" &&
+    recovered?.name==="Stream Now full-channel health audit" &&
+    recovered?.status==="completed" && recovered?.conclusion==="success" &&
+    recovered?.head_branch==="main" &&
+    Date.parse(recovered.created_at)>Date.parse(failed.created_at));
+}
