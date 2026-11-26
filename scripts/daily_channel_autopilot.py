@@ -35,8 +35,8 @@ from global_channel_discovery import describe_channel
 STATE = ROOT / "site" / "daily-autopilot-state.json"
 OUTPUT = ROOT / "site" / "daily-autopilot.m3u8"
 REPORT = ROOT / "site" / "daily-autopilot-report.json"
-MAX_CHECKS = min(180, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "120"))))
-MAX_WORKERS = min(16, max(1, int(os.getenv("DM_DAILY_WORKERS", "12"))))
+MAX_CHECKS = min(15000, max(1, int(os.getenv("DM_DAILY_MAX_CHECKS", "1200"))))
+MAX_WORKERS = min(48, max(1, int(os.getenv("DM_DAILY_WORKERS", "32"))))
 VALID_DAYS = 8
 MAX_LIVE = 1000  # Growth headroom; entries still require a recent successful 60s media probe.
 PROBE_SECONDS = 60
