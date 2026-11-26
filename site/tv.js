@@ -721,8 +721,16 @@ function safeSnapshot(c){
   code:String(c.code||"OTHER").slice(0,8),genre:String(c.genre||"other").slice(0,32)};
 }
 function oldFavoriteSnapshot(key){
- var parts=String(key||"").split(":");
- return {key:key,name:parts.slice(2).join(":")||key,code:parts[1]||"OTHER",genre:"other"};
+ var parts=String(key||"").split(":"),code="OTHER",name="",origin="lista-2";
+ // Legacy favorites were stored as "BR:channel"; new ones use "lista-N:BR:channel".
+ // Normalize only the display/lookup metadata. Never rewrite or delete the original key.
+ if(parts.length>=2&&/^[A-Za-z]{2}$/.test(parts[0])){
+  code=parts[0].toUpperCase();name=parts.slice(1).join(":");
+ }else if(parts.length>=3){
+  origin=parts[0];code=parts[1].toUpperCase();name=parts.slice(2).join(":");
+ }
+ if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER")code="OTHER";
+ return {key:key,name:name||key,code:code,origin:origin,genre:"other"};
 }
 function loadQuickHistory(){
  try{
@@ -856,12 +864,16 @@ function openQuickChannel(record,kind){
  }
  // Do not fabricate or persist a playback URL. Resolve through current catalog.
  T(D("catalog-status"),"Localizando "+record.name+" em "+countryName(code)+"…");
- http("/stream/catalog?list=lista-2&country="+encodeURIComponent(code),function(st,body){
+ // Recover the source recorded in the favorite key; never assume every favorite
+ // belongs to lista-2. A legacy BR:name key continues to use lista-2.
+ var keyParts=String(record.key||"").split(":");
+ var listId=keyParts.length>=3&&/^lista-[0-9]+$/.test(keyParts[0])?keyParts[0]:"lista-2";
+ http("/stream/catalog?list="+encodeURIComponent(listId)+"&country="+encodeURIComponent(code),function(st,body){
   if(st!==200){
    T(D("catalog-status"),"Catálogo temporariamente indisponível para "+countryName(code));
    return;
   }
-  cache["lista-2:"+code]=attachOfficial(code,parse(body,code));
+  cache[listId+":"+code]=attachOfficial(code,parse(body,code));
   var found=findKnown(record.key,code,record.name);
   if(found)playFromQuick(found,record,kind);
   else T(D("catalog-status"),"Canal não encontrado nas fontes atuais. O favorito foi preservado.");
