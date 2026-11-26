@@ -207,7 +207,7 @@ if(!deploying){
      // checksum match with the public Cloudflare catalog.
      try{
        const obj=await api("GET",base+"/contents/site/channel-health.json");
-       const health=JSON.parse(Buffer.from(String(obj.content||"").replace(/\\s+/g,""),"base64").toString("utf8"));
+       const health=JSON.parse(Buffer.from(String(obj.content||"").replace(/\s+/g,""),"base64").toString("utf8"));
        const successful=runs.filter(x=>x.name==="Stream Now full-channel health audit" &&
          x.conclusion==="success").sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at))[0];
        for(const issue of issueList){
