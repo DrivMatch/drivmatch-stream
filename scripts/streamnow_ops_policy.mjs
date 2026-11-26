@@ -58,3 +58,20 @@ export function shouldRecoverMissing(type,runs,now) {
   if(type==="04"||type==="06")return dailyOK&&!activeScan;
   return false;
 }
+
+export function resumableFullAudit(run,jobs,artifacts,superseded=false){
+  // A failed finalizer should reuse ALL 24 successful shard artifacts instead
+  // of paying for another 8,000+ channel scans. Partial scans are not eligible.
+  if(!eligibleRun(run)||run.name!=="Stream Now full-channel health audit"||
+     run.conclusion!=="failure"||superseded||Number(run.run_attempt||1)>1)return false;
+  const scans=(jobs||[]).filter(x=>/^scan \((?:\d{1,2})\)$/.test(x.name||""));
+  const numbered=new Set(scans.map(x=>Number(x.name.match(/\d+/)[0])));
+  if(scans.length!==24||numbered.size!==24||
+     ![...numbered].every(n=>n>=0&&n<24)||
+     !scans.every(x=>x.conclusion==="success"))return false;
+  const final=(jobs||[]).find(x=>x.name==="finalize");
+  if(!final||final.conclusion!=="failure")return false;
+  const names=new Set((artifacts||[]).filter(x=>!x.expired).map(x=>x.name));
+  return names.has("streamnow-full-prepare") &&
+    Array.from({length:24},(_,n)=>"streamnow-full-scan-"+n).every(x=>names.has(x));
+}
