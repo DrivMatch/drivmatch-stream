@@ -55,3 +55,19 @@ test("the Pages deployments continue to serve their original brand and published
   }
   assert.deepEqual(paths,Array(2).fill(["/streamnow-brand.webp","/streamnow-icon.webp","/daily-autopilot.m3u8"]).flat());
 });
+
+test("authenticated TV HTML and JS come from the current Pages deployment, not the old account Worker bundle",async()=>{
+ const calls=[];
+ const env={STREAM_ACCOUNTS:{async fetch(req){calls.push(new URL(req.url).pathname);assert.equal(req.headers.get("Cookie"),"dm_stream_user=fixture");return Response.json({allowed:true,user_id:"fixture-user"});}},ASSETS:{async fetch(req){return new Response("current:"+new URL(req.url).pathname);}}};
+ for(const [route,file] of [["/stream/tv/","/tv.html"],["/stream/tv/tv.js","/tv.js"]]){
+  const res=await pages.fetch(request(official,route,{headers:{Cookie:"dm_stream_user=fixture"}}),env);
+  assert.equal(res.status,200);assert.equal(await res.text(),"current:"+file);assert.equal(res.headers.get("X-StreamNow-UI"),"pages-p0-direct-favorites-v3");
+ }
+ assert.deepEqual(calls,["/stream/session","/stream/session"]);
+});
+test("anonymous TV requests never receive protected Pages assets",async()=>{
+ let accessed=false;
+ const env={STREAM_ACCOUNTS:{async fetch(req){return new Response("login",{status:new URL(req.url).pathname==="/stream/session"?401:200});}},ASSETS:{async fetch(){accessed=true;throw Error("auth bypass");}}};
+ const res=await pages.fetch(request(official,"/stream/tv/"),env);
+ assert.equal(await res.text(),"login");assert.equal(accessed,false);
+});

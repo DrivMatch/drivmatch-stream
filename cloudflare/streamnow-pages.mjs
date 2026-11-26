@@ -5,6 +5,29 @@ const officialHost = "streamnow-2o1.pages.dev";
 const previewHost = "contas-compartilhadas.streamnow-2o1.pages.dev";
 const pagesAssets = new Set(["/stream/brand.webp", "/stream/icon.webp", "/daily-autopilot.m3u8"]);
 const privateNoStore = {"Cache-Control":"private, no-store"};
+const tvAssets = {
+  "/stream/tv/": ["tv.html","text/html; charset=utf-8"],
+  "/stream/tv/index.html": ["tv.html","text/html; charset=utf-8"],
+  "/stream/tv/tv.js": ["tv.js","text/javascript; charset=utf-8"],
+  "/stream/tv/tv.css": ["tv.css","text/css; charset=utf-8"],
+  "/stream/favorites-safety.js": ["favorites-safety.js","text/javascript; charset=utf-8"],
+  "/stream/graphite.css": ["streamnow-graphite.css","text/css; charset=utf-8"],
+  "/stream/streamnow-i18n.js": ["streamnow-i18n.js","text/javascript; charset=utf-8"]
+};
+const tvCsp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https:; media-src 'self' https: blob:; worker-src blob:; img-src 'self' https: data:; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+async function currentTvAsset(request,env,url,file) {
+  const sessionURL=new URL("/stream/session",url.origin);
+  const session=await env.STREAM_ACCOUNTS.fetch(new Request(sessionURL,{headers:request.headers,method:"GET"}));
+  if(!session.ok) return env.STREAM_ACCOUNTS.fetch(request);
+  let identity;
+  try{identity=await session.json();}catch{return new Response("Sessão inválida",{status:503,headers:privateNoStore});}
+  if(identity?.allowed!==true||!identity.user_id)return new Response("Autenticação necessária.",{status:401,headers:privateNoStore});
+  if(!env.ASSETS?.fetch)return new Response("Arquivos indisponíveis.",{status:503,headers:privateNoStore});
+  const asset=await env.ASSETS.fetch(new Request(new URL("/"+file[0],url.origin),{method:request.method}));
+  if(!asset.ok)return new Response("Arquivo indisponível.",{status:502,headers:privateNoStore});
+  return new Response(request.method==="HEAD"?null:asset.body,{status:200,headers:{...privateNoStore,"Content-Type":file[1],"Content-Security-Policy":tvCsp,"X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin","X-Frame-Options":"DENY","X-StreamNow-UI":"pages-p0-direct-favorites-v3"}});
+}
+
 
 export default {
   async fetch(request, env) {
@@ -29,6 +52,11 @@ export default {
     }
     if (!env.STREAM_ACCOUNTS?.fetch) {
       return new Response("Acesso temporariamente indisponível.",{status:503,headers:privateNoStore});
+    }
+
+    // Use the current Pages UI bundle, but authorize through the existing account authority.
+    if (["GET","HEAD"].includes(request.method) && Object.hasOwn(tvAssets,url.pathname)) {
+      return currentTvAsset(request,env,url,tvAssets[url.pathname]);
     }
 
     // Preserve the Pages origin, method and cookies. The existing Worker is the
