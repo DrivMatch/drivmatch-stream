@@ -23,8 +23,8 @@ test('Sao Paulo local timestamps are calendar correct',()=>{
 });
 test('missing schedule detection respects grace and actual trigger',()=>{
  const noRuns=[];
- assert.deepEqual(missedSchedules(noRuns,'2026-11-26T10:00:00Z').map(x=>x.type),['02']);
- assert.deepEqual(missedSchedules(noRuns,'2026-11-26T08:10:00Z').map(x=>x.type),['02','04']);
+ assert.deepEqual(missedSchedules(noRuns,'2026-11-26T10:00:00Z').map(x=>x.type),['02','04']);
+ assert.deepEqual(missedSchedules(noRuns,'2026-11-26T08:10:00Z').map(x=>x.type),['02']);
  const got=[
   {name:'DrivMatch - Autopiloto diario de canais',head_branch:'main',created_at:'2026-11-26T05:06:00Z'},
   {name:'Stream Now independent 04h and 06h channel audits',head_branch:'main',created_at:'2026-11-26T07:04:00Z'}
