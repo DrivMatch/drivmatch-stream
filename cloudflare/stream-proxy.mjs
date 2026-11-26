@@ -1,4 +1,5 @@
 import {countryIndex,mergedCatalog,searchCatalog} from "./catalog-merge.mjs";
+import {filterVerifiedFailedStreams} from "./catalog-health.mjs";
 /**
  * Stream Now personal TV — independent password gate, no Zero Trust plan.
  * Password is held in Worker secret STREAM_ACCESS_PASSWORD, never shipped to
@@ -205,7 +206,7 @@ export default {async fetch(request,env){
  const pagesHost=host===STREAM_NOW_HOST;
  const localPlaylist=new URL("/daily-autopilot.m3u8",url.origin).toString();
  const tvUrls=pagesHost?{...TV_SOURCE_URLS,"lista-12":localPlaylist}:TV_SOURCE_URLS;
- const loadCatalogue=pagesHost?async (address,id)=>{
+ const loadRawCatalogue=pagesHost?async (address,id)=>{
    if(address===localPlaylist){
      if(!env?.ASSETS)throw Error("Local catalogue unavailable");
      const res=await env.ASSETS.fetch(new Request(new URL("/daily-autopilot.m3u8",url.origin)));
@@ -216,6 +217,22 @@ export default {async fetch(request,env){
    }
    return curatedCatalogue(address,id);
  }:curatedCatalogue;
+ // Fail open for catalogue visibility when the health report is absent/partial.
+ // A complete audit only hides exact known failed URLs, never favorites.
+ let healthPromise=null;
+ const loadCatalogue=async (address,id)=>{
+   const raw=await loadRawCatalogue(address,id);
+   if(!healthPromise)healthPromise=(async()=>{
+     try{
+       if(!env?.ASSETS?.fetch)return null;
+       const res=await env.ASSETS.fetch(new Request(new URL("/channel-health.json",url.origin)));
+       if(!res.ok)return null;
+       const json=await res.json();
+       return json&&json.status==="COMPLETE_HLS"&&json.schema===1?json:null;
+     }catch{return null;}
+   })();
+   return filterVerifiedFailedStreams(raw,await healthPromise);
+ };
  if(host!=="drivmatch.com"&&!preview&&!pagesHost)return plain(404,"Not Found");
  const path=preview&&url.pathname==="/"?"/stream/":url.pathname;
  if(path!=="/stream/brand.webp"&&path!=="/stream/icon.webp"&&path!=="/"&&path!=="/daily-autopilot.m3u8"&&path!=="/stream"&&path!=="/stream/tv"&&path!=="/stream/listas"&&path!=="/stream/catalog"&&path!=="/stream/session"&&path!=="/stream/login"&&
