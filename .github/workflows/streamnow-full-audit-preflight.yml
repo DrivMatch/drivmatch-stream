@@ -1,0 +1,42 @@
+name: Stream Now full-audit preflight
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/streamnow_full_channel_audit.py'
+      - 'scripts/daily_channel_autopilot.py'
+      - 'cloudflare/catalog-health.mjs'
+      - 'cloudflare/stream-proxy.mjs'
+      - 'tests/streamnow_catalog_health_filter.test.mjs'
+      - 'tests/test_streamnow_full_channel_audit.py'
+      - '.github/workflows/streamnow-full-channel-health.yml'
+      - '.github/workflows/streamnow-full-audit-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: JavaScript syntax and global fail-safe health filtering
+        run: |
+          node --check cloudflare/catalog-health.mjs
+          node --check cloudflare/stream-proxy.mjs
+          node --test tests/streamnow_catalog_health_filter.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_favorites_key_resolution.test.mjs
+      - name: Python unit and full-audit safety
+        run: |
+          python3 -m py_compile scripts/streamnow_full_channel_audit.py scripts/daily_channel_autopilot.py
+          python3 -m unittest discover -s tests -p 'test_streamnow_full_channel_audit.py' -v
+          python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_streamnow_catalog_delta.py' -v
+          python3 scripts/streamnow_favorites_release_gate.py --mode catalog
+      - name: Check YAML parsing using Ruby stdlib
+        run: ruby -e 'require "yaml"; ARGV.each{|x| YAML.load_file(x)}' .github/workflows/streamnow-full-channel-health.yml .github/workflows/daily-channel-autopilot.yml
