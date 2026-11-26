@@ -42,7 +42,7 @@ test('playlist parser retains forced source when loading a saved lista-12 favori
   channelAlias:(name)=>name,detectLanguage:()=>'',has:(list,key)=>list.includes(key)
  };
  vm.runInNewContext(src.slice(start,end),context);
- const rows=context.parse('#EXTM3U\\n#EXTINF:-1,Record News\\nhttps://example.com/record.m3u8\\n','BR','lista-12');
+ const rows=context.parse('#EXTM3U\n#EXTINF:-1,Record News\nhttps://example.com/record.m3u8\n','BR','lista-12');
  assert.equal(rows.length,1);
  assert.equal(rows[0].code,'BR');
  assert.equal(rows[0].source,'lista-12');
