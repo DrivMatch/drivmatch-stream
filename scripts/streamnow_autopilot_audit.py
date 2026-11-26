@@ -161,7 +161,9 @@ def main():
     print(line)
     with open(os.environ.get("GITHUB_STEP_SUMMARY", "/dev/null"), "a", encoding="utf-8") as f:
         f.write("### Stream Now independent channel audit\n\n```json\n" + line + "\n```\n")
-    if result["action"].startswith("dispatch-failed"):
+    # A dispatched repair is not proof that the audit passed. Fail visibly so
+    # operators cannot mistake a recovery attempt for successful validation.
+    if result["problems"] or result["action"].startswith("dispatch-failed"):
         sys.exit(1)
 
 if __name__ == "__main__":

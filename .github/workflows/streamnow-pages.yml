@@ -7,7 +7,7 @@ on:
       - 'cloudflare/**'
       - 'wrangler.streamnow.jsonc'
       - 'site/**'
-      - 'tests/streamnow_multidevice_favorites.test.mjs'
+      - 'tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_key_resolution.test.mjs'
       - 'scripts/verify_streamnow_brand.py'
       - 'tests/streamnow_pages.test.mjs'
       - 'tests/streamnow_live_channels_published.test.mjs'

@@ -33,11 +33,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Non-destructive favorites preservation gate (ALL platforms)
-        run: node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
+        run: node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_favorites_key_resolution.test.mjs
       - name: Code and policy tests
         run: |
           python3 -m py_compile scripts/daily_channel_autopilot.py scripts/global_channel_discovery.py scripts/youtube_live_discovery.py
           python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_streamnow_catalog_delta.py' -v
           python3 -m unittest discover -s tests -p 'test_global_channel_discovery.py' -v
           python3 -m unittest discover -s tests -p 'test_youtube_live_discovery.py' -v
           python3 -m unittest discover -s tests -p 'test_channel_category_balance.py' -v
