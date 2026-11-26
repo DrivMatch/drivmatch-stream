@@ -1,7 +1,7 @@
 {
-  "community_candidates_research_only": 4505,
+  "community_candidates_research_only": 4509,
   "curated_candidates": 6874,
-  "date_utc": "2026-11-25",
+  "date_utc": "2026-11-26",
   "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification",
   "not_tested_this_run": 6754,
   "open_web_research": {
@@ -78,18 +78,18 @@
     "freetv-us": 25,
     "iptv-org-ar": 91,
     "iptv-org-br": 275,
-    "iptv-org-ca": 232,
+    "iptv-org-ca": 229,
     "iptv-org-cl": 143,
     "iptv-org-co": 65,
-    "iptv-org-de": 254,
-    "iptv-org-es": 239,
+    "iptv-org-de": 253,
+    "iptv-org-es": 242,
     "iptv-org-fr": 195,
-    "iptv-org-in": 748,
+    "iptv-org-in": 761,
     "iptv-org-it": 275,
     "iptv-org-mx": 113,
     "iptv-org-pt": 44,
-    "iptv-org-uk": 202,
-    "iptv-org-us": 1362,
+    "iptv-org-uk": 201,
+    "iptv-org-us": 1355,
     "iptv-org-uy": 9,
     "nexonic-all": 4160,
     "nexonic-open": 4107,
@@ -101,6 +101,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 120,
-  "tested_failed": 54,
-  "tested_ok": 66
+  "tested_failed": 51,
+  "tested_ok": 69
 }

@@ -1,108 +1,104 @@
 {
   "auto_promoted_to_player": 0,
-  "channels_examined": 1147,
-  "countries_scanned": 8,
+  "channels_examined": 322,
+  "countries_scanned": 7,
   "country_scans": [
     {
-      "country": "CA",
-      "entries": 233,
+      "country": "MX",
+      "entries": 114,
       "region": "north_central_america_caribbean"
     },
     {
-      "country": "UY",
-      "entries": 16,
+      "country": "EC",
+      "entries": 41,
       "region": "south_america"
     },
     {
-      "country": "IT",
-      "entries": 276,
+      "country": "NL",
+      "entries": 134,
       "region": "western_europe"
     },
     {
-      "country": "LV",
+      "country": "GE",
       "entries": 10,
       "region": "eastern_europe_caucasus"
     },
     {
-      "country": "IL",
-      "entries": 35,
+      "country": "QA",
+      "entries": 10,
       "region": "africa_middle_east"
     },
     {
-      "country": "IN",
-      "entries": 550,
+      "country": "JP",
+      "entries": 12,
       "region": "asia"
     },
     {
-      "country": "NZ",
-      "entries": 26,
-      "region": "oceania"
-    },
-    {
-      "country": "SR",
+      "country": "FJ",
       "entries": 1,
-      "region": "additional_world_country"
+      "region": "oceania"
     }
   ],
-  "date_utc": "2026-11-25",
+  "date_utc": "2026-11-26",
   "errors": {
+    "additional_world_country:SS": "HTTPError",
     "codeberg": "HTTPError",
-    "github:business": "HTTPError",
-    "github:events": "HTTPError",
-    "github:faith": "HTTPError",
+    "github:education": "HTTPError",
+    "github:kids": "HTTPError",
+    "github:movies": "HTTPError",
+    "github:music": "HTTPError",
+    "github:sports": "HTTPError",
     "youtube": "ValueError"
   },
   "multilingual_searches": [
     {
-      "found": 2,
-      "provider": "github:zh",
+      "found": 1,
+      "provider": "github:fr",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:ja",
+      "provider": "github:de",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:id",
+      "provider": "github:pt",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:ar",
+      "provider": "github:en",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:uk",
+      "provider": "github:it",
       "status": "OK"
     },
     {
       "found": 0,
-      "provider": "github:science",
+      "provider": "github:news",
       "status": "OK"
     },
     {
-      "found": 0,
-      "provider": "github:travel",
-      "status": "OK"
-    },
-    {
-      "found": 0,
-      "provider": "github:general",
-      "status": "OK"
-    },
-    {
-      "provider": "github:faith",
+      "provider": "github:sports",
       "status": "UNAVAILABLE"
     },
     {
-      "provider": "github:business",
+      "provider": "github:movies",
       "status": "UNAVAILABLE"
     },
     {
-      "provider": "github:events",
+      "provider": "github:kids",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "provider": "github:music",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "provider": "github:education",
       "status": "UNAVAILABLE"
     },
     {
@@ -129,25 +125,25 @@
       "status": "OK"
     }
   ],
-  "new_research_channel_records": 0,
-  "new_research_sources": 1,
+  "new_research_channel_records": 322,
+  "new_research_sources": 4,
   "new_stream_alternatives_in_research": 0,
   "note": "Research-only registry. No newly discovered URLs or repository links are automatically promoted into the playable catalog.",
   "region_count": 7,
   "regions_selected": {
-    "additional_world_country": "SR",
-    "africa_middle_east": "IL",
-    "asia": "IN",
-    "eastern_europe_caucasus": "LV",
-    "north_central_america_caribbean": "CA",
-    "oceania": "NZ",
-    "south_america": "UY",
-    "western_europe": "IT"
+    "additional_world_country": "SS",
+    "africa_middle_east": "QA",
+    "asia": "JP",
+    "eastern_europe_caucasus": "GE",
+    "north_central_america_caribbean": "MX",
+    "oceania": "FJ",
+    "south_america": "EC",
+    "western_europe": "NL"
   },
   "scheduled_local": "02:00 America/Sao_Paulo",
   "schema": 1,
-  "started_at_utc": "2026-11-25T19:25:47.015993+00:00",
+  "started_at_utc": "2026-11-26T10:43:51.219099+00:00",
   "state": "PARTIAL",
-  "total_research_channels": 2413,
-  "total_sources_recorded": 44
+  "total_research_channels": 2735,
+  "total_sources_recorded": 55
 }
