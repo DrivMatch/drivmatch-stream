@@ -3,7 +3,7 @@
 // No login, favorites, D1, catalog, or financial data are read or modified.
 import fs from "node:fs";
 import crypto from "node:crypto";
-import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing, resumableFullAudit} from "./streamnow_ops_policy.mjs";
+import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing, resumableFullAudit, canCloseRecoveredAuditIncident} from "./streamnow_ops_policy.mjs";
 
 const token=process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const repo=process.env.GITHUB_REPOSITORY;
@@ -44,6 +44,9 @@ function findIssue(key){return issueList.find(x=>x.title===title(key));}
 async function openIncident(key,text){
  const old=findIssue(key);
  if(old){
+   // A workflow run ID is immutable. After it was resolved with verified proof,
+   // never reopen that same old failure on a later Sentinel heartbeat.
+   if(old.state==="closed" && key.startsWith("run:"))return old.number;
    if(old.state==="closed")await api("PATCH",base+"/issues/"+old.number,{state:"open"});
    return old.number;
  }
@@ -199,6 +202,30 @@ if(!deploying){
    }else{
      await closeIncident("catalog-diff:"+date,
        "A playlist publicada corresponde exatamente ao GitHub por SHA-256.");
+     // Close only resolved full-audit failures. A later green run alone does
+     // not prove deployment; require a completed health snapshot and exact
+     // checksum match with the public Cloudflare catalog.
+     try{
+       const obj=await api("GET",base+"/contents/site/channel-health.json");
+       const health=JSON.parse(Buffer.from(String(obj.content||"").replace(/\\s+/g,""),"base64").toString("utf8"));
+       const successful=runs.filter(x=>x.name==="Stream Now full-channel health audit" &&
+         x.conclusion==="success").sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at))[0];
+       for(const issue of issueList){
+         if(!issue.title?.startsWith(title("run:")) || issue.state!=="open")continue;
+         const runId=Number(issue.title.slice(title("run:").length));
+         const previous=runs.find(x=>x.id===runId);
+         if(canCloseRecoveredAuditIncident(previous,successful,health,match)){
+           await closeIncident("run:"+runId,
+             "**RECUPERADO E VALIDADO:** auditoria completa "+
+             successful.html_url+"; health report COMPLETE_HLS ("+health.tested+
+             " candidatos) e playlist pública confirmada por SHA-256. "+
+             "Os favoritos e dados pessoais não foram apagados.");
+           summary.push("Recovered full-audit incident closed: "+runId);
+         }
+       }
+     }catch(e){
+       summary.push("Full-audit incident reconciliation pending: "+String(e.message).slice(0,160));
+     }
    }
    summary.push("Cloudflare catalog SHA-256: "+(match?"MATCH":"MISMATCH"));
  }catch(e){
