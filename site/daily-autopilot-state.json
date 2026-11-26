@@ -642,7 +642,7 @@
       "aliases": [
         "Televizija 5"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BA",
       "country_code": "BA",
       "display_name_pt": "Televizija 5",
@@ -652,14 +652,14 @@
       "international_name": "Televizija 5",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Televizija 5",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Televizija 5",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://balkanmedia.dynu.net/hls/tv5web.m3u8"
     },
     "0132533c0dd8cb866cd02006": {
@@ -2450,7 +2450,7 @@
       "aliases": [
         "Action24"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "GR",
       "country_code": "GR",
       "display_name_pt": "Action24",
@@ -2460,14 +2460,14 @@
       "international_name": "Action24",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Action24",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Action24",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://actionlive.siliconweb.com/actionabr/actiontv/playlist.m3u8"
     },
     "0426c583b48098bd86652823": {
@@ -5197,7 +5197,7 @@
       "aliases": [
         "Tele Louange"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HT",
       "country_code": "HT",
       "display_name_pt": "Tele Louange",
@@ -5209,14 +5209,14 @@
       "language_codes": [
         "fr"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Tele Louange",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Tele Louange",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://5790d294af2dc.streamlock.net/8124/8124/playlist.m3u8"
     },
     "0794d9d5640aa27657249a19": {
@@ -8556,7 +8556,7 @@
       "aliases": [
         "i24NEWS Hebrew"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "IL",
       "country_code": "IL",
       "display_name_pt": "i24NEWS Hebrew",
@@ -8566,14 +8566,14 @@
       "international_name": "i24NEWS Hebrew",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "i24NEWS Hebrew",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "i24NEWS Hebrew",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://i24newshebrew-cdn.encoders.immergo.tv/master.m3u8"
     },
     "0c7604ab436b2b53b0da1537": {
@@ -8826,7 +8826,7 @@
       "aliases": [
         "Red Bull TV (AU)"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AT",
       "country_code": "AT",
       "display_name_pt": "Red Bull TV (AU)",
@@ -8838,14 +8838,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Red Bull TV (AU)",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Red Bull TV (AU)",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://db34cc6127ac459db55cab5f97cd66b9.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-680-WORBAUENFAST-WHALETVPLUS/680/whaletvplus/hls/master/playlist.m3u8"
     },
     "0cacbb4be521d7e942c3d45f": {
@@ -12168,7 +12168,7 @@
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "7two",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "11c46a5c309855dcc368bc26",
       "international_name": "7two",
@@ -12588,7 +12588,7 @@
       "country": "AR",
       "country_code": "AR",
       "display_name_pt": "DeporTV",
-      "failures": 2,
+      "failures": 3,
       "genre": "sports",
       "id": "1289843b365c4cdc89d6cda1",
       "international_name": "DeporTV",
@@ -13796,7 +13796,7 @@
       "country": "BA",
       "country_code": "BA",
       "display_name_pt": "BHT 1",
-      "failures": 3,
+      "failures": 4,
       "genre": "other",
       "id": "1481d0fa3c23640d302d5e4f",
       "international_name": "BHT 1",
@@ -16449,11 +16449,11 @@
       "aliases": [
         "Azteca Honduras"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HN",
       "country_code": "HN",
       "display_name_pt": "Azteca Honduras",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "18cabe8d36d1f5334d357d45",
       "international_name": "Azteca Honduras",
@@ -16468,7 +16468,7 @@
       "original_name": "Azteca Honduras",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://mdstrm.com/live-stream-playlist/65a1d2fd7e7f14355550d570.m3u8"
     },
     "18cec7690063a4cc120b9398": {
@@ -16681,7 +16681,7 @@
       "country": "AZ",
       "country_code": "AZ",
       "display_name_pt": "Baku.TV",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "19148ac85cfbe3805fd8be7b",
       "international_name": "Baku.TV",
@@ -16694,7 +16694,7 @@
       "original_name": "Baku.TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "ok",
+      "status": "failed",
       "url": "https://rtmp.baku.tv/hls/bakutv.m3u8"
     },
     "191959a23a2e2c7a115f09ae": {
@@ -18406,7 +18406,7 @@
       "aliases": [
         "Junior"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "IL",
       "country_code": "IL",
       "display_name_pt": "Junior",
@@ -18416,14 +18416,14 @@
       "international_name": "Junior",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Junior",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Junior",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://r.il.cdn-redge.media/livehls/oil/freetv/live/junior/live.livx/playlist.m3u8"
     },
     "1c57c257070f767fd333e124": {
@@ -21960,7 +21960,7 @@
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "9Rush Ⓖ",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "21bcc9e59a064347b52b5456",
       "international_name": "9Rush Ⓖ",
@@ -26083,7 +26083,7 @@
       "country": "AM",
       "country_code": "AM",
       "display_name_pt": "Armenia 1",
-      "failures": 7,
+      "failures": 8,
       "genre": "other",
       "id": "2806631985dad7b03e051dfb",
       "international_name": "Armenia 1",
@@ -31067,7 +31067,7 @@
       "country": "AO",
       "country_code": "AO",
       "display_name_pt": "TV Zimbo",
-      "failures": 7,
+      "failures": 8,
       "genre": "other",
       "id": "2f9d113e113509989f36852c",
       "international_name": "TV Zimbo",
@@ -33694,7 +33694,7 @@
       "country": "BO",
       "country_code": "BO",
       "display_name_pt": "TDT Multimedia",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "33c2f44ae4e25927e79fba9d",
       "international_name": "TDT Multimedia",
@@ -34040,7 +34040,7 @@
       "aliases": [
         "M6 Music"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FR",
       "country_code": "FR",
       "display_name_pt": "M6 Music",
@@ -34052,14 +34052,14 @@
       "language_codes": [
         "fr"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "M6 Music",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "M6 Music",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/m6_music_hits/live.livx/playlist.m3u8"
     },
     "341e982da0ab7cb4a10041ff": {
@@ -35294,7 +35294,7 @@
       "aliases": [
         "Immaculata TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CH",
       "country_code": "CH",
       "display_name_pt": "Immaculata TV",
@@ -35306,14 +35306,14 @@
       "language_codes": [
         "de"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Immaculata TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Immaculata TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://g5nl63z8lpq6-hls-live.5centscdn.com/tvistream/a5586d8ea3b7b021120a05c60dc59876.sdp/playlist.m3u8"
     },
     "36377161b38f826152d823eb": {
@@ -37112,7 +37112,7 @@
       "country": "AZ",
       "country_code": "AZ",
       "display_name_pt": "Mədəniyyət TV Ⓢ",
-      "failures": 3,
+      "failures": 4,
       "genre": "other",
       "id": "392e687b82603ab94264073d",
       "international_name": "Mədəniyyət TV Ⓢ",
@@ -37968,11 +37968,11 @@
       "aliases": [
         "Teledeporte (720p) [Geo-blocked]"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ES",
       "country_code": "ES",
       "display_name_pt": "Teledeporte (720p) [Geo-blocked]",
-      "failures": 0,
+      "failures": 1,
       "genre": "sports",
       "id": "3ab09368d671c65b274c4537",
       "international_name": "Teledeporte (720p) [Geo-blocked]",
@@ -37985,7 +37985,7 @@
       "original_name": "Teledeporte (720p) [Geo-blocked]",
       "original_script": "Latin/Other",
       "source": "coldopen-publisher",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://rtvelivestream.rtve.es/rtvesec/tdp/tdp_main.m3u8"
     },
     "3ab1159139caa9f444b0cc41": {
@@ -39977,7 +39977,7 @@
       "aliases": [
         "Bartók Rádió"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HU",
       "country_code": "HU",
       "display_name_pt": "Bartók Rádió",
@@ -39987,14 +39987,14 @@
       "international_name": "Bartók Rádió",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Bartók Rádió",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Bartók Rádió",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://budapest-cache-1.antik.sk/live/bartok_radio/index.m3u8"
     },
     "3e398b594dab6046585ca535": {
@@ -46055,11 +46055,11 @@
       "aliases": [
         "Kanal Ri"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HR",
       "country_code": "HR",
       "display_name_pt": "Kanal Ri",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "46d585674fe2e9a882cfe14a",
       "international_name": "Kanal Ri",
@@ -46072,7 +46072,7 @@
       "original_name": "Kanal Ri",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://live.kanal-ri.click/LiveApp/streams/B6HK3voDwNsRQoLm1124882102135504.m3u8"
     },
     "46db41497d6b52570fcb4958": {
@@ -50876,7 +50876,7 @@
       "country": "AF",
       "country_code": "AF",
       "display_name_pt": "RTA",
-      "failures": 6,
+      "failures": 7,
       "genre": "other",
       "id": "4df1e2cc983b20ec9fa2a423",
       "international_name": "RTA",
@@ -50970,7 +50970,7 @@
       "aliases": [
         "World of Freesports"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "DE",
       "country_code": "DE",
       "display_name_pt": "World of Freesports",
@@ -50982,14 +50982,14 @@
       "language_codes": [
         "de"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "World of Freesports",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "World of Freesports",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://mainstreammedia-worldoffreesportsintl-rakuten.amagi.tv/playlist.m3u8"
     },
     "4e23cf9e94e8bb6ba8bd2c97": {
@@ -51943,11 +51943,11 @@
       "aliases": [
         "Houses of the Oireachtas Channel"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "IE",
       "country_code": "IE",
       "display_name_pt": "Houses of the Oireachtas Channel",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "4f778e472f9539499f059793",
       "international_name": "Houses of the Oireachtas Channel",
@@ -51960,7 +51960,7 @@
       "original_name": "Houses of the Oireachtas Channel",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://d33zah5htxvoxb.cloudfront.net/el/live/oirtv/hls.m3u8"
     },
     "4f8bba9f8d6c8c563767b85e": {
@@ -54277,7 +54277,7 @@
       "country": "AT",
       "country_code": "AT",
       "display_name_pt": "ORF 2",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "52dd12a7005576f68d6c584f",
       "international_name": "ORF 2",
@@ -54885,7 +54885,7 @@
       "aliases": [
         "DELUXE MUSIC RAP"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "DE",
       "country_code": "DE",
       "display_name_pt": "DELUXE MUSIC RAP",
@@ -54895,14 +54895,14 @@
       "international_name": "DELUXE MUSIC RAP",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "DELUXE MUSIC RAP",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "DELUXE MUSIC RAP",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://sdn-global-live-streaming-packager-cache.3qsdn.com/65183/65183_264_live.m3u8"
     },
     "53b38db2bc980555c702eba1": {
@@ -56337,7 +56337,7 @@
       "aliases": [
         "Music IL"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "IL",
       "country_code": "IL",
       "display_name_pt": "Music IL",
@@ -56347,14 +56347,14 @@
       "international_name": "Music IL",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Music IL",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Music IL",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://r.il.cdn-redge.media/livehls/oil/freetv/live/music_il/live.livx/playlist.m3u8"
     },
     "55fe81c1225f354f16abff3c": {
@@ -56631,11 +56631,11 @@
       "aliases": [
         "Betis TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ES",
       "country_code": "ES",
       "display_name_pt": "Betis TV",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "56540cc02ca5d3c2610276ad",
       "international_name": "Betis TV",
@@ -56648,7 +56648,7 @@
       "original_name": "Betis TV",
       "original_script": "Latin/Other",
       "source": "teleonline-official",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://betistv-live.flumotion.com/bzaFAjJZ0-sjylB5cRLxig/1756600305/betistv/live_all/playlist.m3u8"
     },
     "5655070ae7239f153b964df1": {
@@ -56757,7 +56757,7 @@
       "country": "AZ",
       "country_code": "AZ",
       "display_name_pt": "CBC Sport Ⓖ",
-      "failures": 2,
+      "failures": 3,
       "genre": "sports",
       "id": "566fb26241d8c93b247eddce",
       "international_name": "CBC Sport Ⓖ",
@@ -58246,7 +58246,7 @@
       "aliases": [
         "Tropoja Televizion"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AL",
       "country_code": "AL",
       "display_name_pt": "Tropoja Televizion",
@@ -58256,14 +58256,14 @@
       "international_name": "Tropoja Televizion",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Tropoja Televizion",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Tropoja Televizion",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://live.prostream.al/al/smil:tropojatv.smil/playlist.m3u8"
     },
     "586d19b154463b22d4f70342": {
@@ -58614,7 +58614,7 @@
       "aliases": [
         "Wapp"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CL",
       "country_code": "CL",
       "display_name_pt": "Wapp",
@@ -58626,14 +58626,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Wapp",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Wapp",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://stream.wapptv.cl/video/index.m3u8"
     },
     "59199a7f146bde07c6e94596": {
@@ -58816,7 +58816,7 @@
       "country": "BA",
       "country_code": "BA",
       "display_name_pt": "TNT Kids",
-      "failures": 2,
+      "failures": 3,
       "genre": "kids",
       "id": "59512a367bc537e01cc81202",
       "international_name": "TNT Kids",
@@ -62120,7 +62120,7 @@
       "country": "BG",
       "country_code": "BG",
       "display_name_pt": "BNT2",
-      "failures": 2,
+      "failures": 3,
       "genre": "other",
       "id": "5e3b9b46f9cf0a073bd371d8",
       "international_name": "BNT2",
@@ -64145,7 +64145,7 @@
       "aliases": [
         "Radio Universitaria San Andres"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BO",
       "country_code": "BO",
       "display_name_pt": "Radio Universitaria San Andres",
@@ -64157,14 +64157,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Radio Universitaria San Andres",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Radio Universitaria San Andres",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://edge.enhdtv.com/8054/index.m3u8"
     },
     "6142637d32628a65fef5717e": {
@@ -71396,11 +71396,11 @@
       "aliases": [
         "Dens Food Channel"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ID",
       "country_code": "ID",
       "display_name_pt": "Dens Food Channel",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "6c8a095197ae7a63eae80d4f",
       "international_name": "Dens Food Channel",
@@ -71413,7 +71413,7 @@
       "original_name": "Dens Food Channel",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://op-flashcon-digdayahd-1.dens.tv/h/h221/02.m3u8"
     },
     "6c92c46b64bf7e4a3d523996": {
@@ -71594,11 +71594,11 @@
       "aliases": [
         "Rakuten TV Drama Movies"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ES",
       "country_code": "ES",
       "display_name_pt": "Rakuten TV Drama Movies",
-      "failures": 0,
+      "failures": 1,
       "genre": "movies",
       "id": "6cfd8c9db8122a8efc32a360",
       "international_name": "Rakuten TV Drama Movies",
@@ -71613,7 +71613,7 @@
       "original_name": "Rakuten TV Drama Movies",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://a7089c89d85f453d850c4a1518b43076.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6092/master.m3u8"
     },
     "6d04d1efb661d733eb4b5a4e": {
@@ -71748,7 +71748,7 @@
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "Sky News Now (AU)",
-      "failures": 3,
+      "failures": 4,
       "genre": "news",
       "id": "6d41f6ca94f98d25b0adad52",
       "international_name": "Sky News Now (AU)",
@@ -72502,7 +72502,7 @@
       "aliases": [
         "Taevas TV7"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "EE",
       "country_code": "EE",
       "display_name_pt": "Taevas TV7",
@@ -72512,14 +72512,14 @@
       "international_name": "Taevas TV7",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Taevas TV7",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Taevas TV7",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://vod.tv7.fi/tv7-ee/_definst_/smil:tv7-ee.smil/playlist.m3u8"
     },
     "6e8e7c856e29af77be3a8c81": {
@@ -73174,7 +73174,7 @@
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "ABC Kids",
-      "failures": 2,
+      "failures": 3,
       "genre": "kids",
       "id": "6fc233e24a1284d12c9f32d8",
       "international_name": "ABC Kids",
@@ -74654,7 +74654,7 @@
       "aliases": [
         "MTV3"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FI",
       "country_code": "FI",
       "display_name_pt": "MTV3",
@@ -74664,14 +74664,14 @@
       "international_name": "MTV3",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "MTV3",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "MTV3",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://live-fi.tvkaista.net/mtv3/live.m3u8"
     },
     "7191d5dcbb2423ffbcdba96a": {
@@ -75074,7 +75074,7 @@
       "aliases": [
         "Vos y TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "EC",
       "country_code": "EC",
       "display_name_pt": "Vos y TV",
@@ -75086,14 +75086,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Vos y TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Vos y TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://cloud37.ecuatel.com/vostv/live/manifest.m3u8"
     },
     "724b752f72c431a02e998aaf": {
@@ -76064,7 +76064,7 @@
       "aliases": [
         "CityNews Calgary"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CA",
       "country_code": "CA",
       "display_name_pt": "CityNews Calgary",
@@ -76076,14 +76076,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "CityNews Calgary",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "CityNews Calgary",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/master.m3u8"
     },
     "744267078340ec3eca34cf19": {
@@ -78160,11 +78160,11 @@
       "aliases": [
         "Guatevision"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "GT",
       "country_code": "GT",
       "display_name_pt": "Guatevision",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "77b56c8e4aabf3683a049152",
       "international_name": "Guatevision",
@@ -78179,7 +78179,7 @@
       "original_name": "Guatevision",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://mdstrm.com/live-stream-playlist/69f8df22a762c9b1ab3eabca.m3u8"
     },
     "77c052081a6c244b14f1c0c2": {
@@ -78308,7 +78308,7 @@
       "aliases": [
         "CCTV-4 中文国际（欧）"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CN",
       "country_code": "CN",
       "display_name_pt": "CCTV-4 中文国际（欧）",
@@ -78318,14 +78318,14 @@
       "international_name": "CCTV-4 中文国际（欧）",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "CCTV-4 中文国际（欧）",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "CCTV-4 中文国际（欧）",
       "original_script": "Han",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://dash2.antik.sk/live/test_cctv_tizen/playlist.m3u8"
     },
     "77d8108098f2b3d639141f6c": {
@@ -79654,7 +79654,7 @@
       "aliases": [
         "TV Spravedliva Bulgariya"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BG",
       "country_code": "BG",
       "display_name_pt": "TV Spravedliva Bulgariya",
@@ -79664,14 +79664,14 @@
       "international_name": "TV Spravedliva Bulgariya",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "TV Spravedliva Bulgariya",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "TV Spravedliva Bulgariya",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://tv.tvsb.bg/112.m3u8"
     },
     "79f2894d36355948a5927657": {
@@ -82265,7 +82265,7 @@
       "aliases": [
         "El Radio 9090 FM"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "EG",
       "country_code": "EG",
       "display_name_pt": "El Radio 9090 FM",
@@ -82275,14 +82275,14 @@
       "international_name": "El Radio 9090 FM",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "El Radio 9090 FM",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "El Radio 9090 FM",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://9090video.mobtada.com/hls/stream.m3u8"
     },
     "7d55926de374b0230c6c2341": {
@@ -82637,11 +82637,11 @@
       "aliases": [
         "RTL-Be"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BE",
       "country_code": "BE",
       "display_name_pt": "RTL-Be",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "7dfc43ea3aed98a241517d92",
       "international_name": "RTL-Be",
@@ -82654,7 +82654,7 @@
       "original_name": "RTL-Be",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://tvi-live-hls.akamaized.net/hls/live/2038650/TVI-Live-HLS/master.m3u8"
     },
     "7e0957a8992d499cf87bf903": {
@@ -83894,7 +83894,7 @@
         "СТВ",
         "STV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BY",
       "country_code": "BY",
       "display_name_pt": "STV",
@@ -83904,14 +83904,14 @@
       "international_name": "STV",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "СТВ",
       "name_provenance": "transliteration_only",
       "official_name": "",
       "original_name": "СТВ",
       "original_script": "Cyrillic",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://ctv.dc.beltelecom.by/ctv/ctv.stream/playlist.m3u8"
     },
     "804a8976702558458d2a0f8a": {
@@ -84190,7 +84190,7 @@
       "aliases": [
         "PowerHD"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AR",
       "country_code": "AR",
       "display_name_pt": "PowerHD",
@@ -84202,14 +84202,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "PowerHD",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "PowerHD",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://live2.tensila.com/1-1-1.power-tv/hls/master.m3u8"
     },
     "80aba4361b134413a3858913": {
@@ -85828,7 +85828,7 @@
       "aliases": [
         "Canal Dos"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CO",
       "country_code": "CO",
       "display_name_pt": "Canal Dos",
@@ -85840,14 +85840,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Canal Dos",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Canal Dos",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://stream2.micanal2.tv/hls/canal2.m3u8"
     },
     "83044bf7c7f80c75e19acbf2": {
@@ -91188,7 +91188,7 @@
       "country": "BE",
       "country_code": "BE",
       "display_name_pt": "EbS+",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "8aec0d09dfe9a2038c31d33d",
       "international_name": "EbS+",
@@ -93087,7 +93087,7 @@
       "aliases": [
         "Cricket Gold"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "Cricket Gold",
@@ -93099,14 +93099,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Cricket Gold",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Cricket Gold",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://streams2.sofast.tv/scheduler/scheduleMaster/418.m3u8"
     },
     "8ddac18dcdb5bb5a9cbac986": {
@@ -93191,7 +93191,7 @@
       "country": "BE",
       "country_code": "BE",
       "display_name_pt": "Bruzz",
-      "failures": 1,
+      "failures": 2,
       "genre": "other",
       "id": "8dfd1d68f6a9fec0e8fdf40e",
       "international_name": "Bruzz",
@@ -93630,7 +93630,7 @@
       "aliases": [
         "Puranoticia TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CL",
       "country_code": "CL",
       "display_name_pt": "Puranoticia TV",
@@ -93642,14 +93642,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Puranoticia TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Puranoticia TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://pnt.janusmedia.tv/hls/pnt.m3u8"
     },
     "8ecb61e43ecf780d423479bb": {
@@ -94076,7 +94076,7 @@
       "aliases": [
         "Mega News"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "GR",
       "country_code": "GR",
       "display_name_pt": "Mega News",
@@ -94086,14 +94086,14 @@
       "international_name": "Mega News",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Mega News",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Mega News",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://c98db5952cb54b358365984178fb898a.msvdn.net/live/S99841657/NU0xOarAMJ5X/playlist.m3u8"
     },
     "8f6406b457dd988b05250ecd": {
@@ -96972,7 +96972,7 @@
       "aliases": [
         "Africanews French (720p)"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FR",
       "country_code": "FR",
       "display_name_pt": "Africanews French (720p)",
@@ -96982,14 +96982,14 @@
       "international_name": "Africanews French (720p)",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Africanews French (720p)",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Africanews French (720p)",
       "original_script": "Latin/Other",
       "source": "coldopen-publisher",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8"
     },
     "940c8f0b43da5e803a01a2ea": {
@@ -97538,7 +97538,7 @@
       "aliases": [
         "Sharjah Radio"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Sharjah Radio",
@@ -97548,14 +97548,14 @@
       "international_name": "Sharjah Radio",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Sharjah Radio",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Sharjah Radio",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://svs.itworkscdn.net/smcradiolive/smcradiolive/playlist.m3u8"
     },
     "94fdcd9df0ee00588924b4d5": {
@@ -98314,7 +98314,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Cartoon Network Arabic",
-      "failures": 2,
+      "failures": 3,
       "genre": "kids",
       "id": "962c861740f26d9d9f2b2fed",
       "international_name": "Cartoon Network Arabic",
@@ -100325,7 +100325,7 @@
       "aliases": [
         "Persiana Junior"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FR",
       "country_code": "FR",
       "display_name_pt": "Persiana Junior",
@@ -100335,14 +100335,14 @@
       "international_name": "Persiana Junior",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Persiana Junior",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Persiana Junior",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://junhls.persiana.live/hls/stream.m3u8"
     },
     "989ec53b2e99f199bcf85670": {
@@ -104555,7 +104555,7 @@
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "SBS World Movies Ⓖ",
-      "failures": 4,
+      "failures": 5,
       "genre": "movies",
       "id": "9f130db0a312fd3ddc073bf4",
       "international_name": "SBS World Movies Ⓖ",
@@ -105555,11 +105555,11 @@
       "aliases": [
         "Metro Globe Network"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ID",
       "country_code": "ID",
       "display_name_pt": "Metro Globe Network",
-      "failures": 0,
+      "failures": 1,
       "genre": "news",
       "id": "a1161c03cac36cd5bfb3145a",
       "international_name": "Metro Globe Network",
@@ -105572,7 +105572,7 @@
       "original_name": "Metro Globe Network",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://edge.medcom.id/live-edge/smil:mgnch.smil/playlist.m3u8"
     },
     "a1169387de7310e73349c178": {
@@ -105699,7 +105699,7 @@
       "aliases": [
         "Stingray Karaoke"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CA",
       "country_code": "CA",
       "display_name_pt": "Stingray Karaoke",
@@ -105711,14 +105711,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Stingray Karaoke",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Stingray Karaoke",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://lotus.stingray.com/manifest/karaoke-kar000-montreal/samsungtvplus/master.m3u8"
     },
     "a13ed50e47f88549292ca005": {
@@ -106415,7 +106415,7 @@
       "country": "BI",
       "country_code": "BI",
       "display_name_pt": "RTNB TV",
-      "failures": 7,
+      "failures": 8,
       "genre": "other",
       "id": "a244cf6ba657792b498d7642",
       "international_name": "RTNB TV",
@@ -107379,7 +107379,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Sky News العربية",
-      "failures": 5,
+      "failures": 6,
       "genre": "news",
       "id": "a38658fbece44dbd96277ae9",
       "international_name": "Sky News العربية",
@@ -107575,7 +107575,7 @@
       "country": "AF",
       "country_code": "AF",
       "display_name_pt": "RTA Education",
-      "failures": 3,
+      "failures": 4,
       "genre": "education",
       "id": "a3bff9119afd27d96a990e09",
       "international_name": "RTA Education",
@@ -109182,7 +109182,7 @@
       "aliases": [
         "Hope Channel PROYECTO JA"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CR",
       "country_code": "CR",
       "display_name_pt": "Hope Channel PROYECTO JA",
@@ -109194,14 +109194,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Hope Channel PROYECTO JA",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Hope Channel PROYECTO JA",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://edge1-us-miami.picarto.tv/stream/hls/golive%2bXSTUDIOCODE/0_1/index.m3u8"
     },
     "a61e82112f9d71a146691c75": {
@@ -112454,7 +112454,7 @@
       "aliases": [
         "Ayaz TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AZ",
       "country_code": "AZ",
       "display_name_pt": "Ayaz TV",
@@ -112464,14 +112464,14 @@
       "international_name": "Ayaz TV",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Ayaz TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Ayaz TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://janya-ayaztv.vgcdn.net/ptnr-WebApp/title-Ayaz_TV/v1/vglive-sk-934820/1080p/1080p.m3u8"
     },
     "aa4dc26d3168aa96a353c022": {
@@ -112528,11 +112528,11 @@
       "aliases": [
         "ערוץ 13"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "IL",
       "country_code": "IL",
       "display_name_pt": "ערוץ 13",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "aa7475f48b4981722dc1d7ba",
       "international_name": "ערוץ 13",
@@ -112545,7 +112545,7 @@
       "original_name": "ערוץ 13",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://d2xg1g9o5vns8m.cloudfront.net/out/v1/0855d703f7d5436fae6a9c7ce8ca5075/index.m3u8"
     },
     "aa79e0e2a75b8f8c1451f7e3": {
@@ -112830,7 +112830,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Dubai Sports 3",
-      "failures": 1,
+      "failures": 2,
       "genre": "sports",
       "id": "aae6e00004cdbd2e163bf063",
       "international_name": "Dubai Sports 3",
@@ -121442,7 +121442,7 @@
       "aliases": [
         "Euronews Hungarian"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HU",
       "country_code": "HU",
       "display_name_pt": "Euronews Hungarian",
@@ -121452,14 +121452,14 @@
       "international_name": "Euronews Hungarian",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Euronews Hungarian",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Euronews Hungarian",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8"
     },
     "b826d496ab49cb3618ca9834": {
@@ -123557,7 +123557,7 @@
       "country": "BI",
       "country_code": "BI",
       "display_name_pt": "RTNB Divertissement",
-      "failures": 7,
+      "failures": 8,
       "genre": "other",
       "id": "babf370e13fab3baf6f4dfdf",
       "international_name": "RTNB Divertissement",
@@ -126801,7 +126801,7 @@
       "aliases": [
         "My TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "BD",
       "country_code": "BD",
       "display_name_pt": "My TV",
@@ -126811,14 +126811,14 @@
       "international_name": "My TV",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "My TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "My TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://app.ncare.live/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI2/mytv-up-off.stream/live-orgin/mytv-up-off.stream/playlist.m3u8"
     },
     "bf2a648816ca154cffa48494": {
@@ -128969,11 +128969,11 @@
       "aliases": [
         "CGTN"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CN",
       "country_code": "CN",
       "display_name_pt": "CGTN",
-      "failures": 0,
+      "failures": 1,
       "genre": "news",
       "id": "c30af89487defaf9d234b3e7",
       "international_name": "CGTN",
@@ -128986,7 +128986,7 @@
       "original_name": "CGTN",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://news.cgtn.com/resource/live/english/cgtn-news.m3u8"
     },
     "c31679602765cb0f0375d6b2": {
@@ -130649,7 +130649,7 @@
       "aliases": [
         "Regio TV Bodensee"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "DE",
       "country_code": "DE",
       "display_name_pt": "Regio TV Bodensee",
@@ -130661,14 +130661,14 @@
       "language_codes": [
         "de"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Regio TV Bodensee",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Regio TV Bodensee",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://regiotv-b.iptv-playoutcenter.de/regiotv-b/regiotv-b.stream_1/playlist.m3u8"
     },
     "c51f29a71cd5e7ace286b8ca": {
@@ -131343,7 +131343,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Dubai One",
-      "failures": 3,
+      "failures": 4,
       "genre": "other",
       "id": "c5f3b48c76f1304a8dcc51c7",
       "international_name": "Dubai One",
@@ -134457,7 +134457,7 @@
       "aliases": [
         "CGTN Documentary"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CN",
       "country_code": "CN",
       "display_name_pt": "CGTN Documentary",
@@ -134469,14 +134469,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "CGTN Documentary",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "CGTN Documentary",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://english-livebkali.cgtn.com/live/doccgtn.m3u8"
     },
     "caf5f1ab7b04e244cac8e43e": {
@@ -136336,11 +136336,11 @@
       "aliases": [
         "KIX"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "HK",
       "country_code": "HK",
       "display_name_pt": "KIX",
-      "failures": 0,
+      "failures": 1,
       "genre": "other",
       "id": "cdffb8cd9125b5a706dd503c",
       "international_name": "KIX",
@@ -136355,7 +136355,7 @@
       "original_name": "KIX",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://freem3u.xyz/api/live/play.m3u8?vid=9901"
     },
     "ce0a1f7702a5ca57f6f26b46": {
@@ -138428,7 +138428,7 @@
       "country": "AL",
       "country_code": "AL",
       "display_name_pt": "Alpo TV",
-      "failures": 4,
+      "failures": 5,
       "genre": "other",
       "id": "d1210065e4b936bb496d68cb",
       "international_name": "Alpo TV",
@@ -138848,7 +138848,7 @@
       "aliases": [
         "ticker News"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AU",
       "country_code": "AU",
       "display_name_pt": "ticker News",
@@ -138860,14 +138860,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "ticker News",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "ticker News",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://live-hls-7agy.livepush.io/live_abr_cdn/nsitWAl1pTZtwca/emnmZbKZcO8RfwJR/index.m3u8"
     },
     "d1b86a1573bf0f8e0fc107c4": {
@@ -144361,11 +144361,11 @@
       "aliases": [
         "Dubai Sports 2"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Dubai Sports 2",
-      "failures": 0,
+      "failures": 1,
       "genre": "sports",
       "id": "dae8dc8dffe7de7ed4901f3e",
       "international_name": "Dubai Sports 2",
@@ -144378,7 +144378,7 @@
       "original_name": "Dubai Sports 2",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://dmitwlvvll.cdn.mangomolo.com/dubaisportshd/smil:dubaisportshd.smil/index.m3u8"
     },
     "daf1bcb364264537eab675b9": {
@@ -145299,7 +145299,7 @@
       "aliases": [
         "Formula"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "GE",
       "country_code": "GE",
       "display_name_pt": "Formula",
@@ -145309,14 +145309,14 @@
       "international_name": "Formula",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Formula",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Formula",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://c4635.cdn.xsg.ge/c4635/TVFormula/index.m3u8"
     },
     "dc23df18f4635047c7b66789": {
@@ -145623,7 +145623,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Sky News Arabia",
-      "failures": 2,
+      "failures": 3,
       "genre": "news",
       "id": "dca51351bdf9c598bb548b3b",
       "international_name": "Sky News Arabia",
@@ -148544,7 +148544,7 @@
       "aliases": [
         "TV Brno 1"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "CZ",
       "country_code": "CZ",
       "display_name_pt": "TV Brno 1",
@@ -148554,14 +148554,14 @@
       "international_name": "TV Brno 1",
       "language": "",
       "language_codes": [],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "TV Brno 1",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "TV Brno 1",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://stream.polar.cz/tvbrno1/tvbrno1live-1/playlist.m3u8"
     },
     "e0b2de171fb658e4e21e5e49": {
@@ -149555,7 +149555,7 @@
       "country": "AE",
       "country_code": "AE",
       "display_name_pt": "Abu Dhabi Sports 2",
-      "failures": 2,
+      "failures": 3,
       "genre": "sports",
       "id": "e2a25f3f6762300d1e8c7d05",
       "international_name": "Abu Dhabi Sports 2",
@@ -154652,7 +154652,7 @@
       "aliases": [
         "W9"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FR",
       "country_code": "FR",
       "display_name_pt": "W9",
@@ -154664,14 +154664,14 @@
       "language_codes": [
         "fr"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "W9",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "W9",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/w9_fr/live.livx/playlist.m3u8"
     },
     "e9be1302c33371b17f9da3d8": {
@@ -157113,7 +157113,7 @@
       "aliases": [
         "Eurosport 1 (UK)"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "FR",
       "country_code": "FR",
       "display_name_pt": "Eurosport 1 (UK)",
@@ -157125,14 +157125,14 @@
       "language_codes": [
         "en"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "Eurosport 1 (UK)",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "Eurosport 1 (UK)",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/eurosport_1_en/live.livx/playlist.m3u8"
     },
     "ed77a5f011cc3d2bc858435f": {
@@ -158924,7 +158924,7 @@
       "aliases": [
         "OEPM TV"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "DO",
       "country_code": "DO",
       "display_name_pt": "OEPM TV",
@@ -158936,14 +158936,14 @@
       "language_codes": [
         "es"
       ],
-      "last_ok": "",
+      "last_ok": "2026-11-26",
       "name": "OEPM TV",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "OEPM TV",
       "original_script": "Latin/Other",
       "source": "nexonic-open",
-      "status": "unverified",
+      "status": "ok",
       "url": "https://cnn.hostlagarto.com/oepmtelevision/tracks-v1a1/mono.m3u8"
     },
     "f08d29ace220d43c9ab7419d": {
@@ -159870,11 +159870,11 @@
       "aliases": [
         "euronews"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "ES",
       "country_code": "ES",
       "display_name_pt": "euronews",
-      "failures": 0,
+      "failures": 1,
       "genre": "news",
       "id": "f1c9c0e961b0305b0bb2a7be",
       "international_name": "euronews",
@@ -159887,7 +159887,7 @@
       "original_name": "euronews",
       "original_script": "Latin/Other",
       "source": "freetv-main",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA0YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8"
     },
     "f1e1cf03c3f8d639e22ca772": {
@@ -166857,11 +166857,11 @@
       "aliases": [
         "DW Arabic (1080p)"
       ],
-      "checked": "",
+      "checked": "2026-11-26",
       "country": "DE",
       "country_code": "DE",
       "display_name_pt": "DW Arabic (1080p)",
-      "failures": 0,
+      "failures": 1,
       "genre": "news",
       "id": "fc0e1d279be92df93e80b211",
       "international_name": "DW Arabic (1080p)",
@@ -166874,7 +166874,7 @@
       "original_name": "DW Arabic (1080p)",
       "original_script": "Latin/Other",
       "source": "coldopen-publisher",
-      "status": "unverified",
+      "status": "failed",
       "url": "https://dwamdstream103.akamaized.net/hls/live/2015526/dwstream103/master.m3u8"
     },
     "fc1474e85be56a769aff3c1b": {
@@ -167897,7 +167897,7 @@
       "country": "BJ",
       "country_code": "BJ",
       "display_name_pt": "Le Nouveau Manager TV",
-      "failures": 2,
+      "failures": 3,
       "genre": "other",
       "id": "fd58ec2ec527c5c1e88b9488",
       "international_name": "Le Nouveau Manager TV",
