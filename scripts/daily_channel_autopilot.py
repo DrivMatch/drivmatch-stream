@@ -78,6 +78,8 @@ SOURCES = (
     ("nexonic-open", "https://nexonic-technologies.github.io/nexonic-iptv/playlists/verified.m3u", "", "", True),
     ("freecasthub", "https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u", "", "", True),
     # Community playlists are for daily research/reporting only, not auto-add.
+    ("iptv-com-br-research", "https://github.com/iptv-com/iptv/raw/refs/heads/main/lists/brazil.m3u", "BR", "", False),
+    ("iptv-org-world-research", "https://iptv-org.github.io/iptv/index.m3u", "", "", False),
     ("iptv-org-br", "https://iptv-org.github.io/iptv/countries/br.m3u", "BR", "", False),
     ("iptv-org-pt", "https://iptv-org.github.io/iptv/countries/pt.m3u", "PT", "", False),
     ("iptv-org-es", "https://iptv-org.github.io/iptv/countries/es.m3u", "ES", "", False),
