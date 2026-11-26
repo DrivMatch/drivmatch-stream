@@ -426,7 +426,7 @@ def published_channel_signatures(playlist_text: str) -> set[tuple[str, str]]:
     or the size of the durable channel-state cache. Do not edit personal favorites.
     """
     lines = [line.strip() for line in playlist_text.splitlines() if line.strip()]
-    return {(lines[i], lines[i + 1])
+    return {(re.sub(r' dm-auto-checked="[^"]*"', '', lines[i]), lines[i + 1])
             for i in range(len(lines) - 1)
             if lines[i].startswith("#EXTINF:") and not lines[i + 1].startswith("#")}
 
