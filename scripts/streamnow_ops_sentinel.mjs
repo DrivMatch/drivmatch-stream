@@ -3,7 +3,7 @@
 // No login, favorites, D1, catalog, or financial data are read or modified.
 import fs from "node:fs";
 import crypto from "node:crypto";
-import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing} from "./streamnow_ops_policy.mjs";
+import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing, resumableFullAudit} from "./streamnow_ops_policy.mjs";
 
 const token=process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const repo=process.env.GITHUB_REPOSITORY;
@@ -88,6 +88,43 @@ for(const run of recentFailures){
    "Favoritos e registros de contas não serão excluídos pelo sentinela.\n\n"+
    "Ação automática: no máximo uma repetição dos jobs falhos; nova falha exige intervenção humana."
  );
+ // Recover previously tested candidates without re-running 8,599 HLS probes.
+ // Only the all-successful-shards/finalizer-failed case is eligible.
+ // This is guarded by an incident comment so every Sentinel poll is idempotent.
+ if(run.name==="Stream Now full-channel health audit" && !sameWorkflowSuperseded(run)
+    && Number(run.run_attempt||1)===1){
+   try{
+     const [jobData,artifactData]=await Promise.all([
+       api("GET",base+"/actions/runs/"+run.id+"/jobs?per_page=100"),
+       api("GET",base+"/actions/runs/"+run.id+"/artifacts?per_page=100")
+     ]);
+     if(resumableFullAudit(run,jobData.jobs,artifactData.artifacts)){
+       const marker="[SNOPS_FULL_RESUME:"+run.id+"]";
+       const comments=await api("GET",base+"/issues/"+issueNumber+"/comments?per_page=100");
+       if(!comments.some(c=>String(c.body||"").includes(marker))){
+         // New workflow code is required: the previous failed commit's
+         // rerun-failed-jobs repeats its broken artifact extraction logic.
+         await api("POST",base+"/actions/workflows/streamnow-full-channel-health.yml/dispatches",{
+           ref:"main",inputs:{resume_run_id:String(run.id)}
+         });
+         await api("POST",base+"/issues/"+issueNumber+"/comments",{
+           body:marker+"\\n**Reparação automática iniciada:** recuperando os 24 lotes já concluídos "+ 
+           "na versão atual do código. Nova verificação da publicação obrigatória. "+run.html_url
+         });
+         summary.push("Resume 24 complete shards from full audit: "+run.id);
+       }
+       // Never start the incompatible old-SHA retry after dispatch or marker.
+       continue;
+     }
+   }catch(e){
+     await api("POST",base+"/issues/"+issueNumber+"/comments",{
+       body:"**Falha na recuperação por artefatos:** "+String(e.message).slice(0,240)+
+         ". Auditoria permanece incompleta; intervenção necessária."
+     });
+     // Do not fall through to an unsafe old-commit finalizer retry.
+     continue;
+   }
+ }
  if(shouldRetry(run,sameWorkflowSuperseded(run))){
    try{
      await api("POST",base+"/actions/runs/"+run.id+"/rerun-failed-jobs");
