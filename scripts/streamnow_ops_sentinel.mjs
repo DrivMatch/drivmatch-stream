@@ -91,8 +91,7 @@ for(const run of recentFailures){
  // Recover previously tested candidates without re-running 8,599 HLS probes.
  // Only the all-successful-shards/finalizer-failed case is eligible.
  // This is guarded by an incident comment so every Sentinel poll is idempotent.
- if(run.name==="Stream Now full-channel health audit" && !sameWorkflowSuperseded(run)
-    && Number(run.run_attempt||1)===1){
+ if(run.name==="Stream Now full-channel health audit" && !sameWorkflowSuperseded(run)){
    try{
      const [jobData,artifactData]=await Promise.all([
        api("GET",base+"/actions/runs/"+run.id+"/jobs?per_page=100"),
