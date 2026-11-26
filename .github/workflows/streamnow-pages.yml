@@ -138,3 +138,30 @@ jobs:
           done
           echo "::error::Pages shared-account login could not be verified."
           exit 1
+
+      - name: Verify the exact published catalog checksum
+        # A green deployment is not proof that viewers received the new playlist.
+        # Check the public endpoint, not just the built artifact or GitHub commit.
+        run: |
+          set -euo pipefail
+          expected="$(sha256sum dist/daily-autopilot.m3u8 | awk '{print $1}')"
+          origin="https://streamnow-2o1.pages.dev"
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            origin="https://contas-compartilhadas.streamnow-2o1.pages.dev"
+          fi
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error --location --max-time 30 --retry 2 \
+                 -H 'Cache-Control: no-cache' \
+                 "$origin/daily-autopilot.m3u8?verify=$GITHUB_RUN_ID-$attempt" \
+                 -o /tmp/streamnow-published.m3u8; then
+              actual="$(sha256sum /tmp/streamnow-published.m3u8 | awk '{print $1}')"
+              if [ "$actual" = "$expected" ]; then
+                count="$(grep -c '^#EXTINF:' /tmp/streamnow-published.m3u8 || true)"
+                printf 'Verified public Stream Now catalog checksum: %s; %s entries.\n' "$actual" "$count" | tee -a "$GITHUB_STEP_SUMMARY"
+                exit 0
+              fi
+            fi
+            sleep 5
+          done
+          echo "::error::Cloudflare did not serve the exact approved Stream Now playlist"
+          exit 1
