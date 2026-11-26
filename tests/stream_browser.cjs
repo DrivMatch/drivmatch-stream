@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '../site');
 const origin = 'http://127.0.0.1:18764';
-const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json','/stream/favorites-safety.js':'favorites-safety.js'};
+const paths = {'/stream/':'index.html','/stream/index.html':'index.html','/stream/stream.js':'stream.js','/stream/stream.css':'stream.css','/stream/graphite.css':'streamnow-graphite.css','/stream/brand.webp':'streamnow-brand.webp','/stream/stream-boot.js':'stream-boot.js','/stream/streamnow-i18n.js':'streamnow-i18n.js','/stream/stream-tv.js':'stream-tv.js','/stream/tv/':'tv.html','/stream/tv/tv.css':'tv.css','/stream/tv/tv.js':'tv.js','/stream/listas/sources.json':'playlist-sources.json','/stream/listas/brasil-servicos.json':'brasil-servicos.json','/stream/official-access.json':'official-access.json','/stream/favorites-safety.js':'favorites-safety.js'};
 const m3uES = ['#EXTM3U','#EXTINF:-1 group-title="News",24 Horas (720p)',
   'https://mock.example/24horas.m3u8',
   '#EXTINF:-1 group-title="Geral",TV Globo','https://mock.example/globo.m3u8',
