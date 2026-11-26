@@ -85,3 +85,15 @@ export function canCloseRecoveredAuditIncident(failed,recovered,health,shaMatch)
     recovered?.head_branch==="main" &&
     Date.parse(recovered.created_at)>Date.parse(failed.created_at));
 }
+
+export function githubContentsNeedsBlobFetch(contents){
+  // GitHub Contents API returns encoding:"none" and content:"" for >1MB.
+  return !contents || contents.encoding!=="base64" || !contents.content;
+}
+export function decodeCanonicalGitBlob(contents){
+  if(contents?.encoding!=="base64" || !contents.content)
+    throw Error("Canonical GitHub playlist blob unavailable");
+  const canonical=Buffer.from(String(contents.content).replace(/\s+/g,""),"base64");
+  if(!canonical.length)throw Error("Canonical GitHub playlist is empty");
+  return canonical;
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing,resumableFullAudit,canCloseRecoveredAuditIncident} from '../scripts/streamnow_ops_policy.mjs';
+import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing,resumableFullAudit,canCloseRecoveredAuditIncident,githubContentsNeedsBlobFetch,decodeCanonicalGitBlob} from '../scripts/streamnow_ops_policy.mjs';
 const run=(override={})=>({
  id:123,name:'Stream Now full-channel health audit',head_branch:'main',
  status:'completed',conclusion:'failure',run_attempt:1,
@@ -78,4 +78,15 @@ test('do not clear incidents on a green job without public checksum and complete
  assert.equal(canCloseRecoveredAuditIncident(failed,success,{...health,tested:0},true),false);
  assert.equal(canCloseRecoveredAuditIncident(failed,{...success,created_at:'2026-11-26T12:00:00Z'},health,true),false);
  assert.equal(canCloseRecoveredAuditIncident(failed,{...success,head_branch:'dev'},health,true),false);
+});
+
+test('GitHub Contents API larger than 1MB uses Git blob SHA instead of empty content',()=>{
+ const contents={sha:'a'.repeat(40),encoding:'none',content:''};
+ assert.equal(githubContentsNeedsBlobFetch(contents),true);
+ const source={encoding:'base64',content:Buffer.from('#EXTM3U\n#EXTINF:-1,Public\nhttps://example.com/live.m3u8\n').toString('base64')};
+ assert.equal(githubContentsNeedsBlobFetch(source),false);
+ const decoded=decodeCanonicalGitBlob(source);
+ assert.ok(decoded.toString('utf8').startsWith('#EXTM3U'));
+ assert.throws(()=>decodeCanonicalGitBlob(contents),/unavailable/);
+ assert.throws(()=>decodeCanonicalGitBlob({encoding:'base64',content:'  '}),/empty/);
 });
