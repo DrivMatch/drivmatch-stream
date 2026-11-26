@@ -3,7 +3,8 @@ export const WATCHED = new Set([
   "DrivMatch - Autopiloto diario de canais",
   "Stream Now independent 04h and 06h channel audits",
   "Stream Now Cloudflare Pages",
-  "Deploy DrivMatch Stream (independent)"
+  "Deploy DrivMatch Stream (independent)",
+  "Stream Now P0 favorites integrity — independent account audits"
 ]);
 export const AUTOMATIC_RETRY_MAX = 1;
 export function eligibleRun(run) {

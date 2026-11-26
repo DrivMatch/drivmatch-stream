@@ -7,6 +7,7 @@ on:
       - Stream Now independent 04h and 06h channel audits
       - Stream Now Cloudflare Pages
       - Deploy DrivMatch Stream (independent)
+      - Stream Now P0 favorites integrity — independent account audits
     types: [completed]
   schedule:
     # Backup heartbeat every ~15min; events trigger as soon as a workflow finishes.
