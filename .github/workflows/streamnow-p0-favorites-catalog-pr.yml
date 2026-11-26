@@ -1,0 +1,35 @@
+name: Stream Now P0 favorites and catalog regression
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'site/tv.js'
+      - 'scripts/daily_channel_autopilot.py'
+      - 'scripts/streamnow_autopilot_audit.py'
+      - 'tests/streamnow_favorites_key_resolution.test.mjs'
+      - 'tests/test_streamnow_catalog_delta.py'
+      - '.github/workflows/streamnow-p0-favorites-catalog-pr.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Favorites and source-specific stream regression
+        run: |
+          node --test tests/streamnow_favorites_key_resolution.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs
+      - name: Actual published channel deltas and 60 second timeout
+        run: |
+          python3 -m unittest discover -s tests -p 'test_streamnow_catalog_delta.py' -v
+          python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_streamnow_autopilot_audit.py' -v
+      - name: Release gate preserves personal favorites
+        run: python3 scripts/streamnow_favorites_release_gate.py --mode catalog
