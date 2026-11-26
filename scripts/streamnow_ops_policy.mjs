@@ -63,7 +63,7 @@ export function resumableFullAudit(run,jobs,artifacts,superseded=false){
   // A failed finalizer should reuse ALL 24 successful shard artifacts instead
   // of paying for another 8,000+ channel scans. Partial scans are not eligible.
   if(!eligibleRun(run)||run.name!=="Stream Now full-channel health audit"||
-     run.conclusion!=="failure"||superseded||Number(run.run_attempt||1)>1)return false;
+     run.conclusion!=="failure"||superseded)return false;
   const scans=(jobs||[]).filter(x=>/^scan \((?:\d{1,2})\)$/.test(x.name||""));
   const numbered=new Set(scans.map(x=>Number(x.name.match(/\d+/)[0])));
   if(scans.length!==24||numbered.size!==24||
