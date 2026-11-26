@@ -1,4 +1,5 @@
 name: Stream Now full-channel health audit
+# Retry on 2026-11-26 after fixing truncated HTTP chunk read; full all-channel scan.
 on:
   workflow_dispatch:
   push:
