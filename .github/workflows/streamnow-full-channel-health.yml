@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: streamnow-full-health-audit
+  group: streamnow-channel-catalog-writer
   cancel-in-progress: false
 
 jobs:
