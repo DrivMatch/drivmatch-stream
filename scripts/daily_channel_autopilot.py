@@ -419,6 +419,18 @@ def as_extinf(item: dict) -> str:
             '" dm-aliases="' + aliases +
             '",' + display)
 
+def published_channel_signatures(playlist_text: str) -> set[tuple[str, str]]:
+    """Exact published entries. An updated URL is counted as one exit and one entry.
+
+    Compare emitted EXTINF metadata and the following URL, not research candidates
+    or the size of the durable channel-state cache. Do not edit personal favorites.
+    """
+    lines = [line.strip() for line in playlist_text.splitlines() if line.strip()]
+    return {(lines[i], lines[i + 1])
+            for i in range(len(lines) - 1)
+            if lines[i].startswith("#EXTINF:") and not lines[i + 1].startswith("#")}
+
+
 def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) -> dict:
     now = now or dt.datetime.now(dt.timezone.utc)
     today = now.strftime("%Y-%m-%d")
@@ -484,7 +496,16 @@ def run(now: dt.datetime | None = None, fetch=fetch_bytes, probe=check_channel) 
     # no video could be tested (e.g. a GitHub network outage).
     failures = sum(1 for good in checks.values() if not good)
     research=research_pages()
+    # Actual catalog delta, distinct from verification results and candidate discovery.
+    previous_playlist = OUTPUT.read_text(encoding="utf-8") if OUTPUT.exists() else ""
+    before_published = published_channel_signatures(previous_playlist)
+    after_published = published_channel_signatures("\n".join(playlist))
+    published_added = len(after_published - before_published)
+    published_removed = len(before_published - after_published)
     report = {"schema": 1, "date_utc": today, "state": "COMPLETED",
+              "published_added": published_added, "published_removed": published_removed,
+              "published_unchanged": len(before_published & after_published),
+              "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
               "sources_responded": len(scans), "sources_total": len(SOURCES),
               "source_counts": scans, "source_errors": errors,
               "community_candidates_research_only": researched,
