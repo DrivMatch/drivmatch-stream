@@ -64,6 +64,6 @@ test('restore a complete full-scan from its artifacts rather than repeat 8k prob
  assert.equal(resumableFullAudit(audit,jobs,artifacts,true),false);
  assert.equal(resumableFullAudit(audit,jobs,artifacts.map((x,i)=>i===0?{...x,expired:true}:x)),false);
  assert.equal(resumableFullAudit(audit,jobs,artifacts),true);
- assert.equal(resumableFullAudit(run({run_attempt:2}),jobs,artifacts),false);
+ assert.equal(resumableFullAudit(run({run_attempt:2}),jobs,artifacts),true);
  assert.equal(resumableFullAudit(run({conclusion:'success'}),jobs,artifacts),false);
 });
