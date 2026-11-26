@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing} from '../scripts/streamnow_ops_policy.mjs';
+import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing,resumableFullAudit} from '../scripts/streamnow_ops_policy.mjs';
 const run=(override={})=>({
  id:123,name:'Stream Now full-channel health audit',head_branch:'main',
  status:'completed',conclusion:'failure',run_attempt:1,
@@ -46,4 +46,24 @@ test('one-shot recovery only when daily is absent or when auditors can safely ru
  assert.equal(shouldRecoverMissing('04',[],now),false);
  const active=[{...complete[0],status:'in_progress',conclusion:null}];
  assert.equal(shouldRecoverMissing('02',active,now),false);
+});
+
+test('restore a complete full-scan from its artifacts rather than repeat 8k probes',()=>{
+ const audit=run();
+ const jobs=[
+  ...Array.from({length:24},(_,n)=>({name:'scan ('+n+')',conclusion:'success'})),
+  {name:'finalize',conclusion:'failure'}
+ ];
+ const artifacts=[
+  {name:'streamnow-full-prepare',expired:false},
+  ...Array.from({length:24},(_,n)=>({name:'streamnow-full-scan-'+n,expired:false}))
+ ];
+ assert.equal(resumableFullAudit(audit,jobs,artifacts),true);
+ assert.equal(resumableFullAudit(audit,jobs.slice(1),artifacts),false);
+ assert.equal(resumableFullAudit(audit,jobs,artifacts.slice(1)),false);
+ assert.equal(resumableFullAudit(audit,jobs,artifacts,true),false);
+ assert.equal(resumableFullAudit(audit,jobs,artifacts.map((x,i)=>i===0?{...x,expired:true}:x)),false);
+ assert.equal(resumableFullAudit(audit,jobs,artifacts),true);
+ assert.equal(resumableFullAudit(run({run_attempt:2}),jobs,artifacts),false);
+ assert.equal(resumableFullAudit(run({conclusion:'success'}),jobs,artifacts),false);
 });
