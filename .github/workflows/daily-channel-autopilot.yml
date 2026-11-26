@@ -23,7 +23,7 @@ concurrency:
 jobs:
   discover-test-publish:
     runs-on: ubuntu-24.04
-    timeout-minutes: 55
+    timeout-minutes: 130
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,10 +49,10 @@ jobs:
         env:
           STREAMNOW_YOUTUBE_DATA_API_KEY: ${{ secrets.STREAMNOW_YOUTUBE_DATA_API_KEY }}
         run: python3 scripts/youtube_live_discovery.py
-      - name: Multi-source discovery and 60-second media probes
+      - name: Daily 1200-candidate 60-second HLS media probes
         env:
-          DM_DAILY_MAX_CHECKS: '120'
-          DM_DAILY_WORKERS: '12'
+          DM_DAILY_MAX_CHECKS: '1200'
+          DM_DAILY_WORKERS: '32'
         run: python3 scripts/daily_channel_autopilot.py
       - name: Rotate worldwide country scans and multilingual research
         # Research failure must not delete/pollute the independently vetted HLS catalog.
