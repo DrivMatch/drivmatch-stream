@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing,resumableFullAudit} from '../scripts/streamnow_ops_policy.mjs';
+import {WATCHED,eligibleRun,shouldRetry,runIncidentKey,missedSchedules,saoPauloParts,shouldRecoverMissing,resumableFullAudit,canCloseRecoveredAuditIncident} from '../scripts/streamnow_ops_policy.mjs';
 const run=(override={})=>({
  id:123,name:'Stream Now full-channel health audit',head_branch:'main',
  status:'completed',conclusion:'failure',run_attempt:1,
@@ -66,4 +66,16 @@ test('restore a complete full-scan from its artifacts rather than repeat 8k prob
  assert.equal(resumableFullAudit(audit,jobs,artifacts),true);
  assert.equal(resumableFullAudit(run({run_attempt:2}),jobs,artifacts),true);
  assert.equal(resumableFullAudit(run({conclusion:'success'}),jobs,artifacts),false);
+});
+
+test('do not clear incidents on a green job without public checksum and complete health',()=>{
+ const failed=run({created_at:'2026-11-26T12:44:30Z'});
+ const success=run({id:456,status:'completed',conclusion:'success',created_at:'2026-11-26T13:32:00Z'});
+ const health={schema:1,status:'COMPLETE_HLS',tested:8599};
+ assert.equal(canCloseRecoveredAuditIncident(failed,success,health,true),true);
+ assert.equal(canCloseRecoveredAuditIncident(failed,success,health,false),false);
+ assert.equal(canCloseRecoveredAuditIncident(failed,success,{...health,status:'PARTIAL'},true),false);
+ assert.equal(canCloseRecoveredAuditIncident(failed,success,{...health,tested:0},true),false);
+ assert.equal(canCloseRecoveredAuditIncident(failed,{...success,created_at:'2026-11-26T12:00:00Z'},health,true),false);
+ assert.equal(canCloseRecoveredAuditIncident(failed,{...success,head_branch:'dev'},health,true),false);
 });
