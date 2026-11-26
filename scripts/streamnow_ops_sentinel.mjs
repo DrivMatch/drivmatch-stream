@@ -24,7 +24,8 @@ async function api(method,path,body) {
  });
  if(!resp.ok)throw Error("GitHub API "+method+" "+path+" HTTP "+resp.status+" "+(await resp.text()).slice(0,300));
  if(resp.status===204 || resp.status===202)return {};
- return resp.json();
+ const raw=await resp.text();
+ return raw?JSON.parse(raw):{};
 }
 async function artifact(url){
  const r=await fetch(url,{headers:{"User-Agent":"StreamNow-Ops-Sentinel"},signal:AbortSignal.timeout(30000)});
@@ -66,13 +67,12 @@ async function closeIncident(key,body){
  await api("POST",base+"/issues/"+x.number+"/comments",{body});
  await api("PATCH",base+"/issues/"+x.number,{state:"closed"});
 }
-function sameWorkflowActiveNewer(r){
+function sameWorkflowSuperseded(r){
  return runs.some(x=>x.name===r.name && x.id!==r.id &&
-   Date.parse(x.created_at)>Date.parse(r.created_at) &&
-   x.status!=="completed");
+   Date.parse(x.created_at)>Date.parse(r.created_at));
 }
 const recentFailures=runs.filter(r=>eligibleRun(r) &&
-  ["failure","timed_out","cancelled","action_required"].includes(r.conclusion) &&
+  ["failure","timed_out","action_required"].includes(r.conclusion) &&
   Date.now()-Date.parse(r.updated_at)<6*3600*1000);
 // Record every incident before retrying. No silent retry.
 for(const run of recentFailures){
@@ -88,7 +88,7 @@ for(const run of recentFailures){
    "Favoritos e registros de contas não serão excluídos pelo sentinela.\n\n"+
    "Ação automática: no máximo uma repetição dos jobs falhos; nova falha exige intervenção humana."
  );
- if(shouldRetry(run,sameWorkflowActiveNewer(run))){
+ if(shouldRetry(run,sameWorkflowSuperseded(run))){
    try{
      await api("POST",base+"/actions/runs/"+run.id+"/rerun-failed-jobs");
      await api("POST",base+"/issues/"+issueNumber+"/comments",{
