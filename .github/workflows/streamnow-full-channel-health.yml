@@ -8,10 +8,8 @@ on:
         type: string
         required: false
         default: ""
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/streamnow-full-channel-health.yml'
+  # Full scans are initiated manually or by the existing OPS Sentinel.
+  # Do not start 24 expensive scan jobs simply because the workflow was edited.
 
 permissions:
   contents: read
