@@ -1,0 +1,31 @@
+name: Stream Now published Cloudflare catalog smoke
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/streamnow-published-catalog-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the actual public Pages catalog matches GitHub and is playable M3U
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --show-error --silent --retry 5 --retry-delay 8 --max-time 30 \
+            'https://streamnow-2o1.pages.dev/daily-autopilot.m3u8' -o /tmp/cloudflare-catalog.m3u8
+          head -n 1 /tmp/cloudflare-catalog.m3u8 | grep -q '^#EXTM3U'
+          expected_sha=$(sha256sum site/daily-autopilot.m3u8 | awk '{print $1}')
+          actual_sha=$(sha256sum /tmp/cloudflare-catalog.m3u8 | awk '{print $1}')
+          actual_count=$(grep -c '^#EXTINF:' /tmp/cloudflare-catalog.m3u8 || true)
+          actual_date=$(grep '^#DM_AUTO_DATE:' /tmp/cloudflare-catalog.m3u8 | head -1 || true)
+          printf '### Cloudflare production catalog smoke\\n- Date: %s\\n- Entries: %s\\n- GitHub sha: %s\\n- Cloudflare sha: %s\\n' "$actual_date" "$actual_count" "$expected_sha" "$actual_sha" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$expected_sha" != "$actual_sha" ]; then
+            echo '::error::Cloudflare catalog differs from current GitHub release.'
+            exit 1
+          fi
+          echo 'Cloudflare catalog matches canonical GitHub playlist.' >> "$GITHUB_STEP_SUMMARY"
