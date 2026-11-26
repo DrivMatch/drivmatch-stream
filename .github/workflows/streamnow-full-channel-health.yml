@@ -1,0 +1,123 @@
+name: Stream Now full-channel health audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/streamnow-full-channel-health.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streamnow-full-health-audit
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Invariant and parser regression tests
+        run: |
+          node --test tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_favorites_key_resolution.test.mjs tests/streamnow_catalog_health_filter.test.mjs
+          python3 -m unittest discover -s tests -p 'test_daily_channel_autopilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_streamnow_full_channel_audit.py' -v
+          python3 scripts/streamnow_favorites_release_gate.py --mode catalog
+      - name: Search all configured source feeds; deduplicate playable stream addresses
+        run: python3 scripts/streamnow_full_channel_audit.py prepare
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streamnow-full-prepare
+          path: audit-input.json
+          if-no-files-found: error
+          retention-days: 3
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: streamnow-full-prepare
+      - name: Probe every candidate in assigned shard with up to 60 seconds per HLS
+        run: python3 scripts/streamnow_full_channel_audit.py scan --shard ${{ matrix.shard }} --shards 24
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streamnow-full-scan-${{ matrix.shard }}
+          path: audit-results/scan-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 3
+
+  finalize:
+    needs: [prepare, scan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: streamnow-full-*
+          merge-multiple: true
+      - name: Require all 24 shard results; generate accurate catalog and full report
+        run: python3 scripts/streamnow_full_channel_audit.py finalize
+      - name: Prevent favorite deletion and partial publish
+        run: |
+          python3 scripts/streamnow_favorites_release_gate.py --mode catalog
+          python3 -c 'import json,pathlib; d=json.loads(pathlib.Path("site/daily-autopilot-report.json").read_text()); h=json.loads(pathlib.Path("site/channel-health.json").read_text()); assert d["state"]=="COMPLETED_FULL_HLS_AUDIT" and h["status"]=="COMPLETE_HLS"; assert d["tested"]==d["tested_ok"]+d["tested_failed"]; assert h["favorites_deleted"]==0; assert d["published_healthy"]>0'
+          git diff --check
+          git diff --name-only | python3 scripts/streamnow_favorites_release_gate.py --mode changed-paths
+      - name: Save full audited catalog without writing favorite data
+        id: changes
+        run: |
+          set -euo pipefail
+          git config user.name "drivmatch-channel-autopilot[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/daily-autopilot.m3u8 site/daily-autopilot-report.json site/daily-autopilot-state.json site/channel-health.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "chore(channels): full 60s HLS audit and global failed-stream visibility"
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Publish global channel health and verified catalog on Cloudflare
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run streamnow-pages.yml --ref main
+          echo "Cloudflare Pages deployment requested after complete audit" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish audit summary
+        if: always()
+        run: |
+          if [ -f site/daily-autopilot-report.json ]; then
+            cat site/daily-autopilot-report.json >> "$GITHUB_STEP_SUMMARY"
+          fi
