@@ -77,12 +77,14 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
         <div id="favorite-items" class="quick-items" hidden>
           <p class="quick-empty">Selecione ☆ para guardar um canal.</p>
         </div>
+        <details class="favorite-maintenance" style="margin:6px 0"><summary>Recuperação e backup</summary>
         <button id="account-import-favorites" type="button" hidden>Vincular favoritos locais a esta conta (sem apagar nenhum)</button>
         <p id="account-favorites-status" role="status" hidden></p>
         <button id="recover-backup-favorites" type="button" hidden>↺ Restaurar favoritos do backup local</button>
         <button id="export-favorites-backup" type="button">↓ Fazer backup dos meus favoritos</button>
         <button id="recover-legacy-favorites" type="button" hidden>↺ Recuperar favoritos antigos desta TV</button>
         <p id="recover-favorites-status" role="status" hidden></p>
+        </details>
       </section>
       <div class="section-title"><span>01 · PAÍSES E CANAIS</span><b id="country-caption">12 países</b></div>
       <div id="source-items" class="source-items" hidden></div>
@@ -91,10 +93,6 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
         <p class="loading">Carregando países…</p>
       </div>
       <p class="sidebar-note">País → categoria → canal. Acesso pelo site oficial aparece identificado. Sinais e aplicativos podem ter restrições.</p>
-      <div class="provider-footer">
-        <button id="provider-toggle" type="button" aria-expanded="false">▸ Plataformas por assinatura</button>
-        <div id="provider-items" hidden></div>
-      </div>
       <div class="technical-footer">
         <button id="technical-toggle" type="button" aria-expanded="false">▸ Fontes técnicas (listas)</button>
         <div id="technical-items" hidden></div>
@@ -150,7 +148,7 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
   <div class="error-screen" id="tv-error" hidden><h2>Acesso pessoal necessário</h2><p>Abra o Stream Now e autentique seu acesso.</p><a href="/stream/">Entrar no Stream Now</a></div>
 </div>
 <script src="/stream/favorites-safety.js"></script>
-<script src="/stream/tv/tv.js?v=20261125-favorites-account-hotfix1"></script>
+<script src="/stream/tv/tv.js?v=20261126-p0-direct-favorites-v2"></script>
 <script src="/stream/streamnow-i18n.js?v=20261125-i18n1"></script>
 </body>
 </html>

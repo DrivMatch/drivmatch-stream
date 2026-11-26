@@ -766,19 +766,38 @@ function recordVisit(c){
  try{localStorage.setItem(HISTORY_STORE,JSON.stringify(recent));}catch(e){}
  drawQuickLists();
 }
+function favoriteIdentity(key){
+ var p=oldFavoriteSnapshot(key);
+ return p.code+":"+lower(p.name);
+}
+function favoriteNames(c){
+ var names=[c.name,c.originalName].concat(c.aliases||[]),out=[];
+ for(var i=0;i<names.length;i++)if(names[i]&&!has(out,lower(names[i])))out.push(lower(names[i]));
+ return out;
+}
+function favoriteMatches(c,key){
+ var p=oldFavoriteSnapshot(key);
+ return !!c&&String(c.code).toUpperCase()===p.code&&has(favoriteNames(c),lower(p.name));
+}
+function isFavorited(c){
+ if(!c)return false;
+ for(var i=0;i<favorites.length;i++)if(favoriteMatches(c,favorites[i])||favorKey(c)===favorites[i])return true;
+ return false;
+}
 function findKnown(key,code,name){
- if(selected&&favorKey(selected)===key)return selected;
- for(var x in cache)if(Object.prototype.hasOwnProperty.call(cache,x)){
-  var items=cache[x];
-  if(!items||!items.length)continue;
-  for(var j=0;j<items.length;j++)if(favorKey(items[j])===key)
-   return items[j];
+ var repaired=oldFavoriteSnapshot(key),match=null;
+ if(repaired.code!=="OTHER")code=repaired.code;
+ function consider(c){
+  if(!c||c.premium||String(c.code).toUpperCase()!==code)return;
+  if(favorKey(c)!==key&&!favoriteMatches(c,key)&&!has(favoriteNames(c),lower(name)))return;
+  if(!match||(c.urls&&c.urls.length&&(!match.urls||!match.urls.length)))match=c;
  }
- // Previously saved favorites might have used a different source name.
- var list=cache["lista-2:"+code]||[],norm=lower(name);
- for(var k=0;k<list.length;k++)
-  if(lower(list[k].originalName||list[k].name)===norm)return list[k];
- return null;
+ consider(selected);
+ for(var x in cache)if(Object.prototype.hasOwnProperty.call(cache,x)){
+  var items=cache[x]||[];
+  for(var j=0;j<items.length;j++)consider(items[j]);
+ }
+ return match;
 }
 function drawQuickGroup(id,items,kind){
  var target=D(id);if(!target)return;clear(target);
@@ -805,15 +824,15 @@ function drawQuickLists(){
  drawQuickGroup("recent-items",recent,"recent");
  var list=[];
  for(var i=0;i<favorites.length;i++){
-  var key=favorites[i],item=favoriteMeta[key];
-  if(!item){
-    var legacy=oldFavoriteSnapshot(key);
-    var resolved=findKnown(key,legacy.code,legacy.name);
-    item=resolved?safeSnapshot(resolved):legacy;
-    // Keep the original stored key when falling back to a legacy source id.
-    item.key=key;
-  }
-  list.push(item);
+  var key=favorites[i],legacy=oldFavoriteSnapshot(key),meta=favoriteMeta[key]||{};
+  var resolved=findKnown(key,legacy.code,legacy.name);
+  var item=resolved?safeSnapshot(resolved):{name:meta.name||legacy.name,code:legacy.code!=="OTHER"?legacy.code:(meta.code||"OTHER"),genre:meta.genre||legacy.genre};
+  item.key=key;
+  // Duplicate historical source keys remain saved, but one channel is shown once.
+  var identity=resolved?String(resolved.code)+":"+lower(resolved.originalName||resolved.name):favoriteIdentity(key);
+  var duplicate=false;
+  for(var d=0;d<list.length;d++)if(list[d].identity===identity){duplicate=true;break;}
+  if(!duplicate){item.identity=identity;list.push(item);}
  }
  var accountCount=String(list.length);
  if(accountFavoritesReady){
@@ -845,41 +864,42 @@ function playFromQuick(c,record,kind){
  play(c);
  focusQuickItem(record.key,kind);
 }
+var quickOpenGeneration=0;
 function openQuickChannel(record,kind){
- var c=findKnown(record.key,record.code,record.name);
- if(c){playFromQuick(c,record,kind);return;}
- // A saved platform remains a link to the official subscription, never a stream.
- for(var i=0;i<officialPaid.length;i++){
-  var x=officialPaid[i];
-  if(x.code===record.code&&lower(x.name)===lower(record.name)){
-   playFromQuick({id:"paid:"+x.id,source:"paid",name:x.name,code:x.code,
-      genre:x.genre||"other",group:x.notes||"",premium:true,urls:[],
-      officialUrl:x.url,officialAccess:x.access},record,kind);
-   return;
-  }
+ var generation=++quickOpenGeneration,repaired=oldFavoriteSnapshot(record.key);
+ var code=repaired.code!=="OTHER"?repaired.code:String(record.code||"OTHER").toUpperCase();
+ if(!/^[A-Z]{2}$/.test(code))code="OTHER";
+ var name=repaired.name||record.name;
+ if(repaired.origin==="paid"){
+  T(D("catalog-status"),"Favorito de plataforma externa preservado; não é canal IPTV.");return;
  }
- var repaired=oldFavoriteSnapshot(record.key),code=String(record.code||"").toUpperCase();
- // Saved metadata may be malformed although the immutable key has a valid country.
- if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER")code=repaired.code;
- if(!/^[A-Z]{2}$/.test(code)&&code!=="OTHER"){
-  T(D("catalog-status"),"Este favorito não tem país válido no catálogo atual.");return;
+ function current(){return generation===quickOpenGeneration;}
+ function tryPlay(){
+  var c=findKnown(record.key,code,name);
+  if(c&&(c.urls&&c.urls.length||c.embed)){playFromQuick(c,record,kind);return true;}
+  return false;
  }
- // Do not fabricate or persist a playback URL. Resolve through current catalog.
- T(D("catalog-status"),"Localizando "+record.name+" em "+countryName(code)+"…");
- // Recover the source recorded in the favorite key; never assume every favorite
- // belongs to lista-2. A legacy BR:name key continues to use lista-2.
- var keyParts=String(record.key||"").split(":");
- var listId=keyParts.length>=3&&/^lista-[0-9]+$/.test(keyParts[0])?keyParts[0]:"lista-2";
- http("/stream/catalog?list="+encodeURIComponent(listId)+"&country="+encodeURIComponent(code),function(st,body){
-  if(st!==200){
-   T(D("catalog-status"),"Catálogo temporariamente indisponível para "+countryName(code));
-   return;
+ if(tryPlay())return;
+ T(D("catalog-status"),"Localizando "+name+" em "+countryName(code)+"…");
+ var preferred=/^lista-[0-9]+$/.test(repaired.origin)?repaired.origin:"lista-2";
+ var ids=preferred==="lista-2"?["lista-2"]:[preferred,"lista-2"];
+ function next(i){
+  if(!current())return;
+  if(i>=ids.length){
+   http("/stream/search?q="+encodeURIComponent(name),function(st,body){
+    if(!current())return;
+    if(st===200){cache["favorite-search:"+code+":"+lower(name)]=parse(body,"ALL","lista-2");if(tryPlay())return;}
+    T(D("catalog-status"),"Sinal indisponível nas fontes atuais. Seu favorito permanece salvo.");
+   });return;
   }
-  cache[listId+":"+code]=attachOfficial(code,parse(body,code,listId));
-  var found=findKnown(record.key,code,record.name);
-  if(found)playFromQuick(found,record,kind);
-  else T(D("catalog-status"),"Canal não encontrado nas fontes atuais. O favorito foi preservado.");
- });
+  var id=ids[i];
+  http("/stream/catalog?list="+encodeURIComponent(id)+"&country="+encodeURIComponent(code),function(st,body){
+   if(!current())return;
+   if(st===200){cache[id+":"+code]=attachOfficial(code,parse(body,code,id));if(tryPlay())return;}
+   next(i+1);
+  });
+ }
+ next(0);
 }
 function detectLanguage(info,group){
  var raw=lower(dataAttr(info,"tvg-language")||dataAttr(info,"language"));
@@ -954,7 +974,7 @@ function loadOfficialDirectory(){
   if(cache[id])channels=cache[id];
   if(country==="ALL"&&!globalSearchMode)drawOfficialHome();
   else renderChannels();
-  drawCountries();drawPaidProviders();drawQuickLists();
+  drawCountries();drawQuickLists();
  });
 }
 /* Providers are official external destinations, not playable channels.
@@ -1213,7 +1233,7 @@ function drawOfficialHome(){
    entry.embed?"YouTube oficial · live conforme programação":"Site oficial · assistir na emissora"));
   on(btn,"click",function(){play(c);});
   row.appendChild(btn);
-  var starred=has(favorites,favorKey(c));
+  var starred=isFavorited(c);
   var star=E("button","fav-btn"+(starred?" marked":""),starred?"★":"☆");
   star.type="button";star.setAttribute("aria-label","Favoritar "+c.name);
   on(star,"click",function(){toggleFavorite(c);drawOfficialHome();});
@@ -1328,7 +1348,7 @@ function fits(c){
   if(isHidden(c))return false;
   if(country!=="ALL" && c.code!==country)return false;
   if(category!=="all"&&category!=="fav"&&!genreFits(c,category))return false;
-  if(category==="fav"&&!has(favorites,favorKey(c)))return false;
+  if(category==="fav"&&!isFavorited(c))return false;
   if(search && lower(c.name+" "+(c.originalName||"")+" "+
     ((c.aliases||[]).join(" "))+" "+c.group).indexOf(search)<0)return false;
   return true;
@@ -1416,7 +1436,7 @@ function toggleFavorite(c){
    return;
   }
   var k=favorKey(c);
-  if(has(favorites,k)){
+  if(isFavorited(c)){
    noteAccountFav("Remoção temporariamente bloqueada para proteger seus favoritos. Nenhum canal foi excluído.");
    return;
   }
@@ -1436,7 +1456,7 @@ function toggleFavorite(c){
 }
 function updateFavButton(){
   var b=D("player-favorite");b.disabled=!selected;
-  T(b,selected&&has(favorites,favorKey(selected))?"★ Favoritado":"☆ Favoritar");
+  T(b,selected&&isFavorited(selected)?"★ Favoritado":"☆ Favoritar");
 }
 function renderChannels(){
   if(!globalSearchMode&&source==="lista-2"&&country==="ALL"){showCountryPrompt();return;}
@@ -1495,7 +1515,7 @@ function renderChannels(){
     btn.setAttribute("aria-label",c.name+" · "+classificationName(c)+" · "+details);
     btn.setAttribute("data-channel-id",c.id);
     on(btn,"click",function(){play(c);});row.appendChild(btn);
-    var starred=has(favorites,favorKey(c));
+    var starred=isFavorited(c);
     var star=E("button","fav-btn"+(starred?" marked":""),starred?"★":"☆");
     star.type="button";star.setAttribute("aria-label","Favoritar "+c.name);
     star.setAttribute("data-channel-id",c.id);
@@ -1689,11 +1709,6 @@ function init(){
   on(D("official-open"),"click",function(){
     if(selected&&validOfficialUrl(selected.officialUrl))
       window.location.href=selected.officialUrl;
-  });
-  on(D("provider-toggle"),"click",function(){
-    var open=D("provider-items").hidden;D("provider-items").hidden=!open;
-    D("provider-toggle").setAttribute("aria-expanded",open?"true":"false");
-    T(D("provider-toggle"),(open?"▾":"▸")+" Plataformas por assinatura");
   });
   on(D("technical-toggle"),"click",function(){
     var open=D("technical-items").hidden;D("technical-items").hidden=!open;

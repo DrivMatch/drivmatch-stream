@@ -7,7 +7,8 @@ on:
       - 'cloudflare/**'
       - 'wrangler.streamnow.jsonc'
       - 'site/**'
-      - 'tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_key_resolution.test.mjs'
+      - 'tests/streamnow_multidevice_favorites.test.mjs'
+      - 'tests/streamnow_favorites_key_resolution.test.mjs'
       - 'scripts/verify_streamnow_brand.py'
       - 'tests/streamnow_pages.test.mjs'
       - 'tests/streamnow_live_channels_published.test.mjs'
@@ -44,7 +45,7 @@ jobs:
       - name: Run authentication and route tests
         run: |
           node --input-type=module --check < cloudflare/stream-proxy.mjs
-          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_pages_accounts.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs tests/streamnow_account_favorites_incident.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_constitution_v2.test.mjs tests/streamnow_live_channels_published.test.mjs
+          node --test tests/stream_worker.test.mjs tests/streamnow_pages.test.mjs tests/streamnow_pages_accounts.test.mjs tests/streamnow_domain_cutover.test.mjs tests/streamnow_brand_lock.test.mjs tests/streamnow_red_theme.test.mjs tests/streamnow_palette_source.test.mjs tests/streamnow_account_favorites_incident.test.mjs tests/streamnow_favorites_data_safety.test.mjs tests/streamnow_universal_favorites_scope.test.mjs tests/streamnow_multidevice_favorites.test.mjs tests/streamnow_favorites_constitution_v2.test.mjs tests/streamnow_live_channels_published.test.mjs tests/streamnow_favorites_key_resolution.test.mjs
       - name: Validate deployment inputs
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}

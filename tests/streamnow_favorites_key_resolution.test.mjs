@@ -48,3 +48,21 @@ test('playlist parser retains forced source when loading a saved lista-12 favori
  assert.equal(rows[0].source,'lista-12');
  assert.equal(rows[0].id,'lista-12:BR|record news');
 });
+
+test('favorite resolves legacy and cross-source aliases without rewriting stored keys',()=>{
+ const begin=src.indexOf('function favoriteIdentity(key){');
+ const end=src.indexOf('function drawQuickGroup',begin);
+ const c={oldFavoriteSnapshot:ctx.oldFavoriteSnapshot,lower:s=>String(s||'').trim().toLowerCase(),has:(a,k)=>a.includes(k),favorKey:x=>x.source+':'+x.code+':'+x.name.toLowerCase(),favorites:['BR:record news'],selected:null,cache:{'lista-12:BR':[{source:'lista-12',code:'BR',name:'Record News',urls:['https://example.org/live.m3u8']}]}};
+ vm.runInNewContext(src.slice(begin,end),c);
+ assert.equal(c.isFavorited(c.cache['lista-12:BR'][0]),true);
+ assert.equal(c.findKnown('BR:record news','BR','record news').source,'lista-12');
+ assert.equal(c.findKnown('lista-2:BR:record news','BR','record news').source,'lista-12');
+ assert.equal(c.findKnown('US:record news','US','record news'),null);
+ assert.equal(c.favorites[0],'BR:record news');
+});
+test('subscription platform footer is removed and backup controls remain',()=>{
+ const html=fs.readFileSync(new URL('../site/tv.html',import.meta.url),'utf8');
+ assert.doesNotMatch(html,/id="provider-toggle"/);
+ assert.match(html,/id="export-favorites-backup"/);
+ assert.match(html,/id="account-import-favorites"/);
+});
