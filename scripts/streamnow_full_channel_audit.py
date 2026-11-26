@@ -133,6 +133,38 @@ def scan(shard, shards):
                       "passed":result["passed"],"failed":result["failed"],
                       "elapsed_seconds":result["elapsed_seconds"]}))
 
+def normalize_artifacts():
+    """Restore the download-artifact@v4 flat ZIP layout to the scan directory.
+
+    upload-artifact with path audit-results/scan-N.json stores scan-N.json at
+    the ZIP root. download-artifact(pattern=..., merge-multiple=true) therefore
+    restores files in the workspace root, not audit-results/. Normalization
+    is deterministic and must fail on missing or ambiguous artifacts.
+    """
+    if not INPUT.is_file():
+        raise RuntimeError("Missing audit-input.json: no valid source snapshot")
+    data = read(INPUT)
+    if data.get("schema") != 1 or not isinstance(data.get("candidates"), list):
+        raise RuntimeError("Invalid audit-input.json: no publication")
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    for n in range(SHARDS):
+        root_file = Path(f"scan-{n}.json")
+        target = RESULTS / f"scan-{n}.json"
+        if root_file.exists() and target.exists():
+            raise RuntimeError(f"Ambiguous duplicate shard {n}: no publication")
+        if root_file.is_file():
+            root_file.rename(target)
+        if not target.is_file():
+            raise RuntimeError(f"Missing shard {n}: no incomplete publication")
+        part = read(target)
+        if (part.get("schema"), part.get("shard"), part.get("shards"),
+                part.get("started_utc")) != (
+                    1, n, SHARDS, data.get("started_utc")):
+            raise RuntimeError(f"Shard {n} belongs to a different audit")
+    print(json.dumps({"event":"artifacts-normalized","shards":SHARDS,
+                      "started_utc":data.get("started_utc")}))
+
+
 def finalize():
     data=read(INPUT)
     all_candidates={c["url"]:c for c in data["candidates"]}
@@ -217,12 +249,13 @@ def finalize():
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument("stage",choices=("prepare","scan","finalize"))
+    ap.add_argument("stage",choices=("prepare","scan","normalize-artifacts","finalize"))
     ap.add_argument("--shard",type=int,default=0)
     ap.add_argument("--shards",type=int,default=SHARDS)
     args=ap.parse_args()
     if args.stage=="prepare":prepare()
     elif args.stage=="scan":scan(args.shard,args.shards)
+    elif args.stage=="normalize-artifacts":normalize_artifacts()
     else:finalize()
 
 if __name__=="__main__":
