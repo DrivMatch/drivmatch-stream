@@ -398,8 +398,10 @@ function apply(){
      for(var key in TEXT.pt){
       if(key!=="channelHelp"&&key!=="guideRemains")continue;
       var raw=parts[j].nodeValue.trim();
-      for(var code in TEXT)if(raw===TEXT[code][key])
-       parts[j].nodeValue=textFor(key,current);
+      for(var code in TEXT)if(raw===TEXT[code][key]){
+       var next=textFor(key,current);
+       if(parts[j].nodeValue!==next)parts[j].nodeValue=next;
+      }
      }
     }
   }
