@@ -2,10 +2,14 @@ name: Stream Now full-channel health audit
 # Retry on 2026-11-26 after fixing truncated HTTP chunk read; full all-channel scan.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/streamnow-full-channel-health.yml'
+    inputs:
+      resume_run_id:
+        description: "Optional failed full-audit run ID. Reuse its 25 verified artifacts without re-probing 8k channels."
+        type: string
+        required: false
+        default: ""
+  # Full scans are initiated manually or by the existing OPS Sentinel.
+  # Do not start 24 expensive scan jobs simply because the workflow was edited.
 
 permissions:
   contents: read
@@ -16,6 +20,7 @@ concurrency:
 
 jobs:
   prepare:
+    if: ${{ inputs.resume_run_id == '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -41,6 +46,7 @@ jobs:
           retention-days: 3
 
   scan:
+    if: ${{ inputs.resume_run_id == '' }}
     needs: prepare
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -70,6 +76,7 @@ jobs:
 
   finalize:
     needs: [prepare, scan]
+    if: ${{ always() && (needs.scan.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.resume_run_id != '')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
@@ -83,10 +90,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate recovery run identifier
+        env:
+          RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+        run: |
+          if [ -n "$RESUME_RUN_ID" ]; then
+            [[ "$RESUME_RUN_ID" =~ ^[0-9]{7,20}$ ]] || { echo "::error::Invalid recovery run ID"; exit 1; }
+          fi
       - uses: actions/download-artifact@v4
         with:
           pattern: streamnow-full-*
           merge-multiple: true
+          run-id: ${{ inputs.resume_run_id || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Normalize all downloaded artifact paths and validate snapshot binding
+        run: python3 scripts/streamnow_full_channel_audit.py normalize-artifacts
       - name: Require all 24 shard results; generate accurate catalog and full report
         run: python3 scripts/streamnow_full_channel_audit.py finalize
       - name: Prevent favorite deletion and partial publish

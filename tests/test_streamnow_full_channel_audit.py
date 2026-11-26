@@ -16,6 +16,54 @@ class FullAuditTests(unittest.TestCase):
         self.assertEqual(len(assigned),1200)
         self.assertEqual(len(set(urls)),1200)
 
+    def test_downloaded_flat_artifacts_are_normalized_and_bound(self):
+        import os
+        import tempfile
+        import json
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as td:
+            previous = pathlib.Path.cwd()
+            try:
+                os.chdir(td)
+                with mock.patch.object(m, "INPUT", pathlib.Path("audit-input.json")), \
+                     mock.patch.object(m, "RESULTS", pathlib.Path("audit-results")), \
+                     mock.patch.object(m, "SHARDS", 2):
+                    pathlib.Path("audit-input.json").write_text(json.dumps({
+                        "schema": 1, "started_utc": "2026-11-26T12:44:30+00:00",
+                        "candidates": []}), encoding="utf-8")
+                    for n in range(2):
+                        pathlib.Path(f"scan-{n}.json").write_text(json.dumps({
+                            "schema":1,"shard":n,"shards":2,
+                            "started_utc":"2026-11-26T12:44:30+00:00",
+                            "results":{}}),encoding="utf-8")
+                    m.normalize_artifacts()
+                    self.assertTrue(pathlib.Path("audit-results/scan-0.json").exists())
+                    self.assertTrue(pathlib.Path("audit-results/scan-1.json").exists())
+                    self.assertFalse(pathlib.Path("scan-0.json").exists())
+            finally:
+                os.chdir(previous)
+
+    def test_normalizer_refuses_missing_and_foreign_shards(self):
+        import os
+        import tempfile
+        import json
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as td:
+            previous=pathlib.Path.cwd()
+            try:
+                os.chdir(td)
+                with mock.patch.object(m,"INPUT",pathlib.Path("audit-input.json")), \
+                     mock.patch.object(m,"RESULTS",pathlib.Path("audit-results")), \
+                     mock.patch.object(m,"SHARDS",2):
+                    pathlib.Path("audit-input.json").write_text(json.dumps({
+                        "schema":1,"started_utc":"A","candidates":[]}),encoding="utf-8")
+                    pathlib.Path("scan-0.json").write_text(json.dumps({
+                        "schema":1,"shard":0,"shards":2,"started_utc":"B","results":{}}),encoding="utf-8")
+                    with self.assertRaisesRegex(RuntimeError, "different audit"):
+                        m.normalize_artifacts()
+            finally:
+                os.chdir(previous)
+
     def test_daily_1200_not_old_120_or_180_cap(self):
         self.assertGreaterEqual(m.a.MAX_CHECKS,1200)
 
