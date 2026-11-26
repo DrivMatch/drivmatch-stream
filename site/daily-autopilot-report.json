@@ -3,7 +3,7 @@
   "curated_candidates": 6874,
   "date_utc": "2026-11-26",
   "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification",
-  "not_tested_this_run": 6754,
+  "not_tested_this_run": 5674,
   "open_web_research": {
     "candidate_sources": [
       {
@@ -49,24 +49,24 @@
     ],
     "note": "Public search results only; approval/provenance pending; not included in playable catalog",
     "pages_attempted": 7,
-    "pages_responded": 3,
+    "pages_responded": 4,
     "pages_unavailable": [
       "reddit-legal-iptv",
       "reddit-public-tv",
-      "youtube-official-live",
-      "youtube-free-movies"
+      "youtube-official-live"
     ],
     "surfaces_reached": [
       "github-new-free-tv",
       "github-official-hls",
+      "youtube-free-movies",
       "twitch-broadcaster-live"
     ]
   },
-  "published_added": 41,
+  "published_added": 574,
   "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
-  "published_healthy": 570,
-  "published_removed": 0,
-  "published_unchanged": 529,
+  "published_healthy": 1138,
+  "published_removed": 6,
+  "published_unchanged": 564,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
@@ -104,7 +104,7 @@
   "sources_responded": 30,
   "sources_total": 30,
   "state": "COMPLETED",
-  "tested": 120,
-  "tested_failed": 49,
-  "tested_ok": 71
+  "tested": 1200,
+  "tested_failed": 394,
+  "tested_ok": 806
 }
