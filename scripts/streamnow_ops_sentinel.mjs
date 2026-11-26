@@ -3,7 +3,7 @@
 // No login, favorites, D1, catalog, or financial data are read or modified.
 import fs from "node:fs";
 import crypto from "node:crypto";
-import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts} from "./streamnow_ops_policy.mjs";
+import {WATCHED, eligibleRun, shouldRetry, runIncidentKey, missedSchedules, saoPauloParts, shouldRecoverMissing} from "./streamnow_ops_policy.mjs";
 
 const token=process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const repo=process.env.GITHUB_REPOSITORY;
@@ -111,12 +111,35 @@ for(const run of runs.filter(r=>eligibleRun(r)&&r.conclusion==="success")){
 }
 const missed=missedSchedules(runs,now);
 for(const m of missed){
- await openIncident(m.key,
+ const number=await openIncident(m.key,
    "**Agendamento ausente ou atrasado — Stream Now**\n\n"+
    "Esperado: auditoria/rotina das "+m.type+"h em "+m.date+" (America/Sao_Paulo).\n"+
    "Não encontrei uma execução do respectivo workflow entre a hora programada e o prazo de tolerância.\n"+
    "A verificação será repetida pelo sentinela. Confira GitHub Actions e recuperação da execução.\n"+
    "Não houve qualquer alteração nos dados de usuários.");
+ // Single recovery dispatch per incident. Never endlessly reschedule a scan.
+ if(shouldRecoverMissing(m.type,runs,now)){
+   const comments=await api("GET",base+"/issues/"+number+"/comments?per_page=100");
+   const marker="[SNOPS_AUTO_RECOVERY_"+m.date+"_"+m.type+"]";
+   if(!comments.some(c=>String(c.body||"").includes(marker))){
+     const isDaily=m.type==="02";
+     const workflow=isDaily?"daily-channel-autopilot.yml":"daily-channel-audits.yml";
+     const input=isDaily?{ref:"main"}:{ref:"main",inputs:{agent:m.type}};
+     try{
+       await api("POST",base+"/actions/workflows/"+workflow+"/dispatches",input);
+       await api("POST",base+"/issues/"+number+"/comments",{
+         body:marker+"\nExecução de recuperação solicitada automaticamente para "+m.type+"h. "+
+           "Sem exclusão de favoritos; o resultado será verificado no workflow."
+       });
+       summary.push("Missed schedule dispatched once: "+m.type+"h");
+     }catch(e){
+       await api("POST",base+"/issues/"+number+"/comments",{
+         body:marker+"\n**INTERVENÇÃO NECESSÁRIA:** não foi possível iniciar recuperação: "+
+           String(e.message).slice(0,240)
+       });
+     }
+   }
+ }
 }
 // Compare the live published Cloudflare catalog with GitHub's canonical playlist.
 // Only treat a mismatch as an incident when no known deploy is in progress.

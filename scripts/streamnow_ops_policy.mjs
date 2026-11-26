@@ -44,3 +44,16 @@ export function missedSchedules(runs,now) {
     });
   }).map(task=>({date:local.date,type:task.type,key:"missed:"+local.date+":"+task.type}));
 }
+
+export function shouldRecoverMissing(type,runs,now) {
+  const day=saoPauloParts(now).date;
+  const daily="DrivMatch - Autopiloto diario de canais";
+  const today=(runs||[]).filter(r=>r.head_branch==="main" &&
+    saoPauloParts(r.created_at).date===day);
+  const dailyOK=today.some(r=>r.name===daily && r.status==="completed" &&
+    r.conclusion==="success");
+  const activeScan=today.some(r=>r.name===daily && r.status!=="completed");
+  if(type==="02")return !dailyOK&&!activeScan;
+  if(type==="04"||type==="06")return dailyOK&&!activeScan;
+  return false;
+}
