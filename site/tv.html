@@ -58,7 +58,7 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
 <div class="tv-shell" id="tv-shell">
   <header class="topbar">
     <div class="brand"><img class="streamnow-wordmark" src="/stream/brand.webp?v=20261124-brand-refresh" width="220" height="62" alt="Stream Now"></div>
-    <div class="toplinks"><span class="live-label" aria-label="Transmissões ao vivo">● AO VIVO</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
+    <div class="toplinks"><label class="sr-only" for="streamnow-language">Idioma / Language</label><select id="streamnow-language" class="streamnow-language" aria-label="Idioma / Language"></select><span class="live-label" aria-label="Transmissões ao vivo">● AO VIVO</span><a href="/stream/" class="top-link" id="home-link">Início</a></div>
   </header>
   <main class="tv-layout" id="tv-layout">
     <div class="mobile-panes" id="mobile-panes" role="group" aria-label="Navegar entre países e canais">
@@ -151,5 +151,6 @@ body .tv-shell button:focus,body .tv-shell a:focus,body .tv-shell input:focus{
 </div>
 <script src="/stream/favorites-safety.js"></script>
 <script src="/stream/tv/tv.js?v=20261125-favorites-account-hotfix1"></script>
+<script src="/stream/streamnow-i18n.js?v=20261125-i18n1"></script>
 </body>
 </html>
