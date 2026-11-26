@@ -1,0 +1,43 @@
+name: Stream Now OPS Sentinel
+on:
+  workflow_run:
+    workflows:
+      - Stream Now full-channel health audit
+      - DrivMatch - Autopiloto diario de canais
+      - Stream Now independent 04h and 06h channel audits
+      - Stream Now Cloudflare Pages
+      - Deploy DrivMatch Stream (independent)
+    types: [completed]
+  schedule:
+    # Backup heartbeat every ~15min; events trigger as soon as a workflow finishes.
+    - cron: '8,23,38,53 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/streamnow-ops-sentinel.yml']
+permissions:
+  contents: read
+  actions: write
+  issues: write
+concurrency:
+  group: streamnow-ops-sentinel
+  cancel-in-progress: false
+jobs:
+  alert-and-recover:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify incident policy
+        run: node --test tests/streamnow_ops_policy.test.mjs
+      - name: Detect failures, missed schedules, verify publication, alert owner, retry failed jobs once
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/streamnow_ops_sentinel.mjs
