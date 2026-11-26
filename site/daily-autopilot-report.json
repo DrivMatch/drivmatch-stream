@@ -7,6 +7,41 @@
   "open_web_research": {
     "candidate_sources": [
       {
+        "discovered_from": "github-new-free-tv",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/Ninken1997/Enterla-IPTV"
+      },
+      {
+        "discovered_from": "github-new-free-tv",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/OnlyBuild/saimo-tv.org"
+      },
+      {
+        "discovered_from": "github-new-free-tv",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/Lemonrealm-IPTV-Official/lemonrealm-iptv-guide"
+      },
+      {
+        "discovered_from": "github-new-free-tv",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/TommasoScalici/iptv-italy-sicily"
+      },
+      {
+        "discovered_from": "github-new-free-tv",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/bestiptvprovidersub/Free-IPTV-Playlist-M3u"
+      },
+      {
+        "discovered_from": "github-official-hls",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/znxare/free-tv-channels"
+      },
+      {
+        "discovered_from": "github-official-hls",
+        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+        "url": "https://github.com/Agoengwew/wew"
+      },
+      {
         "discovered_from": "twitch-broadcaster-live",
         "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
         "url": "https://twitch.tv/oss"
@@ -14,24 +49,24 @@
     ],
     "note": "Public search results only; approval/provenance pending; not included in playable catalog",
     "pages_attempted": 7,
-    "pages_responded": 1,
+    "pages_responded": 3,
     "pages_unavailable": [
-      "github-new-free-tv",
-      "github-official-hls",
       "reddit-legal-iptv",
       "reddit-public-tv",
       "youtube-official-live",
       "youtube-free-movies"
     ],
     "surfaces_reached": [
+      "github-new-free-tv",
+      "github-official-hls",
       "twitch-broadcaster-live"
     ]
   },
-  "published_added": 170,
+  "published_added": 41,
   "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
-  "published_healthy": 529,
-  "published_removed": 1,
-  "published_unchanged": 359,
+  "published_healthy": 570,
+  "published_removed": 0,
+  "published_unchanged": 529,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
@@ -70,6 +105,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 120,
-  "tested_failed": 46,
-  "tested_ok": 74
+  "tested_failed": 49,
+  "tested_ok": 71
 }

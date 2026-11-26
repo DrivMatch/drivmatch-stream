@@ -43,52 +43,51 @@
   "errors": {
     "additional_world_country:SS": "HTTPError",
     "codeberg": "HTTPError",
-    "gitee": "URLError",
-    "github:de": "HTTPError",
     "github:education": "HTTPError",
-    "github:en": "HTTPError",
-    "github:fr": "HTTPError",
-    "github:it": "HTTPError",
     "github:kids": "HTTPError",
-    "github:movies": "HTTPError",
     "github:music": "HTTPError",
-    "github:news": "HTTPError",
-    "github:pt": "HTTPError",
-    "github:sports": "HTTPError",
     "youtube": "ValueError"
   },
   "multilingual_searches": [
     {
+      "found": 1,
       "provider": "github:fr",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:de",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:pt",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:en",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:it",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:news",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:sports",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:movies",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
       "provider": "github:kids",
@@ -112,8 +111,9 @@
       "status": "UNAVAILABLE"
     },
     {
+      "found": 0,
       "provider": "gitee",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
       "provider": "youtube",
@@ -142,7 +142,7 @@
   },
   "scheduled_local": "02:00 America/Sao_Paulo",
   "schema": 1,
-  "started_at_utc": "2026-11-26T10:52:32.359614+00:00",
+  "started_at_utc": "2026-11-26T11:01:16.776330+00:00",
   "state": "PARTIAL",
   "total_research_channels": 2735,
   "total_sources_recorded": 55
