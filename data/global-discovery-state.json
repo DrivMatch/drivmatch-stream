@@ -300,6 +300,31 @@
       ],
       "tvg_id": "TelepaceTrento.it@SD"
     },
+    "0119b144ce6705720ca159b8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "National Assembly TV (720p)"
+      ],
+      "channel_id": "0119b144ce6705720ca159b8",
+      "country_code": "KR",
+      "display_name_pt": "National Assembly TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "National Assembly TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "National Assembly TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://github.com/BellezaEmporium/IPTV_Exception/raw/master/channels/kr/natv.m3u8"
+      ],
+      "tvg_id": "NationalAssemblyTV.kr@SD"
+    },
     "0143859df6530396049a952b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -950,6 +975,31 @@
       ],
       "tvg_id": "CityTVWhittier.us@SD"
     },
+    "03d93fb31c4784671c2ec0d6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal Zoom [Geo-blocked]"
+      ],
+      "channel_id": "03d93fb31c4784671c2ec0d6",
+      "country_code": "BE",
+      "display_name_pt": "Canal Zoom [Geo-blocked]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal Zoom [Geo-blocked]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal Zoom [Geo-blocked]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/live/95d2e3af-5ab8-45a9-9dc9-f544d006b5d5/95d2e3af-5ab8-45a9-9dc9-f544d006b5d5.isml/master.m3u8"
+      ],
+      "tvg_id": "CanalZoom.be@SD"
+    },
     "041ff554c363b52d7b74469c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -974,6 +1024,31 @@
         "https://d1k3vzh2ivy22k.cloudfront.net/Historia1080.m3u8"
       ],
       "tvg_id": "Historia.es@HD"
+    },
+    "044c430510ec336ced4161ba": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "LCI (1080p)"
+      ],
+      "channel_id": "044c430510ec336ced4161ba",
+      "country_code": "BE",
+      "display_name_pt": "LCI (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "LCI (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "LCI (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/lci/live.livx/playlist.m3u8"
+      ],
+      "tvg_id": "LCI.fr@SD"
     },
     "0481d576f236d4d29fb8c976": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -1049,6 +1124,31 @@
         "https://amg01480-alshallalfze-alshallal-ono-q0hfg.amagi.tv/playlist.m3u8"
       ],
       "tvg_id": "AlShallalTV.ae@SD"
+    },
+    "04a449c23eac60acc86a22fa": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Audiokiss (1080p)"
+      ],
+      "channel_id": "04a449c23eac60acc86a22fa",
+      "country_code": "BO",
+      "display_name_pt": "Audiokiss (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Audiokiss (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Audiokiss (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/audiokisstv/index.m3u8"
+      ],
+      "tvg_id": "Audiokiss.bo@SD"
     },
     "04b7aba989a52881649aba7a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -1675,6 +1775,31 @@
       ],
       "tvg_id": "AyushNextCommunicationNetwork.in@SD"
     },
+    "07a821b31ac359cb93eaa0f5": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Gugak TV (1080p)"
+      ],
+      "channel_id": "07a821b31ac359cb93eaa0f5",
+      "country_code": "KR",
+      "display_name_pt": "Gugak TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Gugak TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Gugak TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://mgugaklive.nowcdn.co.kr/gugakvideo/gugakvideo.stream/playlist.m3u8"
+      ],
+      "tvg_id": "GugakTV.kr@SD"
+    },
     "07c9b9b2a20f4f460f10f867": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -1800,6 +1925,31 @@
       ],
       "tvg_id": "GemTV.in@SD"
     },
+    "0840be97fa9c4825e03fb23f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Guatuso TV (720p)"
+      ],
+      "channel_id": "0840be97fa9c4825e03fb23f",
+      "country_code": "CR",
+      "display_name_pt": "Guatuso TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Guatuso TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Guatuso TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5cf4a2c2512a2.streamlock.net/8176/8176/playlist.m3u8"
+      ],
+      "tvg_id": "GuatusoTV.cr@SD"
+    },
     "087ed10c80cf104379406420": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -1849,6 +1999,31 @@
         "https://d15umi5iaezxgx.cloudfront.net/LA7D/CLN/HLS-B/Live.m3u8"
       ],
       "tvg_id": "LA7d.it@SD"
+    },
+    "08a10add3f63ef292629eca4": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLKU-DTV (360p) [Not 24/7]"
+      ],
+      "channel_id": "08a10add3f63ef292629eca4",
+      "country_code": "KR",
+      "display_name_pt": "HLKU-DTV (360p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLKU-DTV (360p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLKU-DTV (360p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream.bsmbc.com/livetv/BusanMBC_TV_onairstream/playlist.m3u8"
+      ],
+      "tvg_id": "HLKUDTV.kr@SD"
     },
     "08b009201ac0873902ec6a6c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -2650,6 +2825,31 @@
       ],
       "tvg_id": "ABCNewsLive10.us@SD"
     },
+    "0b79531221a3ed86f33faf64": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Conexion Positiva Television (1080p)"
+      ],
+      "channel_id": "0b79531221a3ed86f33faf64",
+      "country_code": "CR",
+      "display_name_pt": "Conexion Positiva Television (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Conexion Positiva Television (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Conexion Positiva Television (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvstream.conexionpositivaradio.com/memfs/69239c4d-4116-4f4f-b065-bf17e81b1411.m3u8"
+      ],
+      "tvg_id": "ConexionPositivaTelevision.cr@HD"
+    },
     "0b84be15839cca02b25b5373": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -3300,6 +3500,31 @@
       ],
       "tvg_id": "Esport3.es@SD"
     },
+    "0e0c3df9a4c83e39f6818b49": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio 2 (720p)"
+      ],
+      "channel_id": "0e0c3df9a4c83e39f6818b49",
+      "country_code": "BE",
+      "display_name_pt": "Radio 2 (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio 2 (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio 2 (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.vrtcdn.be/groupa/live/66a9668e-b37b-4de2-878e-0218563b2dd2/live.isml/.m3u8"
+      ],
+      "tvg_id": "Radio2.be@SD"
+    },
     "0e105d11504bb6cd37d70f64": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -3312,7 +3537,7 @@
       "genre": "",
       "international_name": "NBC TV (1080p) [Not 24/7]",
       "language_codes": [],
-      "last_seen": "2026-11-23",
+      "last_seen": "2026-11-27",
       "name_provenance": "original",
       "official_name": "",
       "original_name": "NBC TV (1080p) [Not 24/7]",
@@ -4300,6 +4525,31 @@
       ],
       "tvg_id": "MakkalTV.in@SD"
     },
+    "110181e4ef7bf6f7c5aba4f6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Telesambre (504p)"
+      ],
+      "channel_id": "110181e4ef7bf6f7c5aba4f6",
+      "country_code": "BE",
+      "display_name_pt": "Telesambre (504p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Telesambre (504p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Telesambre (504p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dlgt0tdl2hpq3.cloudfront.net/rtbf/clr-rtbf/2f00284b/index.m3u8"
+      ],
+      "tvg_id": "Telesambre.be@SD"
+    },
     "111d47d1490280116bfae18b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -4499,6 +4749,31 @@
         "https://fta.ektv.in/live/670/master.m3u8"
       ],
       "tvg_id": "DDNagaland.in@SD"
+    },
+    "12ae0f17e087cd00597e7cf4": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ACTV (Belgium) (504p)"
+      ],
+      "channel_id": "12ae0f17e087cd00597e7cf4",
+      "country_code": "BE",
+      "display_name_pt": "ACTV (Belgium) (504p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ACTV (Belgium) (504p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ACTV (Belgium) (504p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dlgt0tdl2hpq3.cloudfront.net/rtbf/clr-rtbf/4db788c7/index.m3u8"
+      ],
+      "tvg_id": "ACTV.be@SD"
     },
     "12ccbd2ba7b7408dd0358f76": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -5325,6 +5600,56 @@
       ],
       "tvg_id": "FGNChannel.in@SD"
     },
+    "153d60e64085f26c05fd6ae7": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Red TV Shop (720p)"
+      ],
+      "channel_id": "153d60e64085f26c05fd6ae7",
+      "country_code": "BO",
+      "display_name_pt": "Red TV Shop (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Red TV Shop (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Red TV Shop (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/redtvshop/index.m3u8"
+      ],
+      "tvg_id": "RedTVShop.bo@SD"
+    },
+    "153f9d7c6ae6b05d20104430": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "StuBru (1080p)"
+      ],
+      "channel_id": "153f9d7c6ae6b05d20104430",
+      "country_code": "BE",
+      "display_name_pt": "StuBru (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "StuBru (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "StuBru (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.vrtcdn.be/groupb/live/450aa9d1-7173-47f3-aaaa-9701426f8ddd/live.isml/.m3u8"
+      ],
+      "tvg_id": "StuBru.be@SD"
+    },
     "1545641d4bda540d8609fc72": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -5374,6 +5699,31 @@
         "https://the-pet-collective-international-au.samsung.wurl.tv/playlist.m3u8"
       ],
       "tvg_id": "ThePetCollective.us@Australia"
+    },
+    "1563bd073465c0a6f18ab8da": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "San Jose TV (1080p)"
+      ],
+      "channel_id": "1563bd073465c0a6f18ab8da",
+      "country_code": "CR",
+      "display_name_pt": "San Jose TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "San Jose TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "San Jose TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://rtmp.info/sanjosetv/envivo/playlist.m3u8"
+      ],
+      "tvg_id": "SanJoseTV.cr@SD"
     },
     "15672af75fca1e236cdddb98": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -5850,6 +6200,31 @@
       ],
       "tvg_id": "TVenLinea.pe@SD"
     },
+    "167496a1a21c56d6fae2acd4": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN Latin America (1080p)"
+      ],
+      "channel_id": "167496a1a21c56d6fae2acd4",
+      "country_code": "BO",
+      "display_name_pt": "ESPN Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN/ESPN.isml/ESPN.m3u8"
+      ],
+      "tvg_id": "ESPNLatinAmerica.us@South"
+    },
     "16ada46b5916e963260c146b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -5924,6 +6299,31 @@
         "https://jmp2.uk/plu-5d8d164d92e97a5e107638d2.m3u8"
       ],
       "tvg_id": "CineAdrenalina.us@SD"
+    },
+    "16ff4308e17554ac37a4389e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Unifranz (720p)"
+      ],
+      "channel_id": "16ff4308e17554ac37a4389e",
+      "country_code": "BO",
+      "display_name_pt": "Unifranz (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Unifranz (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Unifranz (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/8192/index.m3u8"
+      ],
+      "tvg_id": "Unifranz.bo@HD"
     },
     "170f835e14d318a9bdd59e1b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -6200,6 +6600,31 @@
       ],
       "tvg_id": "CanalMas.uy@SD"
     },
+    "17f111417cff2de5a3532c32": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio Centro (720p)"
+      ],
+      "channel_id": "17f111417cff2de5a3532c32",
+      "country_code": "BO",
+      "display_name_pt": "Radio Centro (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio Centro (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio Centro (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://streamlov.alsolnet.com/grupocentrobo/live/playlist.m3u8"
+      ],
+      "tvg_id": "RadioCentro.bo@SD"
+    },
     "17fb83800a3fa6b64a649f12": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -6475,6 +6900,31 @@
       ],
       "tvg_id": "TELE4Ojocaliente.mx@SD"
     },
+    "1908bd6238e0fa88720360af": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Hyundai Home Shopping + Shop (720p)"
+      ],
+      "channel_id": "1908bd6238e0fa88720360af",
+      "country_code": "KR",
+      "display_name_pt": "Hyundai Home Shopping + Shop (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Hyundai Home Shopping + Shop (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Hyundai Home Shopping + Shop (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://dtvstreaming.hyundaihmall.com/newcjp3/_definst_/newcjpstream.smil/playlist.m3u8"
+      ],
+      "tvg_id": "HyundaiHomeShoppingPlusShop.kr@SD"
+    },
     "192f79673a6749c1e046f313": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -6574,6 +7024,31 @@
         "https://hls.livecdn.io/cheddar.com/cheddar/playlist.m3u8"
       ],
       "tvg_id": "CheddarNews.us@SD"
+    },
+    "199d5f76cee2ef5a5f842150": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Vintage Music (720p)"
+      ],
+      "channel_id": "199d5f76cee2ef5a5f842150",
+      "country_code": "CR",
+      "display_name_pt": "Vintage Music (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Vintage Music (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Vintage Music (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/vmtv/tvvintage/playlist.m3u8"
+      ],
+      "tvg_id": "VintageMusic.cr@SD"
     },
     "19a000e8a2fccf41f78daf2d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -6774,6 +7249,31 @@
         "https://jmp2.uk/plu-666021cccb3ea10008406866.m3u8"
       ],
       "tvg_id": "NashBridges.us@SD"
+    },
+    "1ab34498645228094a562b3b": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Kanaal Z (1080p)"
+      ],
+      "channel_id": "1ab34498645228094a562b3b",
+      "country_code": "BE",
+      "display_name_pt": "Kanaal Z (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Kanaal Z (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Kanaal Z (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://d1hz1p2gea2zy4.cloudfront.net/live/rmgtv/RMG-TRENDSZNL-LIVE/index.m3u8"
+      ],
+      "tvg_id": "KanaalZ.be@SD"
     },
     "1aeb7d6ef19a433da137f619": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -7375,6 +7875,31 @@
       ],
       "tvg_id": "Create.us@SD"
     },
+    "1d762e9f0cc53c2db5a79f88": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Enlace Juvenil (720p)"
+      ],
+      "channel_id": "1d762e9f0cc53c2db5a79f88",
+      "country_code": "CR",
+      "display_name_pt": "Enlace Juvenil (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Enlace Juvenil (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Enlace Juvenil (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://livecdnusa.enlace.plus/ejtv/smil:ejtv-hd.smil/playlist.m3u8"
+      ],
+      "tvg_id": "EnlaceJuvenil.cr@SD"
+    },
     "1d908b398b6eadf1dcea751c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -7574,6 +8099,31 @@
         "https://irctv.cablecast.tv/live/stream-1/live.m3u8"
       ],
       "tvg_id": "COStv.us@SD"
+    },
+    "1e88b9309d7b3e5ffa9f2df8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "SPC Canal 15 (1080p)"
+      ],
+      "channel_id": "1e88b9309d7b3e5ffa9f2df8",
+      "country_code": "BO",
+      "display_name_pt": "SPC Canal 15 (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "SPC Canal 15 (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "SPC Canal 15 (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/giatv/giatv-1762252013SPC/1762252013SPC/playlist.m3u8"
+      ],
+      "tvg_id": "SPCCanal15.bo@SD"
     },
     "1ee3bf69e071620e61f6a639": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -8275,6 +8825,31 @@
       ],
       "tvg_id": "L1TV.nl@SD"
     },
+    "2119cb17cada25a7e804bafc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Univalle Television (1080p)"
+      ],
+      "channel_id": "2119cb17cada25a7e804bafc",
+      "country_code": "BO",
+      "display_name_pt": "Univalle Television (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Univalle Television (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Univalle Television (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/univalletv/playlist.m3u8"
+      ],
+      "tvg_id": "UnivalleTelevision.bo@SD"
+    },
     "2139f5a57aed5fb2eaa22145": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -8825,6 +9400,31 @@
       ],
       "tvg_id": "BATVPublicChannel.us@SD"
     },
+    "23993820d17db2178ea9f530": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Retrox TV (720p) [Not 24/7]"
+      ],
+      "channel_id": "23993820d17db2178ea9f530",
+      "country_code": "CR",
+      "display_name_pt": "Retrox TV (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Retrox TV (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Retrox TV (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://lbgo.bozztv.com/ssh101/ssh101/retyroxtv/playlist.m3u8"
+      ],
+      "tvg_id": "RetroxTV.cr@SD"
+    },
     "23b020d44dd5d1411abcc8b9": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -9300,6 +9900,31 @@
       ],
       "tvg_id": "OrigenChannel.co@SD"
     },
+    "24c2ad52accc4f35fae8c074": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TV OFF (1080p)"
+      ],
+      "channel_id": "24c2ad52accc4f35fae8c074",
+      "country_code": "BO",
+      "display_name_pt": "TV OFF (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TV OFF (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TV OFF (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/tvoff/index.m3u8"
+      ],
+      "tvg_id": "TVOFF.bo@SD"
+    },
     "24e4550900ecd8f7dc8772e4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -9750,6 +10375,31 @@
       ],
       "tvg_id": "TVSNBeauty.au@SD"
     },
+    "2647217bc8e071335dc20103": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "El Watania 1 (1080i)"
+      ],
+      "channel_id": "2647217bc8e071335dc20103",
+      "country_code": "TN",
+      "display_name_pt": "El Watania 1 (1080i)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "El Watania 1 (1080i)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "El Watania 1 (1080i)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/tn.m3u"
+      ],
+      "stream_candidates": [
+        "https://sw1.tanitweb.net/TunisiaTV/_definst_/watania1/chunklist.m3u8"
+      ],
+      "tvg_id": "ElWatania1.tn@SD"
+    },
     "26501e875e8c8df52887f1b6": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -9824,6 +10474,31 @@
         "https://barinaslive1.boldmss.com/ESPN_4/ESPN_4.isml/ESPN_4.m3u8"
       ],
       "tvg_id": "ESPN4LatinAmerica.us@South"
+    },
+    "26a0ff27d8aa3a1154d763d6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "VTM (360p)"
+      ],
+      "channel_id": "26a0ff27d8aa3a1154d763d6",
+      "country_code": "BE",
+      "display_name_pt": "VTM (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "VTM (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "VTM (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://lb.iptvnetwork.net/ls28/10033/playlist.m3u8"
+      ],
+      "tvg_id": "VTM.be@SD"
     },
     "26b6c91f7e05f60f322dfb40": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -10199,6 +10874,31 @@
         "https://player.mslivestream.net/tamil/ac206e74d75b285755ee4924df87d951.sdp/playlist.m3u8"
       ],
       "tvg_id": "SVBC2.in@SD"
+    },
+    "2804b5852aa7181242c336bc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Sterk TV (1080p)"
+      ],
+      "channel_id": "2804b5852aa7181242c336bc",
+      "country_code": "BE",
+      "display_name_pt": "Sterk TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Sterk TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Sterk TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://hlspackager.akamaized.net/live/DB/STERK_TV/HLS/STERK_TV.m3u8"
+      ],
+      "tvg_id": "SterkTV.be@SD"
     },
     "280ff06097dab170eac474fa": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -11150,6 +11850,31 @@
       ],
       "tvg_id": "HuachoPeruTV.pe@SD"
     },
+    "2b07d102d7175a54265909e6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Lotte OneTV (720p)"
+      ],
+      "channel_id": "2b07d102d7175a54265909e6",
+      "country_code": "KR",
+      "display_name_pt": "Lotte OneTV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Lotte OneTV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Lotte OneTV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://onetvhlslive.lotteimall.com/lotteonetvlive/lotteonetvlive.mp4.m3u8"
+      ],
+      "tvg_id": "LotteOneTV.kr@SD"
+    },
     "2b0e6dbd6515d0b8609eaea9": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -11274,6 +11999,31 @@
         "https://stream.ottlive.co.in/ktvbangla/index.m3u8"
       ],
       "tvg_id": "KTVBangla.in@SD"
+    },
+    "2b9551966cfaca65c6de8889": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "BX1 (504p)"
+      ],
+      "channel_id": "2b9551966cfaca65c6de8889",
+      "country_code": "BE",
+      "display_name_pt": "BX1 (504p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "BX1 (504p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "BX1 (504p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dlgt0tdl2hpq3.cloudfront.net/rtbf/clr-rtbf/7ec67c8d/index.m3u8"
+      ],
+      "tvg_id": "BX1.be@SD"
     },
     "2b99d1d837d966d85ed9a536": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -11600,6 +12350,31 @@
       ],
       "tvg_id": "HarbinMovieChannel.cn@SD"
     },
+    "2c976d4b7f932f16dc77e89c": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "CJ OnStyle+ (540p)"
+      ],
+      "channel_id": "2c976d4b7f932f16dc77e89c",
+      "country_code": "KR",
+      "display_name_pt": "CJ OnStyle+ (540p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "CJ OnStyle+ (540p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "CJ OnStyle+ (540p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-ch2.cjonstyle.net/cjosplus/live2/playlist.m3u8"
+      ],
+      "tvg_id": "CJOnStylePlus.kr@SD"
+    },
     "2cc63ddbbfcf04daf9324434": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -11875,6 +12650,31 @@
       ],
       "tvg_id": "KBCNews.in@SD"
     },
+    "2dddfb1ca4c4541598743468": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "QU4TRE Liege Media (1080p)"
+      ],
+      "channel_id": "2dddfb1ca4c4541598743468",
+      "country_code": "BE",
+      "display_name_pt": "QU4TRE Liege Media (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "QU4TRE Liege Media (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "QU4TRE Liege Media (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/rtc/95d2f6ec-22f7-4027-b23d-d5372116b2ad/95d2f6ec-22f7-4027-b23d-d5372116b2ad.isml/master.m3u8"
+      ],
+      "tvg_id": "QU4TRELiegeMedia.be@SD"
+    },
     "2def68289ef448dea88193a0": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -11949,6 +12749,31 @@
         "https://59d7d6f47d7fc.streamlock.net/icarotv/icarotv/playlist.m3u8"
       ],
       "tvg_id": "IcaroTV.it@SD"
+    },
+    "2e0c917dd3d75fd25c3ff21e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Shinsegae TV Shopping (720p)"
+      ],
+      "channel_id": "2e0c917dd3d75fd25c3ff21e",
+      "country_code": "KR",
+      "display_name_pt": "Shinsegae TV Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Shinsegae TV Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Shinsegae TV Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://liveout.catenoid.net/live-02-shinsegaetvshopping/shinsegaetvshopping_720p/playlist.m3u8"
+      ],
+      "tvg_id": "ShinsegaeTVShopping.kr@SD"
     },
     "2e127caf3a8ea49db537f483": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -12500,6 +13325,31 @@
       ],
       "tvg_id": "NewsJ.in@SD"
     },
+    "30041e00b15d52bedfb5b4a9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ATV (Belgium) (1080p)"
+      ],
+      "channel_id": "30041e00b15d52bedfb5b4a9",
+      "country_code": "BE",
+      "display_name_pt": "ATV (Belgium) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ATV (Belgium) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ATV (Belgium) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.zendzend.com/mpegts/29375_107244/media_mpegts_0.m3u8"
+      ],
+      "tvg_id": "ATV.be@SD"
+    },
     "300817f866d15c6a5f6e47a8": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -12675,6 +13525,31 @@
       ],
       "tvg_id": "MultimediosSaltillo.mx@SD"
     },
+    "30bfb94e5a92311f6cf4c17e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TransMedia (720p)"
+      ],
+      "channel_id": "30bfb94e5a92311f6cf4c17e",
+      "country_code": "BO",
+      "display_name_pt": "TransMedia (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TransMedia (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TransMedia (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/8064/index.m3u8"
+      ],
+      "tvg_id": "TransMedia.bo@SD"
+    },
     "30ced53b545e5d4b54c2ed26": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -12800,6 +13675,31 @@
       ],
       "tvg_id": "PlutoTVCocina.de@ES"
     },
+    "3171e6be96b6fa579f79a821": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Klara (720p)"
+      ],
+      "channel_id": "3171e6be96b6fa579f79a821",
+      "country_code": "BE",
+      "display_name_pt": "Klara (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Klara (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Klara (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.vrtcdn.be/groupb/live/9c429b62-e160-417a-b438-cdf985bcd352/live.isml/.m3u8"
+      ],
+      "tvg_id": "Klara.be@SD"
+    },
     "317386947627ac8082b8257a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -12849,6 +13749,31 @@
         "https://directes3-tv-es.3catdirectes.cat/live-content/tvc-hls/master.m3u8"
       ],
       "tvg_id": "TV3CAT.es@SD"
+    },
+    "31907ec5d6ed236a08fe52f1": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Arirang TV HD (1080p)"
+      ],
+      "channel_id": "31907ec5d6ed236a08fe52f1",
+      "country_code": "KR",
+      "display_name_pt": "Arirang TV HD (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Arirang TV HD (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Arirang TV HD (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://freem3u.xyz/api/live/play.m3u8?vid=111"
+      ],
+      "tvg_id": "ArirangTV.kr@HD"
     },
     "31a549faa52f60bef0730be1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -13150,6 +14075,31 @@
       ],
       "tvg_id": "Unidaddeinvestigacion.us@Spain"
     },
+    "328041f5b3ac05b49f2697e8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EL DEBER (1080p)"
+      ],
+      "channel_id": "328041f5b3ac05b49f2697e8",
+      "country_code": "BO",
+      "display_name_pt": "EL DEBER (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EL DEBER (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EL DEBER (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/eldebertv/index.m3u8"
+      ],
+      "tvg_id": "ELDEBER.bo@SD"
+    },
     "32a14fe5d07fad2bc6425cfa": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -13375,6 +14325,31 @@
       ],
       "tvg_id": "JiangxiCityChannel.cn@SD"
     },
+    "331d6a72ff8853549c0204a2": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Q-Music (1080p)"
+      ],
+      "channel_id": "331d6a72ff8853549c0204a2",
+      "country_code": "BE",
+      "display_name_pt": "Q-Music (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Q-Music (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Q-Music (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-video.dpgmedia.net/e087512ad0c32643/out/v1/82d59bbe343b4d0896f829c59da82dc0/index.m3u8"
+      ],
+      "tvg_id": "QMusic.be@SD"
+    },
     "334bf3aac8e0d1724c90cada": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -13574,6 +14549,31 @@
         "https://live-evg7.tv360.bitel.com.pe/bitel/supercanalSRT/playlist.m3u8"
       ],
       "tvg_id": "SuperCanal.pe@SD"
+    },
+    "3399dd466bc4c1002c0f8efd": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "El Watania 2 (1080p)"
+      ],
+      "channel_id": "3399dd466bc4c1002c0f8efd",
+      "country_code": "TN",
+      "display_name_pt": "El Watania 2 (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "El Watania 2 (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "El Watania 2 (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/tn.m3u"
+      ],
+      "stream_candidates": [
+        "https://sw1.tanitweb.net/TunisiaTV/_definst_/watania2/playlist.m3u8?DVR"
+      ],
+      "tvg_id": "ElWatania2.tn@SD"
     },
     "33a2ac36f518214a00936d0f": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -14575,6 +15575,31 @@
       ],
       "tvg_id": "TweedeKamerWttewaallvanStoetwegenzaal.nl@SD"
     },
+    "36cfc4d0682cfbebbd566091": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TDT Multimedia (720p)"
+      ],
+      "channel_id": "36cfc4d0682cfbebbd566091",
+      "country_code": "BO",
+      "display_name_pt": "TDT Multimedia (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TDT Multimedia (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TDT Multimedia (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://video01.brascast.com/juan6318/juan6318/playlist.m3u8"
+      ],
+      "tvg_id": "TDTMultimedia.bo@SD"
+    },
     "36d17d92b9551323e3cd6e24": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -15300,6 +16325,31 @@
       ],
       "tvg_id": "OnePaschima.in@SD"
     },
+    "390a87e4402e8352cc8aa26d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "MBC Gyeongnam TV (1080p) [Not 24/7]"
+      ],
+      "channel_id": "390a87e4402e8352cc8aa26d",
+      "country_code": "KR",
+      "display_name_pt": "MBC Gyeongnam TV (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "MBC Gyeongnam TV (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "MBC Gyeongnam TV (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://624a79c87201d.streamlock.net/MBCTV/TV1.stream/playlist.m3u8"
+      ],
+      "tvg_id": "MBCGyeongnamTV.kr@SD"
+    },
     "390adea6fb78084852d8ca1c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -15574,6 +16624,31 @@
         "https://a-cdn.herringnetwork.com/affiliate/awee/playlist.m3u8"
       ],
       "tvg_id": "AWEPlus.us@SD"
+    },
+    "39c6fd92439b7666d38b8764": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal 2 (Costa Rica) (720p) [Not 24/7]"
+      ],
+      "channel_id": "39c6fd92439b7666d38b8764",
+      "country_code": "CR",
+      "display_name_pt": "Canal 2 (Costa Rica) (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal 2 (Costa Rica) (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal 2 (Costa Rica) (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://d2hha8xu9trvi8.cloudfront.net/ts:abr.m3u8"
+      ],
+      "tvg_id": "Canal2.cr@SD"
     },
     "39d2268a75a0c4f329e3b6de": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -16100,6 +17175,31 @@
       ],
       "tvg_id": "AmritGurbani.in@SD"
     },
+    "3c1447c9f6ba8c2a6a59e7d8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio Contact (1080p)"
+      ],
+      "channel_id": "3c1447c9f6ba8c2a6a59e7d8",
+      "country_code": "BE",
+      "display_name_pt": "Radio Contact (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio Contact (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio Contact (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://contact-live-hls.akamaized.net/hls/live/2038650/CONTACT-Live-HLS/master.m3u8"
+      ],
+      "tvg_id": "RadioContact.be@SD"
+    },
     "3c4e7570f273a972def5a7e1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -16500,6 +17600,31 @@
       ],
       "tvg_id": "Vayasemanita.us@Spain"
     },
+    "3d861fa3f344f3eccf55f311": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Cinerama Television (720p)"
+      ],
+      "channel_id": "3d861fa3f344f3eccf55f311",
+      "country_code": "BO",
+      "display_name_pt": "Cinerama Television (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Cinerama Television (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Cinerama Television (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.cineramatvbo.com/hls/stream.m3u8"
+      ],
+      "tvg_id": "CineramaTelevision.bo@SD"
+    },
     "3da9f06d9353f1a935787fb2": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -16774,6 +17899,31 @@
         "https://5db313b643fd8.streamlock.net/SUPERSIXLombardia/SUPERSIXLombardia/playlist.m3u8"
       ],
       "tvg_id": "SuperSix.it@SD"
+    },
+    "3e031659f922598143a9273d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "National Geographic (Netherlands) (360p)"
+      ],
+      "channel_id": "3e031659f922598143a9273d",
+      "country_code": "BE",
+      "display_name_pt": "National Geographic (Netherlands) (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "National Geographic (Netherlands) (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "National Geographic (Netherlands) (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://lb.iptvnetwork.net/ls28/10016/playlist.m3u8"
+      ],
+      "tvg_id": "NationalGeographic.nl@SD"
     },
     "3e0462002bf5ae7ad3d49e80": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -17124,6 +18274,31 @@
         "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/a3e6a5fec4354ec4ae0ca5ed539ff641/index.m3u8"
       ],
       "tvg_id": "AasthaTelugu.in@SD"
+    },
+    "3f711f052d02c577b1da3446": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Armenia 1 (1080p)"
+      ],
+      "channel_id": "3f711f052d02c577b1da3446",
+      "country_code": "AM",
+      "display_name_pt": "Armenia 1 (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Armenia 1 (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Armenia 1 (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/am.m3u"
+      ],
+      "stream_candidates": [
+        "https://ifl01eu-new.bozztv.com/am1abr/index.m3u8"
+      ],
+      "tvg_id": "Armenia1.am@SD"
     },
     "3f736bb02930514de744bfe4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -17550,6 +18725,31 @@
       ],
       "tvg_id": "AccessTuolumne.us@SD"
     },
+    "407bd96563a8fa6060a0d402": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio TV Mega (720p)"
+      ],
+      "channel_id": "407bd96563a8fa6060a0d402",
+      "country_code": "BO",
+      "display_name_pt": "Radio TV Mega (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio TV Mega (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio TV Mega (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/radiotvmega26/playlist.m3u8"
+      ],
+      "tvg_id": "RadioTVMega.bo@SD"
+    },
     "40c7830499962b5b7059358c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -17700,6 +18900,31 @@
       ],
       "tvg_id": "BTLTV.nl@SD"
     },
+    "41637040dba2a2f9aedae48b": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ABN (720p)"
+      ],
+      "channel_id": "41637040dba2a2f9aedae48b",
+      "country_code": "KR",
+      "display_name_pt": "ABN (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ABN (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ABN (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://vod2.abn.co.kr/IPHONE/abn.m3u8"
+      ],
+      "tvg_id": "ABN.kr@SD"
+    },
     "416425d63ce4907320c7afcd": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -17824,6 +19049,31 @@
         "https://dztlhgid9me95.cloudfront.net/live-tv/Vidgyor/etnow/etnow_master.m3u8"
       ],
       "tvg_id": "ETNow.in@SD"
+    },
+    "41f21e90be4160d9b74d81c7": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLAN-DTV (480p) [Not 24/7]"
+      ],
+      "channel_id": "41f21e90be4160d9b74d81c7",
+      "country_code": "KR",
+      "display_name_pt": "HLAN-DTV (480p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLAN-DTV (480p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLAN-DTV (480p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream.chmbc.co.kr/TV/myStream/playlist.m3u8"
+      ],
+      "tvg_id": "HLANDTV.kr@SD"
     },
     "420d9b06d85f50683a193022": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -18250,6 +19500,31 @@
       ],
       "tvg_id": "RTPMadeira.pt@SD"
     },
+    "433fb544f6c2a3dc99880a1d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "FTV (Bolivia) (720p)"
+      ],
+      "channel_id": "433fb544f6c2a3dc99880a1d",
+      "country_code": "BO",
+      "display_name_pt": "FTV (Bolivia) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "FTV (Bolivia) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "FTV (Bolivia) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/ftvhd/index.m3u8"
+      ],
+      "tvg_id": "FTV.bo@SD"
+    },
     "4346f067406490260fb6563c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -18274,6 +19549,31 @@
         "https://fta.ektv.in/live/167/master.m3u8"
       ],
       "tvg_id": "ParasGold.in@SD"
+    },
+    "436ee590c313d09025350a00": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio Turrialba TV Sports (720p) [Not 24/7]"
+      ],
+      "channel_id": "436ee590c313d09025350a00",
+      "country_code": "CR",
+      "display_name_pt": "Radio Turrialba TV Sports (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio Turrialba TV Sports (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio Turrialba TV Sports (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-stream.iblups.com/live/a5ae024a1bbc4a05a68debbc9d379db6bb6a6da3.m3u8"
+      ],
+      "tvg_id": "RadioTurrialbaTVSports.cr@SD"
     },
     "43a35a94b9faf3291e491684": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -18374,6 +19674,31 @@
         "https://livingindiaottlive.akamaized.net/hindikhabar/index.m3u8"
       ],
       "tvg_id": "HindiKhabar.in@SD"
+    },
+    "446048d6d0cbf2ff128f5b09": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 5 Latin America (1080p)"
+      ],
+      "channel_id": "446048d6d0cbf2ff128f5b09",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 5 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 5 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 5 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_5/ESPN_5.isml/ESPN_5.m3u8"
+      ],
+      "tvg_id": "ESPN5LatinAmerica.us@South"
     },
     "446a07415db6e2a27c402d6e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -19025,6 +20350,31 @@
       ],
       "tvg_id": "SICReplay.pt@SD"
     },
+    "4712647383e6dd3644f390d6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "FAP TV (720p)"
+      ],
+      "channel_id": "4712647383e6dd3644f390d6",
+      "country_code": "BO",
+      "display_name_pt": "FAP TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "FAP TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "FAP TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/faptv/index.m3u8"
+      ],
+      "tvg_id": "FAPTV.bo@SD"
+    },
     "4713e85f691145fd0441076e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -19124,6 +20474,31 @@
         "https://5e2f36bc1c433.streamlock.net/inti/inti-network.stream/.m3u8"
       ],
       "tvg_id": "IntiTV.ec@SD"
+    },
+    "47c09b51b9f097f188662530": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Colosal TV (1080p)"
+      ],
+      "channel_id": "47c09b51b9f097f188662530",
+      "country_code": "CR",
+      "display_name_pt": "Colosal TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Colosal TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Colosal TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5eac7b031d945.streamlock.net/COLOSAL/COLOSAL/playlist.m3u8"
+      ],
+      "tvg_id": "ColosalTV.cr@SD"
     },
     "483e77237e9d93d1951c8889": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -19275,6 +20650,31 @@
       ],
       "tvg_id": "ABC.us@WTVQDT"
     },
+    "488560ba9e1c33c918f3a4c9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "KTV (South Korea) (1080p)"
+      ],
+      "channel_id": "488560ba9e1c33c918f3a4c9",
+      "country_code": "KR",
+      "display_name_pt": "KTV (South Korea) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "KTV (South Korea) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "KTV (South Korea) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://hlive.ktv.go.kr/live/klive_h.stream/playlist.m3u8"
+      ],
+      "tvg_id": "KTV.kr@SD"
+    },
     "489710629ca9e36705a8320e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -19324,6 +20724,31 @@
         "https://samitaorigin.tangotv.in/KABADDI24X7/SAMITAORIGIN/index.m3u8"
       ],
       "tvg_id": "Kabaddi24x7.in@SD"
+    },
+    "4906fb9b6c0c2f2210cadd97": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Bouke (504p)"
+      ],
+      "channel_id": "4906fb9b6c0c2f2210cadd97",
+      "country_code": "BE",
+      "display_name_pt": "Bouke (504p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Bouke (504p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Bouke (504p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dlgt0tdl2hpq3.cloudfront.net/rtbf/clr-rtbf/e1ccc6aa/index.m3u8"
+      ],
+      "tvg_id": "Bouke.be@SD"
     },
     "490f473874dce2a648dd9de3": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -19800,6 +21225,31 @@
       ],
       "tvg_id": "Gyandarshan.in@HD"
     },
+    "4a6c5c64b15ce39a42149b69": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "IQ Channel (720p)"
+      ],
+      "channel_id": "4a6c5c64b15ce39a42149b69",
+      "country_code": "CR",
+      "display_name_pt": "IQ Channel (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "IQ Channel (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "IQ Channel (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://rtmp.info/iqtv/envivo/playlist.m3u8"
+      ],
+      "tvg_id": "IQChannel.cr@SD"
+    },
     "4a6e86820f93ed43bd8846cc": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -20000,6 +21450,31 @@
       ],
       "tvg_id": "FoodFood.in@SD"
     },
+    "4b50dca26a4df2df0e8c92c8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Trivision 36 (720p)"
+      ],
+      "channel_id": "4b50dca26a4df2df0e8c92c8",
+      "country_code": "CR",
+      "display_name_pt": "Trivision 36 (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Trivision 36 (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Trivision 36 (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://liveingesta118.cdnmedia.tv/trivisionlive/rtmp01-900/chunklist.m3u8?DVR="
+      ],
+      "tvg_id": "Trivision36.cr@SD"
+    },
     "4b7a2e36b93f6432ef07e81a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -20124,6 +21599,31 @@
         "https://open.http.mp.streamamg.com/p/3001314/sp/300131400/playManifest/entryId/0_ye0b8tc0/format/applehttp/protocol/https/uiConfId/30026292/a.m3u8"
       ],
       "tvg_id": "SevillaFCTV.es@SD"
+    },
+    "4be42b3af2ce209bd58e010d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Amitel TV (720p)"
+      ],
+      "channel_id": "4be42b3af2ce209bd58e010d",
+      "country_code": "BO",
+      "display_name_pt": "Amitel TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Amitel TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Amitel TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://stv2.boliviaplay.com.bo/hls/stream.m3u8"
+      ],
+      "tvg_id": "AmitelTV.bo@SD"
     },
     "4befb2355fb9ee6c281430da": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -20725,6 +22225,31 @@
       ],
       "tvg_id": "RadioOndaDigital.pe@SD"
     },
+    "4e3ebdd8cc3123c6a927a19f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "History (Netherlands) (360p)"
+      ],
+      "channel_id": "4e3ebdd8cc3123c6a927a19f",
+      "country_code": "BE",
+      "display_name_pt": "History (Netherlands) (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "History (Netherlands) (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "History (Netherlands) (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://lb.iptvnetwork.net/ls28/10022/playlist.m3u8"
+      ],
+      "tvg_id": "History.nl@SD"
+    },
     "4e50b5047798122718f4ae2c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -21275,6 +22800,31 @@
       ],
       "tvg_id": "GordonRamsaysHellsKitchen.us@SD"
     },
+    "50cd8957810dfee74504b490": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "SOY Plancha TV (720p)"
+      ],
+      "channel_id": "50cd8957810dfee74504b490",
+      "country_code": "CR",
+      "display_name_pt": "SOY Plancha TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "SOY Plancha TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "SOY Plancha TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/playlist.m3u8"
+      ],
+      "tvg_id": "SOYPlanchaTV.cr@SD"
+    },
     "50d0d04f190cbfd7a97d83df": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -21600,6 +23150,31 @@
       ],
       "tvg_id": "PickleballNow.in@SD"
     },
+    "527b74026fc3156f8fed331c": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio Universitaria San Andres (720p)"
+      ],
+      "channel_id": "527b74026fc3156f8fed331c",
+      "country_code": "BO",
+      "display_name_pt": "Radio Universitaria San Andres (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio Universitaria San Andres (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio Universitaria San Andres (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/8054/index.m3u8"
+      ],
+      "tvg_id": "RadioUniversitariaSanAndres.bo@SD"
+    },
     "52810ec9868360e37272c3f4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -21849,6 +23424,31 @@
         "https://video-eu1.streamerr.co/hls/s7fdeb27a49/live.m3u8"
       ],
       "tvg_id": "SleutelstadTV.nl@SD"
+    },
+    "533d009ec4e913e4a881d7ee": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Los Santos TV (1080i)"
+      ],
+      "channel_id": "533d009ec4e913e4a881d7ee",
+      "country_code": "CR",
+      "display_name_pt": "Los Santos TV (1080i)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Los Santos TV (1080i)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Los Santos TV (1080i)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://tiquiciatv.com/hls/lstv.m3u8"
+      ],
+      "tvg_id": "LosSantosTV.cr@SD"
     },
     "53440470352bab064b9d7733": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -22225,6 +23825,31 @@
       ],
       "tvg_id": "LogosTV.es@SD"
     },
+    "54868e0127a309a46cc49132": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "MTV (France) (720p)"
+      ],
+      "channel_id": "54868e0127a309a46cc49132",
+      "country_code": "BE",
+      "display_name_pt": "MTV (France) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "MTV (France) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "MTV (France) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/mtv/live.livx/playlist.m3u8"
+      ],
+      "tvg_id": "MTV.fr@SD"
+    },
     "548d976c7b4af2581afeb606": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -22474,6 +24099,31 @@
         "https://jmp2.uk/plu-639b4f75d3d35c0007d37b30.m3u8"
       ],
       "tvg_id": "PlutoTVSnooker900.us@CA"
+    },
+    "5518129a42e6fdcd1e978ae9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Home & Shopping (720p)"
+      ],
+      "channel_id": "5518129a42e6fdcd1e978ae9",
+      "country_code": "KR",
+      "display_name_pt": "Home & Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Home & Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Home & Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://s28.qtcdn.co.kr/media/liveM3U8/idx/518045142/enc/1860408350/playlist.m3u8"
+      ],
+      "tvg_id": "HomeShopping.kr@SD"
     },
     "552208035bbf423b3f3488ec": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -22799,6 +24449,31 @@
         "https://dash4.antik.sk/live/test_stingray_iconcerts_hd_hevc50/playlist.m3u8"
       ],
       "tvg_id": "StingrayiConcerts.ca@HD"
+    },
+    "562532606b6c9d9affdb6612": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLAT-DTV (1080p) [Not 24/7]"
+      ],
+      "channel_id": "562532606b6c9d9affdb6612",
+      "country_code": "KR",
+      "display_name_pt": "HLAT-DTV (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLAT-DTV (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLAT-DTV (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5c3639aa99149.streamlock.net/live_TV/tv/playlist.m3u8"
+      ],
+      "tvg_id": "HLATDTV.kr@SD"
     },
     "5628cebac1305cd2d07307c8": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -23149,6 +24824,31 @@
         "https://d2o8iss0ldenh4.cloudfront.net/nlpo/clr-nlpo/rtvlove/index.m3u8"
       ],
       "tvg_id": "RTVLOVE.nl@SD"
+    },
+    "574d6a91e22b63b85d0c8754": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "FGTV (South Korea) (720p)"
+      ],
+      "channel_id": "574d6a91e22b63b85d0c8754",
+      "country_code": "KR",
+      "display_name_pt": "FGTV (South Korea) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "FGTV (South Korea) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "FGTV (South Korea) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://fgtvlive.fgtv.com/smil:fgtv.smil/playlist.m3u8"
+      ],
+      "tvg_id": "FGTV.kr@SD"
     },
     "578b623077f8b1113b10a42c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -23725,6 +25425,31 @@
       ],
       "tvg_id": "NDTV.in@SD"
     },
+    "58f0ad45423bdb3930d6ffa3": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Impact Channel (1080p)"
+      ],
+      "channel_id": "58f0ad45423bdb3930d6ffa3",
+      "country_code": "CR",
+      "display_name_pt": "Impact Channel (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Impact Channel (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Impact Channel (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5fe2654d6127d.streamlock.net/impactchannel/videoimpactchannel/playlist.m3u8"
+      ],
+      "tvg_id": "ImpactChannel.cr@SD"
+    },
     "5923c9e997f8c42c2a26d8f9": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -23899,6 +25624,31 @@
         "https://jmp2.uk/plu-5d8d180092e97a5e107638d3.m3u8"
       ],
       "tvg_id": "CineTerror.us@US"
+    },
+    "59ae0e418e7bf4194f2d0cb2": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TicaVision (1080p)"
+      ],
+      "channel_id": "59ae0e418e7bf4194f2d0cb2",
+      "country_code": "CR",
+      "display_name_pt": "TicaVision (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TicaVision (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TicaVision (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5eac7b031d945.streamlock.net/TICAVISION/TICAVISION/playlist.m3u8"
+      ],
+      "tvg_id": "TicaVision.cr@SD"
     },
     "59ca183a6dd56a4e8e6318e1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -25425,6 +27175,56 @@
       ],
       "tvg_id": "ESPNLatinAmerica.us@South"
     },
+    "604238b2b369b0441f1141ce": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLN Live (720p)"
+      ],
+      "channel_id": "604238b2b369b0441f1141ce",
+      "country_code": "BE",
+      "display_name_pt": "HLN Live (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLN Live (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLN Live (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dpg-eventstreams.akamaized.net/hlnlivesrt-xmr/streamx/hlnlivesrt_720p.m3u8"
+      ],
+      "tvg_id": "HLNLive.be@SD"
+    },
+    "6080ce6e4bdfdd11a3ebc47f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "NS Home Shopping (720p)"
+      ],
+      "channel_id": "6080ce6e4bdfdd11a3ebc47f",
+      "country_code": "KR",
+      "display_name_pt": "NS Home Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "NS Home Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "NS Home Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://livestream.nsmall.com/IPHONE/nsmallMobile.m3u8"
+      ],
+      "tvg_id": "NSHomeShopping.kr@SD"
+    },
     "60f3d2e01a7e57d7270c76d7": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -25499,6 +27299,31 @@
         "https://1aadf145546f475282c5b4e658c0ac4b.msvdn.net/live/324149/hlbAWtl/playlist.m3u8"
       ],
       "tvg_id": "TelecolorLombardia.it@SD"
+    },
+    "61161eaac180fd90e2e99506": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Gongyoung Home Shopping (720p)"
+      ],
+      "channel_id": "61161eaac180fd90e2e99506",
+      "country_code": "KR",
+      "display_name_pt": "Gongyoung Home Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Gongyoung Home Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Gongyoung Home Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://etv.publichs.com/live5.stream/playlist.m3u8"
+      ],
+      "tvg_id": "GongyoungHomeShopping.kr@SD"
     },
     "611d4cee9a2b05a52e10bdb4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -26600,6 +28425,31 @@
       ],
       "tvg_id": "EntellaTV.it@SD"
     },
+    "64ff8dd3c4f0bb746334a6f9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Urbano TV (720p)"
+      ],
+      "channel_id": "64ff8dd3c4f0bb746334a6f9",
+      "country_code": "CR",
+      "display_name_pt": "Urbano TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Urbano TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Urbano TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/tvurbano/tvurbano/playlist.m3u8"
+      ],
+      "tvg_id": "UrbanoTV.cr@SD"
+    },
     "651713e7db53c95203a8def0": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -26699,6 +28549,31 @@
         "https://da86m1sqpm3o0.cloudfront.net/28072023/smil:colorskannadahd1.smil/playlist.m3u8"
       ],
       "tvg_id": "ColorsKannada.in@HD"
+    },
+    "65758cd935361cfe18525389": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "UMSA TVU Internacional (720p)"
+      ],
+      "channel_id": "65758cd935361cfe18525389",
+      "country_code": "BO",
+      "display_name_pt": "UMSA TVU Internacional (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "UMSA TVU Internacional (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "UMSA TVU Internacional (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/8026/index.m3u8"
+      ],
+      "tvg_id": "UMSATVUInternacional.bo@HD"
     },
     "6581d05b0cbbad8a8ec569ce": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -27999,6 +29874,31 @@
         "https://live.field59.com/kbsi/kbsi1/playlist.m3u8"
       ],
       "tvg_id": "Fox.us@KBSI"
+    },
+    "697483a4423ffc454e20e74e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Mosaique FM (1080p)"
+      ],
+      "channel_id": "697483a4423ffc454e20e74e",
+      "country_code": "TN",
+      "display_name_pt": "Mosaique FM (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Mosaique FM (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Mosaique FM (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/tn.m3u"
+      ],
+      "stream_candidates": [
+        "https://webcam.mosaiquefm.net/mosatv/_definst_/studio/playlist.m3u8?DVR"
+      ],
+      "tvg_id": "MosaiqueFM.tn@SD"
     },
     "697dc93cbd0a3aeedbd8d943": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -29825,6 +31725,31 @@
       ],
       "tvg_id": "AccessHumboldt.us@SD"
     },
+    "6fa046f82dd1955ab0440c5f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS English (400p) [Not 24/7]"
+      ],
+      "channel_id": "6fa046f82dd1955ab0440c5f",
+      "country_code": "KR",
+      "display_name_pt": "EBS English (400p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS English (400p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS English (400p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/plus3familypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBSEnglish.kr@SD"
+    },
     "6fb33d5b6ace058d2cb8b74a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -30324,6 +32249,31 @@
         "https://cloudflare.tv/hls/live.m3u8"
       ],
       "tvg_id": "CloudflareTV.us@SD"
+    },
+    "71fc9ed278d433d0f8b3e64f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "First Channel News (1080p)"
+      ],
+      "channel_id": "71fc9ed278d433d0f8b3e64f",
+      "country_code": "AM",
+      "display_name_pt": "First Channel News (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "First Channel News (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "First Channel News (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/am.m3u"
+      ],
+      "stream_candidates": [
+        "https://amtvusdvr.tulix.tv/am3abr/index.m3u8"
+      ],
+      "tvg_id": "FirstChannelNews.am@SD"
     },
     "7246e315235664b5cced11ab": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -31025,6 +32975,31 @@
       ],
       "tvg_id": "ESPN4.nl@HD"
     },
+    "74f523675e67d8b130696693": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Video Tour Channel"
+      ],
+      "channel_id": "74f523675e67d8b130696693",
+      "country_code": "CR",
+      "display_name_pt": "Video Tour Channel",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Video Tour Channel",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Video Tour Channel",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/videotour/videotour/playlist.m3u8"
+      ],
+      "tvg_id": "VideoTourChannel.cr@SD"
+    },
     "7515e18c061032854d4c8ae5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -31175,6 +33150,31 @@
       ],
       "tvg_id": "MerweTV.nl@SD"
     },
+    "757b360739877ca01202210f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "BTN TV (South Korea) (1080p)"
+      ],
+      "channel_id": "757b360739877ca01202210f",
+      "country_code": "KR",
+      "display_name_pt": "BTN TV (South Korea) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "BTN TV (South Korea) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "BTN TV (South Korea) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://btn.nowcdn.co.kr/btn/btnlive2m/playlist.m3u8"
+      ],
+      "tvg_id": "BTNTV.kr@SD"
+    },
     "7583c62c372ae69a26c96b48": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -31299,6 +33299,31 @@
         "https://ztnr.rtve.es/ztnr/5190066.m3u8"
       ],
       "tvg_id": "La1Canarias.es@SD"
+    },
+    "765e9b8bf6641b6a67091b53": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS 2TV (400p) [Not 24/7]"
+      ],
+      "channel_id": "765e9b8bf6641b6a67091b53",
+      "country_code": "KR",
+      "display_name_pt": "EBS 2TV (400p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS 2TV (400p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS 2TV (400p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/ebs2familypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBS2TV.kr@SD"
     },
     "76629a84f91bbe70f61b3a14": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -31474,6 +33499,31 @@
         "https://d4whmvwm0rdvi.cloudfront.net/10007/99951318/hls/master.m3u8?ads._fw_app_bundle=web.xumo.com&ads._fw_app_store_url=&ads._fw_content_category=&ads._fw_content_genre=&ads._fw_content_language=en&ads._fw_content_rating=&ads._fw_coppa=0&ads._fw_deviceMake=GitHubAction&ads._fw_deviceType=3-Connected_TV&ads._fw_device_model=PythonScript&ads._fw_did=a5090924-15b1-4b7f-b6cd-2f06e2ba51e1&ads._fw_is_lat=0&ads._fw_us_privacy=&ads._fw_vcid2=512116:a5090924-15b1-4b7f-b6cd-2f06e2ba51e1&ads.afid=405342864&ads.appName=XumoPlay&ads.appVersion=1.0.0&ads.asnw=169843&ads.channelId=99951318&ads.csid=xumo_web_NBCUAmericanNinjaWarrior_ssai_cro&ads.sfid=19647852&ads.xumo_channelId=99951318&ads.xumo_contentId=4063&ads.xumo_contentName=NBCUAmericanNinjaWarrior&ads.xumo_providerId=4063&ads.xumo_providerName=NBCUAmericanNinjaWarrior"
       ],
       "tvg_id": "AmericanNinjaWarrior.us@SD"
+    },
+    "7700fcb664e74e6132978b80": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "VTM 4 (360p)"
+      ],
+      "channel_id": "7700fcb664e74e6132978b80",
+      "country_code": "BE",
+      "display_name_pt": "VTM 4 (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "VTM 4 (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "VTM 4 (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://lb.iptvnetwork.net/ls28/10038/playlist.m3u8"
+      ],
+      "tvg_id": "VTM4.be@SD"
     },
     "77102749ee1c028f729e75c1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -31725,6 +33775,31 @@
       ],
       "tvg_id": "VoATVChina.cn@SD"
     },
+    "7830848f0695071ce3596b2c": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "RTL-TVI (1080p) [Not 24/7]"
+      ],
+      "channel_id": "7830848f0695071ce3596b2c",
+      "country_code": "BE",
+      "display_name_pt": "RTL-TVI (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "RTL-TVI (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "RTL-TVI (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvi-live-hls.akamaized.net/hls/live/2038650/TVI-Live-HLS/master.m3u8"
+      ],
+      "tvg_id": "RTLTVI.be@SD"
+    },
     "7864be93f26b3e9cf823dad7": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -31949,6 +34024,31 @@
         "https://especial7tv.gestec-video.com/hls/7TVSEVILLA.m3u8"
       ],
       "tvg_id": "7TV.es@Sevilla"
+    },
+    "79d0eacc9469d7cfa3a43864": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "KTO (404p) [Not 24/7]"
+      ],
+      "channel_id": "79d0eacc9469d7cfa3a43864",
+      "country_code": "BE",
+      "display_name_pt": "KTO (404p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "KTO (404p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "KTO (404p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-kto.akamaized.net/hls/live/2033284/KTO/master.m3u8"
+      ],
+      "tvg_id": "KTO.fr@SD"
     },
     "79db2f3cf1d071af2a219272": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -32725,6 +34825,31 @@
       ],
       "tvg_id": "AutenticTravel.de@SD"
     },
+    "7bcd5e4966b4dcf20f3c7d16": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "WTV (1080p)"
+      ],
+      "channel_id": "7bcd5e4966b4dcf20f3c7d16",
+      "country_code": "BE",
+      "display_name_pt": "WTV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "WTV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "WTV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://wtvlive.b-cdn.net/playlist.m3u8"
+      ],
+      "tvg_id": "WTV.be@SD"
+    },
     "7bde318376b53b0c93c9e3ed": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -32974,6 +35099,31 @@
         "https://d2eanln3bsfb0d.cloudfront.net/nlpo/clr-nlpo/rtvmeppel/index.m3u8"
       ],
       "tvg_id": "RTVMeppel.nl@SD"
+    },
+    "7ccb27efaf208a9899b2e767": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 3 Latin America (1080p)"
+      ],
+      "channel_id": "7ccb27efaf208a9899b2e767",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 3 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 3 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 3 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_3/ESPN_3.isml/ESPN_3.m3u8"
+      ],
+      "tvg_id": "ESPN3LatinAmerica.us@South"
     },
     "7cdb4e6e6857402642a035ae": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -33425,6 +35575,31 @@
       ],
       "tvg_id": "JamaicaTravelChannel.jm@SD"
     },
+    "7edae1e497c1ab8771bbd97b": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Vedia (1080p)"
+      ],
+      "channel_id": "7edae1e497c1ab8771bbd97b",
+      "country_code": "BE",
+      "display_name_pt": "Vedia (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Vedia (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Vedia (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/vedia/95d2f480-b0b0-4027-9f4a-057183312305/95d2f480-b0b0-4027-9f4a-057183312305.isml/master.m3u8"
+      ],
+      "tvg_id": "Vedia.be@SD"
+    },
     "7ee29cb46cb11488bbab82ff": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -33449,6 +35624,31 @@
         "https://ms7.mx-cd.net/tv/278-3414514/RTV_Lansingerland.smil/playlist.m3u8"
       ],
       "tvg_id": "LansingerlandTV.nl@SD"
+    },
+    "7f1d2037610729ed6db6217f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal 8 (720p) [Not 24/7]"
+      ],
+      "channel_id": "7f1d2037610729ed6db6217f",
+      "country_code": "CR",
+      "display_name_pt": "Canal 8 (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal 8 (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal 8 (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8"
+      ],
+      "tvg_id": "Canal8.cr@SD"
     },
     "7f1e655866a5dbec514b9ab5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -34175,6 +36375,31 @@
       ],
       "tvg_id": "TeleMiaExtra.it@SD"
     },
+    "816e92661c585e629e331e2f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "UMSA TVU LP (720p)"
+      ],
+      "channel_id": "816e92661c585e629e331e2f",
+      "country_code": "BO",
+      "display_name_pt": "UMSA TVU LP (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "UMSA TVU LP (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "UMSA TVU LP (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/8190/index.m3u8"
+      ],
+      "tvg_id": "UMSATVULP.bo@SD"
+    },
     "8179a9fbeec33971adcf94a3": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -34300,6 +36525,31 @@
       ],
       "tvg_id": "CypressChannel36.us@SD"
     },
+    "81ef00c08854d4389ca52f94": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 7 Latin America (1080p)"
+      ],
+      "channel_id": "81ef00c08854d4389ca52f94",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 7 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 7 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 7 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_7/ESPN_7.isml/ESPN_7.m3u8"
+      ],
+      "tvg_id": "ESPN7LatinAmerica.us@SD"
+    },
     "81fa6e4c07dcf83f63bd25ed": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -34374,6 +36624,31 @@
         "https://live-hls-apps-ajd-fa.getaj.net/AJD/index.m3u8"
       ],
       "tvg_id": "AlJazeeraDocumentary.qa@SD"
+    },
+    "8208d2959fbc882d2481a1ff": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Zee One French (720p)"
+      ],
+      "channel_id": "8208d2959fbc882d2481a1ff",
+      "country_code": "BE",
+      "display_name_pt": "Zee One French (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Zee One French (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Zee One French (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://7689426c.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/U2Ftc3VuZy1mcl9aZWVNYWdpY19ITFM/playlist.m3u8"
+      ],
+      "tvg_id": "ZeeOne.uk@French"
     },
     "8213ce22a52aa93fff8f16b4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -34549,6 +36824,31 @@
         "https://mumt01.tangotv.in/O5aw8Zn3RAMDHENU/index.m3u8"
       ],
       "tvg_id": "Ramdhenu.in@SD"
+    },
+    "82735a3ef49a2dbd734e2cb0": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Siglo XXI TV (720p)"
+      ],
+      "channel_id": "82735a3ef49a2dbd734e2cb0",
+      "country_code": "BO",
+      "display_name_pt": "Siglo XXI TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Siglo XXI TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Siglo XXI TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/sigloxxi/index.m3u8"
+      ],
+      "tvg_id": "SigloXXITV.bo@SD"
     },
     "8280907c157c6e218569f2c6": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -35050,6 +37350,31 @@
       ],
       "tvg_id": "CruzTV.us@SD"
     },
+    "8462a6faf341570c826273bc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal Z (1080p)"
+      ],
+      "channel_id": "8462a6faf341570c826273bc",
+      "country_code": "BE",
+      "display_name_pt": "Canal Z (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal Z (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal Z (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://d1hz1p2gea2zy4.cloudfront.net/live/rmgtv/RMG-TRENDSZFR-LIVE/index.m3u8"
+      ],
+      "tvg_id": "CanalZ.be@SD"
+    },
     "847fa425ecae4c80ba63f933": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -35300,6 +37625,31 @@
       ],
       "tvg_id": "TweedeKamerPlenairezaal.nl@SD"
     },
+    "8547c62797d3fad3808cf51e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS Plus 1 (400p)"
+      ],
+      "channel_id": "8547c62797d3fad3808cf51e",
+      "country_code": "KR",
+      "display_name_pt": "EBS Plus 1 (400p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS Plus 1 (400p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS Plus 1 (400p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/plus1familypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBSPlus1.kr@SD"
+    },
     "855c220eced697f6c4b3873d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -35324,6 +37674,31 @@
         "https://636ffd31f0e12.streamlock.net/RacingStream1/RacingStream1/playlist.m3u8"
       ],
       "tvg_id": "SkyRacing1.au@SD"
+    },
+    "856dee903932d13349b812c9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLCX-DTV (450p)"
+      ],
+      "channel_id": "856dee903932d13349b812c9",
+      "country_code": "KR",
+      "display_name_pt": "HLCX-DTV (450p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLCX-DTV (450p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLCX-DTV (450p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5ee9633b25727.streamlock.net/jmbc_tv/_definst_/jmbc_tv.stream/playlist.m3u8"
+      ],
+      "tvg_id": "HLCXDTV.kr@SD"
     },
     "857de2f43659024842509572": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -35625,6 +38000,31 @@
       ],
       "tvg_id": "HiDost.in@SD"
     },
+    "868baebd6643c843dea249b3": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "OUN (1080p)"
+      ],
+      "channel_id": "868baebd6643c843dea249b3",
+      "country_code": "KR",
+      "display_name_pt": "OUN (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "OUN (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "OUN (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.knou.ac.kr/knou1/live1/playlist.m3u8"
+      ],
+      "tvg_id": "OUN.kr@SD"
+    },
     "869e13d0fc0905d25f236086": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -35900,6 +38300,56 @@
       ],
       "tvg_id": "StingrayEverything80s.ca@SD"
     },
+    "87c73b0319e97cab7ec56940": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TVcom (1080p)"
+      ],
+      "channel_id": "87c73b0319e97cab7ec56940",
+      "country_code": "BE",
+      "display_name_pt": "TVcom (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TVcom (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TVcom (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/tvcom/95d2f656-ba85-4e13-affc-f1936be1a86d/95d2f656-ba85-4e13-affc-f1936be1a86d.isml/master.m3u8"
+      ],
+      "tvg_id": "TVcom.be@SD"
+    },
+    "87e0c65772901d33c7dbca43": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Matele (1080p) [Not 24/7]"
+      ],
+      "channel_id": "87e0c65772901d33c7dbca43",
+      "country_code": "BE",
+      "display_name_pt": "Matele (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Matele (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Matele (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.matele.be/hls/live.m3u8"
+      ],
+      "tvg_id": "Matele.be@SD"
+    },
     "87e70d5629999697af8a29c4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -35974,6 +38424,31 @@
         "https://reflect-creatv.cablecast.tv/live-16/live/live.m3u8"
       ],
       "tvg_id": "CreaTVChannel30.us@SD"
+    },
+    "883ac6db7c7f6bf111629eb8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS Plus 2 (400p)"
+      ],
+      "channel_id": "883ac6db7c7f6bf111629eb8",
+      "country_code": "KR",
+      "display_name_pt": "EBS Plus 2 (400p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS Plus 2 (400p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS Plus 2 (400p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/plus2familypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBSPlus2.kr@SD"
     },
     "883f76ddf914c16f0642c2d5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -36200,6 +38675,31 @@
       ],
       "tvg_id": "ApnaPunjabTV.in@SD"
     },
+    "8940006a574dad1d5601d39d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Lotte Home Shopping (720p)"
+      ],
+      "channel_id": "8940006a574dad1d5601d39d",
+      "country_code": "KR",
+      "display_name_pt": "Lotte Home Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Lotte Home Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Lotte Home Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://pchlslivesw.lotteimall.com/live/livestream/lotteimalllive_mp4.m3u8"
+      ],
+      "tvg_id": "LotteHomeShopping.kr@SD"
+    },
     "897a809cccee42e7eac020e0": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -36324,6 +38824,31 @@
         "https://cdnapisec.kaltura.com/p/2288691/sp/228869100/playManifest/entryId/1_gnz6ity9/protocol/https/format/applehttp/flavorIds/1_a9gxgxzy,1_v71ryg4b,1_vbfvtjw6,1_obo1bqsx,1_3shk3s5d/a.m3u8"
       ],
       "tvg_id": "CMMTV.es@HD"
+    },
+    "89cc7d50182ea846cf7f2b03": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Tele Fe Bolivia (720p)"
+      ],
+      "channel_id": "89cc7d50182ea846cf7f2b03",
+      "country_code": "BO",
+      "display_name_pt": "Tele Fe Bolivia (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Tele Fe Bolivia (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Tele Fe Bolivia (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://59d39900ebfb8.streamlock.net/telefehd/telefehd/playlist.m3u8"
+      ],
+      "tvg_id": "TeleFeBolivia.bo@SD"
     },
     "89e0c9fcd5d4b2acf364cd18": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -37075,6 +39600,31 @@
       ],
       "tvg_id": "KeralaTodayTV.in@SD"
     },
+    "8c2eb459ac2678d900f571ae": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Imperial TV (720p)"
+      ],
+      "channel_id": "8c2eb459ac2678d900f571ae",
+      "country_code": "BO",
+      "display_name_pt": "Imperial TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Imperial TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Imperial TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://tv.centaurychile.com/imperial/streams/EnCyCiwNLsqEQ2kv2852222720686498.m3u8"
+      ],
+      "tvg_id": "ImperialTV.bo@SD"
+    },
     "8c331f57cd39e7d96a3ea969": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -37774,6 +40324,31 @@
         "https://d15ds134q59udk.cloudfront.net/out/v1/fbba879221d045598540ee783b140fe2/index.m3u8"
       ],
       "tvg_id": "ComedyChannel.il@SD"
+    },
+    "8e536ba0cba7bba54557de3e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Bel RTL (1080p)"
+      ],
+      "channel_id": "8e536ba0cba7bba54557de3e",
+      "country_code": "BE",
+      "display_name_pt": "Bel RTL (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Bel RTL (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Bel RTL (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://bel-live-hls.akamaized.net/hls/live/2038650/BEL-Live-HLS/master.m3u8"
+      ],
+      "tvg_id": "BelRTL.be@SD"
     },
     "8e574994d4c1b6f9bf309610": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -38525,6 +41100,31 @@
       ],
       "tvg_id": "FX.us@East"
     },
+    "9110aed282d5067a7044998f": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "BTL TV (Netherlands) (1080p)"
+      ],
+      "channel_id": "9110aed282d5067a7044998f",
+      "country_code": "BE",
+      "display_name_pt": "BTL TV (Netherlands) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "BTL TV (Netherlands) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "BTL TV (Netherlands) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://cdn.liveplustv.com/v1/live/btl-tv/master.m3u8"
+      ],
+      "tvg_id": "BTLTV.nl@SD"
+    },
     "9118093048001061bcbee776": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -38774,6 +41374,31 @@
         "https://w2.manasat.com/church-online/smil:church-online.smil/playlist.m3u8"
       ],
       "tvg_id": "ManaChurchOnline.pt@SD"
+    },
+    "92168f72003199fd1ea7e853": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "FIFA+ French (720p)"
+      ],
+      "channel_id": "92168f72003199fd1ea7e853",
+      "country_code": "BE",
+      "display_name_pt": "FIFA+ French (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "FIFA+ French (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "FIFA+ French (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://37b4c228.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWZyX0ZJRkFQbHVzRnJlbmNoX0hMUw/playlist.m3u8"
+      ],
+      "tvg_id": "FIFAPlus.uk@French"
     },
     "921b2628f8c35cdefecb7b3e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -39075,6 +41700,31 @@
       ],
       "tvg_id": "AntennaSicilia.it@SD"
     },
+    "931f8c7e827d9c56b0fab1e2": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TBS TV (720p)"
+      ],
+      "channel_id": "931f8c7e827d9c56b0fab1e2",
+      "country_code": "KR",
+      "display_name_pt": "TBS TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TBS TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TBS TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://cdntv.tbs.seoul.kr/tbs/tbs_tv_web.smil/playlist.m3u8"
+      ],
+      "tvg_id": "TBSTV.kr@SD"
+    },
     "9322773858eebdc3cdddee31": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -39199,6 +41849,31 @@
         "https://5f22d76e220e1.streamlock.net/primantenna14/primantenna14/playlist.m3u8"
       ],
       "tvg_id": "PrimAntennaTV.it@SD"
+    },
+    "936fab5a5921035de0e5a773": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Garabito TV (720p)"
+      ],
+      "channel_id": "936fab5a5921035de0e5a773",
+      "country_code": "CR",
+      "display_name_pt": "Garabito TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Garabito TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Garabito TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/playlist.m3u8"
+      ],
+      "tvg_id": "GarabitoTV.cr@SD"
     },
     "939c51cbb4b7d0fb8c88b607": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -39625,6 +42300,31 @@
       ],
       "tvg_id": "RedBullTV.at@ES"
     },
+    "955f332743c966e7dff5d5ff": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLDP-DTV (540p) [Not 24/7]"
+      ],
+      "channel_id": "955f332743c966e7dff5d5ff",
+      "country_code": "KR",
+      "display_name_pt": "HLDP-DTV (540p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLDP-DTV (540p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLDP-DTV (540p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream.ubc.co.kr/hls/ubctvstream/index.m3u8"
+      ],
+      "tvg_id": "HLDPDTV.kr@SD"
+    },
     "9597ec5a905190ac4e6db07c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -39674,6 +42374,31 @@
         "https://liveplus.lzr.com.cn/xwzh/HD/live.m3u8"
       ],
       "tvg_id": "LanzhouComprehensiveNewsChannel.cn@SD"
+    },
+    "95a2297a2884e0fcc0d03d07": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Shopping NT (720p)"
+      ],
+      "channel_id": "95a2297a2884e0fcc0d03d07",
+      "country_code": "KR",
+      "display_name_pt": "Shopping NT (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Shopping NT (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Shopping NT (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.shoppingntmall.com/live/10011.m3u8"
+      ],
+      "tvg_id": "ShoppingNT.kr@SD"
     },
     "95b3a3427bce1522be1450ed": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -40225,6 +42950,31 @@
       ],
       "tvg_id": "INH24x7.in@SD"
     },
+    "97b1dea512b86c498118fdfa": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio 1 (Belgium) (720p)"
+      ],
+      "channel_id": "97b1dea512b86c498118fdfa",
+      "country_code": "BE",
+      "display_name_pt": "Radio 1 (Belgium) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio 1 (Belgium) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio 1 (Belgium) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live.vrtcdn.be/groupa/live/3c3a12b5-093d-4a19-ae1f-3e775433286e/live.isml/.m3u8"
+      ],
+      "tvg_id": "Radio1.be@SD"
+    },
     "97bc936a72f9bb6a74933517": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -40374,6 +43124,31 @@
         "https://amg00327-coxmediagroup-wsbbreaking-vizious-lg4u0.amagi.tv/playlist/amg00327-coxmediagroup-wsbbreaking-vizious/playlist.m3u8"
       ],
       "tvg_id": "ABC.us@WSBTV"
+    },
+    "988493b1e4d989ee1511bcf6": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Joe FM (720p) [Not 24/7]"
+      ],
+      "channel_id": "988493b1e4d989ee1511bcf6",
+      "country_code": "BE",
+      "display_name_pt": "Joe FM (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Joe FM (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Joe FM (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://dpp-streamlive-plain.medialaancdn.be/joe_kijklive/plain/hls_hd.m3u8"
+      ],
+      "tvg_id": "JoeFM.be@SD"
     },
     "98a5748a51433bfbc3f5ebe6": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -40550,6 +43325,31 @@
       ],
       "tvg_id": "QollasuyoTV.pe@SD"
     },
+    "98fcfb55b04a3a4b1aa35804": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TELE 6 (1080p)"
+      ],
+      "channel_id": "98fcfb55b04a3a4b1aa35804",
+      "country_code": "BO",
+      "display_name_pt": "TELE 6 (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TELE 6 (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TELE 6 (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/tele6/playlist.m3u8"
+      ],
+      "tvg_id": "TELE6.bo@SD"
+    },
     "990771f1e1480024779e344a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -40625,6 +43425,31 @@
       ],
       "tvg_id": "TheAndyGriffithShow.us@CA"
     },
+    "99553585f53c9100a4c770c2": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal 14 Valle Alto Television (720p)"
+      ],
+      "channel_id": "99553585f53c9100a4c770c2",
+      "country_code": "BO",
+      "display_name_pt": "Canal 14 Valle Alto Television (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal 14 Valle Alto Television (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal 14 Valle Alto Television (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://stmv1.voxtvhd.com.br/vavizacli/vavizacli/playlist.m3u8"
+      ],
+      "tvg_id": "Canal14ValleAltoTelevision.bo@SD"
+    },
     "99949565479c201930a8b52e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -40674,6 +43499,31 @@
         "https://fta.ektv.in/live/54/54_0.m3u8"
       ],
       "tvg_id": "AllTimeMovies.in@SD"
+    },
+    "9a0de4470f74aa0c36473f81": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "StoryChannel TV (720p)"
+      ],
+      "channel_id": "9a0de4470f74aa0c36473f81",
+      "country_code": "TN",
+      "display_name_pt": "StoryChannel TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "StoryChannel TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "StoryChannel TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/tn.m3u"
+      ],
+      "stream_candidates": [
+        "https://136044159.r.cdnsun.net/storychannel.m3u8"
+      ],
+      "tvg_id": "StoryChannelTV.ma@SD"
     },
     "9a208766f16b14073240198f": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -41324,6 +44174,31 @@
         "https://na.linear.zype.com/e0bd0e23-a958-4e43-8164-4f2fef8876a8/fd3614bd-90bf-4530-a277-65ae3a1720c8-zype/live.m3u8"
       ],
       "tvg_id": "DraftKingsNetwork.us@SD"
+    },
+    "9cf6db3b9a57370af81f13ee": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 2 Latin America (1080p)"
+      ],
+      "channel_id": "9cf6db3b9a57370af81f13ee",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 2 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 2 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 2 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_2/ESPN_2.isml/ESPN_2.m3u8"
+      ],
+      "tvg_id": "ESPN2LatinAmerica.us@South"
     },
     "9d0ce8b1f0c5ec671ac480f4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -42249,6 +45124,31 @@
         "https://streamer.zapitv.com/PTV-granada/index.m3u8"
       ],
       "tvg_id": "PTVGranada.es@SD"
+    },
+    "a08c78e2f77c058c3cc1c201": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Fun Vision (1080p)"
+      ],
+      "channel_id": "a08c78e2f77c058c3cc1c201",
+      "country_code": "BE",
+      "display_name_pt": "Fun Vision (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Fun Vision (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Fun Vision (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://funradiovisionhd.vedge.infomaniak.com/livecast/ik:funradiovisionhd/manifest.m3u8"
+      ],
+      "tvg_id": "FunVision.be@SD"
     },
     "a08db8e972cd3e8e550438ee": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -43200,6 +46100,31 @@
       ],
       "tvg_id": "MangalmayTV.in@SD"
     },
+    "a432a6a2512c8a4ff69e96fc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "GS My Shop (1080p)"
+      ],
+      "channel_id": "a432a6a2512c8a4ff69e96fc",
+      "country_code": "KR",
+      "display_name_pt": "GS My Shop (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "GS My Shop (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "GS My Shop (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://gstv-myshop.gsshop.com/myshop_hd/myshop_hd.stream/playlist.m3u8"
+      ],
+      "tvg_id": "GSMyShop.kr@SD"
+    },
     "a43bc64512299085e919084b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -43475,6 +46400,31 @@
       ],
       "tvg_id": "ABCNewsLive8.us@SD"
     },
+    "a503fb54fb5c17f47153188d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLDG-DTV (1080p) [Not 24/7]"
+      ],
+      "channel_id": "a503fb54fb5c17f47153188d",
+      "country_code": "KR",
+      "display_name_pt": "HLDG-DTV (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLDG-DTV (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLDG-DTV (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream1.knn.co.kr/hls/9ly4534y7dm2xfa123r2_tv/index.m3u8"
+      ],
+      "tvg_id": "HLDGDTV.kr@SD"
+    },
     "a50fd7de5f6527096d580e0e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -43574,6 +46524,31 @@
         "https://tv.hamdardtv.com/hamdard/index.m3u8"
       ],
       "tvg_id": "HamdardTV.ca@SD"
+    },
+    "a5477f5156fd0714dba91e9a": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Bruzz (720p)"
+      ],
+      "channel_id": "a5477f5156fd0714dba91e9a",
+      "country_code": "BE",
+      "display_name_pt": "Bruzz (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Bruzz (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Bruzz (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://hls-origin01-bruzz.cdn02.rambla.be/main/adliveorigin-bruzz/_definst_/V3n5YY.smil/playlist.m3u8"
+      ],
+      "tvg_id": "Bruzz.be@SD"
     },
     "a5976878907975452b851532": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -43875,6 +46850,31 @@
       ],
       "tvg_id": "Channel200.nz@SD"
     },
+    "a5f531833a17de3e6b08ff01": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLDH-DTV (1080p) [Not 24/7]"
+      ],
+      "channel_id": "a5f531833a17de3e6b08ff01",
+      "country_code": "KR",
+      "display_name_pt": "HLDH-DTV (1080p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLDH-DTV (1080p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLDH-DTV (1080p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://vod.ikbc.co.kr/KBCTV/tv/playlist.m3u8"
+      ],
+      "tvg_id": "HLDHDTV.kr@SD"
+    },
     "a5ffc57ebb3327da58545a1c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -43949,6 +46949,31 @@
         "https://2f6c5bf4.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmxheHhUVi1ldV9FdXJvbmV3c0ZyYW5jYWlzX0hMUw/playlist.m3u8"
       ],
       "tvg_id": "EuronewsFrench.fr@SD"
+    },
+    "a62735b40cefe5d21e515480": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLAJ-DTV (352p) [Not 24/7]"
+      ],
+      "channel_id": "a62735b40cefe5d21e515480",
+      "country_code": "KR",
+      "display_name_pt": "HLAJ-DTV (352p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLAJ-DTV (352p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLAJ-DTV (352p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://wowza.jejumbc.com/live/tv_jejumbc/playlist.m3u8"
+      ],
+      "tvg_id": "HLAJDTV.kr@SD"
     },
     "a6294a7a6e91e45e99bc5659": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -44149,6 +47174,31 @@
         "https://5929b138b139d.streamlock.net/12TVParma/livestream/playlist.m3u8"
       ],
       "tvg_id": "12TVParma.it@SD"
+    },
+    "a73e71bdfb9c24ec8c2b4b37": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Nick Jr. Latin America (1080p)"
+      ],
+      "channel_id": "a73e71bdfb9c24ec8c2b4b37",
+      "country_code": "BO",
+      "display_name_pt": "Nick Jr. Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Nick Jr. Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Nick Jr. Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://streaming.onnethn.com/NICK_JR/playlist.m3u8"
+      ],
+      "tvg_id": "NickJrLatinAmerica.us@Panregional"
     },
     "a74a1537c5515acf8dd1863f": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -44425,6 +47475,31 @@
       ],
       "tvg_id": "IciRadioCanadaTele.ca@CFHDDT"
     },
+    "a811b739afa0c9e9e7906189": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Interactivo Television (720p)"
+      ],
+      "channel_id": "a811b739afa0c9e9e7906189",
+      "country_code": "BO",
+      "display_name_pt": "Interactivo Television (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Interactivo Television (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Interactivo Television (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://mist01.homestream.fun/hls/interactivotv2/index.m3u8"
+      ],
+      "tvg_id": "InteractivoTelevision.bo@SD"
+    },
     "a81f11b6acc2671aa8dde423": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -44550,6 +47625,31 @@
       ],
       "tvg_id": "ComedyDynamics.us@SD"
     },
+    "a8d2e341d62952302765ebac": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "PI MEDIA TV (1080p)"
+      ],
+      "channel_id": "a8d2e341d62952302765ebac",
+      "country_code": "BO",
+      "display_name_pt": "PI MEDIA TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "PI MEDIA TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "PI MEDIA TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/bolivianews/playlist.m3u8"
+      ],
+      "tvg_id": "PIMEDIATV.bo@SD"
+    },
     "a8f6ea389cc3d6853a7ac6cd": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -44574,6 +47674,31 @@
         "https://canal.mediaserver.com.co/live/cinedios.m3u8"
       ],
       "tvg_id": "CanalCineDios.co@SD"
+    },
+    "a9484036a024f424431e7b98": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Alegria TV (720p)"
+      ],
+      "channel_id": "a9484036a024f424431e7b98",
+      "country_code": "BO",
+      "display_name_pt": "Alegria TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Alegria TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Alegria TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://lbgo.bozztv.com/ssh101/ssh101/confirmatv/playlist.m3u8"
+      ],
+      "tvg_id": "AlegriaTV.bo@SD"
     },
     "a955c6ad089d4a70d4bfd8c0": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -44775,6 +47900,31 @@
       ],
       "tvg_id": "RakutenTVTopMovies.es@Spain"
     },
+    "aa1849073b8277689cb81606": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Notele (576p) [Not 24/7]"
+      ],
+      "channel_id": "aa1849073b8277689cb81606",
+      "country_code": "BE",
+      "display_name_pt": "Notele (576p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Notele (576p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Notele (576p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://streaming01.divercom.be/notele_live/direct.stream/playlist.m3u8"
+      ],
+      "tvg_id": "Notele.be@SD"
+    },
     "aa1e2b9f4c3993f1d47ad3ce": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -44974,6 +48124,31 @@
         "https://dfhsahpa45kk2.cloudfront.net/scheduler/scheduleMaster/476.m3u8"
       ],
       "tvg_id": "WildTV.ca@SD"
+    },
+    "aa90e2164658201f154beaa1": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "San Vito Television"
+      ],
+      "channel_id": "aa90e2164658201f154beaa1",
+      "country_code": "CR",
+      "display_name_pt": "San Vito Television",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "San Vito Television",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "San Vito Television",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream.lamegatv.com/hls/sanvitotelevision/index.m3u8"
+      ],
+      "tvg_id": "SanVitoTelevision.cr@SD"
     },
     "aa93a243dea700f85752ce90": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -45224,6 +48399,31 @@
         "https://streaming005.gestec-video.com/hls/canal24.m3u8"
       ],
       "tvg_id": "8LaMarinaTV.es@SD"
+    },
+    "ab22bd79a928c1b22b3f68b9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS 1TV (400p) [Not 24/7]"
+      ],
+      "channel_id": "ab22bd79a928c1b22b3f68b9",
+      "country_code": "KR",
+      "display_name_pt": "EBS 1TV (400p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS 1TV (400p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS 1TV (400p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/ebs1familypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBS1TV.kr@SD"
     },
     "ab37c97e385eb9b524dc767d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -46700,6 +49900,56 @@
       ],
       "tvg_id": "GoodnessTV.in@SD"
     },
+    "af595deb21954563f88d2f63": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Radio Kollasuyo (720p)"
+      ],
+      "channel_id": "af595deb21954563f88d2f63",
+      "country_code": "BO",
+      "display_name_pt": "Radio Kollasuyo (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Radio Kollasuyo (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Radio Kollasuyo (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://azura2.bitstreaming.net/hls/kollasuyo3/live.m3u8"
+      ],
+      "tvg_id": "RadioKollasuyo.bo@SD"
+    },
+    "af5a609de6dacf2a9d08c008": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TeleBrunca (720p) [Not 24/7]"
+      ],
+      "channel_id": "af5a609de6dacf2a9d08c008",
+      "country_code": "CR",
+      "display_name_pt": "TeleBrunca (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TeleBrunca (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TeleBrunca (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/playlist.m3u8"
+      ],
+      "tvg_id": "TeleBrunca.cr@SD"
+    },
     "af7aa0fef71207dc5904ca9a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -46799,6 +50049,31 @@
         "https://stream.sen-gt.com/cnmtv/myStream/playlist.m3u8"
       ],
       "tvg_id": "CNMTV.sn@SD"
+    },
+    "afc94b5d5f0d6a4908265572": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Vos TV (Bolivia) (1080p)"
+      ],
+      "channel_id": "afc94b5d5f0d6a4908265572",
+      "country_code": "BO",
+      "display_name_pt": "Vos TV (Bolivia) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Vos TV (Bolivia) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Vos TV (Bolivia) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/vostv/index.m3u8"
+      ],
+      "tvg_id": "VosTV.bo@SD"
     },
     "afd8cc024c6bf9f1a52eb36f": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -47524,6 +50799,31 @@
         "https://cdn.pishow.tv/ott/live/1161/master.m3u8"
       ],
       "tvg_id": "DDSports.in@HD"
+    },
+    "b209cec0bddd9b99cd41af28": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "RT France (1080p) [Geo-blocked]"
+      ],
+      "channel_id": "b209cec0bddd9b99cd41af28",
+      "country_code": "BE",
+      "display_name_pt": "RT France (1080p) [Geo-blocked]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "RT France (1080p) [Geo-blocked]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "RT France (1080p) [Geo-blocked]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://rt-fra.rttv.com/dvr/rtfrance/playlist.m3u8"
+      ],
+      "tvg_id": "RTFrance.fr@SD"
     },
     "b2147571eb4018a7577d6042": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -49325,6 +52625,31 @@
       ],
       "tvg_id": "TweedeKamerSuzeGroenewegzaal.nl@SD"
     },
+    "b9709a0da0b3f8ead15f84a3": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 4 Latin America (1080p)"
+      ],
+      "channel_id": "b9709a0da0b3f8ead15f84a3",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 4 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 4 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 4 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_4/ESPN_4.isml/ESPN_4.m3u8"
+      ],
+      "tvg_id": "ESPN4LatinAmerica.us@South"
+    },
     "b9ab984b1d834246e3fc4115": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -49399,6 +52724,31 @@
         "https://amg01438-amg01438c1-vizio-us-10865.playouts.now.amagi.tv/playlist.m3u8"
       ],
       "tvg_id": "ABC.us@WEWSTV"
+    },
+    "b9e4883205b11fc5c6977533": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "NicoyaTV (720p) [Not 24/7]"
+      ],
+      "channel_id": "b9e4883205b11fc5c6977533",
+      "country_code": "CR",
+      "display_name_pt": "NicoyaTV (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "NicoyaTV (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "NicoyaTV (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/playlist.m3u8"
+      ],
+      "tvg_id": "NicoyaTV.cr@SD"
     },
     "b9f46d735d398e56519d1f22": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -49849,6 +53199,31 @@
         "https://c.streamhoster.com/link/hls/W5s3fS/inLo5pcsHjo/iqg9wps0m1x_5/playlist.m3u8"
       ],
       "tvg_id": "AceTV.us@SD"
+    },
+    "bad18ddc22a7526c25ad7f2e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLCN-DTV (1080p)"
+      ],
+      "channel_id": "bad18ddc22a7526c25ad7f2e",
+      "country_code": "KR",
+      "display_name_pt": "HLCN-DTV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLCN-DTV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLCN-DTV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://media.kjmbc.co.kr/hls/live/stream/playlist.m3u8"
+      ],
+      "tvg_id": "HLCNDTV.kr@SD"
     },
     "badf9fdd64d740b252b125e1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -50750,6 +54125,31 @@
       ],
       "tvg_id": "PancheTelevision.co@SD"
     },
+    "bda26e8738e0582f25e44cb7": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "PTV (Bolivia) (720p)"
+      ],
+      "channel_id": "bda26e8738e0582f25e44cb7",
+      "country_code": "BO",
+      "display_name_pt": "PTV (Bolivia) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "PTV (Bolivia) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "PTV (Bolivia) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://giatv.bozztv.com/giatv/giatv-PTVonLINE/PTVonLINE/playlist.m3u8"
+      ],
+      "tvg_id": "PTV.bo@SD"
+    },
     "bde08131aa259259e114013e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -51025,6 +54425,31 @@
       ],
       "tvg_id": "MazhavilManorama.in@SD"
     },
+    "be9c0d31a1a59e4420e4be12": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Gex TV (1080p)"
+      ],
+      "channel_id": "be9c0d31a1a59e4420e4be12",
+      "country_code": "CR",
+      "display_name_pt": "Gex TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Gex TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Gex TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live20.bozztv.com/akamaissh101/ssh101/gextvaccess/playlist.m3u8"
+      ],
+      "tvg_id": "GexTV.cr@HD"
+    },
     "bea2fa4e34e3285fea87d77a": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -51125,6 +54550,56 @@
       ],
       "tvg_id": "ESPN.nl@HD"
     },
+    "bf4d7e0bb09e21cdf912f702": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TV5Monde France Belgium Switzerland Monaco (720p)"
+      ],
+      "channel_id": "bf4d7e0bb09e21cdf912f702",
+      "country_code": "BE",
+      "display_name_pt": "TV5Monde France Belgium Switzerland Monaco (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TV5Monde France Belgium Switzerland Monaco (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TV5Monde France Belgium Switzerland Monaco (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://n-5-2.eu.cdn-redge.media/livehls/oeu/mt/live/tv5_monde_fbs/live.livx/playlist.m3u8"
+      ],
+      "tvg_id": "TV5MondeFranceBelgiumSwitzerlandMonaco.fr@SD"
+    },
+    "bf6b66fb4a441e42965bc1d9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "K Shopping (1080p)"
+      ],
+      "channel_id": "bf6b66fb4a441e42965bc1d9",
+      "country_code": "KR",
+      "display_name_pt": "K Shopping (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "K Shopping (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "K Shopping (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://fhs8036.bd-61.ktcdn.co.kr/klive/smil:klive.smil/playlist.m3u8"
+      ],
+      "tvg_id": "KShopping.kr@SD"
+    },
     "bf8181088411b72e21674923": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -51199,6 +54674,31 @@
         "https://stream-207963.castr.net/65313d270e749722b6474684/live_fa0ed380dfbe11eeabd66ba1b9ba93a1/index.fmp4.m3u8"
       ],
       "tvg_id": "Canal13Guadalajara.mx@SD"
+    },
+    "bfbc377dd6daed7d434e7290": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "RTV (South Korea) (720p)"
+      ],
+      "channel_id": "bfbc377dd6daed7d434e7290",
+      "country_code": "KR",
+      "display_name_pt": "RTV (South Korea) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "RTV (South Korea) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "RTV (South Korea) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://rtv-stream2.a04f922e9e85c8d25ebfeae3dfd22a67.com/rtv/rtv.m3u8"
+      ],
+      "tvg_id": "RTV.kr@SD"
     },
     "bfbe161fe30c05439f87392b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -52599,6 +56099,31 @@
         "https://live-evg11.tv360.bitel.com.pe/bitel/tvmarSRT/playlist.m3u8"
       ],
       "tvg_id": "TVMAR.pe@SD"
+    },
+    "c43962b99ecab70896981e62": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TL Estrella (1080p)"
+      ],
+      "channel_id": "c43962b99ecab70896981e62",
+      "country_code": "BO",
+      "display_name_pt": "TL Estrella (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TL Estrella (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TL Estrella (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/teleestrella/index.m3u8"
+      ],
+      "tvg_id": "TLEstrella.bo@SD"
     },
     "c43bdc28c7b92d142f6ec9f7": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -54099,6 +57624,31 @@
         "https://hls.botflix.tv/tv/index.m3u8"
       ],
       "tvg_id": "BotflixTV.us@HD"
+    },
+    "c903e44e453700c7d64388a1": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "GS Shop (1080p)"
+      ],
+      "channel_id": "c903e44e453700c7d64388a1",
+      "country_code": "KR",
+      "display_name_pt": "GS Shop (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "GS Shop (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "GS Shop (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://gstv-gsshop.gsshop.com/gsshop_hd/gsshop_hd.stream/playlist.m3u8"
+      ],
+      "tvg_id": "GSShop.kr@SD"
     },
     "c93804dad4c8a8ac7bbaba8b": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -56075,6 +59625,31 @@
       ],
       "tvg_id": "RealityChannel.il@SD"
     },
+    "cf752e460580b95b978894d5": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "CJ OnStyle (540p)"
+      ],
+      "channel_id": "cf752e460580b95b978894d5",
+      "country_code": "KR",
+      "display_name_pt": "CJ OnStyle (540p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "CJ OnStyle (540p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "CJ OnStyle (540p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-ch1.cjonstyle.net/cjmalllive/stream2/playlist.m3u8"
+      ],
+      "tvg_id": "CJOnStyle.kr@SD"
+    },
     "cf7c4502915edc5267b4a7e5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -56099,6 +59674,31 @@
         "https://r.il.cdn-redge.media/livehls/oil/freetv/live/sport_5_4k_avc/live.livx/playlist.m3u8"
       ],
       "tvg_id": "5Sport4K.il@SD"
+    },
+    "cfbec90cdf727c4806001333": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLCT-DTV (480p) [Not 24/7]"
+      ],
+      "channel_id": "cfbec90cdf727c4806001333",
+      "country_code": "KR",
+      "display_name_pt": "HLCT-DTV (480p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLCT-DTV (480p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLCT-DTV (480p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5ee1ec6f32118.streamlock.net/live/livetv/playlist.m3u8"
+      ],
+      "tvg_id": "HLCTDTV.kr@SD"
     },
     "cfca82b4a90ae9f36d3cacd1": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -56400,6 +60000,31 @@
       ],
       "tvg_id": "AlEkhbariya.sa@SD"
     },
+    "d105c03eda1609ce66437e0b": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "W Shopping (720p)"
+      ],
+      "channel_id": "d105c03eda1609ce66437e0b",
+      "country_code": "KR",
+      "display_name_pt": "W Shopping (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "W Shopping (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "W Shopping (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://liveout.catenoid.net/live-05-wshopping/wshopping_1500k/playlist.m3u8"
+      ],
+      "tvg_id": "WShopping.kr@SD"
+    },
     "d1178d212d22b8e300863dd5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -56649,6 +60274,31 @@
         "https://live.obslivestream.com/sanjuanera/index.m3u8"
       ],
       "tvg_id": "SanjuaneraTV.pe@SD"
+    },
+    "d2632135aac2db81b6cc8e40": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Hope Channel PROYECTO JA (360p)"
+      ],
+      "channel_id": "d2632135aac2db81b6cc8e40",
+      "country_code": "CR",
+      "display_name_pt": "Hope Channel PROYECTO JA (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Hope Channel PROYECTO JA (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Hope Channel PROYECTO JA (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge1-us-miami.picarto.tv/stream/hls/golive%2bXSTUDIOCODE/0_1/index.m3u8"
+      ],
+      "tvg_id": "HopeChannelPROYECTOJA.cr@SD"
     },
     "d275e259e6dea73a36428b9d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -57299,6 +60949,31 @@
         "https://lotus.stingray.com/manifest/ose-140ads-montreal/samsungtvplus/master.m3u8"
       ],
       "tvg_id": "StingraySmoothJazz.ca@SD"
+    },
+    "d58d6329952034c83a9f18cb": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "¡OPA! (720p)"
+      ],
+      "channel_id": "d58d6329952034c83a9f18cb",
+      "country_code": "CR",
+      "display_name_pt": "¡OPA! (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "¡OPA! (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "¡OPA! (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://5f1af61612fb5.streamlock.net/genteopa/videogenteopa_720p/playlist.m3u8"
+      ],
+      "tvg_id": "OPA.cr@SD"
     },
     "d595d54d4d91a5cd24c4d61d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -59425,6 +63100,31 @@
       ],
       "tvg_id": "Fox.us@WAGATV"
     },
+    "dc33945ff1606adeb09ecf73": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "RA Television (720p)"
+      ],
+      "channel_id": "dc33945ff1606adeb09ecf73",
+      "country_code": "BO",
+      "display_name_pt": "RA Television (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "RA Television (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "RA Television (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/ratvbol/playlist.m3u8"
+      ],
+      "tvg_id": "RATelevision.bo@SD"
+    },
     "dc354aba94ec850dd6bfe663": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -60124,6 +63824,31 @@
         "https://streaming-live-fcdn.api.prd.univisionnow.com/galaeast/galaeast.isml/hls/galaeast.m3u8"
       ],
       "tvg_id": "Galavision.us@EastHD"
+    },
+    "df41fc0e01a926ae22a958dd": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Sucremanta TV (1080p)"
+      ],
+      "channel_id": "df41fc0e01a926ae22a958dd",
+      "country_code": "BO",
+      "display_name_pt": "Sucremanta TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Sucremanta TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Sucremanta TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/ok2026/playlist.m3u8"
+      ],
+      "tvg_id": "SucremantaTV.bo@SD"
     },
     "df43526cd9e526c98a5c8dcd": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -61375,6 +65100,31 @@
       ],
       "tvg_id": "HomePlus.ir@SD"
     },
+    "e34a567fc293d77fd123fddc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "BAM-TV"
+      ],
+      "channel_id": "e34a567fc293d77fd123fddc",
+      "country_code": "BE",
+      "display_name_pt": "BAM-TV",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "BAM-TV",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "BAM-TV",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://belafrikamediatv.vedge.infomaniak.com/livecast/ik:belafrikamediatv/manifest.m3u8"
+      ],
+      "tvg_id": "BAMTV.be@SD"
+    },
     "e34c91bae3923c7eb16612d6": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -61700,6 +65450,31 @@
       ],
       "tvg_id": "SonoOndaTV.ec@SD"
     },
+    "e45cd8ce8eb69fa880f20051": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "MNM (720p)"
+      ],
+      "channel_id": "e45cd8ce8eb69fa880f20051",
+      "country_code": "BE",
+      "display_name_pt": "MNM (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "MNM (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "MNM (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://live-radio-cf-vrt.akamaized.net/groupa/live/bac277a1-306d-44a0-8e2e-e5b9c07fa270/live.isml/.m3u8"
+      ],
+      "tvg_id": "MNM.be@SD"
+    },
     "e46f713aac1206fefccfb69d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -61875,6 +65650,31 @@
       ],
       "tvg_id": "FashionFinds.us@SD"
     },
+    "e502187b684c6308e62001b1": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Dmoda Channel (1080p)"
+      ],
+      "channel_id": "e502187b684c6308e62001b1",
+      "country_code": "BO",
+      "display_name_pt": "Dmoda Channel (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Dmoda Channel (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Dmoda Channel (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/dmoda/index.m3u8"
+      ],
+      "tvg_id": "DmodaChannel.bo@SD"
+    },
     "e504813023fd293641d1e53e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -61924,6 +65724,31 @@
         "https://jmp2.uk/plu-6911c9704316999535eb21cf.m3u8"
       ],
       "tvg_id": "PlutoTVNottidiPassione.de@IT"
+    },
+    "e512e8472f9a0d870a3dfe7b": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Extra TV 42 (720p)"
+      ],
+      "channel_id": "e512e8472f9a0d870a3dfe7b",
+      "country_code": "CR",
+      "display_name_pt": "Extra TV 42 (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Extra TV 42 (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Extra TV 42 (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://d2n1wzrr0aogf5.cloudfront.net/ts:abr.m3u8"
+      ],
+      "tvg_id": "ExtraTV42.cr@SD"
     },
     "e52410bae305d24dab57c69c": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -63025,6 +66850,56 @@
       ],
       "tvg_id": "LaTremendaTV.pe@TDT62"
     },
+    "ea20fd08a0b4e84b871d1402": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Tele MB (1080p)"
+      ],
+      "channel_id": "ea20fd08a0b4e84b871d1402",
+      "country_code": "BE",
+      "display_name_pt": "Tele MB (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Tele MB (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Tele MB (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/telemb/95d2f6ca-817a-48c0-aba5-6323a621c2d6/95d2f6ca-817a-48c0-aba5-6323a621c2d6.isml/master.m3u8"
+      ],
+      "tvg_id": "TeleMB.be@SD"
+    },
+    "ea2b616f76e867cdbfcc40dc": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "ESPN 6 Latin America (1080p)"
+      ],
+      "channel_id": "ea2b616f76e867cdbfcc40dc",
+      "country_code": "BO",
+      "display_name_pt": "ESPN 6 Latin America (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "ESPN 6 Latin America (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "ESPN 6 Latin America (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://barinaslive1.boldmss.com/ESPN_6/ESPN_6.isml/ESPN_6.m3u8"
+      ],
+      "tvg_id": "ESPN6LatinAmerica.us@SD"
+    },
     "ea36d2c77f0c8be1827fec58": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -63499,6 +67374,31 @@
         "https://msh0203.stream.seeweb.it/live/flv:stream2.sdp/playlist.m3u8"
       ],
       "tvg_id": "Primocanale.it@SD"
+    },
+    "eba16a7223c6b77840402165": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Tigo Sports (Bolivia) (720p) [Geo-blocked]"
+      ],
+      "channel_id": "eba16a7223c6b77840402165",
+      "country_code": "BO",
+      "display_name_pt": "Tigo Sports (Bolivia) (720p) [Geo-blocked]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Tigo Sports (Bolivia) (720p) [Geo-blocked]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Tigo Sports (Bolivia) (720p) [Geo-blocked]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://dipdxjic51jcl.cloudfront.net/out/v1/81f769d780694be488d85811331c8a4f/index.m3u8"
+      ],
+      "tvg_id": "TigoSports.bo@SD"
     },
     "ebd31f0724c162c8ec94215d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -64375,6 +68275,31 @@
       ],
       "tvg_id": "TVGolfoUraba.co@SD"
     },
+    "ee7cfb8466a50f8ad50d2094": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "VTM 3 (360p)"
+      ],
+      "channel_id": "ee7cfb8466a50f8ad50d2094",
+      "country_code": "BE",
+      "display_name_pt": "VTM 3 (360p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "VTM 3 (360p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "VTM 3 (360p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://lb.iptvnetwork.net/ls28/10037/playlist.m3u8"
+      ],
+      "tvg_id": "VTM3.be@SD"
+    },
     "eea3a7fe384e712f08997124": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -64449,6 +68374,31 @@
         "https://directes-tv-int.3catdirectes.cat/live-content/bondia-hls/master.m3u8"
       ],
       "tvg_id": "BonDiaTV.es@SD"
+    },
+    "eee9ee93751973caa5ec5202": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "EBS Kids (400p) [Not 24/7]"
+      ],
+      "channel_id": "eee9ee93751973caa5ec5202",
+      "country_code": "KR",
+      "display_name_pt": "EBS Kids (400p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "EBS Kids (400p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "EBS Kids (400p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ebsonair.ebs.co.kr/ebsufamilypc/familypc1m/playlist.m3u8"
+      ],
+      "tvg_id": "EBSKids.kr@SD"
     },
     "ef1394b3a781597035d12ceb": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -64699,6 +68649,31 @@
         "https://2-fss-1.streamhoster.com/pl_154/205722-2251224-1/playlist.m3u8"
       ],
       "tvg_id": "BizTV.us@SD"
+    },
+    "f00968d9361eadf64e2c72b9": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "SABCO Vision (720p)"
+      ],
+      "channel_id": "f00968d9361eadf64e2c72b9",
+      "country_code": "BO",
+      "display_name_pt": "SABCO Vision (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "SABCO Vision (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "SABCO Vision (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://59d39900ebfb8.streamlock.net/rytqrolive/rytqrolive/playlist.m3u8"
+      ],
+      "tvg_id": "SABCOVision.bo@SD"
     },
     "f00c2a93326b5803fb8607d5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -64975,6 +68950,31 @@
       ],
       "tvg_id": "YTSYamagataTV.jp@JOYIDTV"
     },
+    "f097d5aa2dfb3c8af1aacde7": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "HLCQ-DTV (720p) [Not 24/7]"
+      ],
+      "channel_id": "f097d5aa2dfb3c8af1aacde7",
+      "country_code": "KR",
+      "display_name_pt": "HLCQ-DTV (720p) [Not 24/7]",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "HLCQ-DTV (720p) [Not 24/7]",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "HLCQ-DTV (720p) [Not 24/7]",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://ns1.tjmbc.co.kr/live/myStream.sdp/playlist.m3u8"
+      ],
+      "tvg_id": "HLCQDTV.kr@SD"
+    },
     "f09f6bd5d93f00ef6c7e58c4": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -65074,6 +69074,31 @@
         "https://void.greenhosting.ru/MovifyKino_Mpeg4/index.m3u8"
       ],
       "tvg_id": "MovifyKino.lv@SD"
+    },
+    "f16a63da3a36e1e90e1b4872": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Tv Carigso (720p)"
+      ],
+      "channel_id": "f16a63da3a36e1e90e1b4872",
+      "country_code": "BO",
+      "display_name_pt": "Tv Carigso (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Tv Carigso (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Tv Carigso (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://183.giatvcdn.com/ssh101/ssh101/carigsotv2026/playlist.m3u8"
+      ],
+      "tvg_id": "TvCarigso.bo@SD"
     },
     "f16cb9714371014ea22fd119": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -65249,6 +69274,31 @@
         "https://filmex-filmex-xumo.amagi.tv/playlist.m3u8"
       ],
       "tvg_id": "Filmex.mx@SD"
+    },
+    "f1f09a34046c389391d9dc7e": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "NS Shop+ (720p)"
+      ],
+      "channel_id": "f1f09a34046c389391d9dc7e",
+      "country_code": "KR",
+      "display_name_pt": "NS Shop+ (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "NS Shop+ (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "NS Shop+ (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/kr.m3u"
+      ],
+      "stream_candidates": [
+        "https://shoppstream.nsmall.com/IPHONE/mobile.m3u8"
+      ],
+      "tvg_id": "NSShopPlus.kr@SD"
     },
     "f1f8f15c903b6becf08c78f6": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -65449,6 +69499,31 @@
         "https://30a-tv.com/feeds/vidaa/golf.m3u8"
       ],
       "tvg_id": "30AGolfKingdom.us@SD"
+    },
+    "f2abb5aa7f0770d3ff88bc5d": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Comedy Central (France) (720p)"
+      ],
+      "channel_id": "f2abb5aa7f0770d3ff88bc5d",
+      "country_code": "BE",
+      "display_name_pt": "Comedy Central (France) (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Comedy Central (France) (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Comedy Central (France) (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://r.eu.cdn-redge.media/livehls/oeu/mt/live/comedy_central/live.livx/playlist.m3u8"
+      ],
+      "tvg_id": "ComedyCentral.fr@SD"
     },
     "f2b46300258d4a6e2865454d": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -65724,6 +69799,31 @@
         "https://fta.ektv.in/live/681/master.m3u8"
       ],
       "tvg_id": "NENews.in@SD"
+    },
+    "f40a9de92987b1b66be613b2": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Canal 3 KMK TV (720p)"
+      ],
+      "channel_id": "f40a9de92987b1b66be613b2",
+      "country_code": "CR",
+      "display_name_pt": "Canal 3 KMK TV (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Canal 3 KMK TV (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Canal 3 KMK TV (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/cr.m3u"
+      ],
+      "stream_candidates": [
+        "https://live20.bozztv.com/giatv/giatv-KMKTV/KMKTV/chunks.m3u8"
+      ],
+      "tvg_id": "Canal3KMKTV.cr@SD"
     },
     "f428fee45870962eb22cf128": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -66124,6 +70224,31 @@
         "https://broadcast.blivenyc.com/speed/broadcast/22/desktop-playlist.m3u8"
       ],
       "tvg_id": "AKCTV.us@SD"
+    },
+    "f5de9ca18d5636e4d16fa484": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "TV Lux (Belgium) (1080p)"
+      ],
+      "channel_id": "f5de9ca18d5636e4d16fa484",
+      "country_code": "BE",
+      "display_name_pt": "TV Lux (Belgium) (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "TV Lux (Belgium) (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "TV Lux (Belgium) (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://tvlocales-live.freecaster.com/tvlux/95d2f632-0780-4ac1-9895-9e50212dd3b6/95d2f632-0780-4ac1-9895-9e50212dd3b6.isml/master.m3u8"
+      ],
+      "tvg_id": "TVLux.be@SD"
     },
     "f5e262fd9b74e81ac31369a3": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -66975,6 +71100,31 @@
       ],
       "tvg_id": "FoxNewsChannel.us@SD"
     },
+    "f9c97ac411a8caca494af9b7": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "As Contenidos (720p)"
+      ],
+      "channel_id": "f9c97ac411a8caca494af9b7",
+      "country_code": "BO",
+      "display_name_pt": "As Contenidos (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "As Contenidos (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "As Contenidos (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://master.tucableip.com/ascontenido/index.m3u8"
+      ],
+      "tvg_id": "AsContenidos.bo@SD"
+    },
     "f9e56973da07f208d70dec38": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -67024,6 +71174,31 @@
         "https://d2lk5u59tns74c.cloudfront.net/out/v1/f913cf893c594f73b114216e74a2efbc/index.m3u8"
       ],
       "tvg_id": "PTCMusic.in@SD"
+    },
+    "fa28b26de81b922d46799369": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Armenia 2 (1080p)"
+      ],
+      "channel_id": "fa28b26de81b922d46799369",
+      "country_code": "AM",
+      "display_name_pt": "Armenia 2 (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Armenia 2 (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Armenia 2 (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/am.m3u"
+      ],
+      "stream_candidates": [
+        "https://amtv.tulixcdn.com/amtv3/am3abr/index.m3u8"
+      ],
+      "tvg_id": "Armenia2.am@SD"
     },
     "fa2c7fed83a03c8f45784cc5": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -67374,6 +71549,31 @@
         "https://5ca9af4645e15.streamlock.net/nuevetv/videonuevetv/.m3u8"
       ],
       "tvg_id": "NueveTV.mx@SD"
+    },
+    "fb8e09bc6416e48b0bb41db8": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Red Rubi (720p)"
+      ],
+      "channel_id": "fb8e09bc6416e48b0bb41db8",
+      "country_code": "BO",
+      "display_name_pt": "Red Rubi (720p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Red Rubi (720p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Red Rubi (720p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://59d39900ebfb8.streamlock.net/asiesmipueblo/asiesmipueblo/playlist.m3u8"
+      ],
+      "tvg_id": "RedRubi.bo@SD"
     },
     "fbafe01ff693b3a8b02323c9": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -68100,6 +72300,31 @@
       ],
       "tvg_id": "GTCNews.in@SD"
     },
+    "fece884e6ea243c6312a5824": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "Red America TV (1080p)"
+      ],
+      "channel_id": "fece884e6ea243c6312a5824",
+      "country_code": "BO",
+      "display_name_pt": "Red America TV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "Red America TV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "Red America TV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/bo.m3u"
+      ],
+      "stream_candidates": [
+        "https://edge.enhdtv.com/redamerica/index.m3u8"
+      ],
+      "tvg_id": "RedAmericaTV.bo@SD"
+    },
     "fedd223d644a3f866bde2fcc": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -68300,6 +72525,31 @@
       ],
       "tvg_id": "CazadordeHomicidas.us@Spain"
     },
+    "ff8691ff1bb357595c332fea": {
+      "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
+      "aliases": [
+        "FomixTV (1080p)"
+      ],
+      "channel_id": "ff8691ff1bb357595c332fea",
+      "country_code": "BE",
+      "display_name_pt": "FomixTV (1080p)",
+      "first_seen": "2026-11-27",
+      "genre": "",
+      "international_name": "FomixTV (1080p)",
+      "language_codes": [],
+      "last_seen": "2026-11-27",
+      "name_provenance": "original",
+      "official_name": "",
+      "original_name": "FomixTV (1080p)",
+      "original_script": "Latin/Other",
+      "source_urls": [
+        "https://iptv-org.github.io/iptv/countries/be.m3u"
+      ],
+      "stream_candidates": [
+        "https://stream.fomixmedia.nl/FomixTV/video.m3u8"
+      ],
+      "tvg_id": "FomixTV.nl@HD"
+    },
     "ff9015c9e7fd6dd5b0bd4b4e": {
       "access_state": "REVIEW_REQUIRED_NOT_PLAYABLE",
       "aliases": [
@@ -68396,6 +72646,12 @@
       "state": "REVIEW_REQUIRED",
       "type": "repository_candidate"
     },
+    "https://gitlab.com/Monoloshka/iptv": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-27",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
     "https://gitlab.com/best-iptv11/best-iptv": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-24",
@@ -68474,6 +72730,12 @@
       "state": "REVIEW_REQUIRED",
       "type": "repository_candidate"
     },
+    "https://gitlab.com/dureshtech/iptv-landing-sites": {
+      "discovered_from": "gitlab",
+      "first_seen": "2026-11-27",
+      "state": "REVIEW_REQUIRED",
+      "type": "repository_candidate"
+    },
     "https://gitlab.com/iptv-streaming-guide-group1/iptv-evening-trials-canada": {
       "discovered_from": "gitlab",
       "first_seen": "2026-11-23",
@@ -68523,6 +72785,13 @@
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
+    "https://iptv-org.github.io/iptv/countries/am.m3u": {
+      "country": "AM",
+      "entries": 3,
+      "last_checked": "2026-11-27",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
     "https://iptv-org.github.io/iptv/countries/au.m3u": {
       "country": "AU",
       "entries": 75,
@@ -68534,6 +72803,20 @@
       "country": "BD",
       "entries": 23,
       "last_checked": "2026-11-23",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
+    "https://iptv-org.github.io/iptv/countries/be.m3u": {
+      "country": "BE",
+      "entries": 46,
+      "last_checked": "2026-11-27",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
+    "https://iptv-org.github.io/iptv/countries/bo.m3u": {
+      "country": "BO",
+      "entries": 47,
+      "last_checked": "2026-11-27",
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
@@ -68555,6 +72838,13 @@
       "country": "CO",
       "entries": 70,
       "last_checked": "2026-11-23",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
+    "https://iptv-org.github.io/iptv/countries/cr.m3u": {
+      "country": "CR",
+      "entries": 27,
+      "last_checked": "2026-11-27",
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
@@ -68628,6 +72918,13 @@
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
+    "https://iptv-org.github.io/iptv/countries/kr.m3u": {
+      "country": "KR",
+      "entries": 43,
+      "last_checked": "2026-11-27",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
     "https://iptv-org.github.io/iptv/countries/lt.m3u": {
       "country": "LT",
       "entries": 9,
@@ -68673,7 +72970,7 @@
     "https://iptv-org.github.io/iptv/countries/pg.m3u": {
       "country": "PG",
       "entries": 1,
-      "last_checked": "2026-11-23",
+      "last_checked": "2026-11-27",
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
@@ -68719,6 +73016,13 @@
       "state": "RESEARCH_ONLY",
       "type": "country_playlist"
     },
+    "https://iptv-org.github.io/iptv/countries/tn.m3u": {
+      "country": "TN",
+      "entries": 4,
+      "last_checked": "2026-11-27",
+      "state": "RESEARCH_ONLY",
+      "type": "country_playlist"
+    },
     "https://iptv-org.github.io/iptv/countries/us.m3u": {
       "country": "US",
       "entries": 550,
@@ -68740,5 +73044,5 @@
       "type": "repository_candidate"
     }
   },
-  "updated": "2026-11-26"
+  "updated": "2026-11-27"
 }

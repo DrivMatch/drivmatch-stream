@@ -1,46 +1,11 @@
 {
-  "community_candidates_research_only": 4509,
-  "curated_candidates": 6874,
-  "date_utc": "2026-11-26",
+  "community_candidates_research_only": 4496,
+  "curated_candidates": 6865,
+  "date_utc": "2026-11-27",
   "last_validation_note": "HTTP manifest and first media segment; not Samsung playback, geographical rights or license certification",
-  "not_tested_this_run": 5674,
+  "not_tested_this_run": 5665,
   "open_web_research": {
     "candidate_sources": [
-      {
-        "discovered_from": "github-new-free-tv",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/Ninken1997/Enterla-IPTV"
-      },
-      {
-        "discovered_from": "github-new-free-tv",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/OnlyBuild/saimo-tv.org"
-      },
-      {
-        "discovered_from": "github-new-free-tv",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/Lemonrealm-IPTV-Official/lemonrealm-iptv-guide"
-      },
-      {
-        "discovered_from": "github-new-free-tv",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/TommasoScalici/iptv-italy-sicily"
-      },
-      {
-        "discovered_from": "github-new-free-tv",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/bestiptvprovidersub/Free-IPTV-Playlist-M3u"
-      },
-      {
-        "discovered_from": "github-official-hls",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/znxare/free-tv-channels"
-      },
-      {
-        "discovered_from": "github-official-hls",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://github.com/Agoengwew/wew"
-      },
       {
         "discovered_from": "twitch-broadcaster-live",
         "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
@@ -49,33 +14,33 @@
     ],
     "note": "Public search results only; approval/provenance pending; not included in playable catalog",
     "pages_attempted": 7,
-    "pages_responded": 4,
+    "pages_responded": 1,
     "pages_unavailable": [
-      "reddit-legal-iptv",
-      "reddit-public-tv",
-      "youtube-official-live"
-    ],
-    "surfaces_reached": [
       "github-new-free-tv",
       "github-official-hls",
-      "youtube-free-movies",
+      "reddit-legal-iptv",
+      "reddit-public-tv",
+      "youtube-official-live",
+      "youtube-free-movies"
+    ],
+    "surfaces_reached": [
       "twitch-broadcaster-live"
     ]
   },
-  "published_added": 823,
+  "published_added": 485,
   "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
-  "published_healthy": 4010,
-  "published_removed": 1164,
-  "published_unchanged": 3187,
+  "published_healthy": 4485,
+  "published_removed": 10,
+  "published_unchanged": 4000,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
     "biskyt-open-all": 2,
-    "broadcastatlas-official": 797,
+    "broadcastatlas-official": 792,
     "coldopen-publisher": 94,
     "freecasthub": 98,
     "freetv-br": 6,
-    "freetv-main": 1462,
+    "freetv-main": 1459,
     "freetv-movies": 2,
     "freetv-news": 37,
     "freetv-pt": 14,
@@ -86,14 +51,14 @@
     "iptv-org-cl": 143,
     "iptv-org-co": 65,
     "iptv-org-de": 253,
-    "iptv-org-es": 242,
+    "iptv-org-es": 244,
     "iptv-org-fr": 195,
-    "iptv-org-in": 761,
+    "iptv-org-in": 764,
     "iptv-org-it": 275,
     "iptv-org-mx": 113,
-    "iptv-org-pt": 44,
+    "iptv-org-pt": 46,
     "iptv-org-uk": 201,
-    "iptv-org-us": 1355,
+    "iptv-org-us": 1335,
     "iptv-org-uy": 9,
     "nexonic-all": 4160,
     "nexonic-open": 4107,
@@ -105,6 +70,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 1200,
-  "tested_failed": 386,
-  "tested_ok": 814
+  "tested_failed": 384,
+  "tested_ok": 816
 }
