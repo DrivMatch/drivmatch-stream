@@ -15,7 +15,7 @@ function fixture(server=[],local=[],opts={}){
  function D(id){return nodes[id]||(nodes[id]={hidden:true,textContent:""});}
  const calls=[],ctx={
   favorites:local.slice(),favoriteMeta:{},D,T:(e,s)=>{e.textContent=s;},
-  has:(a,v)=>a.indexOf(v)>=0,drawQuickLists:()=>{},updateFavButton:()=>{},
+  has:(a,v)=>a.indexOf(v)>=0,drawQuickLists:()=>{D("favorite-count").textContent=String(ctx.favorites.length);},updateFavButton:()=>{},
   noteFavStorage:()=>{},window:{confirm:()=>opts.confirm??false},
   localStorage:{getItem:k=>storage.has(k)?storage.get(k):null,
     setItem:(k,v)=>{storage.set(k,String(v));}},
@@ -59,7 +59,8 @@ test("empty server response never deletes 153 local favorites",()=>{
  assert.equal(f.D("account-import-favorites").hidden,false);
  assert.equal(f.calls.length,1);
  assert.match(f.D("account-favorites-status").textContent,/153/);
- assert.equal(f.D("favorite-count").textContent,"0 + 153 locais");
+ assert.equal(f.D("favorite-count").textContent,"153");
+ assert.equal(f.ctx.favorites.length,153);
  assert.equal(f.storage.size,0);
 });
 test("only explicit owner consent imports 153 additively in batches of 20",()=>{
@@ -96,4 +97,13 @@ test("backend never serves a deletion request, archive/triggers are defined",()=
  assert.match(migration,/INSERT OR IGNORE INTO stream_favorites_archive/);
  assert.match(migration,/BEFORE DELETE ON stream_favorites/);
  assert.match(migration,/BEFORE UPDATE ON stream_favorites/);
+});
+
+test("136 account keys plus 116 distinct device keys are one visible list; no automatic upload",()=>{
+ const f=fixture(make(136),Array.from({length:116},(_,i)=>"BR:local-"+i));
+ f.ctx.loadAccountFavorites("user-a");
+ assert.equal(f.ctx.favorites.length,252);
+ assert.equal(f.D("favorite-count").textContent,"252");
+ assert.equal(f.db.size,136);
+ assert.equal(f.calls.filter(x=>x.method==="POST").length,0);
 });

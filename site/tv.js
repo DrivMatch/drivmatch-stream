@@ -426,9 +426,8 @@ function loadAccountFavorites(userId){
   noteAccountFav("Identidade da conta não confirmada. Nenhuma alteração de favoritos é permitida.");
   return;
  }
- if(!accountFavoritesUser)accountLegacyMeta=favoriteMeta;
+ if(!accountFavoritesUser){accountLegacyMeta=favoriteMeta;accountFavoritesLocal=favorites.slice(0);}
  accountFavoritesUser=userId;accountFavoritesReady=false;
- accountFavoritesLocal=favorites.slice(0);
  // Metadata is local and per-user; never display another user's browser names.
  favoriteMeta={};
  try{
@@ -452,7 +451,7 @@ function loadAccountFavorites(userId){
    drawQuickLists();return;
   }
   accountFavoritesReady=true;
-  favorites=fromServer;
+  favorites=fromServer.slice(0);
   accountFavoritesMissing=[];
   var owner=null;
   try{owner=localStorage.getItem(accountOwnerKey);}catch(e){}
@@ -463,25 +462,26 @@ function loadAccountFavorites(userId){
    for(var i=0;i<accountFavoritesLocal.length;i++)
     if(!has(favorites,accountFavoritesLocal[i]))
      accountFavoritesMissing.push(accountFavoritesLocal[i]);
-   if(owner===userId){
-    for(i=0;i<accountFavoritesMissing.length;i++)
-     favorites.push(accountFavoritesMissing[i]);
+   // Device-local view only: do not upload unclaimed keys to any account.
+   // A different known owner remains strictly isolated.
+   for(i=0;i<accountFavoritesMissing.length;i++){
+    var localKey=accountFavoritesMissing[i];
+    favorites.push(localKey);
+    if(owner===userId&&accountLegacyMeta[localKey]&&!favoriteMeta[localKey])
+     favoriteMeta[localKey]=accountLegacyMeta[localKey];
    }
   }
   if(owner!==null&&owner!==userId){
    noteAccountFav("Há favoritos locais associados a outra conta neste navegador. Eles não serão copiados nem apagados.");
   }else if(accountFavoritesMissing.length){
-   noteAccountFav(accountFavoritesMissing.length+" favorito(s) local(is) ainda não salvo(s) na sua conta. Clique em Vincular para preservar no servidor. Nenhum dado será excluído.");
+   noteAccountFav(accountFavoritesMissing.length+" favoritos deste aparelho já aparecem na lista. A vinculação à conta é opcional e preserva os originais.");
   }else if(!favorites.length){
    noteAccountFav("Esta conta não retornou favoritos e não há lista local vinculada confirmada. Isso NÃO prova exclusão: verifique backups e outros aparelhos. Nenhuma lista foi reinicializada.");
   }else{
    noteAccountFav("Favoritos consultados da conta ("+fromServer.length+"). Nenhuma exclusão ou substituição foi executada.");
   }
   updateAccountImport();drawQuickLists();updateFavButton();
-  if(accountFavoritesMissing.length&&owner===null)
-   T(D("favorite-count"),favorites.length+" + "+accountFavoritesMissing.length+" locais");
-  else if(!favorites.length)
-   T(D("favorite-count"),"0 (verificar)");
+  // drawQuickLists owns the one deduplicated channel count.
  });
 }
 function importLocalAccountFavorites(){
@@ -834,15 +834,7 @@ function drawQuickLists(){
   for(var d=0;d<list.length;d++)if(list[d].identity===identity){duplicate=true;break;}
   if(!duplicate){item.identity=identity;list.push(item);}
  }
- var accountCount=String(list.length);
- if(accountFavoritesReady){
-  var owner=null;
-  try{owner=localStorage.getItem(accountOwnerKey);}catch(e){}
-  if(accountFavoritesMissing.length&&owner===null)
-   accountCount+=" + "+accountFavoritesMissing.length+" locais";
-  else if(!list.length)accountCount="0 (verificar)";
- }
- T(D("favorite-count"),accountCount);
+ T(D("favorite-count"),String(list.length));
  drawQuickGroup("favorite-items",list,"favorite");
 }
 function focusQuickItem(key,kind){
@@ -1435,7 +1427,8 @@ function toggleFavorite(c){
    noteAccountFav("Alteração bloqueada: não foi possível confirmar os favoritos da conta.");
    return;
   }
-  var k=favorKey(c);
+  // Canonical channel identity is independent of a playlist/source change.
+  var k=String(c.code)+":"+lower(c.originalName||c.name);
   if(isFavorited(c)){
    noteAccountFav("Remoção temporariamente bloqueada para proteger seus favoritos. Nenhum canal foi excluído.");
    return;
@@ -1447,6 +1440,7 @@ function toggleFavorite(c){
    }
    if(!has(favorites,k))favorites.push(k);
    favoriteMeta[k]=safeSnapshot(c);
+   favoriteMeta[k].key=k;
    // Preserve display names only in account-scoped metadata. Never overwrite
    // legacy favorite lists or copy another viewer's metadata.
    try{localStorage.setItem(accountMetaPrefix+accountFavoritesUser,JSON.stringify(favoriteMeta));}catch(e){}
