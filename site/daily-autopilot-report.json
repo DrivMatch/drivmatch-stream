@@ -62,11 +62,11 @@
       "twitch-broadcaster-live"
     ]
   },
-  "published_added": 17,
+  "published_added": 5,
   "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
-  "published_healthy": 5118,
-  "published_removed": 19,
-  "published_unchanged": 5101,
+  "published_healthy": 5117,
+  "published_removed": 6,
+  "published_unchanged": 5112,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,

@@ -216,7 +216,7 @@ https://load-balancer.azotosolutions.com/cdnedge19/smil:live19.smil/playlist.m3u
 https://video03.logicahost.com.br/rfptv/rfptv/playlist.m3u8
 #EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Cancao Nova" dm-aliases="TV Cancao Nova",TV Cancao Nova
 https://5c65286fc6ace.streamlock.net/cancaonova/CancaoNova.stream_720p/playlist.m3u8
-#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Mana 1" dm-aliases="TV Mana 1",TV Mana 1
+#EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV Mana 1" dm-aliases="TV Mana 1",TV Mana 1
 https://w1.manasat.com/tvmana-1/smil:tvmana-1.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="PT" tvg-language="pt" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Mana 2" dm-aliases="TV Mana 2",TV Mana 2
 https://w1.manasat.com/tvmana-2/smil:tvmana-2.smil/playlist.m3u8
@@ -1820,7 +1820,7 @@ https://live-hls-apps-aja-fa.getaj.net/AJA/01.m3u8
 https://live-hls-web-aja.getaj.net/AJA/index.m3u8
 #EXTINF:-1 tvg-country="QA" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Al Jazeera English (1080p)" dm-aliases="Al Jazeera English (1080p)",Al Jazeera English (1080p)
 https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8
-#EXTINF:-1 tvg-country="QA" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Al Jazeera Mubasher (1080p)" dm-aliases="Al Jazeera Mubasher (1080p)",Al Jazeera Mubasher (1080p)
+#EXTINF:-1 tvg-country="QA" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Al Jazeera Mubasher (1080p)" dm-aliases="Al Jazeera Mubasher (1080p)",Al Jazeera Mubasher (1080p)
 https://live-hls-apps-ajm-fa.getaj.net/AJM/index.m3u8
 #EXTINF:-1 tvg-country="QA" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Al Jazeera Mubasher 24 (1080p)" dm-aliases="Al Jazeera Mubasher 24 (1080p)",Al Jazeera Mubasher 24 (1080p)
 https://live-hls-apps-ajm24-fa.getaj.net/AJM24/index.m3u8
@@ -2332,7 +2332,7 @@ https://pnt.janusmedia.tv/hls/pnt.m3u8
 https://stmv2.srvif.com/qtelevision/qtelevision/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Rai News 24" dm-aliases="Rai News 24",Rai News 24
 https://d3k8wzt41aflvx.cloudfront.net/RAINEWS24/Live.m3u8
-#EXTINF:-1 tvg-country="IN" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Raj News Malayalam" dm-aliases="Raj News Malayalam",Raj News Malayalam
+#EXTINF:-1 tvg-country="IN" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Raj News Malayalam" dm-aliases="Raj News Malayalam",Raj News Malayalam
 https://mumt04.tangotv.in/m18aqlK4RAJNEWSMALAYALAM/index.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="news" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Raj News Telugu" dm-aliases="Raj News Telugu",Raj News Telugu
 https://mumt04.tangotv.in/m18aqlK4RAJNEWSTELUGU/index.m3u8
@@ -2630,7 +2630,7 @@ https://shd-amg-fast.edgenextcdn.net/tx012/playlist.m3u8
 https://op-group1-densxvisionhd-1.dens.tv/h/h18/index.m3u8
 #EXTINF:-1 tvg-country="MX" tvg-language="es" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="MyTime Movie Network" dm-aliases="MyTime Movie Network",MyTime Movie Network
 https://appletree-mytime-samsungmexico.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-country="IN" tvg-language="" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Oscar Movies Bhojpuri" dm-aliases="Oscar Movies Bhojpuri",Oscar Movies Bhojpuri
+#EXTINF:-1 tvg-country="IN" tvg-language="" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Oscar Movies Bhojpuri" dm-aliases="Oscar Movies Bhojpuri",Oscar Movies Bhojpuri
 https://cdn.pishow.tv/ott/live/233/master.m3u8
 #EXTINF:-1 tvg-country="FR" tvg-language="" group-title="movies" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Persiana Series" dm-aliases="Persiana Series",Persiana Series
 https://onehls.persiana.live/hls/stream.m3u8
@@ -2970,8 +2970,10 @@ https://stream.ecable.tv/afrobeats/index.m3u8
 https://cdn.streamlane.tv/hls/aghanitv/index.m3u8
 #EXTINF:-1 tvg-country="EG" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Aghapy TV" dm-aliases="Aghapy TV",Aghapy TV
 https://5b622f07944df.streamlock.net/aghapy.tv/aghapy.smil/playlist.m3u8
-#EXTINF:-1 tvg-country="PY" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="AGR FM TV" dm-aliases="AGR FM TV",AGR FM TV
+#EXTINF:-1 tvg-country="PY" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="AGR FM TV" dm-aliases="AGR FM TV",AGR FM TV
 https://tigocloud.desdeparaguay.net/agrtv/agrtv/playlist.m3u8
+#EXTINF:-1 tvg-country="CL" tvg-language="es" group-title="education" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Agricultura TV" dm-aliases="Agricultura TV",Agricultura TV
+https://redirector.rudo.video/hls-video/ey6283je82983je9823je8jowowiekldk9838274/921tv/921tv.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Agro TV" dm-aliases="Agro TV",Agro TV
 https://restr2.bgtv.bg/agro/hls/agro.m3u8
 #EXTINF:-1 tvg-country="BG" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Agro TV" dm-aliases="Agro TV",Agro TV
@@ -3032,7 +3034,7 @@ https://imn-live.esite-lab.com/hls/iraqia-general.m3u8
 https://imn-live.esite-lab.com/hls/iraqia-kurdish.m3u8
 #EXTINF:-1 tvg-country="QA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Al Jazeera 2" dm-aliases="Al Jazeera 2",Al Jazeera 2
 https://live-hls-web-aja2-gcp.thehlive.com/AJA2/index.m3u8
-#EXTINF:-1 tvg-country="QA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Al Jazeera Arabic" dm-aliases="Al Jazeera Arabic",Al Jazeera Arabic
+#EXTINF:-1 tvg-country="QA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Al Jazeera Arabic" dm-aliases="Al Jazeera Arabic",Al Jazeera Arabic
 https://live-hls-web-aja.getaj.net/AJA/index.m3u8
 #EXTINF:-1 tvg-country="QA" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Al Jazeera English" dm-aliases="Al Jazeera English",Al Jazeera English
 https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8
@@ -3310,7 +3312,7 @@ https://58f12ffd2447a.streamlock.net/Antenna2/livestream/playlist.m3u8
 https://live-antennasud.cdn.netrw.it/antennasud/hls/ccr/antennasud/master.m3u8
 #EXTINF:-1 tvg-country="AT" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Antenne Kaernten" dm-aliases="Antenne Kaernten",Antenne Kaernten
 https://60efd7a2b4d02.streamlock.net/a_kaernten/ngrp:livestream_all/playlist.m3u8
-#EXTINF:-1 tvg-country="AT" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Antenne Steiermark" dm-aliases="Antenne Steiermark",Antenne Steiermark
+#EXTINF:-1 tvg-country="AT" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Antenne Steiermark" dm-aliases="Antenne Steiermark",Antenne Steiermark
 https://60efd7a2b4d02.streamlock.net/a_steiermark/ngrp:livestream_all/playlist.m3u8
 #EXTINF:-1 tvg-country="CL" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Antofagasta TV" dm-aliases="Antofagasta TV",Antofagasta TV
 https://unlimited6-cl.dps.live/atv/atv.smil/playlist.m3u8
@@ -3378,7 +3380,7 @@ https://master.tucableip.com/ascontenido/index.m3u8
 https://live.artidijitalmedya.com/artidijital_astv/astv/playlist.m3u8
 #EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="AS TV" dm-aliases="AS TV",AS TV
 https://s2.netstreaming.eu/astv.m3u8
-#EXTINF:-1 tvg-country="TM" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Asgabat" dm-aliases="Asgabat",Asgabat
+#EXTINF:-1 tvg-country="TM" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Asgabat" dm-aliases="Asgabat",Asgabat
 https://alpha.tv.online.tm/legacyhls/ch006.m3u8
 #EXTINF:-1 tvg-country="SA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Asharq Radio" dm-aliases="Asharq Radio",Asharq Radio
 https://svs.itworkscdn.net/asharqradiovlive/asharqradiov/playlist.m3u8
@@ -3982,7 +3984,7 @@ https://digicom.hls.iptvdc.com/motorstv/index.m3u8
 https://183.giatvcdn.com/ssh101/ssh101/canalmulti24/playlist.m3u8
 #EXTINF:-1 tvg-country="MX" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Canal Once" dm-aliases="Canal Once",Canal Once
 https://vivo.canaloncelive.tv/securepkgr3/oncemexico/playlist.m3u8
-#EXTINF:-1 tvg-country="MX" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Canal Once" dm-aliases="Canal Once",Canal Once
+#EXTINF:-1 tvg-country="MX" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Canal Once" dm-aliases="Canal Once",Canal Once
 https://vivo.canaloncelive.tv/secureoncedos/oncedigital/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Canal Once Mexico" dm-aliases="Canal Once Mexico",Canal Once Mexico
 https://vivo.canaloncelive.tv/oncedos/ngrp:pruebachunks_all/playlist.m3u8
@@ -4048,8 +4050,6 @@ https://cdn.freevisiontv.co.za/sttv/smil:ctv.stream.smil/playlist.m3u8
 https://d39g1vxj2ef6in.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod-rakuten-stitched/master.m3u8?ads.xumo_channelId=88883095
 #EXTINF:-1 tvg-country="CH" tvg-language="fr" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Carac 1" dm-aliases="Carac 1",Carac 1
 https://edge13.vedge.infomaniak.com/livecast/ik:event/manifest.m3u8
-#EXTINF:-1 tvg-country="CH" tvg-language="fr" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Carac 3" dm-aliases="Carac 3",Carac 3
-https://lfmmd.vedge.infomaniak.com/livecast/smil:lfmmd.smil/manifest.m3u8
 #EXTINF:-1 tvg-country="CH" tvg-language="fr" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Carac 4" dm-aliases="Carac 4",Carac 4
 https://edge17.vedge.infomaniak.com/livecast/ik:compack_media_1/playlist.m3u8
 #EXTINF:-1 tvg-country="AR" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Caras TV" dm-aliases="Caras TV",Caras TV
@@ -4366,7 +4366,7 @@ https://stream.pdtvhd.com/live/streams/ctv9_hd_playlist.m3u8
 https://live.legitpro.co.in/ctvnakdplus/index.m3u8
 #EXTINF:-1 tvg-country="AR" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Cumbia Mix" dm-aliases="Cumbia Mix",Cumbia Mix
 https://cloud.tvomix.com/CUMBIAMIX/index.m3u8
-#EXTINF:-1 tvg-country="TV" tvg-language="" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="CUMBIAMIX" dm-aliases="CUMBIAMIX",CUMBIAMIX
+#EXTINF:-1 tvg-country="TV" tvg-language="" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="CUMBIAMIX" dm-aliases="CUMBIAMIX",CUMBIAMIX
 https://cloud.tvomix.com/CUMBIAMIX/index.m3u8
 #EXTINF:-1 tvg-country="CZ" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Current Time TV" dm-aliases="Current Time TV",Current Time TV
 https://rfe-ingest.akamaized.net/hls/live/2033043/tvmc05/master.m3u8
@@ -4744,7 +4744,7 @@ https://r.il.cdn-redge.media/livehls/oil/calcala-live/live/channel10/live.livx/p
 https://2-fss-2.streamhoster.com/pl_138/206532-6829872-1/playlist.m3u8
 #EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Ecuador TV" dm-aliases="Ecuador TV",Ecuador TV
 https://video-eu1.streamerr.co/hls/s64029a8fdf/live.m3u8
-#EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Ecuavisa" dm-aliases="Ecuavisa",Ecuavisa
+#EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Ecuavisa" dm-aliases="Ecuavisa",Ecuavisa
 https://redirector.dps.live/hls-video/c54ac2799874375c81c1672abb700870537c5223/ecuavisa/ecuavisa.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Ecuavisa (Guayaquil)" dm-aliases="Ecuavisa (Guayaquil)",Ecuavisa (Guayaquil)
 https://dai.google.com/linear/hls/event/GyPkTVDZSXGhpOvxPK7m2g/master.m3u8
@@ -5080,7 +5080,7 @@ https://multimedia.fortalezatv.cl/video/video.m3u8
 https://stream.fortistv.com/hls/fortis-news/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Fortis TV" dm-aliases="Fortis TV",Fortis TV
 https://stream.fortistv.com/hls/fortis-news/index.m3u8
-#EXTINF:-1 tvg-country="TR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Fortuna TV" dm-aliases="Fortuna TV",Fortuna TV
+#EXTINF:-1 tvg-country="TR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Fortuna TV" dm-aliases="Fortuna TV",Fortuna TV
 https://edge.taksimbilisim.com/ftvturk/bant1/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Fox Weather" dm-aliases="Fox Weather",Fox Weather
 https://247wlive.foxweather.com/stream/index.m3u8
@@ -5206,10 +5206,6 @@ https://streams.tangotv.in/GOLDMINESBOLLYWOOD/ORIGIN/index.m3u8
 https://amg01596-gongnetworks-gong-ono-vh5f2.amagi.tv/1080p-vtt/index.m3u8
 #EXTINF:-1 tvg-country="KR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Gongyoung Home Shopping" dm-aliases="Gongyoung Home Shopping",Gongyoung Home Shopping
 https://etv.publichs.com/live5.stream/playlist.m3u8
-#EXTINF:-1 tvg-country="TW" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Good 2" dm-aliases="Good 2",Good 2
-https://live.streamingfast.net/osmflivech2.m3u8
-#EXTINF:-1 tvg-country="TW" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Good TV" dm-aliases="Good TV",Good TV
-https://live.streamingfast.net/osmflivech1.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Goodness TV" dm-aliases="Goodness TV",Goodness TV
 https://mumt07.tangotv.in/zHjX9OFlGOODNESSTV/index.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Govorit Moskva" dm-aliases="Govorit Moskva",Govorit Moskva
@@ -5370,7 +5366,7 @@ https://cdn.pishow.tv/ott/live/280/master.m3u8
 https://lo3.gemporia.com/abrhobbymakerukgfx/smil:livestreamFullHD.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="CL" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Holvoet TV" dm-aliases="Holvoet TV",Holvoet TV
 https://unlimited1-us.dps.live/holvoettv/holvoettv.smil/playlist.m3u8
-#EXTINF:-1 tvg-country="SA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Holy Quran Radio" dm-aliases="Holy Quran Radio",Holy Quran Radio
+#EXTINF:-1 tvg-country="SA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Holy Quran Radio" dm-aliases="Holy Quran Radio",Holy Quran Radio
 https://live.kwikmotion.com/sbrksaquranradiolive/srpksaquranradio/playlist.m3u8
 #EXTINF:-1 tvg-country="KR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Home & Shopping" dm-aliases="Home & Shopping",Home & Shopping
 https://s28.qtcdn.co.kr/media/liveM3U8/idx/518045142/enc/1860408350/playlist.m3u8
@@ -6214,7 +6210,7 @@ https://live.matele.be/hls/live.m3u8
 https://live.matele.be/hls/live.m3u8
 #EXTINF:-1 tvg-country="TR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="MaviKaradeniz TV" dm-aliases="MaviKaradeniz TV",MaviKaradeniz TV
 https://live.artidijitalmedya.com/artidijital_mavikaradeniz/mavikaradeniz/playlist.m3u8
-#EXTINF:-1 tvg-country="VE" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="MAX Anime" dm-aliases="MAX Anime",MAX Anime
+#EXTINF:-1 tvg-country="VE" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="MAX Anime" dm-aliases="MAX Anime",MAX Anime
 https://cdnlive.klicgo.net/maxanime/live/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Max TV" dm-aliases="Max TV",Max TV
 https://cdn.katapy.io/cache/stream/katapytv/dieu/playlist.m3u8
@@ -6530,7 +6526,7 @@ https://streaming.televizor-24-tochka.ru/live/618.m3u8
 https://5cf4a2c2512a2.streamlock.net/tvmuzangala/tvmuzangala/playlist.m3u8
 #EXTINF:-1 tvg-country="UA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Muzvar" dm-aliases="Muzvar",Muzvar
 https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8
-#EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Muzyka Kino" dm-aliases="Muzyka Kino",Muzyka Kino
+#EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Muzyka Kino" dm-aliases="Muzyka Kino",Muzyka Kino
 https://kino-1.catcast.tv/content/37739/index.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Muzyka Pervogo" dm-aliases="Muzyka Pervogo",Muzyka Pervogo
 https://stream8.cinerama.uz/1201/tracks-v1a1/mono.m3u8
@@ -6722,7 +6718,7 @@ https://svs.itworkscdn.net/noursatenglive/noursateng.smil/playlist.m3u8
 https://r.eu.cdn-redge.media/livehls/oeu/mt/live/novo_19/live.livx/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Novosadska TV" dm-aliases="Novosadska TV",Novosadska TV
 https://live.novosadska.tv/hls/mystream.m3u8
-#EXTINF:-1 tvg-country="RS" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Novosadska TV" dm-aliases="Novosadska TV",Novosadska TV
+#EXTINF:-1 tvg-country="RS" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Novosadska TV" dm-aliases="Novosadska TV",Novosadska TV
 https://live.novosadska.tv/hls/mystream.m3u8
 #EXTINF:-1 tvg-country="TR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="NOW" dm-aliases="NOW",NOW
 https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv_720p.m3u8
@@ -6858,6 +6854,8 @@ https://hlslive.olidigital.in/olitv/olitv/index.m3u8
 https://v4.tustreaming.cl/retroplaytv/index.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="OM TV" dm-aliases="OM TV",OM TV
 https://samitaorigin.tangotv.in/OMTV/SAMITAORIGIN/index.m3u8
+#EXTINF:-1 tvg-country="OM" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Oman TV" dm-aliases="Oman TV",Oman TV
+https://partneta.cdn.mgmlcdn.com/omantv/smil:omantv.stream.smil/chunklist.m3u8
 #EXTINF:-1 tvg-country="OM" tvg-language="" group-title="education" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Oman TV Cultural" dm-aliases="Oman TV Cultural",Oman TV Cultural
 https://partwota.cdn.mgmlcdn.com/omcultural/smil:omcultural.stream.smil/chunklist.m3u8
 #EXTINF:-1 tvg-country="OM" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Oman TV Mubashir" dm-aliases="Oman TV Mubashir",Oman TV Mubashir
@@ -7392,7 +7390,7 @@ https://tv.webmedialive.com/fiestatv/live/playlist.m3u8
 https://v1.tustreaming.cl/frecuencia1tv/index.m3u8
 #EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Radio Fx Net" dm-aliases="Radio Fx Net",Radio Fx Net
 https://streamlov.alsolnet.com/radiofxnet/live/playlist.m3u8
-#EXTINF:-1 tvg-country="TV" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Radio Galega" dm-aliases="Radio Galega",Radio Galega
+#EXTINF:-1 tvg-country="TV" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Radio Galega" dm-aliases="Radio Galega",Radio Galega
 https://crtvg-mirarg-schlive.flumotion.cloud/crtvglive/smil:channel1PRG.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="RS" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Radio Hit FM TV" dm-aliases="Radio Hit FM TV",Radio Hit FM TV
 https://peer2.tdiradio.com/static/streaming-playlists/hls/bab99862-ec1c-474f-9a02-4f8c8677d565/0.m3u8
@@ -7474,7 +7472,7 @@ https://tvd-rit80.fluid.stream/Ritmo80TV/livestream/playlist.m3u8
 https://media.3netmedia.ro/hls/stream.m3u8
 #EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Radio Romania Antena Satelor" dm-aliases="Radio Romania Antena Satelor",Radio Romania Antena Satelor
 https://stream3.srr.ro/live/antenasatelor/chunklist_w1642210843.m3u8
-#EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Radio Romania Iasi" dm-aliases="Radio Romania Iasi",Radio Romania Iasi
+#EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Radio Romania Iasi" dm-aliases="Radio Romania Iasi",Radio Romania Iasi
 https://stream3.srr.ro/live/radio-iasi/chunklist_w1565024915.m3u8
 #EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Radio Romania Oltenia-Craiova" dm-aliases="Radio Romania Oltenia-Craiova",Radio Romania Oltenia-Craiova
 https://stream3.srr.ro/live/Radio-Oltenia/chunklist_w1200239883.m3u8
@@ -7588,7 +7586,7 @@ https://online-video.rbc.ru/spb/rbctv_spb.m3u8
 https://copacoradios.desdeparaguay.net/rcctv/rcctv/playlist.m3u8?admin=nacion
 #EXTINF:-1 tvg-country="CO" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="RCN Novelas" dm-aliases="RCN Novelas",RCN Novelas
 https://stream1.bitred.cl/rcn-novelas/index.m3u8
-#EXTINF:-1 tvg-country="HN" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="RCV TV" dm-aliases="RCV TV",RCV TV
+#EXTINF:-1 tvg-country="HN" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="RCV TV" dm-aliases="RCV TV",RCV TV
 https://59d39900ebfb8.streamlock.net/rcv/rcv/playlist.m3u8
 #EXTINF:-1 tvg-country="DO" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="RDN" dm-aliases="RDN",RDN
 https://edge.essastream.com/rdntv/tracks-v1a1/mono.m3u8
@@ -7716,7 +7714,7 @@ https://edge12.vedge.infomaniak.com/livecast/ik:livehautetension/manifest.m3u8
 https://common01.todostreaming.es/live/ribera-livestream.m3u8
 #EXTINF:-1 tvg-country="DE" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="RiC" dm-aliases="RiC",RiC
 https://rictv.iptv-playoutcenter.de/rictv/rictv-web/playlist.m3u8
-#EXTINF:-1 tvg-country="TT" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Riddim & Hope TV" dm-aliases="Riddim & Hope TV",Riddim & Hope TV
+#EXTINF:-1 tvg-country="TT" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Riddim & Hope TV" dm-aliases="Riddim & Hope TV",Riddim & Hope TV
 https://6zklxwavdw9b-hls-live.5centscdn.com/RIDDIMNHOPE/0954119dc19d9003dd5f4bb37b3f559e.sdp/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Riddim & Hope TV" dm-aliases="Riddim & Hope TV",Riddim & Hope TV
 https://6zklxwavdw9b-hls-live.5centscdn.com/RIDDIMNHOPE/0954119dc19d9003dd5f4bb37b3f559e.sdp/playlist.m3u8
@@ -7852,6 +7850,8 @@ https://59d39900ebfb8.streamlock.net/rytqrolive/rytqrolive/chunklist.m3u8
 https://pluslive.rtrs.tv/plus/plus/playlist.m3u8
 #EXTINF:-1 tvg-country="BA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="RTRS PLUS Ⓢ" dm-aliases="RTRS PLUS Ⓢ",RTRS PLUS Ⓢ
 https://pluslive.rtrs.tv/plus/plus/playlist.m3u8
+#EXTINF:-1 tvg-country="BA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="RTRS TV" dm-aliases="RTRS TV",RTRS TV
+https://uzivo.rtrs.tv/tv/live/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="RTRTV" dm-aliases="RTRTV",RTRTV
 https://tv3ecuador.site/hls/stream/index.m3u8
 #EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="RTRTV" dm-aliases="RTRTV",RTRTV
@@ -7918,7 +7918,7 @@ https://ruv-web-live.akamaized.net/streymi/ruverl/ruverl.m3u8
 https://ruvlive.akamaized.net/out/v1/2ff7673de40f419fa5164498fae89089/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="RÚV Islandia" dm-aliases="RÚV Islandia",RÚV Islandia
 https://ruv-web-live.akamaized.net/streymi/ruverl/ruverl.m3u8
-#EXTINF:-1 tvg-country="RW" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Rwanda TV" dm-aliases="Rwanda TV",Rwanda TV
+#EXTINF:-1 tvg-country="RW" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Rwanda TV" dm-aliases="Rwanda TV",Rwanda TV
 https://5c46fa289c89f.streamlock.net/rtv25/rtv/playlist.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Ryzhiy" dm-aliases="Ryzhiy",Ryzhiy
 https://stream8.cinerama.uz/1407/tracks-v1a1/mono.m3u8
@@ -8382,7 +8382,7 @@ https://lotus.stingray.com/manifest/ose-317ads-montreal/samsungtvplus/master.m3u
 https://lotus.stingray.com/manifest/ose-317ads-montreal/samsungtvplus/master.m3u8
 #EXTINF:-1 tvg-country="MA" tvg-language="fr" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="StoryChannel TV" dm-aliases="StoryChannel TV",StoryChannel TV
 https://136044159.r.cdnsun.net/storychannel.m3u8
-#EXTINF:-1 tvg-country="TH" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="STOU Channel" dm-aliases="STOU Channel",STOU Channel
+#EXTINF:-1 tvg-country="TH" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="STOU Channel" dm-aliases="STOU Channel",STOU Channel
 https://stream1.stou.ac.th/live/stou_720p/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="STOU Channel" dm-aliases="STOU Channel",STOU Channel
 https://stream1.stou.ac.th/live/stou_720p/playlist.m3u8
@@ -9099,6 +9099,8 @@ https://live.prostream.al/al/smil:tropojatv.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TRSP Tele Radio San Pietro" dm-aliases="TRSP Tele Radio San Pietro",TRSP Tele Radio San Pietro
 https://5a1178b42cc03.streamlock.net/trsptv/trsptv/playlist.m3u8
 #EXTINF:-1 tvg-country="GR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TRT" dm-aliases="TRT",TRT
+https://av.hellasnet.tv/rst/trt/main_stream.m3u8
+#EXTINF:-1 tvg-country="GR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TRT" dm-aliases="TRT",TRT
 https://av.hellasnet.tv/rst/trt/index.m3u8
 #EXTINF:-1 tvg-country="TR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TRT Çocuk" dm-aliases="TRT Çocuk",TRT Çocuk
 https://tv-trtcocuk.medya.trt.com.tr/master.m3u8
@@ -9284,7 +9286,7 @@ https://master.tucableip.com/tvlatina/index.m3u8
 https://6110f70ea8d0e.streamlock.net/1838/1838/playlist.m3u8
 #EXTINF:-1 tvg-country="MX" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Lobo" dm-aliases="TV Lobo",TV Lobo
 https://5ca9af4645e15.streamlock.net/lobodurango/videolobodurango/playlist.m3u8
-#EXTINF:-1 tvg-country="SK" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="TV Lux" dm-aliases="TV Lux",TV Lux
+#EXTINF:-1 tvg-country="SK" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV Lux" dm-aliases="TV Lux",TV Lux
 https://stream.tvlux.sk/luxtv/luxtv-livestream/chunklist_w617812057.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="religion" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Luz" dm-aliases="TV Luz",TV Luz
 https://host.streamingnation.live/p/3780/live/tvluzlive.m3u8
@@ -9338,8 +9340,6 @@ https://edge-rs-01.maksnet.tv/tvpirot/uzivo/playlist.m3u8
 https://live.mariatvcdn.com/tvprato/2db0dd5674586686a867ec52c3aa8e06.sdp/index.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Tv Prato" dm-aliases="Tv Prato",Tv Prato
 https://live.mariatvcdn.com/tvprato/2db0dd5674586686a867ec52c3aa8e06.sdp/mono.m3u8
-#EXTINF:-1 tvg-country="AR" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV Publica Fueguina" dm-aliases="TV Publica Fueguina",TV Publica Fueguina
-https://nd106.republicaservers.com/hls/c8094/index.m3u8
 #EXTINF:-1 tvg-country="CA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Punjab" dm-aliases="TV Punjab",TV Punjab
 https://932y483pdjv8-hls-live.5centscdn.com/stream/deb10bae362f810630ec3abedcae5894.sdp/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Tv Qui Modena" dm-aliases="Tv Qui Modena",Tv Qui Modena
@@ -9362,6 +9362,8 @@ https://tv.tvsb.bg/112.m3u8
 https://gjirafa-video-live.gjirafa.net/gjvideo-live/xej-xnb-ba0-kup/index.m3u8
 #EXTINF:-1 tvg-country="ID" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Tabalong" dm-aliases="TV Tabalong",TV Tabalong
 https://5bf7b725107e5.streamlock.net/tvtabalong/tvtabalong/playlist.m3u8
+#EXTINF:-1 tvg-country="CL" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV UCT" dm-aliases="TV UCT",TV UCT
+https://unlimited1-us.dps.live/uct/uct.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="MX" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="TV UG" dm-aliases="TV UG",TV UG
 https://5ca3e84a76d30.streamlock.net/universidadgto/videouniversidadgto/playlist.m3u8
 #EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV Universal Ecuador" dm-aliases="TV Universal Ecuador",TV Universal Ecuador
@@ -9774,8 +9776,6 @@ https://sincerecloud.stream/loadbalancer/public/J9EmQQGf.m3u8
 https://live.artidijitalmedya.com/artidijital_van65/van65/playlist.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Vanitha TV" dm-aliases="Vanitha TV",Vanitha TV
 https://mumt01.tangotv.in/O5aw8Zn3VANITHA/index.m3u8
-#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Classic" dm-aliases="Vantage Classic",Vantage Classic
-https://hls.vantagetv.ee/vclassic_stream/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Vantage Classic" dm-aliases="Vantage Classic",Vantage Classic
 https://hls.vantagetv.ee/vclassic_stream/index.m3u8
 #EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Dance" dm-aliases="Vantage Dance",Vantage Dance
@@ -10168,8 +10168,6 @@ https://5f1af61612fb5.streamlock.net/genteopa/videogenteopa_720p/playlist.m3u8
 https://live.mediacdn.ru/sr1/arhis24/playlist_hdhigh.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Астрахан 24" dm-aliases="Астрахан 24 | Astrakhan 24",Astrakhan 24
 https://streaming.astrakhan.ru/astrakhan24/playlist.m3u8
-#EXTINF:-1 tvg-country="BY" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Беларусь 1" dm-aliases="Беларусь 1 | Belarus 1",Belarus 1
-https://edge55.dc.beltelecom.by/ngtrk/smil:belarus1.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="BY" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Беларусь 24" dm-aliases="Беларусь 24 | Belarus 24",Belarus 24
 https://edge55.dc.beltelecom.by/ngtrk/smil:belarus24.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="BY" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Беларусь 3" dm-aliases="Беларусь 3 | Belarus 3",Belarus 3
@@ -10204,7 +10202,7 @@ https://cdn15.live-tv.cloud/ua_infinitas_tv/pixel-abr/playlist.m3u8
 https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Россия-Культура Ⓢ" dm-aliases="Россия-Культура Ⓢ | Rossiya-Kultura Ⓢ",Rossiya-Kultura Ⓢ
 https://live.smotrim.ru/vgtrk/0/kultura-hd/index.m3u8
-#EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Смотрим: Честный Детектив" dm-aliases="Смотрим: Честный Детектив | Smotrim: Chestnyy Detektiv",Smotrim: Chestnyy Detektiv
+#EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Смотрим: Честный Детектив" dm-aliases="Смотрим: Честный Детектив | Smotrim: Chestnyy Detektiv",Smotrim: Chestnyy Detektiv
 https://live-vgtrksmotrim.cdnvideo.ru/vgtrksmotrim/smotrim-live-01.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Соловьёв Live" dm-aliases="Соловьёв Live | Solovyov Live",Solovyov Live
 https://stream.smotrim.ru/hls/solovievlive/playlist.m3u8?entity=channel&id=292&sign=83652f1317ad220efe74a7606d9a7f37
