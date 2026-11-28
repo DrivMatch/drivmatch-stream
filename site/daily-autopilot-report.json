@@ -42,11 +42,6 @@
         "url": "https://github.com/Agoengwew/wew"
       },
       {
-        "discovered_from": "youtube-free-movies",
-        "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
-        "url": "https://youtube.com/@FreeMoviesByCONtv"
-      },
-      {
         "discovered_from": "twitch-broadcaster-live",
         "state": "REVIEW_REQUIRED_NOT_PLAYABLE",
         "url": "https://twitch.tv/oss"
@@ -67,11 +62,11 @@
       "twitch-broadcaster-live"
     ]
   },
-  "published_added": 6,
+  "published_added": 3,
   "published_delta_basis": "exact EXTINF metadata plus stream URL; URL change counts as exit and entry",
-  "published_healthy": 5118,
+  "published_healthy": 5116,
   "published_removed": 5,
-  "published_unchanged": 5112,
+  "published_unchanged": 5113,
   "schema": 1,
   "source_counts": {
     "biskyt-open": 2,
@@ -110,6 +105,6 @@
   "sources_total": 30,
   "state": "COMPLETED",
   "tested": 1200,
-  "tested_failed": 361,
-  "tested_ok": 839
+  "tested_failed": 363,
+  "tested_ok": 837
 }

@@ -51,7 +51,6 @@
     "github:kids": "HTTPError",
     "github:movies": "HTTPError",
     "github:music": "HTTPError",
-    "github:sports": "HTTPError",
     "youtube": "ValueError"
   },
   "multilingual_searches": [
@@ -86,8 +85,9 @@
       "status": "OK"
     },
     {
+      "found": 0,
       "provider": "github:sports",
-      "status": "UNAVAILABLE"
+      "status": "OK"
     },
     {
       "provider": "github:movies",
@@ -146,7 +146,7 @@
   },
   "scheduled_local": "02:00 America/Sao_Paulo",
   "schema": 1,
-  "started_at_utc": "2026-11-28T14:12:55.190637+00:00",
+  "started_at_utc": "2026-11-28T14:26:41.909933+00:00",
   "state": "PARTIAL",
   "total_research_channels": 3205,
   "total_sources_recorded": 76
