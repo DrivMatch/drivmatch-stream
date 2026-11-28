@@ -2530,8 +2530,8 @@ https://sportsitalia-samsungitaly.amagi.tv/playlist.m3u8
 https://sportsitalia-samsungitaly.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="it" group-title="sports" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Sportitalia Solocalcio" dm-aliases="Sportitalia Solocalcio",Sportitalia Solocalcio
 https://italiansport-solocalcio-samsung.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-country="IT" tvg-language="" group-title="sports" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Sportitalia SOLOCALCIO Ⓖ" dm-aliases="Sportitalia SOLOCALCIO Ⓖ",Sportitalia SOLOCALCIO Ⓖ
-https://distribution.sportitalialive.it/sportitalia/sisolocalcio_abr/playlist.m3u8
+#EXTINF:-1 tvg-country="RU" tvg-language="" group-title="sports" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Sportivnyy" dm-aliases="Sportivnyy",Sportivnyy
+https://live-3.otcnet.ru/sportivny/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="sports" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="SportsGrid" dm-aliases="SportsGrid",SportsGrid
 https://sportsgrid-tribal.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="sports" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Stadium USA" dm-aliases="Stadium USA",Stadium USA
@@ -3938,6 +3938,8 @@ https://unlimited6-cl.dps.live/c9/c9.smil/playlist.m3u8
 https://video2.lhdserver.es/canal9cosespu/live.m3u8
 #EXTINF:-1 tvg-country="UY" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Canal ALMA" dm-aliases="Canal ALMA",Canal ALMA
 https://stmv1.voxtvhd.com.br/canalalmatv/canalalmatv/playlist.m3u8
+#EXTINF:-1 tvg-country="CH" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Canal Alpha Neuchatel" dm-aliases="Canal Alpha Neuchatel",Canal Alpha Neuchatel
+https://canalalpha.vedge.infomaniak.com/livecast/ik:canalalpha/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Canal C del Zulia" dm-aliases="Canal C del Zulia",Canal C del Zulia
 https://calm-forest-3478.cristianbracho904.workers.dev/master.m3u8
 #EXTINF:-1 tvg-country="DO" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Canal Catorce" dm-aliases="Canal Catorce",Canal Catorce
@@ -5206,6 +5208,8 @@ https://streams.tangotv.in/GOLDMINESBOLLYWOOD/ORIGIN/index.m3u8
 https://amg01596-gongnetworks-gong-ono-vh5f2.amagi.tv/1080p-vtt/index.m3u8
 #EXTINF:-1 tvg-country="KR" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Gongyoung Home Shopping" dm-aliases="Gongyoung Home Shopping",Gongyoung Home Shopping
 https://etv.publichs.com/live5.stream/playlist.m3u8
+#EXTINF:-1 tvg-country="TW" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Good 2" dm-aliases="Good 2",Good 2
+https://live.streamingfast.net/osmflivech2.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Goodness TV" dm-aliases="Goodness TV",Goodness TV
 https://mumt07.tangotv.in/zHjX9OFlGOODNESSTV/index.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Govorit Moskva" dm-aliases="Govorit Moskva",Govorit Moskva
@@ -6964,8 +6968,6 @@ https://edge.essastream.com/orbittv/index.m3u8
 https://edge.essastream.com/orbittv/index.m3u8
 #EXTINF:-1 tvg-country="AT" tvg-language="de" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="ORF 1" dm-aliases="ORF 1",ORF 1
 https://test02.mdn.ors.at/orf/orf1/qxa/manifest.m3u8
-#EXTINF:-1 tvg-country="CO" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Origen Channel" dm-aliases="Origen Channel",Origen Channel
-https://play.cdn.enetres.net/6E5C615AA5FF4123ACAF0DAB57B7B8DC022/022/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Orler Tv" dm-aliases="Orler Tv",Orler Tv
 https://w1.mediastreaming.it/orlertv/livestream/playlist.m3u8
 #EXTINF:-1 tvg-country="EC" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Oromar TV+" dm-aliases="Oromar TV+",Oromar TV+
@@ -8224,6 +8226,8 @@ https://sltwohls.wns.live/hls/stream.m3u8
 https://budapest-cache-1.antik.sk/live/slager/index.m3u8
 #EXTINF:-1 tvg-country="NL" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Sleutelstad TV" dm-aliases="Sleutelstad TV",Sleutelstad TV
 https://video-eu1.streamerr.co/hls/s7fdeb27a49/live.m3u8
+#EXTINF:-1 tvg-country="RO" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Smart Radio" dm-aliases="Smart Radio",Smart Radio
+https://streamw.m.ro/Regie/radio.stream/chunklist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Smash Radio TT" dm-aliases="Smash Radio TT",Smash Radio TT
 https://nginx.smashradiott.com/hls/program/master.m3u8
 #EXTINF:-1 tvg-country="TT" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Smash Radio TT" dm-aliases="Smash Radio TT",Smash Radio TT
@@ -9340,6 +9344,8 @@ https://edge-rs-01.maksnet.tv/tvpirot/uzivo/playlist.m3u8
 https://live.mariatvcdn.com/tvprato/2db0dd5674586686a867ec52c3aa8e06.sdp/index.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Tv Prato" dm-aliases="Tv Prato",Tv Prato
 https://live.mariatvcdn.com/tvprato/2db0dd5674586686a867ec52c3aa8e06.sdp/mono.m3u8
+#EXTINF:-1 tvg-country="AR" tvg-language="es" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="TV Publica Fueguina" dm-aliases="TV Publica Fueguina",TV Publica Fueguina
+https://nd106.republicaservers.com/hls/c8094/index.m3u8
 #EXTINF:-1 tvg-country="CA" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="TV Punjab" dm-aliases="TV Punjab",TV Punjab
 https://932y483pdjv8-hls-live.5centscdn.com/stream/deb10bae362f810630ec3abedcae5894.sdp/playlist.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Tv Qui Modena" dm-aliases="Tv Qui Modena",Tv Qui Modena
@@ -9776,13 +9782,11 @@ https://sincerecloud.stream/loadbalancer/public/J9EmQQGf.m3u8
 https://live.artidijitalmedya.com/artidijital_van65/van65/playlist.m3u8
 #EXTINF:-1 tvg-country="IN" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Vanitha TV" dm-aliases="Vanitha TV",Vanitha TV
 https://mumt01.tangotv.in/O5aw8Zn3VANITHA/index.m3u8
+#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Classic" dm-aliases="Vantage Classic",Vantage Classic
+https://hls.vantagetv.ee/vclassic_stream/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-27" dm-original-name="Vantage Classic" dm-aliases="Vantage Classic",Vantage Classic
 https://hls.vantagetv.ee/vclassic_stream/index.m3u8
-#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Dance" dm-aliases="Vantage Dance",Vantage Dance
-https://hls.vantagetv.ee/vdance_stream/main_stream.m3u8
-#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="music" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Music" dm-aliases="Vantage Music",Vantage Music
-https://hls.vantagetv.ee/vmusic_stream/main_stream.m3u8
-#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Vantage Rock" dm-aliases="Vantage Rock",Vantage Rock
+#EXTINF:-1 tvg-country="EE" tvg-language="en" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Vantage Rock" dm-aliases="Vantage Rock",Vantage Rock
 https://hls.vantagetv.ee/vrock_stream/index.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Vantage TV" dm-aliases="Vantage TV",Vantage TV
 https://hls.vantagetv.ee/vmusic_stream/index.m3u8
@@ -10172,8 +10176,6 @@ https://streaming.astrakhan.ru/astrakhan24/playlist.m3u8
 https://edge55.dc.beltelecom.by/ngtrk/smil:belarus24.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="BY" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Беларусь 3" dm-aliases="Беларусь 3 | Belarus 3",Belarus 3
 https://edge55.dc.beltelecom.by/ngtrk/smil:belarus3.smil/playlist.m3u8
-#EXTINF:-1 tvg-country="BY" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-28" dm-original-name="Беларусь 5" dm-aliases="Беларусь 5 | Belarus 5",Belarus 5
-https://edge55.dc.beltelecom.by/ngtrk/smil:belarus5.smil/playlist.m3u8
 #EXTINF:-1 tvg-country="OTHER" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="БНР – Радио Благоевград" dm-aliases="БНР – Радио Благоевград | BNR – Radio Blagoevgrad",BNR – Radio Blagoevgrad
 https://lb-hls.cdn.bg/2032/fls/Blagoevgrad.stream/playlist.m3u8
 #EXTINF:-1 tvg-country="RU" tvg-language="" group-title="other" dm-source="lista-12" dm-auto-checked="2026-11-26" dm-original-name="Вести ФМ" dm-aliases="Вести ФМ | Vesti FM",Vesti FM
